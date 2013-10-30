@@ -1,0 +1,19 @@
+include includes/head
+body
+  #wrap
+    .container.text-center
+      .row
+        .hero-unit
+          h1 Southampton
+          h1 Web Observatory
+      .row
+        form#singup(method="POST", action="/signup")
+          fieldset
+            div
+              input.input-large(placeholder='Input your email' type='text', name='email')
+            div
+              input.input-large(placeholder='Input your password' type='password', name='password')
+            div
+              button.btn(type="submit") Sign Up
+      #push
+  include includes/footer

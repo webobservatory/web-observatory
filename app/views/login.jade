@@ -1,0 +1,26 @@
+include includes/head
+body
+  #wrap
+    .container.text-center
+      .row
+        .hero-unit
+          h1 Southampton
+          h1 Web Observatory
+      .row
+        form(action='/login', method='post')
+          fieldset
+            div
+                input.input-large(placeholder='Email' type='text', name='email')
+            div
+                input.input-large(placeholder='Password' type='password', name='password')
+            div
+                button.btn(type='submit') Login
+      .row
+        //a(href="/auth/facebook") Log In With Facebook
+        a(href='/auth/soton') Log In With Soton Account
+        br
+        | or 
+        a(href='/signup') Sign Up 
+        br
+      #push
+  include includes/footer

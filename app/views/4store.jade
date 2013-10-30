@@ -1,0 +1,127 @@
+!!! 5
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    title Southampton Web Observatory
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    meta(name='description', content='')
+    meta(name='author', content='')
+    // Le styles
+    link(href='../assets/css/bootstrap.css', rel='stylesheet')
+    style(type='text/css')
+      /* Sticky footer styles
+      -------------------------------------------------- */
+      html,
+      body {
+      height: 100%;
+      /* The html and body elements cannot have any padding or margin. */
+      }
+      /* Wrapper for page content to push down footer */
+      #wrap {
+      min-height: 100%;
+      height: auto !important;
+      height: 100%;
+      /* Negative indent footer by it's height */
+      margin: 0 auto -60px;
+      }
+      /* Set the fixed height of the footer here */
+      #push,
+      #footer {
+      height: 60px;
+      }
+      #footer {
+      background-color: #f5f5f5;
+      }
+      /* Lastly, apply responsive CSS fixes as necessary */
+      @media (max-width: 767px) {
+      #footer {
+      margin-left: -20px;
+      margin-right: -20px;
+      padding-left: 20px;
+      padding-right: 20px;
+      }
+      }
+      /* Custom page CSS
+      -------------------------------------------------- */
+      /* Not required for template or sticky footer method. */
+      #wrap > .container {
+      padding-top: 60px;
+      }
+      .container .credit {
+      margin: 20px 0;
+      }
+      code {
+      font-size: 80%;
+      }
+      input {width: auto;}
+    link(href='../assets/css/bootstrap-responsive.css', rel='stylesheet')
+    link(href='../assets/css/jquery.dataTables.css', rel='stylesheet')
+    // HTML5 shim, for IE6-8 support of HTML5 elements
+    //if lt IE 9
+      script(src='../assets/js/html5shiv.js')
+    // Fav and touch icons
+    link(rel='apple-touch-icon-precomposed', sizes='144x144', href='../assets/ico/apple-touch-icon-144-precomposed.png')
+    link(rel='apple-touch-icon-precomposed', sizes='114x114', href='../assets/ico/apple-touch-icon-114-precomposed.png')
+    link(rel='apple-touch-icon-precomposed', sizes='72x72', href='../assets/ico/apple-touch-icon-72-precomposed.png')
+    link(rel='apple-touch-icon-precomposed', href='../assets/ico/apple-touch-icon-57-precomposed.png')
+    link(rel='shortcut icon', href='../assets/ico/favicon.png')
+  body
+    #nav
+    #wrap
+      .container
+        .row
+          pre#prefixestext.well.
+            \n             
+        .row
+          textarea#querytext.span5(name='query', rows='5')
+            | INSERT DATA &lcub;GRAPH
+            http:(wo.ecs.soton.ac.uk='', test='')
+              | &lcub;
+              | &period;&period;&period;
+              | &rcub; &rcub;
+          br
+          form#queryform(action='http://spr-001.ecs.soton.ac.uk:8000/update/', method='post')
+            input#query(type='hidden', name='update')
+          button.btn.btn-primary(type='button', onclick='submitQuery()') Go
+      #push
+    #footer
+    script(src='../assets/js/jquery-1.10.2.js')
+    script(src='../assets/js/bootstrap.min.js')
+    script(src='../assets/js/jquery.dataTables.js')
+    script(src='../assets/js/underscore-min.js')
+    script
+      var namespaces = {
+      'http://www.w3.org/2002/07/owl#': 'owl',
+      'http://www.w3.org/2001/XMLSchema#': 'xsd',
+      'http://www.w3.org/2000/01/rdf-schema#': 'rdfs',
+      'http://www.w3.org/1999/02/22-rdf-syntax-ns#': 'rdf',
+      'http://xmlns.com/foaf/0.1/': 'foaf',
+      'http://purl.org/dc/elements/1.1/': 'dc',
+      'http://dbpedia.org/resource/': '',
+      'http://dbpedia.org/property/': 'dbpedia2',
+      'http://dbpedia.org/': 'dbpedia',
+      'http://www.w3.org/2004/02/skos/core#': 'skos'
+      };
+      function toPrefixes(namespaces) {
+      var result = '';
+      for (var uri in namespaces) {
+      result += 'PREFIX ' + namespaces[uri] + ': <' + uri + '>\\n';
+      }
+      return result;
+      }
+      function setPrefixesText(prefixes) {
+      document.getElementById('prefixestext').appendChild(
+      document.createTextNode(prefixes));
+      }
+      var domain="http://spr-001.ecs.soton.ac.uk:8000/";
+      function submitQuery() {
+      var qstr = toPrefixes(namespaces) + $('#querytext').val();
+      $("#query").val(qstr);
+      $("#queryform").submit();
+      }
+      function success() {
+      alert("data added");
+      }
+      setPrefixesText(toPrefixes(namespaces));
+      $("#nav").load("nav.html");
+      $("#footer").load("footer.html");

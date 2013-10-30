@@ -1,0 +1,15 @@
+!!! 5
+html(lang='en')
+  include includes/head
+  body
+    include includes/nav
+    #wrap
+      .container
+        if user.username
+          h1 #{user.username}'s Profile
+        else
+          h1 #{user.email}'s Profile
+
+        a(href="/logout") Logout
+      #push
+    include includes/footer

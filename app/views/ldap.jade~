@@ -1,0 +1,6 @@
+form(id="ldap", method="POST", action="/auth/soton")
+    lable(for='usrname') User Name
+    input#email(type='text', name='username')
+    lable(for='password') Password
+    input#password(type='password', name='password')
+    input(type="submit", value="Log In")

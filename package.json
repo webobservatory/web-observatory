@@ -1,0 +1,23 @@
+{
+  "name": "Authentication",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "connect-flash": "*",
+    "express": "3.1.0",
+    "jade": "*",
+    "connect-ensure-login": "*",
+    "sparql-client": "*",
+    "mongodb": "*",
+    "nodemon": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "passport-facebook": "*",
+    "passport-ldapauth": "*",
+    "mongoose": "~3.6.4",
+    "xml2js": "*"
+  }
+}

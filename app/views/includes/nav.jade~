@@ -1,0 +1,41 @@
+.navbar.navbar-inverse.navbar-fixed-top
+  .navbar-inner
+    .container
+      button.btn.btn-navbar(type='button', data-toggle='collapse', data-target='.nav-collapse')
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      a.brand.click(href='#')
+        | Web Observatory&colon;
+        span#location
+      .nav-collapse.collapse
+        ul.nav
+          li.active
+            a.click(href='wo/index') Home
+          li
+            a(href='#about') About
+          li
+            a(href='#contact') Contact
+          li.dropdown
+            a.dropdown-toggle(href='#', data-toggle='dropdown')
+              | Quick Menu
+              b.caret
+            ul.dropdown-menu(role='menu', aria-labelledby='dLabel')
+              li
+                a.click(href='wo/datasets') Datasets
+              li
+                a.click(href='wo/queries') Queries
+              li
+                a.click(href='wo/visualisations') Visualisations
+              //
+                 
+                            <li class="divider"></li>
+                            <li class="nav-header">Nav header</li>
+                            <li><a href="#">Separated link</a></li>
+                            <li><a href="#">One more separated link</a></li>
+                            
+        form.navbar-form.pull-right
+          input.span2(type='text', placeholder='Email')
+          input.span2(type='password', placeholder='Password')
+          button.btn(type='submit') Sign in
+      // /.nav-collapse

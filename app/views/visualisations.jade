@@ -1,0 +1,67 @@
+!!! 5
+html(lang='en')
+  include includes/head
+    link(href='/css/jquery.dataTables.css', rel='stylesheet')
+  body
+    include includes/nav
+    #wrap
+      #content.container
+        .row
+          a.btn.btn-primary.btn-large(href='#myModal', role='button', data-toggle='modal') Add a visualisation
+          // Modal
+          #myModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+            .modal-header
+              button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+              h3#myModalLabel Add a new visualisation
+            .modal-body
+              form#adddata.form-horizontal(action='', method='post')
+                fieldset
+                  // Text input
+                  .control-group
+                    label.control-label(for='Title') Title
+                    .controls
+                      input.input-xlarge(name='title' type='text', placeholder='Title of the visualisation', required='')
+                  // Text input
+                  .control-group
+                    label.control-label(for='addr') Address
+                    .controls
+                      input.input-xlarge(name='url' type='text', placeholder='The URL of your visualisation', required='')
+                  // Text input
+                  .control-group
+                    label.control-label(for='addr') Data source
+                    .controls
+                      input.input-xlarge(name='source' type='text', placeholder='The source of your visualisation', required='')
+                  // Textarea
+                  .control-group
+                    label.control-label(for='desc') Description
+                    .controls
+                      textarea.input-xlarge(name='desc' placeholder='A brief description of your visualisation')
+            .modal-footer
+              button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
+              button#submit.btn.btn-primary Submit
+          div(style='height:30px')
+        .row
+          table#display.table.table-bordered.table-hover
+            thead
+              tr
+                th Title
+                th Source
+                th Description
+                th Publisher email
+            tbody#tablebody
+              each val, index in table
+                tr
+                  td
+                    a.tp(href=val.url data-toogle='tooltip' title=val.url)= val.title
+                  td.span1= val.source
+                  td= val.desc
+                  td.span3
+                    a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.publisher)= val.publisher
+            tfoot
+              tr
+                th Title
+                th Source
+                th Description
+                th Publisher email
+      #push
+    include includes/footer

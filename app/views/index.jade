@@ -1,0 +1,30 @@
+!!! 5
+html(lang='en')
+  include includes/head
+  body
+    include includes/nav
+    #wrap
+      .container
+        .row
+          #hero_unit.hero-unit
+            h1 Southampton Web Observatory
+            p This is the data portal for the Southampton and SOCIAM Web Observatory 
+            p
+              a.btn.btn-primary.btn-large(href='#') Learn more &raquo;
+          .span4
+            h2 Datasets
+            p  A page containing information regarding various datasets gathered
+            p
+              a.btn.click(href='wo/datasets') View details &raquo;
+          .span4
+            h2 Queries
+            p  A page containing various MongoDB&comma; SPARQL&comma; and other query end-points
+            p
+              a.btn.click(href='wo/queries') View details &raquo;
+          .span4
+            h2 Visualisations
+            p  A page containing various data visualistions
+            p
+              a.btn.click(href='wo/visualisations') View details &raquo;
+      #push
+    include includes/footer
