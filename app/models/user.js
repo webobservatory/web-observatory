@@ -109,9 +109,9 @@ UserSchema.statics.findOrCreateSotonUser = function(req, profile, done) {
         if (user) {
             //console.log('found user: '+ profile.cn);
             done(null, user);
+            req.user.email = profile.mail;
         } else {
             console.log('create user: ' + profile.cn);
-            console.log(JSON.stringify(req.user));
             req.user.email = profile.mail;
             User.create({
                 email: profile.mail,
