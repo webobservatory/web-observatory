@@ -55,7 +55,8 @@ html(lang='en')
                 th Title
                 th Source
                 th Description
-                th Publisher email
+                th 
+                  .text-center Publisher email
             tbody#tablebody
               each val, index in table
                 tr
@@ -64,12 +65,14 @@ html(lang='en')
                   td.span1= val.source
                   td= val.desc
                   td.span3
-                    a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.publisher)= val.publisher
+                    .text-center 
+                      a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.publisher)= val.publisher
             tfoot
               tr
                 th Title
                 th Source
                 th Description
-                th Publisher email
+                th
+                  .text-center Publisher email
       #push
     include includes/footer

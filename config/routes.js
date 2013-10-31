@@ -21,7 +21,6 @@ module.exports = function(app, passport) {
                         table: rows,
                         scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/datasets.js']
                     });
-
                 });
 
             } else {

@@ -60,24 +60,35 @@ html(lang='en')
             thead
               tr
                 th Title
-                th Type
+                th 
+                  .text-center Type
                 th Description
-                th Publisher email
+                th 
+                  .text-center Publisher email
+                th Query permission
             tbody
               each val, index in table
-                tr
+                - var tf = val.readable[0]._ === 'true'
+                tr(class= tf? 'alert-success':'alert-error')
                   td
                     a.tp(href=val.url interface=val.type data-toogle='tooltip' title=val.url)= val.title
-                  td.span1= val.type
+                  td.span1
+                    .text-center= val.type
                   td= val.desc
-                  td.span3
-                    a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.publisher)= val.publisher
+                  td.span2
+                    .text-center
+                      a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.publisher)= val.publisher
+                  td.span1
+                   i.text-center(class= tf?'icon-ok':'icon-remove')  
             tfoot
               tr
                 th Title
-                th Type
+                th
+                  .text-center Type
                 th Description
-                th Publisher email
+                th
+                  .text-center Publisher email
+                th Query permission
         #query-frame.row  
       #push
     include includes/footer
