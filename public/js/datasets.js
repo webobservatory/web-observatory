@@ -31,4 +31,13 @@ $(document).ready(function() {
             $('#visible').prop('checked', true);
         }
     });
+
+    $('#visible').click(function() {
+        var $this = $(this);
+        // $this will contain a reference to the checkbox   
+        if ($this.not(':checked')) {
+            // the checkbox was checked 
+            $('#read').prop('checked', false);
+        }
+    });
 });

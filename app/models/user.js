@@ -99,7 +99,7 @@ UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
 
 
 
-UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
+UserSchema.statics.findOrCreateSotonUser = function(req, profile, done) {
     var User = this;
     User.findOne({
         'soton.id': profile.cn
@@ -111,6 +111,7 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
             done(null, user);
         } else {
             console.log('create user: ' + profile.cn);
+            req.user.email = profile.mail;
             User.create({
                 email: profile.mail,
                 soton: {
@@ -190,7 +191,9 @@ UserSchema.statics.listDatasets = function(email, render) {
         email: email
     };
 
-    this.findOne(query, render(err, user));
+    this.findOne(query, function(err, user) {
+        render(err, user);
+    });
 };
 
 var User = mongoose.model("User", UserSchema);

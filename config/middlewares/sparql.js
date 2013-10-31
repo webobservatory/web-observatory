@@ -37,7 +37,7 @@ function buildSELECTDataset(visible, readable) {
 }
 
 function buildSELECTVis(visible) {
-    return buildSELECT('visualisation', visible, null);
+    return buildSELECT('visualisations', visible, null);
 }
 
 function buildSELECT(type, visible, readable) {
@@ -53,7 +53,7 @@ function buildSELECT(type, visible, readable) {
     };
 
     var visibleUnion = '?entry wo:visible "true"^^xsd:boolean.';
-    if (visible) {
+    if (visible && visible.length > 0) {
         var values = '';
         for (i = 0; i < visible.length; i++)
             values += visible[i] + ' ';
@@ -71,7 +71,7 @@ function buildSELECT(type, visible, readable) {
         'wo:readable ?readable; ' +
         qmap[type] +
         visibleUnion +
-        'OPTIONAL { ?entry dcterms:publisher ?publisher. ?publisher foaf:mbox ?email}' +
+        ' OPTIONAL { ?entry dcterms:publisher ?publisher. ?publisher foaf:mbox ?email}' +
         '}';
     query = myprefix + ' ' + query;
     return query;
@@ -86,7 +86,7 @@ function buildUpdateDataset(data) {
 }
 
 function buildUpdate(type, data) {
-
+console.log(JSON.stringify(data));
     var map = {
         visualisations: 'source',
         datasets: 'type'
@@ -101,6 +101,7 @@ function buildUpdate(type, data) {
         visible = data.visible ? '"true"^^xsd:boolean' : '"false"^^xsd:boolean',
         readable = data.readable ? '"true"^^xsd:boolean' : '"false"^^xsd:boolean',
         publisher = 'wo:' + email.replace('@', '-');
+        console.log(visible); console.log(readable);
 
     var prefix = getPrefix(),
         graph = 'wo:void',
@@ -122,13 +123,17 @@ function buildUpdate(type, data) {
 
     var entry = 'wo:' + url.split('://')[1]; //remove protocl
 
-    var query = '';
+    var query = entry;
 
-    query += 'dcterms:title "' + title + '"; ';
+    query += ' dcterms:title "' + title + '"; ';
 
     query += 'dcterms:description "' + desc + '"; ';
 
     query += 'dcterms:issued ' + date + '; ';
+
+    query += 'wo:visible ' + visible + '; ';
+
+    query += 'wo:readable ' + readable + '; ';
 
 
     if (type === 'datasets') {
@@ -146,7 +151,7 @@ function buildUpdate(type, data) {
     query += 'dcterms:publisher ' + publisher + '. ';
 
     //publisher
-    query += publisher + 'rdf:type foaf:Person; ';
+    query += publisher + ' rdf:type foaf:Person; ';
 
     if (username) {
         query += 'foaf:name "' + username + '"; ';
@@ -154,7 +159,7 @@ function buildUpdate(type, data) {
 
     query += ' foaf:mbox <mailto:' + email + '>. ';
 
-    query = prefix + s + 'INSERT DATA { GRAPH ' + graph + ' { ' + query + ' } } ';
+    query = prefix + ' INSERT DATA { GRAPH ' + graph + ' { ' + query + ' } } ';
 
     return query;
 }
@@ -216,9 +221,10 @@ function visRows(bindings) {
 
 module.exports.SPARQLGetContent = function(type, user, render) {
 
-    var accessible = user.access;
+    var visible = user.access;
 
-    var query = queryBuilders[type](accessible);
+    var query = queryBuilders[type](visible);
+    //console.log(query);
     var opts = {
         port: 8080,
         host: domain,
@@ -237,21 +243,25 @@ module.exports.SPARQLGetContent = function(type, user, render) {
         });
         res.on('end', function() {
             xmlParser(data, function(err, result) {
+                //console.log(JSON.stringify(result.sparql));
+                var rows = {};
+                if (typeof result.sparql.results !== 'undefined') {
                 var bindings = result.sparql.results[0].result;
-                var rows = resultBuilders[type](bindings);
-                render(rows);
+                rows = resultBuilders[type](bindings);
+            }
+            render(rows);
             });
         });
     }).on('error', function(e) {
-        console.log("Got error: " + e.message);
-    });
-    req.end();
+    console.log("Got error: " + e.message);
+});
+req.end();
 };
 
 module.exports.SPARQLUpdateContent = function(type, data, render) {
 
     var query = updateQryBuilders[type](data);
-    //console.log(query);
+    console.log(query);
     var opts = {
         method: 'post',
         port: 8080,

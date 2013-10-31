@@ -59,12 +59,21 @@ module.exports = function(app, passport) {
     });
 
     app.get('/wo/visualisations', ensureLoggedIn('/login'), function(req, res) {
-        SPARQLGetContent('visualisations', function(rows) {
-            res.render('visualisations', {
-                user: req.user,
-                table: rows,
-                scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/vis.js']
-            });
+        var email = req.user.email;
+
+        User.listDatasets(email, function(err, user) {
+
+            if (user) {
+                SPARQLGetContent('datasets', user, function(rows) {
+                    res.render('visualisations', {
+                        user: req.user,
+                        table: rows,
+                        scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/vis.js']
+                    });
+                });
+            } else {
+                req.flash('error', 'No matching user');
+            }
         });
     });
 
@@ -74,6 +83,7 @@ module.exports = function(app, passport) {
             source: req.body.source,
             url: req.body.url,
             desc: req.body.desc,
+            visible: req.body.visible,
             username: req.user.username,
             email: req.user.email,
         };
