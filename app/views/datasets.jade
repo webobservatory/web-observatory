@@ -79,7 +79,11 @@ html(lang='en')
                     .text-center
                       a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.publisher)= val.publisher
                   td.span1
-                   i.text-center(class= tf?'icon-ok':'icon-remove')  
+                    if(tf)
+                      i.text-center.icon-ok
+                    else  
+                      a.tp(href=val.publisher data-toogle='tooltip' title='Request for permission')
+                        i.text-center.icon-remove
             tfoot
               tr
                 th Title

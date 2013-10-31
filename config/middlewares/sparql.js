@@ -86,7 +86,7 @@ function buildUpdateDataset(data) {
 }
 
 function buildUpdate(type, data) {
-console.log(JSON.stringify(data));
+//console.log(JSON.stringify(data));
     var map = {
         visualisations: 'source',
         datasets: 'type'
@@ -101,7 +101,6 @@ console.log(JSON.stringify(data));
         visible = data.visible ? '"true"^^xsd:boolean' : '"false"^^xsd:boolean',
         readable = data.readable ? '"true"^^xsd:boolean' : '"false"^^xsd:boolean',
         publisher = 'wo:' + email.replace('@', '-');
-        console.log(visible); console.log(readable);
 
     var prefix = getPrefix(),
         graph = 'wo:void',
@@ -165,11 +164,11 @@ console.log(JSON.stringify(data));
 }
 
 function datasetRows(bindings) {
-    console.log(JSON.stringify(bindings));
+    //console.log(JSON.stringify(bindings));
     var rows = {};
     for (i = 0; i < bindings.length; i++) {
         var binding = bindings[i].binding;
-        console.log(JSON.stringify(binding));
+        //console.log(JSON.stringify(binding));
         var title = binding[0].literal,
             type = binding[1].literal,
             url = binding[2].uri,
@@ -261,7 +260,7 @@ req.end();
 module.exports.SPARQLUpdateContent = function(type, data, render) {
 
     var query = updateQryBuilders[type](data);
-    console.log(query);
+    //console.log(query);
     var opts = {
         method: 'post',
         port: 8080,
