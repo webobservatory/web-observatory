@@ -107,12 +107,8 @@ UserSchema.statics.findOrCreateSotonUser = function(req, profile, done) {
         if (err) throw err;
         // if (err) return done(err);
         if (user) {
-            //console.log('found user: '+ profile.cn);
             done(null, user);
-            req.user.email = profile.mail;
         } else {
-            console.log('create user: ' + profile.cn);
-            req.user.email = profile.mail;
             User.create({
                 email: profile.mail,
                 soton: {

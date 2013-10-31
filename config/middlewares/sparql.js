@@ -281,7 +281,8 @@ module.exports.SPARQLUpdateContent = function(type, data, render) {
         res.on('end', function() {
             xmlParser(data, function(err, response) {
                 if (response) {
-                    var message = response.sparql.results[0].result[0][0].literal;
+                  console.log(JSON.stringify(response.sparql.results[0].result[0]));
+                    var message = response.sparql.results[0].result[0];
                     //console.log(message);
                     render(message);
 

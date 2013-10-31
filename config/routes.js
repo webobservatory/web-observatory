@@ -63,7 +63,7 @@ module.exports = function(app, passport) {
         User.listDatasets(email, function(err, user) {
 
             if (user) {
-                SPARQLGetContent('datasets', user, function(rows) {
+                SPARQLGetContent('visualisations', user, function(rows) {
                     res.render('visualisations', {
                         user: req.user,
                         table: rows,
