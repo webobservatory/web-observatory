@@ -32,15 +32,15 @@ function getPrefix() {
     return void_ + " " + dcterms + " " + wo + " " + xsd + " " + rdf + " " + foaf;
 }
 
-function buildSELECTDataset(accessible) {
-    return buildSELECT('datasets', accessible);
+function buildSELECTDataset(visible, readable) {
+    return buildSELECT('datasets', visible, readable);
 }
 
-function buildSELECTVis(accessible) {
-    return buildSELECT('visualisation', null);
+function buildSELECTVis(visible) {
+    return buildSELECT('visualisation', visible, null);
 }
 
-function buildSELECT(type, accessible) {
+function buildSELECT(type, visible, readable) {
 
     var varmap = {
         visualisations: '?source',
@@ -52,15 +52,25 @@ function buildSELECT(type, accessible) {
         datasets: 'rdf:type void:Dataset; void:feature ?type; void:sparqlEndpoint ?url. '
     };
 
+    var visibleUnion = '?entry wo:visible "true"^^xsd:boolean.';
+    if (visible) {
+        var values = '';
+        for (i = 0; i < visible.length; i++)
+            values += visible[i] + ' ';
+
+        visibleUnion = '{{' + visibleUnion + '} UNION {?entry wo:visible "false"^^xsd:boolean. VALUES ?entry { ' + values + '}}}';
+    }
+
+
     var myprefix = getPrefix();
     var query =
-        'SELECT DISTINCT ?title ' + varmap[type] + ' ?url ?desc ?visible ?readable ?email ' +
+        'SELECT DISTINCT ?title ' + varmap[type] + ' ?url ?desc ?readable ?email ' +
         'WHERE { ' +
         '?entry dcterms:title ?title; ' +
-        'wo:visible ?visible; FILTER(?visible); ' +
-        'wo:readable ?readable; ' +
         'dcterms:description ?desc; ' +
+        'wo:readable ?readable; ' +
         qmap[type] +
+        visibleUnion +
         'OPTIONAL { ?entry dcterms:publisher ?publisher. ?publisher foaf:mbox ?email}' +
         '}';
     query = myprefix + ' ' + query;
@@ -153,23 +163,23 @@ function datasetRows(bindings) {
     console.log(JSON.stringify(bindings));
     var rows = {};
     for (i = 0; i < bindings.length; i++) {
-        var binding = bindings[i].binding,
-
-            title = binding[0].literal,
+        var binding = bindings[i].binding;
+        console.log(JSON.stringify(binding));
+        var title = binding[0].literal,
             type = binding[1].literal,
             url = binding[2].uri,
             desc = binding[3].literal,
-            access = binding[4].literal,
+            readable = binding[4].literal,
             publisherEmail = null;
 
-        if (binding.length > 4)
+        if (binding.length > 5)
             publisherEmail = binding[5].uri.toString().split(':')[1];
         var row = {
             title: title,
             type: type,
             url: url,
             desc: desc,
-            access: access,
+            readable: readable,
             publisher: publisherEmail
         };
         rows[i] = row;
@@ -187,24 +197,21 @@ function visRows(bindings) {
             source = binding[1].literal,
             url = binding[2].uri,
             desc = binding[3].literal,
-            access = binding[4].literal,
             publisherEmail = null;
 
-        if (binding.length > 4)
+        if (binding.length > 5)
             publisherEmail = binding[5].uri.toString().split(':')[1];
         var row = {
             title: title,
             source: source,
             url: url,
             desc: desc,
-            access: access,
             publisher: publisherEmail
         };
         rows[i] = row;
     }
     return rows;
 }
-
 
 
 module.exports.SPARQLGetContent = function(type, user, render) {

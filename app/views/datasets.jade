@@ -43,12 +43,12 @@ html(lang='en')
                   .control-group
                     label.control-label(for='access') Security Settings
                     .controls
-                      label.checkbox(for='access-0')
-                        input#access-0(type='checkbox', name='visible', value=true)
+                      label.checkbox(for='visible')
+                        input#visible(type='checkbox', name='visible', value=true)
                         | Visible to public
                       p.help-block Whether this dataset will be seen by everyone. You can change the visibility later in your profile.
-                      label.checkbox(for='access-1')
-                        input#access-1(type='checkbox', name='readable', value=true)
+                      label.checkbox(for='read')
+                        input#read(type='checkbox', name='readable', value=true)
                         | Readable to public
                       p.help-block Whether this dataset can be queried by everyone. You can change the readability later in your profile.
             .modal-footer

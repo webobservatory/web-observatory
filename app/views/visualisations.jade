@@ -36,6 +36,14 @@ html(lang='en')
                     label.control-label(for='desc') Description
                     .controls
                       textarea.input-xlarge(name='desc' placeholder='A brief description of your visualisation')
+                  // Security 
+                  .control-group
+                    label.control-label(for='access') Security Settings
+                    .controls
+                      label.checkbox(for='access-0')
+                        input#access-0(type='checkbox', name='visible', value=true)
+                        | Visible to public
+                      p.help-block Whether this dataset will be seen by everyone. You can change the visibility later in your profile.
             .modal-footer
               button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
               button#submit.btn.btn-primary Submit
