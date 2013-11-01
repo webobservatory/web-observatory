@@ -1,5 +1,6 @@
 var http = require('http');
 var xmlParser = require('xml2js').parseString;
+var uuid = require('node-uuid');
 
 var domain = "web-001.ecs.soton.ac.uk";
 var selectURL = '/openrdf-workbench/repositories/wo/query';
@@ -24,12 +25,13 @@ var updateQryBuilders = {
 
 function getPrefix() {
     var void_ = "PREFIX void: <http://rdfs.org/ns/void#>",
+        schema = "PREFIX schema: <http://schema.org/>",
         dcterms = "PREFIX dcterms: <http://purl.org/dc/terms/>",
         wo = "PREFIX wo: <http://wo.ecs.soton.ac.uk/>",
         xsd = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>",
         rdf = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
         foaf = "PREFIX foaf: <http://xmlns.com/foaf/0.1/>";
-    return void_ + " " + dcterms + " " + wo + " " + xsd + " " + rdf + " " + foaf;
+    return void_ + " " + schema + ' ' + dcterms + " " + wo + " " + xsd + " " + rdf + " " + foaf;
 }
 
 function buildSELECTDataset(visible, readable) {
@@ -86,7 +88,7 @@ function buildUpdateDataset(data) {
 }
 
 function buildUpdate(type, data) {
-//console.log(JSON.stringify(data));
+    //console.log(JSON.stringify(data));
     var map = {
         visualisations: 'source',
         datasets: 'type'
@@ -98,8 +100,8 @@ function buildUpdate(type, data) {
         desc = data.desc,
         email = data.email,
         username = data.username,
-        visible = data.visible ? '"true"^^xsd:boolean' : '"false"^^xsd:boolean',
-        readable = data.readable ? '"true"^^xsd:boolean' : '"false"^^xsd:boolean',
+        visible = data.visible === 'false' ? '"false"^^xsd:boolean' : '"true"^^xsd:boolean',
+        readable = data.readable === 'false' ? '"false"^^xsd:boolean' : '"true"^^xsd:boolean',
         publisher = 'wo:' + email.replace('@', '-');
 
     var prefix = getPrefix(),
@@ -120,7 +122,7 @@ function buildUpdate(type, data) {
     date = date.getFullYear() + '-' + date.getMonth() + '-' + date.getDate(); //yyyy-mm-dd
     date = '\'' + date + sign + h + ':' + min + '\'' + '^^xsd:date'; //'yyyy-mm-dd+hh:mm'^^xsd:date
 
-    var entry = 'wo:' + url.split('://')[1]; //remove protocl
+    var entry = '<' + url + '>';
 
     var query = entry;
 
@@ -157,6 +159,14 @@ function buildUpdate(type, data) {
     }
 
     query += ' foaf:mbox <mailto:' + email + '>. ';
+
+    //creator
+    if (data.creator) {
+        var creator_id = 'wo:person-' + uuid.v4();
+        query += creator_id + ' rdf:type foaf:Person; ';
+        query += 'foaf:name "' + data.creator + '". ';
+        query += entry + ' dcterms:creator ' + creator_id + '. ';
+    }
 
     query = prefix + ' INSERT DATA { GRAPH ' + graph + ' { ' + query + ' } } ';
 
@@ -223,7 +233,7 @@ module.exports.SPARQLGetContent = function(type, user, render) {
     var visible = user.access;
 
     var query = queryBuilders[type](visible);
-    //console.log(query);
+    console.log(query);
     var opts = {
         port: 8080,
         host: domain,
@@ -245,16 +255,16 @@ module.exports.SPARQLGetContent = function(type, user, render) {
                 //console.log(JSON.stringify(result.sparql));
                 var rows = {};
                 if (typeof result.sparql.results !== 'undefined') {
-                var bindings = result.sparql.results[0].result;
-                rows = resultBuilders[type](bindings);
-            }
-            render(rows);
+                    var bindings = result.sparql.results[0].result;
+                    rows = resultBuilders[type](bindings);
+                }
+                render(rows);
             });
         });
     }).on('error', function(e) {
-    console.log("Got error: " + e.message);
-});
-req.end();
+        console.log("SPARQL get content error: " + e.message);
+    });
+    req.end();
 };
 
 module.exports.SPARQLUpdateContent = function(type, data, render) {
@@ -281,7 +291,7 @@ module.exports.SPARQLUpdateContent = function(type, data, render) {
         res.on('end', function() {
             xmlParser(data, function(err, response) {
                 if (response) {
-                  console.log(JSON.stringify(response.sparql.results[0].result[0]));
+                    console.log(JSON.stringify(response.sparql.results[0].result[0]));
                     var message = response.sparql.results[0].result[0];
                     //console.log(message);
                     render(message);

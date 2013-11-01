@@ -1,6 +1,6 @@
 <div class="container span5">
     <div calss="row">
-        <h2>SPARQL:</h2><span id="endpoint"></span>
+         <h2>SPARQL:</h2><span id="endpoint"></span>
 
         <div class="dropdown">
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Select a dataset <span class="caret"></span>
@@ -9,14 +9,17 @@
             <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
                 <!--TODO: query triple store for all SPARQL endpoints-->
                 <li role="presentation"><a class="endpointURL" role="menuitem" tabindex="-1" href="http://spr-001.ecs.soton.ac.uk/LHD">Federated query (powered by LHD)</a>
+
                 </li>
                 <li role="presentation"><a class="endpointURL" role="menuitem" tabindex="-1" href="http://dbpedia.org/sparql">DBpedia</a>
+
                 </li>
                 <li role="presentation"><a class="endpointURL" role="menuitem" tabindex="-1" href="http://spr-001.ecs.soton.ac.uk:8000/query">Wikipedia Data</a>
+
                 </li>
             </ul>
         </div>
-    </div> <pre id="prefixestext"> </pre>
+    </div> <pre class='pre-scrollable' id="prefixestext"> </pre>
 
     <form id="queryform" action="http://dbpedia.org/sparql"
     method="get">
@@ -66,12 +69,25 @@
         'http://www.w3.org/2004/02/skos/core#': 'skos'
     };
 
-    function toPrefixes(namespaces)
+    function toPrefixesText(namespaces)
     {
+
         var result = '';
         for (var uri in namespaces)
         {
             result += 'PREFIX ' + namespaces[uri] + ': <' + uri + '>\n';
+        }
+        return result;
+
+
+    }
+
+    function toPrefixesHTML(namespaces)
+    {
+        var result = '';
+        for (var uri in namespaces)
+        {
+            result += 'PREFIX ' + namespaces[uri] + ': &lt' + uri + '&gt\n';
         }
         return result;
     }
@@ -83,7 +99,7 @@
 
     function start()
     {
-        setPrefixesText(toPrefixes(namespaces));
+        setPrefixesText(toPrefixesHTML(namespaces));
         outputChanged('browse');
         var match = document.location.href.match(/\?(.*)/);
         if (match)
@@ -177,8 +193,7 @@
 
     function setPrefixesText(prefixes)
     {
-        document.getElementById('prefixestext').appendChild(
-            document.createTextNode(prefixes));
+        $('#prefixestext').html(prefixes);
     }
 
     function doQuery(sparql, callback)

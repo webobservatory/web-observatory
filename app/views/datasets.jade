@@ -25,7 +25,14 @@ html(lang='en')
                   .control-group
                     label.control-label(for='url') Address
                     .controls
-                      input.input-xlarge(name='url' type='text', placeholder='The URL where your dataset can be accessed', required='')
+                      input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-dataset', required='')
+                      p.help-block The URL where your dataset can be accessed, starting with http://
+                  // Text input
+                  .control-group
+                    label.control-label(for='creator') Creator
+                    .controls
+                      input.input-xlarge(name='creator' type='text', placeholder='Creator name')
+                      p.help-block The person who created this entry. This can be different from the one who publish the entry (you, in this case).
                   // Select Basic
                   .control-group
                     label.control-label(for='type') Interface
@@ -43,14 +50,14 @@ html(lang='en')
                   .control-group
                     label.control-label(for='access') Security Settings
                     .controls
-                      label.checkbox(for='visible')
-                        input#visible(type='checkbox', name='visible', value='true')
-                        | Visible to public
-                      p.help-block Whether this dataset will be seen by everyone. You can change the visibility later in your profile.
                       label.checkbox(for='read')
-                        input#read(type='checkbox', name='readable', value='true')
-                        | Readable to public
-                      p.help-block Whether this dataset can be queried by everyone. You can change the readability later in your profile.
+                        input#read(type='checkbox', name='readable', value='false')
+                        | Private dataset
+                      p.help-block Private dataset; I wish to authorise individual users to access this dataset.
+                      label.checkbox(for='visible')
+                        input#visible(type='checkbox', name='visible', value='false')
+                        | Do not list my private dataset in the datasets directory
+                      //p.help-block Do not list my private dataset in the datasets directory
             .modal-footer
               button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
               button#submit.btn.btn-primary Submit
@@ -65,7 +72,7 @@ html(lang='en')
                 th Description
                 th 
                   .text-center Publisher email
-                th Query permission
+                th.tp(data-toogle='tooltip' title='Public accessible') Public
             tbody
               each val, index in table
                 - var tf = val.readable[0]._ === 'true'
@@ -82,7 +89,7 @@ html(lang='en')
                     if(tf)
                       i.text-center.icon-ok
                     else  
-                      a.tp(href=val.publisher data-toogle='tooltip' title='Request for permission')
+                      a.tp(href=val.publisher data-toogle='tooltip' title='Request access')
                         i.text-center.icon-remove
             tfoot
               tr
@@ -92,7 +99,7 @@ html(lang='en')
                 th Description
                 th
                   .text-center Publisher email
-                th Query permission
+                th Public
         #query-frame.row  
       #push
     include includes/footer

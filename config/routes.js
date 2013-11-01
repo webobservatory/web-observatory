@@ -38,6 +38,7 @@ module.exports = function(app, passport) {
             desc: req.body.desc,
             visible: req.body.visible,
             readable: req.body.readable,
+            creator: req.body.creator,
             username: req.user.username,
             email: req.user.email,
         };
@@ -83,6 +84,7 @@ module.exports = function(app, passport) {
             url: req.body.url,
             desc: req.body.desc,
             visible: req.body.visible,
+            creator: req.body.creator,
             username: req.user.username,
             email: req.user.email,
         };

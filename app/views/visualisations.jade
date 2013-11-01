@@ -28,9 +28,16 @@ html(lang='en')
                       input.input-xlarge(name='url' type='text', placeholder='The URL of your visualisation', required='')
                   // Text input
                   .control-group
+                    label.control-label(for='creator') Creator
+                    .controls
+                      input.input-xlarge(name='creator' type='text', placeholder='Creator name')
+                      p.help-block The person who created this entry. This can be different from the one who publish the entry (you, in this case).
+                  // Text input
+                  .control-group
                     label.control-label(for='addr') Data source
                     .controls
-                      input.input-xlarge(name='source' type='text', placeholder='The source of your visualisation', required='')
+                      input.input-xlarge(name='source' type='text', placeholder='The source of your visualisation')
+                      button#src.btn.tp(data-toogle='tooltip' title='not available yet') Search
                   // Textarea
                   .control-group
                     label.control-label(for='desc') Description
@@ -41,9 +48,9 @@ html(lang='en')
                     label.control-label(for='access') Security Settings
                     .controls
                       label.checkbox(for='access-0')
-                        input#access-0(type='checkbox', name='visible', value='true')
-                        | Visible to public
-                      p.help-block Whether this dataset will be seen by everyone. You can change the visibility later in your profile.
+                        input#access-0(type='checkbox', name='visible', value='false')
+                        | Do not list my visualisation in the public directory
+                      //p.help-block Whether this dataset will be seen by everyone. You can change the visibility later in your profile.
             .modal-footer
               button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
               button#submit.btn.btn-primary Submit

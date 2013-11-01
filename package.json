@@ -18,6 +18,7 @@
     "passport-facebook": "*",
     "passport-ldapauth": "*",
     "mongoose": "~3.6.4",
+    "node-uuid": "1.4",
     "xml2js": "*"
   }
 }
