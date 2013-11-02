@@ -1,4 +1,5 @@
 var User = require('../app/models/user');
+var Dataset = require('../app/models/dataset');
 var Auth = require('./middlewares/authorization.js');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var SPARQLGetContent = require('./middlewares/sparql.js').SPARQLGetContent;
@@ -157,6 +158,15 @@ module.exports = function(app, passport) {
         successReturnToOrRedirect: '/'
     }));
 
+    app.post('/dataset/accreq', ensureLoggedIn('/login'), function(req, res) {
+        var sender_mail = req.user.email,
+            dataset_url = req.body.url;
+
+        Dataset.findCreator(dataset_url, function(creator) {
+            User.addReq(sender_mail, creator, dataset_url, 'readable');
+        });
+
+    });
 
     app.get("/profile", Auth.isAuthenticated, function(req, res) {
         res.render("profile", {

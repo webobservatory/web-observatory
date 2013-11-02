@@ -23,12 +23,31 @@ UserSchema = mongoose.Schema({
         email: String,
         name: String
     },
-    access: [{
-            id: String,
+    visible: [{ //list of datasets that are visible to this user
+            url: String,
             title: String
         }
-    ]
-
+    ],
+    readable: [{ //list of dataasets that the current user can query
+            url: String,
+            title: String
+        }
+    ],
+    msg: {
+        requests: [{
+                sender: String,
+                dataset: String,
+                access: String,
+                read: Boolean
+            }
+        ],
+        general: [{
+                sender_mail: String,
+                content: String,
+                read: Boolean
+            }
+        ]
+    }
 });
 
 //user control
@@ -126,21 +145,21 @@ UserSchema.statics.findOrCreateSotonUser = function(req, profile, done) {
 };
 
 //dataset access control
-UserSchema.statics.grantAccess = function(email, dataset, done) {
+UserSchema.statics.grantAccess = function(email, dataset_url, done) {
     var User = this;
     var query = {
         email: email,
-        access: {
+        readable: {
             $ne: {
-                id: dataset
+                url: dataset_url
             }
         }
-    }; //grant access only if the user doesn't access to the given dataset
+    }; //grant access only if the user cannot access to the given dataset
 
     var update = {
         $push: {
-            access: {
-                id: dataset
+            readable: {
+                url: dataset_url
             }
         }
     };
@@ -149,7 +168,7 @@ UserSchema.statics.grantAccess = function(email, dataset, done) {
         if (err) throw err;
 
         if (!user) {
-            console.log('Access already grantted');
+            console.log('Access already exists');
             done(null, user);
         } else {
             console.log('Access grantted');
@@ -159,13 +178,13 @@ UserSchema.statics.grantAccess = function(email, dataset, done) {
 };
 
 
-UserSchema.statics.hasAccessTo = function(email, dataset, done) {
+UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
 
     var User = this;
     var query = {
         email: email,
-        access: {
-            id: dataset
+        readable: {
+            url: dataset_url
         }
     };
 
@@ -191,6 +210,31 @@ UserSchema.statics.listDatasets = function(email, render) {
     this.findOne(query, function(err, user) {
         render(err, user);
     });
+};
+
+//message handling
+UserSchema.statics.addReq = function(sender, receiver, dataset, access) {
+    var query = {
+        email: receiver
+    };
+    var update = {
+        msg: {
+            $push: {
+                request: {
+                    'sender': sender,
+                    'dataset': dataset,
+                    'access': access
+                }
+            }
+        }
+    };
+
+    this.update(query, update, function(err, user) {
+        if (err) return console.log(err);
+        if (!user) return console.log('No user found');
+        console.log('Request created');
+    });
+
 };
 
 var User = mongoose.model("User", UserSchema);

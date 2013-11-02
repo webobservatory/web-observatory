@@ -36,7 +36,7 @@ function buildSELECTVis(visible) {
     return buildSELECT('visualisations', visible, null);
 }
 
-function buildSELECT(type, visible, readable) {
+function buildSELECT(type, visible) {
 
 
     var qmap = {
@@ -143,8 +143,12 @@ function buildUpdate(type, data) {
 
     return query;
 }
+/**
+ *bindings: results from sparql query
+ *readable: list of urls of datasets that are readable to the current user
+ */
 
-function tableEntries(bindings) {
+function tableEntries(bindings, readable) {
     //console.log(JSON.stringify(bindings));
 
     var fields = [
@@ -164,42 +168,23 @@ function tableEntries(bindings) {
         for (i = 0; i < binding.length; i++) {
             row[fields[i]] = binding[i].literal;
         }
+        //readable to the current user? set readable to true
+        if (row.readable[0]._ === 'false' && readable.indexOf(row.url) != -1) {
+            row.readable[0]._ = 'true';
+        }
         rows[i] = row;
     }
     return rows;
 }
-
-/*
-function visRows(bindings) {
-    var rows = {};
-    for (i = 0; i < bindings.length; i++) {
-        var binding = bindings[i].binding;
-
-        var title = binding[0].literal,
-            source = binding[1].literal,
-            url = binding[2].uri,
-            desc = binding[3].literal,
-            publisherEmail = null;
-
-        if (binding.length > 5)
-            publisherEmail = binding[5].uri.toString().split(':')[1];
-        var row = {
-            title: title,
-            source: source,
-            url: url,
-            desc: desc,
-            publisher: publisherEmail
-        };
-        rows[i] = row;
-    }
-    return rows;
-}
-*/
 
 module.exports.SPARQLGetContent = function(type, user, render) {
+    //refer to app/models/user.js for details of user
+    var visible = user.visible;
 
-    var visible = user.access;
-
+    var readable = []; //will be used by tableEntries
+    for (i = 0; i < user.readable.length; i++) {
+        readable.push(user.readable[i].url);
+    }
     var query = queryBuilders[type](visible);
     console.log('Select query');
     console.log(query);
@@ -225,7 +210,7 @@ module.exports.SPARQLGetContent = function(type, user, render) {
                 var rows = {};
                 if (typeof result.sparql.results !== 'undefined') {
                     var bindings = result.sparql.results[0].result;
-                    rows = tableEntries(bindings);
+                    rows = tableEntries(bindings, readable);
                 }
                 render(rows);
             });
