@@ -41,6 +41,7 @@ module.exports = function(app, passport) {
             creator: req.body.creator,
             username: req.user.username,
             email: req.user.email,
+            addType: 'SPARQL'
         };
 
         SPARQLUpdate('datasets', data, function(msg) {
@@ -87,6 +88,7 @@ module.exports = function(app, passport) {
             creator: req.body.creator,
             username: req.user.username,
             email: req.user.email,
+            addType: 'Visualisation'
         };
 
         SPARQLUpdate('visualisations', data, function(msg) {

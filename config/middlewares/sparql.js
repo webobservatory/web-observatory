@@ -11,12 +11,6 @@ var queryBuilders = {
     visualisations: buildSELECTVis
 };
 
-var resultBuilders = {
-
-    datasets: datasetRows,
-    visualisations: visRows
-};
-
 var updateQryBuilders = {
     visualisations: buildUpdateVis,
     datasets: buildUpdateDataset
@@ -44,36 +38,35 @@ function buildSELECTVis(visible) {
 
 function buildSELECT(type, visible, readable) {
 
-    var varmap = {
-        visualisations: '?source',
-        datasets: '?type'
-    };
 
     var qmap = {
-        visualisations: 'rdf:type wo:visualisation; dcterms:source ?source; dcterms:identifier ?url. ',
-        datasets: 'rdf:type void:Dataset; void:feature ?type; void:sparqlEndpoint ?url. '
+        visualisations: 'rdf:type schema:WebPage; schema:isBasedOnUrl ?source. VALUES ?type {"Visualisation"} ',
+        datasets: 'rdf:type schema:Dataset. '
     };
 
-    var visibleUnion = '?entry wo:visible "true"^^xsd:boolean.';
+    var visibleUnion = '?entry wo:visible "true"^^xsd:boolean. ';
     if (visible && visible.length > 0) {
         var values = '';
         for (i = 0; i < visible.length; i++)
             values += visible[i] + ' ';
 
-        visibleUnion = '{{' + visibleUnion + '} UNION {?entry wo:visible "false"^^xsd:boolean. VALUES ?entry { ' + values + '}}}';
+        visibleUnion = '{{' + visibleUnion + '} UNION {?entry wo:visible "false"^^xsd:boolean. VALUES ?entry { ' + values + '}}} ';
     }
 
 
     var myprefix = getPrefix();
     var query =
-        'SELECT DISTINCT ?title ' + varmap[type] + ' ?url ?desc ?readable ?email ' +
+        'SELECT DISTINCT ?title ?url ?type ?desc ?email ?readable ?source' +
         'WHERE { ' +
-        '?entry dcterms:title ?title; ' +
-        'dcterms:description ?desc; ' +
+        '?entry schema:name ?title; ' +
+        'schema:url ?url; ' +
+        'schema:additionalType ?type; ' +
+        'schema:description ?desc; ' +
+        'schema:publisher ?publisher; ' +
         'wo:readable ?readable; ' +
         qmap[type] +
         visibleUnion +
-        ' OPTIONAL { ?entry dcterms:publisher ?publisher. ?publisher foaf:mbox ?email}' +
+        '?publisher schema:email ?email. ' +
         '}';
     query = myprefix + ' ' + query;
     return query;
@@ -89,22 +82,23 @@ function buildUpdateDataset(data) {
 
 function buildUpdate(type, data) {
     //console.log(JSON.stringify(data));
-    var map = {
-        visualisations: 'source',
-        datasets: 'type'
+    //?title ?url ?type ?desc ?email ?readable ?source
+    var typemap = {
+        visualisations: 'schema:WebPage',
+        datasets: 'schema:Dataset'
     };
 
     var title = data.title,
-        typOrsrc = data[map[type]],
         url = data.url,
+        base_class = typemap[type],
+        addType = data.addType,
         desc = data.desc,
         email = data.email,
         username = data.username,
         visible = data.visible === 'false' ? '"false"^^xsd:boolean' : '"true"^^xsd:boolean',
         readable = data.readable === 'false' ? '"false"^^xsd:boolean' : '"true"^^xsd:boolean',
-        publisher = 'wo:' + email.replace('@', '-');
 
-    var prefix = getPrefix(),
+        prefix = getPrefix(),
         graph = 'wo:void',
         date = new Date(),
         offset = date.getTimezoneOffset(),
@@ -124,84 +118,58 @@ function buildUpdate(type, data) {
 
     var entry = '<' + url + '>';
 
-    var query = entry;
-
-    query += ' dcterms:title "' + title + '"; ';
-
-    query += 'dcterms:description "' + desc + '"; ';
-
-    query += 'dcterms:issued ' + date + '; ';
-
-    query += 'wo:visible ' + visible + '; ';
-
-    query += 'wo:readable ' + readable + '; ';
-
-
-    if (type === 'datasets') {
-        query += 'rdf:type void:Dataset; ';
-        query += 'void:sparqlEndpoint <' + url + '>; ';
-        query += 'void:feature "' + typOrsrc + '"' + '; ';
-    }
-
-    if (type === 'visualisations') {
-        query += 'rdf:type wo:visualisation; ';
-        query += 'dcterms:identifier <' + url + '>; ';
-        query += 'dcterms:source "' + typOrsrc + '"; ';
-    }
-
-    query += 'dcterms:publisher ' + publisher + '. ';
-
-    //publisher
-    query += publisher + ' rdf:type foaf:Person; ';
-
-    if (username) {
-        query += 'foaf:name "' + username + '"; ';
-    }
-
-    query += ' foaf:mbox <mailto:' + email + '>. ';
-
-    //creator
-    if (data.creator) {
-        var creator_id = 'wo:person-' + uuid.v4();
-        query += creator_id + ' rdf:type foaf:Person; ';
-        query += 'foaf:name "' + data.creator + '". ';
-        query += entry + ' dcterms:creator ' + creator_id + '. ';
-    }
-
+    //class
+    //general info.
+    //acl
+    var query =
+        entry + ' rdf:type ' + base_class + '; ' +
+        'schema:additionalType "' + addType + '"; ' +
+        'schema:name "' + title + '"; ' +
+        'schema:description "' + desc + '"; ' +
+        'schema:datePublished ' + date + '; ' +
+        'schema:url "' + url + '"; ' +
+        'schema:publisher _:pb; ' +
+        (type === 'visualisations' ?
+        'schema:isBasedOnUrl "' + source + '"; ' :
+        '') +
+        'wo:visible ' + visible + '; ' +
+        'wo:readable ' + readable + '; ' +
+        (data.creator ? 'schema:creator _:cr. _:cr rdf:type schema:Person; ' + ' schema:name "' + data.creator + '". ' :
+        '') +
+        '_:pb rdf:type schema:Person; ' +
+        (username ? 'schema:name "' + username + '". ' : '') +
+        'schema:email "' + email + '". ';
     query = prefix + ' INSERT DATA { GRAPH ' + graph + ' { ' + query + ' } } ';
 
     return query;
 }
 
-function datasetRows(bindings) {
+function tableEntries(bindings) {
     //console.log(JSON.stringify(bindings));
+
+    var fields = [
+            'title',
+            'url',
+            'type',
+            'desc',
+            'email',
+            'readable',
+            'source'
+    ];
     var rows = {};
     for (i = 0; i < bindings.length; i++) {
         var binding = bindings[i].binding;
         //console.log(JSON.stringify(binding));
-        var title = binding[0].literal,
-            type = binding[1].literal,
-            url = binding[2].uri,
-            desc = binding[3].literal,
-            readable = binding[4].literal,
-            publisherEmail = null;
-
-        if (binding.length > 5)
-            publisherEmail = binding[5].uri.toString().split(':')[1];
-        var row = {
-            title: title,
-            type: type,
-            url: url,
-            desc: desc,
-            readable: readable,
-            publisher: publisherEmail
-        };
+        var row = {};
+        for (i = 0; i < binding.length; i++) {
+            row[fields[i]] = binding[i].literal;
+        }
         rows[i] = row;
     }
     return rows;
 }
 
-
+/*
 function visRows(bindings) {
     var rows = {};
     for (i = 0; i < bindings.length; i++) {
@@ -226,13 +194,14 @@ function visRows(bindings) {
     }
     return rows;
 }
-
+*/
 
 module.exports.SPARQLGetContent = function(type, user, render) {
 
     var visible = user.access;
 
     var query = queryBuilders[type](visible);
+    console.log('Select query');
     console.log(query);
     var opts = {
         port: 8080,
@@ -256,7 +225,7 @@ module.exports.SPARQLGetContent = function(type, user, render) {
                 var rows = {};
                 if (typeof result.sparql.results !== 'undefined') {
                     var bindings = result.sparql.results[0].result;
-                    rows = resultBuilders[type](bindings);
+                    rows = tableEntries(bindings);
                 }
                 render(rows);
             });
@@ -270,7 +239,8 @@ module.exports.SPARQLGetContent = function(type, user, render) {
 module.exports.SPARQLUpdateContent = function(type, data, render) {
 
     var query = updateQryBuilders[type](data);
-    //console.log(query);
+    console.log('Update query');
+    console.log(query);
     var opts = {
         method: 'post',
         port: 8080,
