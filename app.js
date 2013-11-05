@@ -75,7 +75,6 @@ app.use(function(req, res, next) {
     res.type('txt').send('Not found');
 });
 
-
 require('./config/routes')(app, passport);
 
 

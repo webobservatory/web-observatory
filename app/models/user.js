@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var hash = require('../util/hash');
-
+var DatasetSchema = require('mongoose').model('Dataset').schema;
+var Dataset = require('./dataset');
 
 UserSchema = mongoose.Schema({
     firstName: String,
@@ -23,15 +24,14 @@ UserSchema = mongoose.Schema({
         email: String,
         name: String
     },
-    visible: [{ //list of datasets that are visible to this user
-            url: String,
-            title: String
-        }
+    visible: [ //list of datasets that are visible to this user
+        DatasetSchema
     ],
-    readable: [{ //list of dataasets that the current user can query
-            url: String,
-            title: String
-        }
+    readable: [ //list of datasets that the current user can query
+        DatasetSchema
+    ],
+    owned: [ //list of datasets that are published by the current user
+        DatasetSchema
     ],
     msg: {
         requests: [{
@@ -42,7 +42,7 @@ UserSchema = mongoose.Schema({
             }
         ],
         general: [{
-                sender_mail: String,
+                sender: String,
                 content: String,
                 read: Boolean
             }
@@ -118,13 +118,13 @@ UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
 
 
 
-UserSchema.statics.findOrCreateSotonUser = function(req, profile, done) {
+UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
     var User = this;
     User.findOne({
         'soton.id': profile.cn
     }, function(err, user) {
-        if (err) throw err;
-        // if (err) return done(err);
+        //if (err) throw err;
+        if (err) return done(err);
         if (user) {
             done(null, user);
         } else {
@@ -136,8 +136,8 @@ UserSchema.statics.findOrCreateSotonUser = function(req, profile, done) {
                     name: profile.displayName
                 }
             }, function(err, user) {
-                if (err) throw err;
-                // if (err) return done(err);
+                //if (err) throw err;
+                if (err) return done(err);
                 done(null, user);
             });
         }
@@ -145,38 +145,46 @@ UserSchema.statics.findOrCreateSotonUser = function(req, profile, done) {
 };
 
 //dataset access control
-UserSchema.statics.grantAccess = function(email, dataset_url, done) {
+UserSchema.statics.grantAccess = function(user, dataset, done) {
     var User = this;
     var query = {
-        email: email,
+        email: user,
         readable: {
-            $ne: {
-                url: dataset_url
-            }
+            $ne: dataset
         }
     }; //grant access only if the user cannot access to the given dataset
 
     var update = {
         $push: {
-            readable: {
-                url: dataset_url
-            }
+            readable: dataset
         }
     };
 
     User.update(query, update, function(err, user) {
-        if (err) throw err;
-
-        if (!user) {
-            console.log('Access already exists');
-            done(null, user);
-        } else {
-            console.log('Access grantted');
-            done(null, user);
-        }
+        done(err, user);
     });
 };
 
+UserSchema.statics.addOwn = function(creator, dataset, done) {
+
+    var query = {
+        email: creator,
+        owned: {
+            $ne: dataset
+        }
+    };
+
+    var update = {
+        $push: {
+            owned: dataset
+        }
+    };
+
+    this.update(query, update, function(err, user) {
+        done(err);
+    });
+
+};
 
 UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
 
@@ -201,19 +209,21 @@ UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
 
 };
 
-UserSchema.statics.listDatasets = function(email, render) {
+UserSchema.statics.listEntries = function(email, cb) {
 
     var query = {
         email: email
     };
 
     this.findOne(query, function(err, user) {
-        render(err, user);
+        if (err)
+            return cb(err);
+        cb(err, user.visible, user.readable, user.owned);
     });
 };
 
 //message handling
-UserSchema.statics.addReq = function(sender, receiver, dataset, access) {
+UserSchema.statics.addReq = function(sender, receiver, dataset, access, done) {
     var query = {
         email: receiver
     };
@@ -230,9 +240,7 @@ UserSchema.statics.addReq = function(sender, receiver, dataset, access) {
     };
 
     this.update(query, update, function(err, user) {
-        if (err) return console.log(err);
-        if (!user) return console.log('No user found');
-        console.log('Request created');
+        done(err, user);
     });
 
 };

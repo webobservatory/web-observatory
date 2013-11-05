@@ -1,6 +1,7 @@
 var User = require('../app/models/user');
 var Dataset = require('../app/models/dataset');
 var Auth = require('./middlewares/authorization.js');
+var async = require('async');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
 var SPARQLGetContent = require('./middlewares/sparql.js').SPARQLGetContent;
 var SPARQLUpdate = require('./middlewares/sparql.js').SPARQLUpdateContent;
@@ -10,23 +11,44 @@ module.exports = function(app, passport) {
 
     app.get('/wo/datasets', ensureLoggedIn('/login'), function(req, res) {
 
-        var email = req.user.email;
+        var errmsg = req.flash('error');
 
-        User.listDatasets(email, function(err, user) {
+        async.waterfall([
+            function(cb) {
+                User.listEntries(req.user.email, cb);
+            },
+            function(_visible, _readable, owned, cb) {
+                var visible = [];
+                var readable = [];
+                for (i = 0; i < owned.length; i++) {
+                    visible.push(owned[i].url);
+                    readable.push(owned[i].url);
+                }
 
-            if (user) {
-                SPARQLGetContent('datasets', user, function(rows) {
+                for (i = 0; i < _readable.length; i++) {
+                    visible.push(_readable[i].url);
+                    readable.push(_readable[i].url);
+                }
 
-                    res.render('datasets', {
-                        user: req.user,
-                        table: rows,
-                        scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/datasets.js']
-                    });
-                });
+                for (i = 0; i < _visible.length; i++) {
+                    visible.push(_visible[i].url);
+                }
 
-            } else {
-                req.flash('error', 'No matching user');
+                SPARQLGetContent('datasets', visible, readable, cb);
+            },
+            function(rows, cb) {
+                Dataset.transform(rows, cb);
             }
+        ], function(err, result) {
+            if (err)
+                errmsg.push(err.message);
+            res.render('datasets', {
+                info: req.flash('info'),
+                error: errmsg,
+                user: req.user,
+                table: result,
+                scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/datasets.jade.js']
+            });
         });
     });
 
@@ -34,7 +56,7 @@ module.exports = function(app, passport) {
 
         var data = {
             title: req.body.title,
-            type: req.body.type,
+            addType: req.body.type,
             url: req.body.url,
             desc: req.body.desc,
             visible: req.body.visible,
@@ -42,16 +64,46 @@ module.exports = function(app, passport) {
             creator: req.body.creator,
             username: req.user.username,
             email: req.user.email,
-            addType: 'SPARQL'
         };
 
-        SPARQLUpdate('datasets', data, function(msg) {
-            req.flash('info', msg);
+        async.waterfall([
+            function(cb) {
+                SPARQLUpdate('datasets', data, cb);
+            },
+            function(cb) {
+                Dataset.getOrCreateEntry(data, cb);
+            },
+            function(entry, cb) {
+                User.addOwn(req.user.email, entry, cb);
+            }
+        ], function(err) {
+            if (err)
+                req.flash('error', [err.message]);
+            else
+                req.flash('info', ['Dataset added successfully']);
             res.redirect('/wo/datasets');
         });
-
     });
 
+    app.post('/dataset/access', ensureLoggedIn('/login'), function(req, res) {
+        var sender_mail = req.user.email,
+            oid = req.body.id;
+        Dataset.findById(oid, function(err, entry) {
+            if (err)
+                req.flash('error', [err.message]);
+            else if (!entry)
+                req.flash('error', ['No entry found']);
+            else {
+                User.addReq(sender_mail, entry.creator, entry.url, 'readable', function(err, info) {
+                    if (err)
+                        req.flash('error', [err]);
+                    if (info)
+                        req.flash('info', [info]);
+                });
+            }
+            res.redirect('/wo/dataset');
+        });
+    });
 
     app.get('/wo/queries', ensureLoggedIn('/login'), function(req, res) {
         res.render('queries', {
@@ -62,20 +114,40 @@ module.exports = function(app, passport) {
 
     app.get('/wo/visualisations', ensureLoggedIn('/login'), function(req, res) {
         var email = req.user.email;
+        var errmsg = req.flash('error');
 
-        User.listDatasets(email, function(err, user) {
+        async.waterfall([
+            function(cb) {
+                User.listEntries(email, cb);
+            },
+            function(_visible, _readable, owned, cb) {
 
-            if (user) {
-                SPARQLGetContent('visualisations', user, function(rows) {
-                    res.render('visualisations', {
-                        user: req.user,
-                        table: rows,
-                        scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/vis.js']
-                    });
-                });
-            } else {
-                req.flash('error', 'No matching user');
+                var visible = [];
+                var readable = [];
+                for (i = 0; i < owned.length; i++) {
+                    visible.push(owned[i].url);
+                }
+
+                for (i = 0; i < _readable.length; i++) {
+                    visible.push(_readable[i].url);
+                }
+
+                for (i = 0; i < _visible.length; i++) {
+                    visible.push(_visible[i].url);
+                }
+
+                SPARQLGetContent('visualisations', visible, readable, cb);
             }
+        ], function(err, result) {
+            if (err)
+                errmsg.push(err.message);
+            res.render('visualisations', {
+                info: req.flash('info'),
+                error: errmsg,
+                user: req.user,
+                table: result,
+                scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/vis.js']
+            });
         });
     });
 
@@ -92,11 +164,23 @@ module.exports = function(app, passport) {
             addType: 'Visualisation'
         };
 
-        SPARQLUpdate('visualisations', data, function(msg) {
-            req.flash('info', msg);
+        async.waterfall([
+            function(cb) {
+                SPARQLUpdate('visualisations', data, cb);
+            },
+            function(cb) {
+                Dataset.getOrCreateEntry(data, cb);
+            },
+            function(entry, cb) {
+                User.addOwn(req.user.email, entry, cb);
+            }
+        ], function(err) {
+            if (err)
+                req.flash('error', [err.message]);
+            else
+                req.flash('info', ['Visualisation added succeffully']);
             res.redirect('/wo/visualisations');
         });
-
     });
 
     app.get("/", function(req, res) {
@@ -110,7 +194,10 @@ module.exports = function(app, passport) {
     });
 
     app.get("/login", function(req, res) {
-        res.render("login");
+        res.render("login", {
+            info: req.flash('info'),
+            error: req.flash('error')
+        });
     });
 
     app.post("/login", passport.authenticate('local', {
@@ -158,19 +245,27 @@ module.exports = function(app, passport) {
         successReturnToOrRedirect: '/'
     }));
 
-    app.post('/dataset/accreq', ensureLoggedIn('/login'), function(req, res) {
-        var sender_mail = req.user.email,
-            dataset_url = req.body.url;
-
-        Dataset.findCreator(dataset_url, function(creator) {
-            User.addReq(sender_mail, creator, dataset_url, 'readable');
-        });
-
-    });
 
     app.get("/profile", Auth.isAuthenticated, function(req, res) {
-        res.render("profile", {
-            user: req.user
+        User.findOne({
+            email: req.user.email
+        }, function(err, user) {
+            var parameter = {
+                user: req.user
+            };
+            var errmsg = req.flash('error');
+            if (err) {
+                errmsg.push(err.message);
+            } else {
+                parameter.msg = user.msg;
+                parameter.owned = user.owned;
+                parameter.requested = user.requested;
+            }
+
+            parameter.error = errmsg;
+            parameter.info = req.flash('info');
+
+            res.render('profile', parameter);
         });
     });
 

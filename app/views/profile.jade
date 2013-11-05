@@ -1,15 +1,99 @@
 !!! 5
+// required data: user.username | user.email; msg.request; msg.general; owned.dataset; requested
 html(lang='en')
   include includes/head
-  body
+  body(data-spy='scroll', data-target='.bs-docs-sidebar')
     include includes/nav
     #wrap
       .container
-        if user.username
-          h1 #{user.username}'s Profile
-        else
-          h1 #{user.email}'s Profile
+        .row
+          .span3.bs-docs-sidebar
+            ul.nav.nav-list.bs-docs-sidenav.affix
+              li
+                a(href='#account')
+                  | Account settings
+                  i.icon-chevron-right 
+              li
+                a(href='#dataset')
+                  | Dataset management
+                  i.icon-chevron-right 
+              li
+                a(href='#msgbox')
+                  | Messages
+                  i.icon-chevron-right 
+          .span9
+            section#account
+              .page-header
+                h1 Account settings
+              form.form-horizontal(method='post' action='/profile')
+                fieldset
+                  label Change user name
+                  .control-group
+                    label.control-label New name
+                    .controls
+                      input(type='text' name='username' placeholder= user.username?user.username:'Input an user name')
+                  label Change password
+                  .control-group
+                    label.control-label Current password
+                    .controls
+                      input(type='password' name='oldpas')
+                  .control-group
+                    label.control-label New password
+                    .controls
+                      input(type='password' name='newpas')
+                  button.btn.btn-primary(type='submit') Save
+            section#dataset
+              .page-header
+                h1 Dataset management
+              ul.nav.nav-tabs
+                li.active
+                  a(href='#owner', data-toggle='tab') As owner
+                li
+                  a(href='#viewer', data-toggle='tab') As viewer
+                li
+                  a(href='#msg', data-toggle='tab') Requests (#{msg.request.length} unread)
+              .tab-content
+                .tab-pane.active#owner
+                  form(method='post' action='/user/dsmng')
+                    fieldset
+                      if owned
+                        each entry in owned
+                          label= entry.title
+                          label Public
+                            input(type='checkbox' = entry.readable === 'true'? 'checked':'')
+                        button.btn.btn-primary(type='submit') Confirm
+                .tab-pane#viewer
+                  if requested
+                    h2 Requested datasets
+                    form(method='post' action='/dataset/access')
+                      fieldset
+                        each entry in requested
+                          label= entry.title
+                            input(type='checkbox')
+                        button.btn.btn-primary(type='submit') Request access again
+                  if visible
+                    h2 Visible datasets & visualisations
+                    each entry in visible
+                      p= entry.title
+                  if readable
+                    h2 Accessible datasets
+                      p= entry.title
 
-        a(href="/logout") Logout
+                .tab-pane#msg
+                  form(method='post' action='/request/approve')
+                    fieldset
+                      if msg && msg.request
+                        each m in msg.request
+                          p User #{m.sender} requested access of dataset #{m.dtitle}
+                          input(type='checkbox' value= m._id)
+                        button.btn.btn-danger#clear Delete
+                        button.btn.btn-primary(type='submit') Approve
+            section#msgbox
+              .page-header
+                h1 Messages
+              if msg && msg.general
+                each m in msg.general
+                  p= m.content
+                  input(type='checkbox' value= m._id)
       #push
     include includes/footer

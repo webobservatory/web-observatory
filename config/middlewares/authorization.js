@@ -4,6 +4,7 @@ exports.isAuthenticated = function(req, res, next) {
     if (req.isAuthenticated()) {
         next();
     } else {
+        req.flash('info', ['Please login first']);
         res.redirect("/login");
     }
 };
@@ -15,6 +16,7 @@ exports.userExist = function(req, res, next) {
         if (count === 0) {
             next();
         } else {
+            req.flash('info', ['User already exists, please login']);
             res.redirect("/signin");
         }
     });

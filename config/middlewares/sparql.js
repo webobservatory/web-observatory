@@ -1,7 +1,4 @@
 var http = require('http');
-var xmlParser = require('xml2js').parseString;
-var uuid = require('node-uuid');
-
 var domain = "web-001.ecs.soton.ac.uk";
 var selectURL = '/openrdf-workbench/repositories/wo/query';
 var updateURL = '/openrdf-workbench/repositories/wo/update';
@@ -41,14 +38,14 @@ function buildSELECT(type, visible) {
 
     var qmap = {
         visualisations: 'rdf:type schema:WebPage; schema:isBasedOnUrl ?source. VALUES ?type {"Visualisation"} ',
-        datasets: 'rdf:type schema:Dataset. '
+        datasets: 'wo:readable ?readable; rdf:type schema:Dataset. '
     };
 
     var visibleUnion = '?entry wo:visible "true"^^xsd:boolean. ';
     if (visible && visible.length > 0) {
         var values = '';
         for (i = 0; i < visible.length; i++)
-            values += visible[i] + ' ';
+            values += '<'+visible[i] + '> ';
 
         visibleUnion = '{{' + visibleUnion + '} UNION {?entry wo:visible "false"^^xsd:boolean. VALUES ?entry { ' + values + '}}} ';
     }
@@ -56,14 +53,13 @@ function buildSELECT(type, visible) {
 
     var myprefix = getPrefix();
     var query =
-        'SELECT DISTINCT ?title ?url ?type ?desc ?email ?readable ?source' +
+        'SELECT DISTINCT ?title ?url ?type ?desc ?email ?readable ?source ' +
         'WHERE { ' +
         '?entry schema:name ?title; ' +
         'schema:url ?url; ' +
         'schema:additionalType ?type; ' +
         'schema:description ?desc; ' +
         'schema:publisher ?publisher; ' +
-        'wo:readable ?readable; ' +
         qmap[type] +
         visibleUnion +
         '?publisher schema:email ?email. ' +
@@ -130,7 +126,7 @@ function buildUpdate(type, data) {
         'schema:url "' + url + '"; ' +
         'schema:publisher _:pb; ' +
         (type === 'visualisations' ?
-        'schema:isBasedOnUrl "' + source + '"; ' :
+        'schema:isBasedOnUrl "' + data.source + '"; ' :
         '') +
         'wo:visible ' + visible + '; ' +
         'wo:readable ' + readable + '; ' +
@@ -149,7 +145,7 @@ function buildUpdate(type, data) {
  */
 
 function tableEntries(bindings, readable) {
-    //console.log(JSON.stringify(bindings));
+    console.log(JSON.stringify(bindings));
 
     var fields = [
             'title',
@@ -160,31 +156,26 @@ function tableEntries(bindings, readable) {
             'readable',
             'source'
     ];
-    var rows = {};
+    var rows = [];
     for (i = 0; i < bindings.length; i++) {
-        var binding = bindings[i].binding;
+        var binding = bindings[i];
         //console.log(JSON.stringify(binding));
         var row = {};
-        for (i = 0; i < binding.length; i++) {
-            row[fields[i]] = binding[i].literal;
+        for (i = 0; i < fields.length; i++) {
+            row[fields[i]] = binding[fields[i]] ? binding[fields[i]].value : false;
         }
         //readable to the current user? set readable to true
-        if (row.readable[0]._ === 'false' && readable.indexOf(row.url) != -1) {
-            row.readable[0]._ = 'true';
+        if (row.readable &&
+            row.readable === 'false' &&
+            readable.indexOf(row.url) != -1) {
+            row.readable = 'true';
         }
-        rows[i] = row;
+        rows.push(row);
     }
     return rows;
 }
 
-module.exports.SPARQLGetContent = function(type, user, render) {
-    //refer to app/models/user.js for details of user
-    var visible = user.visible;
-
-    var readable = []; //will be used by tableEntries
-    for (i = 0; i < user.readable.length; i++) {
-        readable.push(user.readable[i].url);
-    }
+module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
     var query = queryBuilders[type](visible);
     console.log('Select query');
     console.log(query);
@@ -200,28 +191,42 @@ module.exports.SPARQLGetContent = function(type, user, render) {
 
     var req = http.request(opts, function(res) {
         console.log("Got response: " + res.statusCode);
+        if (res.statusCode === 404)
+            return cb({
+                message: 'List of datasets not available'
+            });
         var data = "";
         res.on('data', function(chunk) {
             data += chunk;
         });
         res.on('end', function() {
-            xmlParser(data, function(err, result) {
-                //console.log(JSON.stringify(result.sparql));
-                var rows = {};
-                if (typeof result.sparql.results !== 'undefined') {
-                    var bindings = result.sparql.results[0].result;
-                    rows = tableEntries(bindings, readable);
+            console.log(data);
+            data = JSON.parse(data);
+            var rows = [];
+            if (data.results) {
+                var bindings = data.results.bindings;
+                if (bindings.length == 1 &&
+                    bindings[0]['error-message']) {
+                    return cb({
+                        message: bindings[0]['error-message'].value
+                    });
                 }
-                render(rows);
-            });
+                rows = tableEntries(bindings, readable);
+                cb(false, rows);
+            } else {
+                cb({
+                    message: 'No entry retrieved'
+                });
+            }
         });
     }).on('error', function(e) {
         console.log("SPARQL get content error: " + e.message);
+        cb(e);
     });
     req.end();
 };
 
-module.exports.SPARQLUpdateContent = function(type, data, render) {
+module.exports.SPARQLUpdateContent = function(type, data, cb) {
 
     var query = updateQryBuilders[type](data);
     console.log('Update query');
@@ -239,26 +244,30 @@ module.exports.SPARQLUpdateContent = function(type, data, render) {
 
     var req = http.request(opts, function(res) {
         console.log("Got update response: " + res.statusCode);
+        if (res.statusCode === 404)
+            return cb({
+                message: 'List of datasets not available'
+            });
         var data = "";
         res.on('data', function(chunk) {
             data += chunk;
         });
         res.on('end', function() {
-            xmlParser(data, function(err, response) {
-                if (response) {
-                    console.log(JSON.stringify(response.sparql.results[0].result[0]));
-                    var message = response.sparql.results[0].result[0];
-                    //console.log(message);
-                    render(message);
+            if (data) {
+                console.log(data);
+                data = JSON.parse(data);
+                var message = data.results.bindings;
+                //console.log(message);
+                cb({
+                    'message': message
+                });
+            } else
+                cb(false);
 
-                } else
-                    render('Dataset added');
-
-            });
         });
     }).on('error', function(e) {
         console.log("Got error: " + e.message);
-        render(e.message);
+        cb(e);
     });
 
     req.end();

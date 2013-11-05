@@ -5,7 +5,9 @@ html(lang='en')
   body
     include includes/nav
     #wrap
-      #content.container
+      .container
+        .row
+          include includes/flash-banner
         .row
           a.btn.btn-primary.btn-large(href='#myModal', role='button', data-toggle='modal') Add a visualisation
           // Modal
@@ -25,7 +27,7 @@ html(lang='en')
                   .control-group
                     label.control-label(for='addr') Address
                     .controls
-                      input.input-xlarge(name='url' type='text', placeholder='The URL of your visualisation', required='')
+                      input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-visualisation', required='')
                   // Text input
                   .control-group
                     label.control-label(for='creator') Creator
@@ -65,15 +67,16 @@ html(lang='en')
                 th 
                   .text-center Publisher email
             tbody#tablebody
-              each val, index in table
-                tr
-                  td
-                    a.tp(href=val.url data-toogle='tooltip' title=val.url)= val.title
-                  td.span1= val.source
-                  td= val.desc
-                  td.span3
-                    .text-center 
-                      a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.email)= val.email
+              if table
+                each val in table
+                  tr
+                    td
+                      a.tp(href=val.url data-toogle='tooltip' title=val.url)= val.title
+                    td.span1= val.source
+                    td= val.desc
+                    td.span3
+                      .text-center 
+                        a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.email)= val.email
             tfoot
               tr
                 th Title

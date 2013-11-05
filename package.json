@@ -1,24 +1,22 @@
 {
-  "name": "Authentication",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "nodemon app.js"
-  },
-  "dependencies": {
-    "connect-flash": "*",
-    "express": "3.1.0",
-    "jade": "*",
-    "connect-ensure-login": "*",
-    "sparql-client": "*",
-    "mongodb": "*",
-    "nodemon": "*",
-    "passport": "*",
-    "passport-local": "*",
-    "passport-facebook": "*",
-    "passport-ldapauth": "*",
-    "mongoose": "~3.6.4",
-    "node-uuid": "1.4",
-    "xml2js": "*"
-  }
+    "name": "WO",
+    "version": "0.5.0",
+    "private": true,
+    "scripts": {
+        "start": "nodemon app.js"
+    },
+    "dependencies": {
+        "async": "*",
+        "connect-flash": "*",
+        "express": "*",
+        "jade": "*",
+        "connect-ensure-login": "*",
+        "mongodb": "*",
+        "nodemon": "*",
+        "passport": "*",
+        "passport-local": "*",
+        "passport-facebook": "*",
+        "passport-ldapauth": "*",
+        "mongoose": "*"
+    }
 }

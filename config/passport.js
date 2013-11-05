@@ -36,14 +36,13 @@ module.exports = function(passport, config) {
             searchFilter: '(cn={{username}})',
             searchAttributes: ['displayName', 'mail', 'sn', 'givenName', 'cn']
         },
-        passReqToCallback: true
         //usernameField: Field name where the username is found, defaults to username
         //passwordField: Field name where the password is found, defaults to password
     };
 
 
-    passport.use(new LDAPStrategy(ldapOpts, function(req, user, done) {
-        User.findOrCreateSotonUser(req, user, done);
+    passport.use(new LDAPStrategy(ldapOpts, function(user, done) {
+        User.findOrCreateSotonUser(user, done);
     }));
 
     passport.use(new FacebookStrategy({
