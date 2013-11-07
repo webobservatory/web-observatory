@@ -4,18 +4,10 @@ var async = require('async');
 DatasetSchema = mongoose.Schema({
     url: String,
     title: String,
-    creator: String //email of the creator
+    publisher: String, //email of the publisher
+    readable: Boolean,
+    visible: Boolean
 });
-
-/*
-DatasetSchema.statics.findEntryById = function(oid, done) {
-    this.findById(oid, function(err, dataset) {
-        if (err) return done(false, err);
-        if (!dataset) return done(false, 'No entry found.');
-        done(dataset);
-    });
-};
-*/
 
 function transIter(row, done) {
     Dataset.getOrCreateEntry(row, function(err, entry) {
@@ -32,13 +24,12 @@ DatasetSchema.statics.transform = function(rows, done) {
 };
 
 DatasetSchema.statics.getOrCreateEntry = function(data, done) {
-
     var query = {
         url: data.url,
-        creator: data.creator,
+        publisher: data.email,
     };
 
-    this.findOne(query, function(err, entry) {
+    Dataset.findOne(query, function(err, entry) {
 
         if (err)
             return done(err);
@@ -49,10 +40,11 @@ DatasetSchema.statics.getOrCreateEntry = function(data, done) {
         var new_entry = {
             url: data.url,
             title: data.title,
-            creator: data.creator,
-            readable: data.readable
+            publisher: data.email,
+            readable: data.readable !== 'false',
+            visible: data.visible === 'true'
         };
-        this.create(new_entry, function(err, entry) {
+        Dataset.create(new_entry, function(err, entry) {
             done(err, entry);
         });
     });

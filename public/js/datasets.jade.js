@@ -10,12 +10,26 @@ function openQueryForm(url, type) {
     }
 }
 
-function requestAcc(oid) {
+function dspBtn() {
+    var checked = $('input.req:checkbox:checked');
+    if (checked.length !== 0)
+        $('#req').fadeIn();
+    else
+        $('#req').fadeOut();
+}
+
+function requestAcc() {
+
+    var checked = $('input.req:checkbox:checked');
+    var d_ids = checked.map(function() {
+        return $(this).val();
+    }).get();
 
     $.post('/dataset/access', {
-        id: oid
-    }, function(msg) {
-        alert(msg);
+        ids: d_ids
+    }, function(data, testStatus, jqXHR) {
+        alert(jqXHR);
+        //window.location = jqXHR.getResponseHeader('Location');
     });
 
 }
@@ -24,7 +38,7 @@ $(document).ready(function() {
     $('.tp').tooltip();
     $('#display').dataTable();
 
-    $('.tp').bind('click', function(event) {
+    $('a.tp').bind('click', function(event) {
         openQueryForm($(this).attr('href'), $(this).attr('interface'));
         return false;
     });
@@ -48,8 +62,7 @@ $(document).ready(function() {
         }
     });
 
-    $('.req').bind('click', function() {
-        var oid = $(this).attr('href');
-    });
+    $('input.req:checkbox').bind('click', dspBtn);
+    $('#req').bind('click', requestAcc);
 
 });

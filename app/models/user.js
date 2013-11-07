@@ -33,11 +33,12 @@ UserSchema = mongoose.Schema({
     owned: [ //list of datasets that are published by the current user
         DatasetSchema
     ],
+    ownedVis: [DatasetSchema],
+    requested: [DatasetSchema],
     msg: {
         requests: [{
                 sender: String,
-                dataset: String,
-                access: String,
+                dataset: [DatasetSchema],
                 read: Boolean
             }
         ],
@@ -186,6 +187,29 @@ UserSchema.statics.addOwn = function(creator, dataset, done) {
 
 };
 
+UserSchema.statics.addOwnVis = function(creator, vis, done) {
+
+    var query = {
+        email: creator,
+        ownedVis: {
+            $ne: vis
+        }
+    };
+
+    var update = {
+        $push: {
+            ownedVis: vis
+        }
+    };
+
+    this.update(query, update, function(err, user) {
+        done(err);
+    });
+
+};
+
+
+
 UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
 
     var User = this;
@@ -209,7 +233,7 @@ UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
 
 };
 
-UserSchema.statics.listEntries = function(email, cb) {
+UserSchema.statics.listDatasets = function(email, cb) {
 
     var query = {
         email: email
@@ -221,28 +245,37 @@ UserSchema.statics.listEntries = function(email, cb) {
         cb(err, user.visible, user.readable, user.owned);
     });
 };
+UserSchema.statics.listVisualisations = function(email, cb) {
+
+    var query = {
+        email: email
+    };
+
+    this.findOne(query, function(err, user) {
+        if (err)
+            return cb(err);
+        cb(err, user.ownedVis);
+    });
+};
 
 //message handling
-UserSchema.statics.addReq = function(sender, receiver, dataset, access, done) {
+UserSchema.statics.addReq = function(sender, dataset, done) {
     var query = {
-        email: receiver
+        email: dataset.publisher
     };
     var update = {
-        msg: {
-            $push: {
-                request: {
-                    'sender': sender,
-                    'dataset': dataset,
-                    'access': access
-                }
+        $push: {
+            'msg.requests': {
+                'sender': sender,
+                'dataset': [dataset],
+                read: false
             }
         }
     };
 
     this.update(query, update, function(err, user) {
-        done(err, user);
+        done(err, dataset);
     });
-
 };
 
 var User = mongoose.model("User", UserSchema);

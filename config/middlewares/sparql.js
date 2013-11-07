@@ -37,7 +37,7 @@ function buildSELECT(type, visible) {
 
 
     var qmap = {
-        visualisations: 'rdf:type schema:WebPage; schema:isBasedOnUrl ?source. VALUES ?type {"Visualisation"} ',
+        visualisations: 'rdf:type schema:WebPage. OPTIONAL {?entry schema:isBasedOnUrl ?source.} VALUES ?type {"Visualisation"} ',
         datasets: 'wo:readable ?readable; rdf:type schema:Dataset. '
     };
 
@@ -45,7 +45,7 @@ function buildSELECT(type, visible) {
     if (visible && visible.length > 0) {
         var values = '';
         for (i = 0; i < visible.length; i++)
-            values += '<'+visible[i] + '> ';
+            values += '<' + visible[i] + '> ';
 
         visibleUnion = '{{' + visibleUnion + '} UNION {?entry wo:visible "false"^^xsd:boolean. VALUES ?entry { ' + values + '}}} ';
     }
@@ -123,14 +123,14 @@ function buildUpdate(type, data) {
         'schema:name "' + title + '"; ' +
         'schema:description "' + desc + '"; ' +
         'schema:datePublished ' + date + '; ' +
-        'schema:url "' + url + '"; ' +
+        'schema:url <' + url + '>; ' +
         'schema:publisher _:pb; ' +
-        (type === 'visualisations' ?
+        (type === 'visualisations' && data.source ?
         'schema:isBasedOnUrl "' + data.source + '"; ' :
         '') +
         'wo:visible ' + visible + '; ' +
-        'wo:readable ' + readable + '; ' +
-        (data.creator ? 'schema:creator _:cr. _:cr rdf:type schema:Person; ' + ' schema:name "' + data.creator + '". ' :
+        'wo:readable ' + readable + '. ' +
+        (data.creator ? entry + ' schema:creator _:cr. _:cr rdf:type schema:Person; ' + ' schema:name "' + data.creator + '". ' :
         '') +
         '_:pb rdf:type schema:Person; ' +
         (username ? 'schema:name "' + username + '". ' : '') +
@@ -145,7 +145,7 @@ function buildUpdate(type, data) {
  */
 
 function tableEntries(bindings, readable) {
-    console.log(JSON.stringify(bindings));
+    console.log(bindings);
 
     var fields = [
             'title',
@@ -161,11 +161,11 @@ function tableEntries(bindings, readable) {
         var binding = bindings[i];
         //console.log(JSON.stringify(binding));
         var row = {};
-        for (i = 0; i < fields.length; i++) {
-            row[fields[i]] = binding[fields[i]] ? binding[fields[i]].value : false;
+        for (j = 0; j < fields.length; j++) {
+            row[fields[j]] = binding[fields[j]] ? binding[fields[j]].value : '';
         }
         //readable to the current user? set readable to true
-        if (row.readable &&
+        if (readable &&
             row.readable === 'false' &&
             readable.indexOf(row.url) != -1) {
             row.readable = 'true';
@@ -200,7 +200,6 @@ module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
             data += chunk;
         });
         res.on('end', function() {
-            console.log(data);
             data = JSON.parse(data);
             var rows = [];
             if (data.results) {
@@ -254,10 +253,8 @@ module.exports.SPARQLUpdateContent = function(type, data, cb) {
         });
         res.on('end', function() {
             if (data) {
-                console.log(data);
                 data = JSON.parse(data);
-                var message = data.results.bindings;
-                //console.log(message);
+                var message = data.results.bindings[0]['error-message'].value;
                 cb({
                     'message': message
                 });

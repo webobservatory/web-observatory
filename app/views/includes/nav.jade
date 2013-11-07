@@ -6,7 +6,7 @@
         span.icon-bar
         span.icon-bar
       a.brand(href='#')
-        | Web Observatory&colon;
+        | Web Observatory
         span#location
       .nav-collapse.collapse
         ul.nav
@@ -35,10 +35,10 @@
                             <li><a href="#">One more separated link</a></li>
       ul.nav.pull-right
         if user == null                  
-          li
+          li.active
             a.pull-right(href='/login') Sign in
         else
-          li
+          li.active
             if user.username
               a(href='/profile') #{user.username}
             else

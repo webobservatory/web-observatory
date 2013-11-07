@@ -2,6 +2,7 @@
 html(lang='en')
   include includes/head
     link(href='/css/jquery.dataTables.css', rel='stylesheet')
+
   body
     include includes/nav
     #wrap
@@ -10,6 +11,7 @@ html(lang='en')
           include includes/flash-banner
         .row
           a.btn.btn-primary.btn-large(href='#myModal', role='button', data-toggle='modal') Add a dataset
+          button#req.btn.btn-info.btn-large.pull-right.hide Request
           // Modal
           #myModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
             .modal-header
@@ -74,7 +76,7 @@ html(lang='en')
                 th Description
                 th 
                   .text-center Publisher email
-                th.tp(data-toogle='tooltip' title='Public accessible') Public
+                th.tp(data-toogle='tooltip' title='Can be queried') Access
             tbody
               if table
                 each val in table
@@ -92,8 +94,8 @@ html(lang='en')
                       if(tf)
                         i.icon-ok
                       else  
-                        a.tp.req(href=val.url data-toogle='tooltip' title='Request access')
-                          i.icon-remove
+                        i.icon-remove
+                        input.tp.req( type='checkbox' value=val.url data-toogle='tooltip' title='Request access')
             tfoot
               tr
                 th Title
@@ -102,7 +104,7 @@ html(lang='en')
                 th Description
                 th
                   .text-center Publisher email
-                th Public
+                th Access
         #query-frame.row  
       #push
     include includes/footer
