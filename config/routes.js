@@ -88,7 +88,7 @@ module.exports = function(app, passport) {
     app.post('/dataset/access', ensureLoggedIn('/login'), function(req, res) {
         var sender_mail = req.user.email,
             dt_ids = req.body.ids;
-        if (typeof dt_ids !== 'array')
+        if (typeof dt_ids === 'string')
             dt_ids = [dt_ids];
 
         async.map(dt_ids, function(dtid, cb) {
@@ -123,32 +123,74 @@ module.exports = function(app, passport) {
     });
 
     app.post('/dataset/approve', ensureLoggedIn('/login'), function(req, res) {
-
         var clr = req.body.clr === 'true',
-            usr = req.user.email,
+            umail = req.user.email,
             reqids = req.body.reqids;
+        if (typeof reqids === 'string')
+            reqids = [reqids];
 
-        async.map(reqids, function(id, cb) {
-            User.findById(id, function(err, req) {
-
-
-            });
-        }, function(err, reqs) {
+        User.findOne({
+            email: umail
+        }, function(err, user) {
             if (err) {
                 req.flash('error', [err.message]);
+                return res.redirect(req.get('referer'));
             }
-            res.redirect(req.get('referer'));
 
+            async.map(reqids, function(rid, cb) {
+                var rst = user.msg.requests.id(rid);
+                User.accCtrl(clr, rst, cb);
 
-
+            }, function(err, requests) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    return res.redirect(req.get('referer'));
+                }
+                User.rmReq(umail, requests, function(err, user) {
+                    if (err)
+                        req.flash('error', [err.message]);
+                    else
+                        req.flash('info', [clr ? 'Request denied' : 'Access granted']);
+                    res.redirect(req.get('referer'));
+                });
+            });
         });
-
-
-
-
-
-
     });
+
+    app.post('/dataset/status', ensureLoggedIn('/login'), function(req, res) {
+        var umail = req.user.email,
+            dids = req.body.dids;
+        if (typeof dids === 'string')
+            dids = [dids];
+/*
+        User.findOne({
+            email: umail
+        }, function(err, user) {
+            if (err) {
+                req.flash('error', [err.message]);
+                return res.redirect(req.get('referer'));
+            }
+
+            async.map(reqids, function(rid, cb) {
+                var rst = user.msg.requests.id(rid);
+                User.accCtrl(clr, rst, cb);
+
+            }, function(err, requests) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    return res.redirect(req.get('referer'));
+                }
+                User.rmReq(umail, requests, function(err, user) {
+                    if (err)
+                        req.flash('error', [err.message]);
+                    else
+                        req.flash('info', [clr ? 'Request denied' : 'Access granted']);
+                    res.redirect(req.get('referer'));
+                });
+            });
+        });*/
+    });
+
     app.get('/wo/queries', ensureLoggedIn('/login'), function(req, res) {
         res.render('queries', {
             user: req.user,
@@ -276,7 +318,7 @@ module.exports = function(app, passport) {
     });
 
     app.post('/auth/soton', passport.authenticate('ldapauth', {
-        failureRedirect: '/login',
+        failureRedirect: '/auth/soton',
         failureFlash: true,
         successReturnToOrRedirect: '/'
     }));
@@ -300,6 +342,7 @@ module.exports = function(app, passport) {
 
             parameter.error = errmsg;
             parameter.info = req.flash('info');
+            parameter.scripts = ['/js/profile.jade.js'];
             res.render('profile', parameter);
         });
     });

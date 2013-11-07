@@ -146,10 +146,20 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
 };
 
 //dataset access control
-UserSchema.statics.grantAccess = function(user, dataset, done) {
+
+UserSchema.statics.accCtrl = function(deny, request, done) {
+    if (deny)
+        User.denyAccess(request, done);
+    else
+        User.grantAccess(request, done);
+};
+
+UserSchema.statics.grantAccess = function(request, done) {
+    console.log('grant');
     var User = this;
+    var dataset = request.dataset[0];
     var query = {
-        email: user,
+        email: request.sender,
         readable: {
             $ne: dataset
         }
@@ -157,11 +167,53 @@ UserSchema.statics.grantAccess = function(user, dataset, done) {
 
     var update = {
         $push: {
-            readable: dataset
+            readable: dataset,
+            'msg.general': {
+                content: 'Your request for accessing ' + request.dataset[0].title + ' has been approved',
+                read: false
+            }
+        },
+        $pull: {
+            requested: dataset
         }
     };
 
     User.update(query, update, function(err, user) {
+        done(err, request);
+    });
+};
+
+UserSchema.statics.denyAccess = function(request, done) {
+    console.log('deny');
+    var User = this;
+    var query = {
+        email: request.sender,
+    };
+
+    var update = {
+        $push: {
+            'msg.general': {
+                content: 'Your request for accessing ' + request.dataset[0].title + ' has been denied',
+                read: false
+            }
+        }
+    };
+
+    User.update(query, update, function(err, user) {
+        done(err, request);
+    });
+};
+
+UserSchema.statics.rmReq = function(umail, reqs, done) {
+
+    var update = {
+        $pullAll: {
+            'msg.requests': reqs
+        }
+    };
+    User.update({
+        email: umail
+    }, update, function(err, user) {
         done(err, user);
     });
 };

@@ -9,17 +9,31 @@ html(lang='en')
         .row
           .span3.bs-docs-sidebar
             ul.nav.nav-list.bs-docs-sidenav.affix
+              li.nav-header
+                | General settings
               li
                 a(href='#account')
                   | Account settings
                   i.icon-chevron-right 
+              li.nav-header
+                | Dataset management
               li
-                a(href='#dataset')
-                  | Dataset management
+                a(href='#owneddataset')
+                  | Owned datasets
                   i.icon-chevron-right 
               li
+                a(href='#requesteddataset')
+                  | Requested datasets
+                  i.icon-chevron-right 
+              li
+                a(href='#requests')
+                  | Requests
+                  i.icon-chevron-right 
+              li.nav-header
+                | Messages
+              li
                 a(href='#msgbox')
-                  | Messages
+                  | Inbox
                   i.icon-chevron-right 
           .span9
             include includes/flash-banner
@@ -44,74 +58,76 @@ html(lang='en')
                       input(type='password' name='newpas')
                   .control-group
                     .controls
-                      button.btn.btn-primary(type='submit') Save
-            section#dataset
+                      button.disabled.btn.btn-primary(type='submit') Save
+            section#owneddataset
               .page-header
-                h1 Dataset management
-              ul.nav.nav-tabs
-                li.active
-                  a(href='#owner', data-toggle='tab') As owner
-                li
-                  a(href='#viewer', data-toggle='tab') As viewer
-                li
-                  a(href='#msg', data-toggle='tab') Requests (#{msg.requests?msg.requests.length:0})
-              .tab-content
-                .tab-pane.active#owner
-                  h2 Owned datasets
-                  form.form-horizontal(method='post' action='/user/dsmng')
-                    fieldset
-                      if owned && owned.length != 0
-                        each entry in owned
-                          .control-group    
-                            label.control-label= entry.title
-                            .controls
-                              label.checkbox Private
-                                - var chk = entry.readable === false?'checked':undefined
-                                input(type='checkbox' checked=chk value=entry._id)
-                        .control-group
-                          .controls
-                            button.btn.btn-primary(type='submit') Confirm
-                .tab-pane#viewer
-                  if requested && requested.length != 0
-                    requested
-                    h2 Requested datasets
-                    form.form-horizontal(method='post' action='/dataset/access')
-                      fieldset
-                        each entry in requested
-                          .control-group
-                            .controls
-                              label.checkbox= entry.title
-                                input(name='ids' value=entry._id type='checkbox')
-                        .control-group
-                          .controls
-                            button#req.btn.btn-primary(type='submit') Request access again
-                  if visible
-                    h2 Visible datasets & visualisations
-                    each entry in visible
-                      p= entry.title
-                  if readable
-                    h2 Accessible datasets
-                      p= entry.title
+                h1 Owned datasets (#{owned?owned.length:0})
+              form.form-horizontal(method='post' action='/dataset/status')
+                fieldset
+                  if owned && owned.length != 0
+                    each entry in owned
+                      .control-group    
+                        label.control-label= entry.title
+                        .controls
+                          label.checkbox Private
+                            - var chk = entry.readable === false?'checked':undefined
+                            input(type='checkbox' checked=chk name='dids' value=entry._id)
+                    .control-group
+                      .controls
+                        button.disabled.btn.btn-primary(type='submit') Change status
+            section#requesteddataset
+              .page-header
+                h1 Requested datasets (#{requested?requested.length:0})
+              if requested && requested.length != 0
+                requested
+                form.form-horizontal(method='post' action='/dataset/access')
+                  fieldset
+                    each entry in requested
+                      .control-group
+                        .controls
+                          label.incline.checkbox= entry.title
+                            input(name='ids' value=entry._id type='checkbox')
+                    .control-group
+                      .controls
+                        button#req.btn.btn-primary(type='submit') Request access again
+              if visible
+                h2 Visible datasets & visualisations
+                each entry in visible
+                  p= entry.title
+              if readable
+                h2 Accessible datasets
+                  p= entry.title
 
-                .tab-pane#msg
-                  form.form-horizontal(method='post' action='/dataset/approve')
-                    fieldset
-                      input#clrflag.hide(name='clr')
-                      if msg && msg.requests
-                        each m in msg.requests
-                          p User #{m.sender} requested access to dataset #{m.dataset[0].title}
-                          input(type='checkbox' name='reqids' value= m._id)
-                        .control-group
-                          .controls
-                            button.btn.btn-danger#clear Deny
-
-                            button.btn.btn-primary#approve Approve
+            section#requests
+              .page-header
+                h1 Requests (#{msg && msg.requests?msg.requests.length:0})
+              if msg && msg.requests && msg.requests.length != 0
+                form.form-horizontal(method='post' action='/dataset/approve')
+                  fieldset
+                    input#clrflag.hide(name='clr')
+                    each m in msg.requests
+                      .control-group
+                        .controls
+                          label.checkbox User #{m.sender} requested access to dataset #{m.dataset[0].title}
+                            input(type='checkbox' name='reqids' value= m._id)
+                    .control-group
+                      .controls
+                        button.btn.btn-primary#approve Approve
+                        button.btn.btn-danger#clear Deny
             section#msgbox
               .page-header
-                h1 Messages
-              if msg && msg.general
-                each m in msg.general
-                  p= m.content
-                  input(type='checkbox' value= m._id)
+                h1 Inbox (#{msg && msg.general?msg.general.length:0})
+              form.form-horizontal(method='post' action='/dataset/approve')
+                fieldset
+                  if msg && msg.general && msg.general.length != 0
+                    each m in msg.general
+                      .control-group
+                        .controls
+                          label.checkbox
+                            = m.content
+                            input(type='checkbox' value= m._id)
+                    .control-group
+                      .controls
+                        button.disabled.btn.btn-danger Clear
       #push
     include includes/footer

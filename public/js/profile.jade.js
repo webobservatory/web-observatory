@@ -1,22 +1,29 @@
 function noChecked() {
-    return $('#msg form input:checkbox:checked').length === 0;
+    return $('#requests form input:checkbox:checked').length === 0;
 }
 
 $(document).ready(function() {
-    $('#approve').bind('click', function() {
-        if (noChecked) {
+    $('#approve').bind('click', function(e) {
+        if (noChecked()) {
             alert('No entry selected');
+            e.preventDefault();
             return;
         }
-        $('#msg form').submit();
+        $('#requests form').submit();
     });
 
-    $('#clear').bind('click', function() {
-        if (noChecked) {
+    $('#clear').bind('click', function(e) {
+        if (noChecked()) {
             alert('No entry selected');
+            e.preventDefault();
             return;
         }
         $('#clrflag').val('true');
-        $('#msg form').submit();
+        $('#requests form').submit();
+    });
+
+    $('.disabled').bind('click', function(e) {
+        alert('Comming soon');
+        e.preventDefault();
     });
 });
