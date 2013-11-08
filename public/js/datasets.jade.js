@@ -19,19 +19,9 @@ function dspBtn() {
 }
 
 function requestAcc() {
-
     var checked = $('input.req:checkbox:checked');
-    var d_ids = checked.map(function() {
-        return $(this).val();
-    }).get();
-
-    $.post('/dataset/access', {
-        ids: d_ids
-    }, function(data, testStatus, jqXHR) {
-        alert(jqXHR);
-        //window.location = jqXHR.getResponseHeader('Location');
-    });
-
+    $('#reqform').append(checked);
+    $('#reqform').submit();
 }
 
 $(document).ready(function() {

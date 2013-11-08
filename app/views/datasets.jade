@@ -95,7 +95,7 @@ html(lang='en')
                         i.icon-ok
                       else  
                         i.icon-remove
-                        input.tp.req( type='checkbox' value=val.url data-toogle='tooltip' title='Request access')
+                        input.tp.req(style='margin-top: 0; line-height: normal' type='checkbox' name='ids' value=val.url data-toogle='tooltip' title='Request access')
             tfoot
               tr
                 th Title
@@ -105,6 +105,7 @@ html(lang='en')
                 th
                   .text-center Publisher email
                 th Access
+        form.hide#reqform(action='/dataset/access' method='post')
         #query-frame.row  
       #push
     include includes/footer

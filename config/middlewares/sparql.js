@@ -145,7 +145,7 @@ function buildUpdate(type, data) {
  */
 
 function tableEntries(bindings, readable) {
-    console.log(bindings);
+    //console.log(bindings);
 
     var fields = [
             'title',

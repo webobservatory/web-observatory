@@ -90,7 +90,7 @@ module.exports = function(app, passport) {
             dt_ids = req.body.ids;
         if (typeof dt_ids === 'string')
             dt_ids = [dt_ids];
-
+console.log(dt_ids);
         async.map(dt_ids, function(dtid, cb) {
             Dataset.findById(dtid, function(err, dt) {
                 if (err)

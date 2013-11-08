@@ -38,11 +38,8 @@
           li.active
             a.pull-right(href='/login') Sign in
         else
-          li.active
-            if user.username
-              a(href='/profile') #{user.username}
-            else
-              a(href='/profile') #{user.email}
+          li
+            a(href="/profile") Profile
           li 
             a(href="/logout") Logout
       // /.nav-collapse
