@@ -17,7 +17,7 @@ exports.userExist = function(req, res, next) {
             next();
         } else {
             req.flash('info', ['User already exists, please login']);
-            res.redirect("/signin");
+            res.redirect("/login");
         }
     });
 };
