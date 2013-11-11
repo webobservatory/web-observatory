@@ -90,11 +90,18 @@ module.exports = function(app, passport) {
             dt_ids = req.body.ids;
         if (typeof dt_ids === 'string')
             dt_ids = [dt_ids];
-console.log(dt_ids);
+        console.log(dt_ids);
         async.map(dt_ids, function(dtid, cb) {
-            Dataset.findById(dtid, function(err, dt) {
+            User.findOne({
+                'owned._id': dtid
+            }, function(err, user) {
                 if (err)
                     return cb(err);
+                if (!user)
+                    return cb({
+                        message: 'No publisher found for requested dataset' + dtid
+                    });
+                var dt = user.owned.id(dtid);
                 User.addReq(sender_mail, dt, cb);
             });
         }, function(err, req_dts) {
@@ -158,37 +165,32 @@ console.log(dt_ids);
     });
 
     app.post('/dataset/status', ensureLoggedIn('/login'), function(req, res) {
-        var umail = req.user.email,
-            dids = req.body.dids;
-        if (typeof dids === 'string')
-            dids = [dids];
-/*
-        User.findOne({
-            email: umail
-        }, function(err, user) {
-            if (err) {
-                req.flash('error', [err.message]);
-                return res.redirect(req.get('referer'));
-            }
+        var umail = req.user.email;
+        var ids = Object.keys(req.body);
+        console.log(ids);
 
-            async.map(reqids, function(rid, cb) {
-                var rst = user.msg.requests.id(rid);
-                User.accCtrl(clr, rst, cb);
-
-            }, function(err, requests) {
-                if (err) {
-                    req.flash('error', [err.message]);
-                    return res.redirect(req.get('referer'));
+        async.map(ids, function(id, cb) {
+            var isPrivate = req.body[id] === 'private';
+            var query = {
+                email: umail,
+                'owned._id': id
+            };
+            var update = {
+                $set: {
+                    'owned.$.readable': !isPrivate
                 }
-                User.rmReq(umail, requests, function(err, user) {
-                    if (err)
-                        req.flash('error', [err.message]);
-                    else
-                        req.flash('info', [clr ? 'Request denied' : 'Access granted']);
-                    res.redirect(req.get('referer'));
-                });
-            });
-        });*/
+            };
+            User.update(query, update, cb);
+
+        }, function(err, results) {
+            console.log(results);
+            if (err)
+                req.flash('error', [err.message]);
+            else
+                req.flash('info', ['Dataset status changed']);
+            res.redirect(req.get('referer'));
+        });
+
     });
 
     app.get('/wo/queries', ensureLoggedIn('/login'), function(req, res) {
@@ -264,10 +266,15 @@ console.log(dt_ids);
     app.get("/", function(req, res) {
         if (req.isAuthenticated()) {
             res.render("index", {
+                info: req.flash('info'),
+                error: req.flash('error'),
                 user: req.user
             });
         } else {
-            res.render("index", null);
+            res.render("index", {
+                info: req.flash('info'),
+                error: req.flash('error')
+            });
         }
     });
 
@@ -314,7 +321,10 @@ console.log(dt_ids);
     });
 
     app.get('/auth/soton', function(req, res) {
-        res.render('soton');
+        res.render('soton', {
+            'info': req.flash('info'),
+            'error': req.flash('error')
+        });
     });
 
     app.post('/auth/soton', passport.authenticate('ldapauth', {
@@ -344,6 +354,83 @@ console.log(dt_ids);
             parameter.info = req.flash('info');
             parameter.scripts = ['/js/profile.jade.js'];
             res.render('profile', parameter);
+        });
+    });
+
+    app.post("/profile", ensureLoggedIn('/login'), function(req, res) {
+        var oldpw = req.body.oldpw,
+            newpw = req.body.newpw,
+            email = req.user.email,
+            username = req.body.username;
+        if (newpw) {
+            User.isValidUserPassword(email, oldpw, function(err, user, msg) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    return res.redirect(req.get('referer'));
+                }
+
+                if (!user) {
+                    req.flash('error', [msg.message]);
+                    return res.redirect(req.get('referer'));
+                }
+
+                User.updateProfile(user, newpw, username, function(err, user) {
+                    if (err) {
+                        req.flash('error', [err.message]);
+                        return res.redirect(req.get('referer'));
+                    } else {
+                        req.flash('info', ['Profile updated']);
+                        return res.redirect(req.get('referer'));
+                    }
+                });
+            });
+        } else {
+            User.findOne({
+                'email': email
+            }, function(err, user) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    return res.redirect(req.get('referer'));
+                }
+
+                User.updateProfile(user, null, username, function(err, user) {
+                    if (err) {
+                        req.flash('error', [err.message]);
+                        return res.redirect(req.get('referer'));
+                    } else {
+                        req.flash('info', ['Profile updated']);
+                        return res.redirect(req.get('referer'));
+                    }
+                });
+
+            });
+        }
+    });
+
+    app.post('/profile/message', ensureLoggedIn('/login'), function(req, res) {
+        var msgid = req.body.msgid;
+        if (typeof msgid === 'string')
+            msgid = [msgid];
+
+        User.findOne({
+            email: req.user.email
+        }, function(err, user) {
+            if (err) {
+                req.flash('error', [err.message]);
+                return res.redirect(req.get('referer'));
+            }
+            for (var mid in msgid) {
+                user.msg.general.remove(msgid[mid]);
+            }
+
+            user.save(function(err) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    return res.redirect(req.get('referer'));
+                }
+                req.flash('info', ['Messages cleared']);
+                res.redirect(req.get('referer'));
+            });
         });
     });
 

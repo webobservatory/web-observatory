@@ -1,11 +1,11 @@
 var mongoose = require('mongoose');
 var hash = require('../util/hash');
-var DatasetSchema = require('mongoose').model('Dataset').schema;
-var Dataset = require('./dataset');
+var DatasetSchema = mongoose.model('Dataset').schema;
 
 UserSchema = mongoose.Schema({
     firstName: String,
     lastName: String,
+    username: String,
     email: String,
     salt: String,
     hash: String,
@@ -55,26 +55,44 @@ UserSchema = mongoose.Schema({
 UserSchema.statics.signup = function(email, password, done) {
     var User = this;
     hash(password, function(err, salt, hash) {
-        if (err) throw err;
-        // if (err) return done(err);
+        //if (err) throw err;
+        if (err)
+            return done(err);
         User.create({
             email: email,
             salt: salt,
             hash: hash
         }, function(err, user) {
-            if (err) throw err;
-            // if (err) return done(err);
+            //if (err) throw err;
+            if (err)
+                return done(err);
             done(null, user);
         });
     });
 };
 
+UserSchema.statics.updateProfile = function(user, nps, username, done) {
+    if (nps) {
+        hash(nps, function(err, salt, hash) {
+            if (username)
+                user.username = username;
+            user.salt = salt;
+            user.hash = hash;
+            user.save(done);
+        });
+    } else {
+        if (username) {
+            user.username = username;
+            user.save(done);
+        } else
+            done(null, user);
+    }
+};
 
 UserSchema.statics.isValidUserPassword = function(email, password, done) {
     this.findOne({
         email: email
     }, function(err, user) {
-        // if(err) throw err;
         if (err) return done(err);
         if (!user) return done(null, false, {
                 message: 'Incorrect email.'
@@ -117,28 +135,27 @@ UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
     });
 };
 
-
-
 UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
     var User = this;
     User.findOne({
         'soton.id': profile.cn
     }, function(err, user) {
-        //if (err) throw err;
-        if (err) return done(err);
+        if (err)
+            return done(err);
         if (user) {
             done(null, user);
         } else {
             User.create({
                 email: profile.mail,
+                username: profile.displayName,
                 soton: {
                     id: profile.cn,
                     email: profile.mail,
                     name: profile.displayName
                 }
             }, function(err, user) {
-                //if (err) throw err;
-                if (err) return done(err);
+                if (err)
+                    return done(err);
                 done(null, user);
             });
         }
@@ -316,7 +333,7 @@ UserSchema.statics.addReq = function(sender, dataset, done) {
         email: dataset.publisher
     };
     var update = {
-        $push: {
+        $addToSet: {
             'msg.requests': {
                 'sender': sender,
                 'dataset': [dataset],

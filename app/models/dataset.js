@@ -24,29 +24,69 @@ DatasetSchema.statics.transform = function(rows, done) {
 };
 
 DatasetSchema.statics.getOrCreateEntry = function(data, done) {
+    var User = require('./user');
     var query = {
-        url: data.url,
-        publisher: data.email,
+        'owned.url': data.url,
+        email: data.email,
+    };
+    var update = {
+        $addToSet: {
+            owned: {
+                url: data.url,
+                title: data.title,
+                publisher: data.email,
+                readable: data.readable !== 'false',
+                visible: data.visible === 'true'
+            }
+        }
     };
 
-    Dataset.findOne(query, function(err, entry) {
+    User.findOne(query, function(err, user) {
+        if (!user) {
+            User.update({
+                email: data.email
+            }, update, {
+                upsert: true
+            }, function(err, user) {
+                User.aggregate({
+                    $match: {
+                        email: data.email,
+                    }
+                }, {
+                    $unwind: '$owned'
+                }, {
+                    $match: {
+                        'owned.url': data.url,
+                    }
+                }, {
+                    $project: {
+                        _id: '$owned._id'
+                    }
+                },
 
-        if (err)
-            return done(err);
-
-        if (entry)
-            return done(false, entry);
-
-        var new_entry = {
-            url: data.url,
-            title: data.title,
-            publisher: data.email,
-            readable: data.readable !== 'false',
-            visible: data.visible === 'true'
-        };
-        Dataset.create(new_entry, function(err, entry) {
-            done(err, entry);
-        });
+                function(err, entry) {
+                    done(err, entry[0]);
+                });
+            });
+        } else {
+            User.aggregate({
+                $match: {
+                    email: data.email,
+                }
+            }, {
+                $unwind: '$owned'
+            }, {
+                $match: {
+                    'owned.url': data.url,
+                }
+            }, {
+                $project: {
+                    _id: '$owned._id'
+                }
+            }, function(err, entry) {
+                done(err, entry[0]);
+            });
+        }
     });
 };
 
