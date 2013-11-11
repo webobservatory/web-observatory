@@ -22,7 +22,7 @@ function getPrefix() {
         xsd = "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>",
         rdf = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>",
         foaf = "PREFIX foaf: <http://xmlns.com/foaf/0.1/>";
-    return void_ + " " + schema + ' ' + dcterms + " " + wo + " " + xsd + " " + rdf + " " + foaf;
+    return void_ + ' ' + schema + ' ' + dcterms + ' ' + wo + ' ' + xsd + ' ' + rdf + ' ' + foaf + ' ';
 }
 
 function buildSELECTDataset(visible, readable) {
@@ -269,4 +269,69 @@ module.exports.SPARQLUpdateContent = function(type, data, cb) {
 
     req.end();
 
+};
+
+
+module.exports.SPARQLUpdateStatus = function(data, cb) {
+    var uri = '<' + data.url + '>',
+        visible = data.visible,
+        readable = data.readable;
+
+    var insert = '',
+        del = '',
+        where = 'WHERE {OPTIONAL {' + uri + ' wo:visible ?v}' + ' OPTIONAL {' + uri + ' wo:readable ?r}}';
+
+    if (typeof readable !== 'undefined') {
+        insert += uri + ' wo:readable ' + readable + '. ';
+        del += uri + ' wo:readable ?r. ';
+    }
+
+    if (typeof visible !== 'undefined') {
+        insert += uri + ' wo:visible ' + visible + '. ';
+        del += uri + ' wo:visible ?v. ';
+    }
+    insert = 'INSERT {' + insert + '} ';
+    del = 'DELETE {' + del + '} ';
+    var query = getPrefix() + 'WITH wo:void ' + del + insert + where;
+
+    console.log('Update status query');
+    console.log(query);
+    var opts = {
+        method: 'post',
+        port: 8080,
+        host: domain,
+        path: updateURL + '?update=' + encodeURIComponent(query),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/sparql-results+json'
+        }
+    };
+
+    var req = http.request(opts, function(res) {
+        console.log("Got update response: " + res.statusCode);
+        if (res.statusCode === 404)
+            return cb({
+                message: 'Cannot retrieve metadata of datasets'
+            });
+        var data = '';
+        res.on('data', function(chunk) {
+            data += chunk;
+        });
+        res.on('end', function() {
+            if (data) {
+                data = JSON.parse(data);
+                var message = data.results.bindings[0]['error-message'].value;
+                cb({
+                    'message': message
+                });
+            } else
+                cb(false);
+
+        });
+    }).on('error', function(e) {
+        console.log("Got error: " + e.message);
+        cb(e);
+    });
+
+    req.end();
 };

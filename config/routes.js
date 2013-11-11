@@ -3,8 +3,10 @@ var Dataset = require('../app/models/dataset');
 var Auth = require('./middlewares/authorization.js');
 var async = require('async');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
-var SPARQLGetContent = require('./middlewares/sparql.js').SPARQLGetContent;
-var SPARQLUpdate = require('./middlewares/sparql.js').SPARQLUpdateContent;
+var sparql = require('./middlewares/sparql.js');
+var SPARQLGetContent = sparql.SPARQLGetContent;
+var SPARQLUpdate = sparql.SPARQLUpdateContent;
+var SPARQLUpdateStatus = sparql.SPARQLUpdateStatus;
 
 module.exports = function(app, passport) {
 
@@ -171,6 +173,18 @@ module.exports = function(app, passport) {
 
         async.map(ids, function(id, cb) {
             var isPrivate = req.body[id] === 'private';
+            User.findOne({
+                email: umail
+            }, function(err, user) {
+                var url = user.owned.id(id).url;
+                SPARQLUpdateStatus({
+                    'url': url,
+                    'readable': !isPrivate
+                }, function(err) {
+                    if (err)
+                        req.flash('error', [err.message]);
+                });
+            });
             var query = {
                 email: umail,
                 'owned._id': id
@@ -181,6 +195,8 @@ module.exports = function(app, passport) {
                 }
             };
             User.update(query, update, cb);
+
+
 
         }, function(err, results) {
             console.log(results);
