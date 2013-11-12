@@ -68,22 +68,36 @@ module.exports = function(app, passport) {
             email: req.user.email,
         };
 
-        async.waterfall([
-            function(cb) {
-                SPARQLUpdate('datasets', data, cb);
-            },
-            function(cb) {
-                Dataset.getOrCreateEntry(data, cb);
-            },
-            function(dataset, cb) {
-                User.addOwn(req.user.email, dataset, cb);
-            }
-        ], function(err) {
-            if (err)
+        //already exist?
+        User.findOne({
+            'owned.url': data.url
+        }, function(err, user) {
+            if (err) {
                 req.flash('error', [err.message]);
-            else
-                req.flash('info', ['Dataset added successfully']);
-            res.redirect('/wo/datasets');
+                return res.redirect('/wo/datasets');
+            }
+            if (usr) {
+                req.flash('error', ['Dataset already existed']);
+                return res.redirect('/wo/datasets');
+            }
+
+            async.waterfall([
+                function(cb) {
+                    SPARQLUpdate('datasets', data, cb);
+                },
+                function(cb) {
+                    Dataset.getOrCreateEntry(data, cb);
+                },
+                function(dataset, cb) {
+                    User.addOwn(req.user.email, dataset, cb);
+                }
+            ], function(err) {
+                if (err)
+                    req.flash('error', [err.message]);
+                else
+                    req.flash('info', ['Dataset added successfully']);
+                res.redirect('/wo/datasets');
+            });
         });
     });
 

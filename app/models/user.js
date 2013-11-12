@@ -107,8 +107,6 @@ UserSchema.statics.isValidUserPassword = function(email, password, done) {
     });
 };
 
-
-
 UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
     var User = this;
     User.findOne({
@@ -239,8 +237,8 @@ UserSchema.statics.addOwn = function(creator, dataset, done) {
 
     var query = {
         email: creator,
-        owned: {
-            $ne: dataset
+        'owned.url': {
+            $ne: dataset.url
         }
     };
 
@@ -251,7 +249,7 @@ UserSchema.statics.addOwn = function(creator, dataset, done) {
     };
 
     this.update(query, update, function(err, user) {
-        done(err);
+        done(err,user);
     });
 
 };
@@ -260,8 +258,8 @@ UserSchema.statics.addOwnVis = function(creator, vis, done) {
 
     var query = {
         email: creator,
-        ownedVis: {
-            $ne: vis
+        'ownedVis.url': {
+            $ne: vis.url
         }
     };
 
@@ -272,12 +270,10 @@ UserSchema.statics.addOwnVis = function(creator, vis, done) {
     };
 
     this.update(query, update, function(err, user) {
-        done(err);
+        done(err,user);
     });
 
 };
-
-
 
 UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
 

@@ -77,7 +77,6 @@ function buildUpdateDataset(data) {
 }
 
 function buildUpdate(type, data) {
-    //console.log(JSON.stringify(data));
     //?title ?url ?type ?desc ?email ?readable ?source
     var typemap = {
         visualisations: 'schema:WebPage',
@@ -145,24 +144,12 @@ function buildUpdate(type, data) {
  */
 
 function tableEntries(bindings, readable) {
-    //console.log(bindings);
-
-    var fields = [
-            'title',
-            'url',
-            'type',
-            'desc',
-            'email',
-            'readable',
-            'source'
-    ];
     var rows = [];
     for (i = 0; i < bindings.length; i++) {
         var binding = bindings[i];
-        //console.log(JSON.stringify(binding));
         var row = {};
-        for (j = 0; j < fields.length; j++) {
-            row[fields[j]] = binding[fields[j]] ? binding[fields[j]].value : '';
+        for (var key in binding) {
+            row[key] = binding[key].value;
         }
         //readable to the current user? set readable to true
         if (readable &&
@@ -175,6 +162,8 @@ function tableEntries(bindings, readable) {
     return rows;
 }
 
+
+
 module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
     var query = queryBuilders[type](visible);
     console.log('Select query');
@@ -182,7 +171,7 @@ module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
     var opts = {
         port: 8080,
         host: domain,
-        path: selectURL + '?query=' + encodeURIComponent(query) + '&content-type=application/sparql-results+json',
+        path: selectURL + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/sparql-results+json'
@@ -190,7 +179,7 @@ module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
     };
 
     var req = http.request(opts, function(res) {
-        console.log("Got response: " + res.statusCode);
+        console.log("getContent response: " + res.statusCode);
         if (res.statusCode === 404)
             return cb({
                 message: 'List of datasets not available'
@@ -219,7 +208,6 @@ module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
             }
         });
     }).on('error', function(e) {
-        console.log("SPARQL get content error: " + e.message);
         cb(e);
     });
     req.end();
@@ -308,7 +296,7 @@ module.exports.SPARQLUpdateStatus = function(data, cb) {
     };
 
     var req = http.request(opts, function(res) {
-        console.log("Got update response: " + res.statusCode);
+        console.log("updateStatus response: " + res.statusCode);
         if (res.statusCode === 404)
             return cb({
                 message: 'Cannot retrieve metadata of datasets'
@@ -333,5 +321,66 @@ module.exports.SPARQLUpdateStatus = function(data, cb) {
         cb(e);
     });
 
+    req.end();
+};
+
+
+module.exports.getDataset = function(cb) {
+    var query =
+        'SELECT DISTINCT ?title ?url ?class ?email ?readable ?visible' +
+        'WHERE { ' +
+        '?entry schema:name ?title; ' +
+        'schema:url ?url; ' +
+        'rdf:type ?class; ' +
+        'schema:publisher ?publisher. ' +
+        '?publisher schema:email ?email. ' +
+        'OPTIONAL {?entry wo:visible ?visible} ' +
+        'OPTIONAL {?entry wo:readable ?readable} ' +
+        '} ' +
+        'ORDER BY ?email';
+    query = getPrefix() + query;
+    var opts = {
+        port: 8080,
+        host: domain,
+        path: selectURL + '?query=' + encodeURIComponent(query),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/sparql-results+json'
+        }
+    };
+
+    var req = http.request(opts, function(res) {
+        console.log("getDataset response: " + res.statusCode);
+        if (res.statusCode === 404)
+            return cb({
+                message: 'List of datasets not available'
+            });
+        var data = "";
+        res.on('data', function(chunk) {
+            data += chunk;
+        });
+        res.on('end', function() {
+            data = JSON.parse(data);
+            var rows = [];
+            if (data.results) {
+                var bindings = data.results.bindings;
+                if (bindings.length == 1 &&
+                    bindings[0]['error-message']) {
+                    return cb({
+                        message: bindings[0]['error-message'].value
+                    });
+                }
+                rows = tableEntries(bindings, false);
+                cb(false, rows);
+            } else {
+                cb({
+                    message: 'No entry retrieved'
+                });
+            }
+        });
+    }).on('error', function(e) {
+        console.log("Got error: " + e.message);
+        cb(e);
+    });
     req.end();
 };

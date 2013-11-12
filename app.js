@@ -21,7 +21,9 @@ fs.readdirSync(models_dir).forEach(function(file) {
     if (file[0] === '.') return;
     require(models_dir + '/' + file);
 });
-
+//initialise mongoDB
+var init = require('./init/init');
+    init();
 
 require('./config/passport')(passport, config);
 
@@ -76,7 +78,6 @@ app.use(function(req, res, next) {
 });
 
 require('./config/routes')(app, passport);
-
 
 http.createServer(app).listen(app.get('port'), function() {
     console.log("Express server listening on port " + app.get('port'));
