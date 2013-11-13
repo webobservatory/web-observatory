@@ -76,7 +76,7 @@ module.exports = function(app, passport) {
                 req.flash('error', [err.message]);
                 return res.redirect('/wo/datasets');
             }
-            if (usr) {
+            if (user) {
                 req.flash('error', ['Dataset already existed']);
                 return res.redirect('/wo/datasets');
             }
