@@ -68,7 +68,7 @@ module.exports = function() {
         function(err, results) {
             var new_users = 0;
             for (i = 0; i < results.length; i++) {
-                if (typeof results[i] !== 'undefined')
+                if (results[i] !== 0)
                     new_users++;
             }
             if (err) return console.log('Error initilising: ' + err.message);
