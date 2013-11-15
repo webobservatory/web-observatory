@@ -81,14 +81,19 @@ module.exports = function(app, passport) {
                 return res.redirect('/wo/datasets');
             }
 
-            async.waterfall([
+            async.series([
                 function(cb) {
                     SPARQLUpdate('datasets', data, cb);
                 },
                 function(cb) {
-                    Dataset.getOrCreateEntry(data, cb);
-                },
-                function(dataset, cb) {
+                    var dataset = {
+                        url: data.url,
+                        title: data.title,
+                        type: data.addType,
+                        publisher: data.email,
+                        readable: data.readable === 'true',
+                        visible: data.visible === 'true'
+                    };
                     User.addOwn(req.user.email, dataset, cb);
                 }
             ], function(err) {
@@ -274,15 +279,20 @@ module.exports = function(app, passport) {
             addType: 'Visualisation'
         };
 
-        async.waterfall([
+        async.series([
             function(cb) {
                 SPARQLUpdate('visualisations', data, cb);
             },
             function(cb) {
-                Dataset.getOrCreateEntry(data, cb);
-            },
-            function(entry, cb) {
-                User.addOwnVis(req.user.email, entry, cb);
+                var vis = {
+                    url: data.url,
+                    title: data.title,
+                    type: data.addType,
+                    publisher: data.email,
+                    readable: data.readable === 'true',
+                    visible: data.visible === 'true'
+                };
+                User.addOwnVis(req.user.email, vis, cb);
             }
         ], function(err) {
             if (err)

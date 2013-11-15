@@ -233,10 +233,9 @@ UserSchema.statics.rmReq = function(umail, reqs, done) {
     });
 };
 
-UserSchema.statics.addOwn = function(creator, dataset, done) {
-
+UserSchema.statics.addOwn = function(publisher, dataset, done) {
     var query = {
-        email: creator,
+        email: publisher,
         'owned.url': {
             $ne: dataset.url
         }
@@ -248,16 +247,15 @@ UserSchema.statics.addOwn = function(creator, dataset, done) {
         }
     };
 
-    this.update(query, update, function(err, user) {
-        done(err,user);
+    this.update(query, update, function(err, count) {
+        done(err,count);
     });
-
 };
 
-UserSchema.statics.addOwnVis = function(creator, vis, done) {
+UserSchema.statics.addOwnVis = function(publisher, vis, done) {
 
     var query = {
-        email: creator,
+        email: publisher,
         'ownedVis.url': {
             $ne: vis.url
         }
@@ -269,10 +267,9 @@ UserSchema.statics.addOwnVis = function(creator, vis, done) {
         }
     };
 
-    this.update(query, update, function(err, user) {
-        done(err,user);
+    this.update(query, update, function(err, count) {
+        done(err,count);
     });
-
 };
 
 UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {

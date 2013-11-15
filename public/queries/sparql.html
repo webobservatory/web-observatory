@@ -2,27 +2,8 @@
     <div calss="row">
          <h2>SPARQL:</h2><span id="endpoint"></span>
 
-        <div class="dropdown">
-            <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">Select a dataset <span class="caret"></span>
-
-            </button>
-            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
-                <!--TODO: query triple store for all SPARQL endpoints-->
-                <li role="presentation"><a class="endpointURL" role="menuitem" tabindex="-1" href="http://spr-001.ecs.soton.ac.uk/LHD">Federated query (powered by LHD)</a>
-
-                </li>
-                <li role="presentation"><a class="endpointURL" role="menuitem" tabindex="-1" href="http://dbpedia.org/sparql">DBpedia</a>
-
-                </li>
-                <li role="presentation"><a class="endpointURL" role="menuitem" tabindex="-1" href="http://spr-001.ecs.soton.ac.uk:8000/query">Wikipedia Data</a>
-
-                </li>
-            </ul>
-        </div>
     </div> <pre class='pre-scrollable' id="prefixestext"> </pre>
-
-    <form id="queryform" action="http://dbpedia.org/sparql"
-    method="get">
+    <form id="queryform" action='' method="get">
         <input type="hidden" name="default-graph-uri" value="" id="defaultgraph" disabled="disabled">
         <input type="hidden" name="query" value="" id="query">
         <input type="hidden" name="output" value="json" id="jsonoutput" disabled="disabled">
@@ -36,8 +17,6 @@
         <select id="selectoutput" onchange="outputChanged(this.value)">
             <option selected="selected" value="browse">Browse</option>
             <option value="json">as JSON</option>
-            <option value="xml">as XML</option>
-            <option value="xslt">as XML+XSLT</option>
         </select> <span id="xsltcontainer"></span>
 
         <br>
@@ -71,15 +50,12 @@
 
     function toPrefixesText(namespaces)
     {
-
         var result = '';
         for (var uri in namespaces)
         {
             result += 'PREFIX ' + namespaces[uri] + ': <' + uri + '>\n';
         }
         return result;
-
-
     }
 
     function toPrefixesHTML(namespaces)

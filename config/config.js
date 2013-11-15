@@ -1,6 +1,6 @@
 module.exports = {
     development: {
-        db: 'mongodb://localhost/passport-tut',
+        db: 'mongodb://localhost/wo',
         app: {
             name: 'Web Observatory'
         },

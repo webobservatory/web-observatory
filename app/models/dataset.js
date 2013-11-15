@@ -4,6 +4,7 @@ var async = require('async');
 DatasetSchema = mongoose.Schema({
     url: String,
     title: String,
+    type: String,
     publisher: String, //email of the publisher
     readable: Boolean,
     visible: Boolean
@@ -23,70 +24,35 @@ DatasetSchema.statics.transform = function(rows, done) {
     });
 };
 
-DatasetSchema.statics.getOrCreateEntry = function(data, done) {
+DatasetSchema.statics.getEntry = function(data, done) {
     var User = require('./user');
     var query = {
         'owned.url': data.url,
         email: data.email,
     };
-    var update = {
-        $addToSet: {
-            owned: {
-                url: data.url,
-                title: data.title,
-                publisher: data.email,
-                readable: data.readable !== 'false',
-                visible: data.visible === 'true'
-            }
-        }
-    };
 
-    User.findOne(query, function(err, user) {
-        if (!user) {
-            User.update({
-                email: data.email
-            }, update, {
-                upsert: true
-            }, function(err, user) {
-                User.aggregate({
-                    $match: {
-                        email: data.email,
-                    }
-                }, {
-                    $unwind: '$owned'
-                }, {
-                    $match: {
-                        'owned.url': data.url,
-                    }
-                }, {
-                    $project: {
-                        _id: '$owned._id'
-                    }
-                },
-
-                function(err, entry) {
-                    done(err, entry[0]);
-                });
-            });
-        } else {
-            User.aggregate({
-                $match: {
-                    email: data.email,
-                }
-            }, {
-                $unwind: '$owned'
-            }, {
-                $match: {
-                    'owned.url': data.url,
-                }
-            }, {
-                $project: {
-                    _id: '$owned._id'
-                }
-            }, function(err, entry) {
-                done(err, entry[0]);
-            });
+    User.aggregate({
+        $match: {
+            email: data.email,
         }
+    }, {
+        $unwind: '$owned'
+    }, {
+        $match: {
+            'owned.url': data.url,
+        }
+    }, {
+        $project: {
+            _id: '$owned._id',
+            title: '$owned.title',
+            url: '$owned.url',
+            publisher: '$owned.publisher',
+            type: '$owned.type',
+            visible: '$owned.visible',
+            readable: '$owned.readable'
+        }
+    }, function(err, entry) {
+        done(err, entry[0]);
     });
 };
 

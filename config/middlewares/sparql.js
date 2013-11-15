@@ -327,12 +327,14 @@ module.exports.SPARQLUpdateStatus = function(data, cb) {
 
 module.exports.getDataset = function(cb) {
     var query =
-        'SELECT DISTINCT ?title ?url ?class ?email ?readable ?visible' +
+        'SELECT DISTINCT ?title ?url ?class ?addType ?email ?readable ?visible' +
         'WHERE { ' +
         '?entry schema:name ?title; ' +
         'schema:url ?url; ' +
+        'schema:additionalType ?addType; ' +
         'rdf:type ?class; ' +
         'schema:publisher ?publisher. ' +
+        'VALUES ?class {schema:Dataset schema:WebPage}. ' +
         '?publisher schema:email ?email. ' +
         'OPTIONAL {?entry wo:visible ?visible} ' +
         'OPTIONAL {?entry wo:readable ?readable} ' +
