@@ -30,7 +30,7 @@ html(lang='en')
                     label.control-label(for='url') Address
                     .controls
                       input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-dataset', required='')
-                      p.help-block The URL where your dataset can be accessed                 
+                      p.help-block The URL where your dataset can be accessed/queried                 
                   // Text input
                   .control-group
                     label.control-label(for='creator') Creator
@@ -83,7 +83,7 @@ html(lang='en')
                   - var tf = val.readable === 'true'
                   tr(class= tf? 'alert-success':'alert-error')
                     td
-                      a.tp(href=val.url interface=val.type data-toogle='tooltip' title=val.title)= val.title
+                      a.tp(href=val.title interface=val.type data-toogle='tooltip' title=val.title)= val.title
                     td.span1
                       .text-center= val.type
                     td= val.desc
@@ -106,7 +106,9 @@ html(lang='en')
                   .text-center Publisher email
                 th Access
         form.hide#reqform(action='/dataset/access' method='post')
-        #query-frame.row  
+        .span7.row  
+          #query-frame
+          #result
       #push
     include includes/footer
 

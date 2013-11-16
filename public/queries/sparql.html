@@ -1,38 +1,25 @@
-<div class="container span5">
-    <div calss="row">
-         <h2>SPARQL:</h2><span id="endpoint"></span>
+<h2>SPARQL</h2>
 
-    </div> <pre class='pre-scrollable' id="prefixestext"> </pre>
-    <form id="queryform" action='' method="get">
-        <input type="hidden" name="default-graph-uri" value="" id="defaultgraph" disabled="disabled">
-        <input type="hidden" name="query" value="" id="query">
-        <input type="hidden" name="output" value="json" id="jsonoutput" disabled="disabled">
-        <input type="hidden" name="stylesheet" value="" id="stylesheet" disabled="disabled">
-    </form>
-    <div>
-        <textarea name="query" rows="5" id="querytext" class="span5"></textarea>
-    </div>
+<span id="endpoint"></span>
+
+</div> <pre class='pre-scrollable' id="prefixestext"> </pre>
+
+<div>
+    <textarea name="query" rows="5" id="querytext" class="span7"></textarea>
+</div>
+<br>
+<div>Results:
+    <select id="selectoutput" onchange="outputChanged(this.value)">
+        <option value="application/sparql-results+json">Browse</option>
+    </select> <span id="xsltcontainer"></span>
+
     <br>
-    <div>Results:
-        <select id="selectoutput" onchange="outputChanged(this.value)">
-            <option selected="selected" value="browse">Browse</option>
-            <option value="json">as JSON</option>
-        </select> <span id="xsltcontainer"></span>
-
-        <br>
-        <button type="button" class="btn btn-primary" onclick="submitQuery()">Go</button>
-        <button type="button" class="btn btn-primary" onclick="resetQuery()">Reset</button>
-        <iframe id="tmp_downloadhelper_iframe" style="display: none;"></iframe>
-    </div>
-    <div id="result"></div>
+    <button type="button" class="btn btn-primary" onclick="submitQuery()">Submit</button>
+    <button type="button" class="btn btn-warning" onclick="resetQuery()">Reset</button>
+    <button class='btn btn-inverse' onclick="cls()">Close</button>
 </div>
 <script src="/js/sparql.js"></script>
 <script>
-    $(".endpointURL").bind("click", function(event)
-    {
-        setEndpointURL($(this).attr("href"), null);
-        return false;
-    });
     var endpointURL = '';
     var defaultGraphURI = '';
     var namespaces = {
@@ -53,7 +40,7 @@
         var result = '';
         for (var uri in namespaces)
         {
-            result += 'PREFIX ' + namespaces[uri] + ': <' + uri + '>\n';
+            result += 'PREFIX ' + namespaces[uri] + ': <' + uri + '> ';
         }
         return result;
     }
@@ -75,88 +62,12 @@
 
     function start()
     {
-        setPrefixesText(toPrefixesHTML(namespaces));
-        outputChanged('browse');
-        var match = document.location.href.match(/\?(.*)/);
-        if (match)
-        {
-            var queryString = match[1];
-        }
-        else
-        {
-            var queryString = '';
-        }
-        if (!queryString)
-        {
-            $('#querytext').val('SELECT * WHERE {\n...\n}');
-            return;
-        }
-        var querytext = null;
-        if (queryString == 'classes')
-        {
-            var resultTitle = 'List of all classes:';
-            var query = 'SELECT DISTINCT ?class\n' +
-                'WHERE { [] a ?class }\n' +
-                'ORDER BY ?class';
-        }
-        if (queryString == 'properties')
-        {
-            var resultTitle = 'List of all properties:';
-            var query = 'SELECT DISTINCT ?property\n' +
-                'WHERE { [] ?property [] }\n' +
-                'ORDER BY ?property';
-        }
-        var match = queryString.match(/property=([^&]*)/);
-        if (match)
-        {
-            var resultTitle = 'All uses of property ' + betterUnescape(match[1]) + ':';
-            var query = 'SELECT ?resource ?value\n' +
-                'WHERE { ?resource <' + betterUnescape(match[1]) + '> ?value }\n' +
-                'ORDER BY ?resource ?value';
-        }
-        var match = queryString.match(/class=([^&]*)/);
-        if (match)
-        {
-            var resultTitle = 'All instances of class ' + betterUnescape(match[1]) + ':';
-            var query = 'SELECT ?instance\n' +
-                'WHERE { ?instance a <' + betterUnescape(match[1]) + '> }\n' +
-                'ORDER BY ?instance';
-        }
-        var match = queryString.match(/describe=([^&]*)/);
-        if (match)
-        {
-            var resultTitle = 'Description of ' + betterUnescape(match[1]) + ':';
-            var query = 'SELECT ?property ?hasValue ?isValueOf\n' +
-                'WHERE {\n' +
-                '  { <' + betterUnescape(match[1]) + '> ?property ?hasValue }\n' +
-                '  UNION\n' +
-                '  { ?isValueOf ?property <' + betterUnescape(match[1]) + '> }\n' +
-                '}';
-            //                '}\n' +
-            //                'ORDER BY ?isValueOf ?hasValue ?property';
-        }
-        if (queryString.match(/query=/))
-        {
-            var resultTitle = 'SPARQL results:';
-            querytext = betterUnescape(queryString.match(/query=([^&]*)/)[1]);
-            var query = toPrefixes(namespaces) + querytext;
-        }
-        if (!querytext)
-        {
-            querytext = query;
-        }
-        $('#querytext').val(querytext);
-        doQuery(query, function(json)
-        {
-            displayResult(json, resultTitle);
-        });
+        setPrefixes(toPrefixesHTML(namespaces));
     }
-
     var service;
 
     function setEndpointURL(url, defaultGraphURI)
     {
-        $('#queryform').attr("action", url);
         $("#endpoint").text(url);
         $('#defaultgraph').val(defaultGraphURI);
         service = new SPARQL.Service(url);
@@ -167,16 +78,14 @@
         }
     }
 
-    function setPrefixesText(prefixes)
+    function setPrefixes(prefixes)
     {
         $('#prefixestext').html(prefixes);
     }
 
     function doQuery(sparql, callback)
     {
-        busy = document.createElement('p');
-        busy.className = 'busy';
-        busy.appendChild(document.createTextNode('Executing query ...'));
+
         setResult(busy);
         service.query(sparql,
         {
@@ -205,48 +114,48 @@
         setResult(div);
     }
 
-    var xsltInput = null;
-
-    function outputChanged(newValue)
-    {
-        if (xsltInput == null)
-        {
-            xsltInput = document.getElementById('xsltinput');
-        }
-        var el = document.getElementById('xsltcontainer');
-        while (el.childNodes.length > 0)
-        {
-            el.removeChild(el.firstChild);
-        }
-        if (newValue == 'xslt')
-        {
-            el.appendChild(xsltInput);
-        }
-    }
-
 
     function submitQuery()
     {
         var output = $('#selectoutput').val();
-        /*if (output == 'browse') {
-		      $('#queryform').attr("action",endpointURL);
-		      $('#query').val($('#querytext').val());
-		      } else {
-	      }*/
-        $('#query').val(toPrefixes(namespaces) + $('#querytext').val());
-        $('#defaultgraph').attr("disabled", output == 'browse');
-        $('#jsonoutput').attr("disabled", output != 'json');
-        $('#stylesheet').attr("disabled", output != 'xslt' || !$('#xsltstylesheet').val());
-        if (output == 'xslt')
+        var query = toPrefixesText(namespaces) + $('#querytext').val();
+        var busy = $('<div class="alert alert-info"> Executing query ...</div>');
+
+        setResult(busy);
+        $.get('/query?query=' + encodeURIComponent(query) + '&format=' + encodeURIComponent(output), function(data)
         {
-            $('#stylesheet').val($('#xsltstylesheet').val());
-        }
-        $("#queryform").submit();
+            var bindings = data.results.bindings;
+            var res = '<h2>Results</h2> <table class="table table-stripe">';
+            var tem = bindings[0];
+            var th = '<thead>';
+            for (var key in tem)
+            {
+                th += '<td>' + key + '</td>';
+            }
+            th += '</thead>';
+
+            res += th;
+            for (i = 0; i < bindings.length; i++)
+            {
+                var binding = bindings[i];
+                var line = '<tr>';
+                for (var key in binding)
+                {
+                    line += '<td>' + binding[key].value + '</td>';
+                }
+                line += '</tr>';
+                res += line;
+            }
+
+            res += '</table>';
+            res = $(res);
+            setResult(res);
+        });
     }
 
     function resetQuery()
     {
-        $("#querytext").val("SELECT * WHERE {\n...\n}");
+        $("#querytext").val("SELECT * \nWHERE {\n...\n}");
     }
 
     function onFailure(report)
@@ -271,19 +180,23 @@
         display(node, 'result');
     }
 
-    function display(node, whereID)
+    function display(node, dsp_id)
     {
-        var where = document.getElementById(whereID);
-        if (!where)
+        var dsp = $('#' + dsp_id);
+        if (!dsp)
         {
             alert('ID not found: ' + whereID);
             return;
         }
-        while (where.firstChild)
-        {
-            where.removeChild(where.firstChild);
-        }
+        dsp.empty();
         if (node == null) return;
-        where.appendChild(node);
+        dsp.append(node);
     }
+
+    function cls()
+    {
+        $('#query-frame').empty();
+        $('#result').empty();
+    }
+    resetQuery();
 </script>

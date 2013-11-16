@@ -132,7 +132,7 @@ function buildUpdate(type, data) {
         (data.creator ? entry + ' schema:creator _:cr. _:cr rdf:type schema:Person; ' + ' schema:name "' + data.creator + '". ' :
         '') +
         '_:pb rdf:type schema:Person; ' +
-        (username ? 'schema:name "' + username + '". ' : '') +
+        (username ? 'schema:name "' + username + '"; ' : '') +
         'schema:email "' + email + '". ';
     query = prefix + ' INSERT DATA { GRAPH ' + graph + ' { ' + query + ' } } ';
 
@@ -383,6 +383,40 @@ module.exports.getDataset = function(cb) {
     }).on('error', function(e) {
         console.log("Got error: " + e.message);
         cb(e);
+    });
+    req.end();
+};
+
+module.exports.query = function(url, query, mime, cb) {
+
+    var opts = {
+        port: 8080,
+        host: domain,
+        path: selectURL + '?query=' + encodeURIComponent(query),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': mime
+        }
+    };
+
+    var req = http.request(opts, function(res) {
+        console.log("getDataset response: " + res.statusCode);
+        if (res.statusCode === 404)
+            return cb({
+                message: 'Dataset not available'
+            });
+        var data = "";
+        res.on('data', function(chunk) {
+            data += chunk;
+        });
+        res.on('end', function() {
+            console.log(data);
+            data = JSON.parse(data);
+            cb(false, data);
+        });
+    }).on('error', function(err) {
+        console.log("Got error: " + e.message);
+        cb(err);
     });
     req.end();
 };

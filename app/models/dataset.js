@@ -11,7 +11,7 @@ DatasetSchema = mongoose.Schema({
 });
 
 function transIter(row, done) {
-    Dataset.getOrCreateEntry(row, function(err, entry) {
+    Dataset.getEntry(row, function(err, entry) {
         if (err) return done(err, null);
         row.url = entry._id;
         done(null, row);
@@ -26,21 +26,19 @@ DatasetSchema.statics.transform = function(rows, done) {
 
 DatasetSchema.statics.getEntry = function(data, done) {
     var User = require('./user');
-    var query = {
-        'owned.url': data.url,
-        email: data.email,
-    };
+
+    var query = {};
+    if (data.url)
+        query['owned.url'] = data.url;
+    if (data.id)
+        query['owned._id'] = data.id;
 
     User.aggregate({
-        $match: {
-            email: data.email,
-        }
+        $match: query
     }, {
         $unwind: '$owned'
     }, {
-        $match: {
-            'owned.url': data.url,
-        }
+        $match: query
     }, {
         $project: {
             _id: '$owned._id',

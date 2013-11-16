@@ -111,7 +111,6 @@ module.exports = function(app, passport) {
             dt_ids = req.body.ids;
         if (typeof dt_ids === 'string')
             dt_ids = [dt_ids];
-        console.log(dt_ids);
         async.map(dt_ids, function(dtid, cb) {
             User.findOne({
                 'owned._id': dtid
@@ -188,7 +187,6 @@ module.exports = function(app, passport) {
     app.post('/dataset/status', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email;
         var ids = Object.keys(req.body);
-        console.log(ids);
 
         async.map(ids, function(id, cb) {
             var isPrivate = req.body[id] === 'private';
@@ -218,7 +216,6 @@ module.exports = function(app, passport) {
 
 
         }, function(err, results) {
-            console.log(results);
             if (err)
                 req.flash('error', [err.message]);
             else
@@ -303,6 +300,37 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.get('/query', ensureLoggedIn('/login'), function(req, res) {
+
+        var query = req.query.query,
+            resformat = req.query.format;
+        Dataset.getEntry({
+            id: req.id
+        }, function(err, dataset) {
+            if (err || !dataset) {
+                req.flash('error', [err.message || 'Dataset not available']);
+                return res.redirect(req.get('referer'));
+            }
+
+            var url = dataset.url,
+                type = dataset.type;
+
+            //TODO use switch
+            if (type === 'SPARQL') {
+                sparql.query(url, query, resformat, function(err, result) {
+                    if (err) {
+                        req.flash('error', [err.message]);
+                        return res.redirect(req.get('referer'));
+                    }
+                    res.send(result);
+                });
+            } else {
+                req.flash('error', ['Dataset type not supported']);
+                return res.redirect(req.get('referer'));
+            }
+        });
+    });
+
     app.get("/", function(req, res) {
         if (req.isAuthenticated()) {
             res.render("index", {
@@ -317,6 +345,8 @@ module.exports = function(app, passport) {
             });
         }
     });
+
+    //authentication
 
     app.get("/login", function(req, res) {
         res.render("login", {
@@ -373,7 +403,7 @@ module.exports = function(app, passport) {
         successReturnToOrRedirect: '/'
     }));
 
-
+    //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
         User.findOne({
             email: req.user.email

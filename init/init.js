@@ -58,7 +58,6 @@ module.exports = function() {
                         if (exist.indexOf(user.email) === -1) {
                             exist.push(user.email);
                         }
-                        console.log(dataset);
                         if (dataset.class.toLowerCase().contains('dataset'))
                             User.addOwn(dataset.email, entry, cb);
                         else
