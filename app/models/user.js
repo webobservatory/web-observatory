@@ -101,6 +101,12 @@ UserSchema.statics.isValidUserPassword = function(email, password, done) {
         if (!user) return done(null, false, {
                 message: 'Incorrect email.'
             });
+
+        if (!user.salt)
+            return done(null, false, {
+                message: 'Password not set. Please reset your password first.'
+            });
+
         hash(password, user.salt, function(err, hash) {
             if (err) return done(err);
             if (hash == user.hash) return done(null, user);
