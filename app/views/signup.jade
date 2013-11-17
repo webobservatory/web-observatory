@@ -10,9 +10,9 @@ body
         form#singup(method="POST", action="/signup")
           fieldset
             div
-              input.input-large(placeholder='Input your email' type='text', name='email')
+              input.input-large(placeholder='Input your email' type='text', name='email' required='')
             div
-              input.input-large(placeholder='Input your password' type='password', name='password')
+              input.input-large(placeholder='Input your password' type='password', name='password' required='')
             div
               button.btn.btn-primary(type="submit") Sign Up
       #push

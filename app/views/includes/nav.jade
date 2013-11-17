@@ -39,6 +39,8 @@
             a.pull-right(href='/login') Sign in
         else
           li
+            a= user.email
+          li
             a(href="/profile") Profile
           li 
             a(href="/logout") Logout

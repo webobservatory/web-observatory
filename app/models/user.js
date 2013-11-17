@@ -9,6 +9,10 @@ UserSchema = mongoose.Schema({
     email: String,
     salt: String,
     hash: String,
+    reset: {
+        token: String,
+        time_stamp: Date
+    },
     facebook: {
         id: String,
         email: String,
@@ -248,7 +252,7 @@ UserSchema.statics.addOwn = function(publisher, dataset, done) {
     };
 
     this.update(query, update, function(err, count) {
-        done(err,count);
+        done(err, count);
     });
 };
 
@@ -268,7 +272,7 @@ UserSchema.statics.addOwnVis = function(publisher, vis, done) {
     };
 
     this.update(query, update, function(err, count) {
-        done(err,count);
+        done(err, count);
     });
 };
 

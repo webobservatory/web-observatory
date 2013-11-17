@@ -12,9 +12,9 @@ body
         form(method="POST", action="/auth/soton")
           fieldset
             div
-              input.input-large(placeholder='Soton username' type='text', name='username')
+              input.input-large(placeholder='Soton username' type='text', name='username' required='')
             div
-              input.input-large(placeholder='Soton password' type='password', name='password')
+              input.input-large(placeholder='Soton password' type='password', name='password' required='')
             div
               button.btn.btn-primary(type="submit") Sign In
       #push

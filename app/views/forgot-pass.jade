@@ -1,0 +1,19 @@
+include includes/head
+body
+  #wrap
+    .container.text-center
+      .row
+        include includes/flash-banner
+      .row
+        .hero-unit
+          h1 Southampton
+          h1 Web Observatory
+      .row
+        form(action='/profile/forgot-pass', method='post')
+          fieldset
+            div
+                input.input-large(placeholder='Email' type='text', name='email' required='')
+            div
+                button.btn.btn-primary(type='submit') Continue
+      #push
+  include includes/footer

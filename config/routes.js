@@ -7,6 +7,7 @@ var sparql = require('./middlewares/sparql.js');
 var SPARQLGetContent = sparql.SPARQLGetContent;
 var SPARQLUpdate = sparql.SPARQLUpdateContent;
 var SPARQLUpdateStatus = sparql.SPARQLUpdateStatus;
+var pass = require('../app/util/pass');
 
 module.exports = function(app, passport) {
 
@@ -507,5 +508,53 @@ module.exports = function(app, passport) {
     app.get('/logout', function(req, res) {
         req.logout();
         res.redirect('/');
+    });
+
+    app.get('/profile/reset-pass', function(req, res) {
+        var tk = req.query.tk;
+        if (!tk) {
+            req.flash('error', ['Password reset token is missing, please request again.']);
+            return res.redirect('/login');
+        }
+
+        res.render('reset-pass', {
+            'tk': tk
+        });
+    });
+
+    app.post('/profile/reset-pass', function(req, res) {
+        var tk = req.body.tk,
+            newpass = req.body.pass;
+
+        pass.resetPass(tk, newpass, function(err, user) {
+            if (err || !user) {
+                req.flash('error', [err.message || 'User not found']);
+                return res.redirect('/login');
+            }
+            req.login(user, function(err) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    req.flash('error', ['An error occured, please login manually.']);
+                    return res.redirect('/login');
+                }
+                res.redirect('/');
+            });
+        });
+    });
+
+    app.get('/profile/forgot-pass', function(req, res) {
+        res.render('forgot-pass');
+    });
+
+    app.post('/profile/forgot-pass', function(req, res) {
+        pass.forgotPass(req.body.email, 'http://' + req.host + ':3000/profile/reset-pass', function(err, response) {
+            if (err) {
+                req.flash('error', [err.message]);
+                return req.redirect('/profile/forgot-pass');
+            }
+
+            req.flash('info', ['Please check your email to reset your password.']);
+            res.redirect('/login');
+        });
     });
 };

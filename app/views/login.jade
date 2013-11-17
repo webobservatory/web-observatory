@@ -12,13 +12,15 @@ body
         form(action='/login', method='post')
           fieldset
             div
-                input.input-large(placeholder='Email' type='text', name='email')
+                input.input-large(placeholder='Email' type='text', name='email' required='')
             div
-                input.input-large(placeholder='Password' type='password', name='password')
+                input.input-large(placeholder='Password' type='password', name='password' required='')
             div
                 button.btn.btn-primary(type='submit') Login
       .row
         //a(href="/auth/facebook") Log In With Facebook
+        a(href='/profile/forgot-pass') Forgot password?
+        br
         a(href='/auth/soton') Log In With Soton Account
         br
         | or 
