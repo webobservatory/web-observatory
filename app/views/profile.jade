@@ -19,15 +19,15 @@ html(lang='en')
                 | Dataset management
               li
                 a(href='#owneddataset')
-                  | Owned datasets
+                  | Published datasets
                   i.icon-chevron-right 
               li
                 a(href='#requesteddataset')
-                  | Requested datasets
+                  | Reuests sent
                   i.icon-chevron-right 
               li
                 a(href='#requests')
-                  | Requests
+                  | Requests received
                   i.icon-chevron-right 
               li.nav-header
                 | Messages
@@ -40,14 +40,21 @@ html(lang='en')
             section.row#account
               .page-header
                 h1 Account settings
+                h4
+                  i.icon-user
+                  =user.email
               form.span5.form-horizontal(method='post' action='/profile')
                 fieldset
-                  label Change user name
+                  label Update names
                   .control-group
-                    label.control-label New name
+                    label.control-label First name
                     .controls
-                      input(type='text' name='username' placeholder= user.username?user.username:'Input a new user name')
-                  label Change password
+                      input(type='text' name='fn' placeholder= user.firstName?user.firstName:'')
+                  .control-group
+                    label.control-label Last name
+                    .controls
+                      input(type='text' name='ln' placeholder= user.lastName?user.lastName:'')
+                  label Update password
                   .control-group
                     label.control-label Current password
                     .controls
@@ -61,7 +68,7 @@ html(lang='en')
                       button.btn.btn-primary(type='submit') Save
             section.row#owneddataset
               .page-header
-                h1 Owned datasets (#{owned?owned.length:0})
+                h1 Published datasets (#{owned?owned.length:0})
               if owned && owned.length != 0
                 form#staform.hide(method='post' action='/dataset/status')
                 form.span5.form-horizontal
@@ -88,7 +95,7 @@ html(lang='en')
                         button#status.btn.btn-primary(type='submit') Confirm
             section.row#requesteddataset
               .page-header
-                h1 Requested datasets (#{requested?requested.length:0})
+                h1 Reuests sent (#{requested?requested.length:0})
               if requested && requested.length != 0
                 form.span5.form-horizontal(method='post' action='/dataset/access')
                   fieldset
@@ -112,7 +119,7 @@ html(lang='en')
 
             section.row#requests
               .page-header
-                h1 Requests (#{msg && msg.requests?msg.requests.length:0})
+                h1 Requests received (#{msg && msg.requests?msg.requests.length:0})
               if msg && msg.requests && msg.requests.length != 0
                 form.span5.form-horizontal(method='post' action='/dataset/approve')
                   fieldset

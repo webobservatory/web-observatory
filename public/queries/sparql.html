@@ -4,23 +4,30 @@
 
 </div> <pre class='pre-scrollable' id="prefixestext"> </pre>
 
-<div>
-    <textarea name="query" rows="5" id="querytext" class="span7"></textarea>
-</div>
-<br>
-<div>Results:
-    <select id="selectoutput" onchange="outputChanged(this.value)">
-        <option value="application/sparql-results+json">Browse</option>
-    </select> <span id="xsltcontainer"></span>
-
+<form id='queryform' action='/query' method='get'>
+    <div>
+        <input class='hide' name='query'></input>
+        <input class='hide' name='id'></input>
+        <textarea rows="5" id="querytext" class="span7"></textarea>
+    </div>
     <br>
-    <button type="button" class="btn btn-primary" onclick="submitQuery()">Submit</button>
-    <button type="button" class="btn btn-warning" onclick="resetQuery()">Reset</button>
-    <button class='btn btn-inverse' onclick="cls()">Close</button>
-</div>
+    <div>Results:
+        <select name='format' id="selectoutput">
+            <option value='browse'>Browse</option>
+            <option value='json'>JSON</option>
+            <option value='csv'>CSV</option>
+        </select>
+        <br>
+        <button class="btn btn-primary" id='send'>Submit</button>
+        <button id='reset' class="btn btn-warning">Reset</button>
+        <button id='close' class='btn btn-inverse'>Close</button>
+    </div>
+</form>
 <script src="/js/sparql.js"></script>
 <script>
     var endpointURL = '';
+    var endpointID = '';
+    var format = 'browse';
     var defaultGraphURI = '';
     var namespaces = {
         'http://www.w3.org/2002/07/owl#': 'owl',
@@ -55,20 +62,16 @@
         return result;
     }
 
-    function betterUnescape(s)
-    {
-        return unescape(s.replace(/\+/g, ' '));
-    }
-
     function start()
     {
         setPrefixes(toPrefixesHTML(namespaces));
     }
-    var service;
 
-    function setEndpointURL(url, defaultGraphURI)
+    function setEndpointURL(url, id, defaultGraphURI)
     {
         $("#endpoint").text(url);
+        endpointID = id;
+        $('input[name="id"]').val(id);
         $('#defaultgraph').val(defaultGraphURI);
         service = new SPARQL.Service(url);
         service.setMethod('GET');
@@ -83,96 +86,78 @@
         $('#prefixestext').html(prefixes);
     }
 
-    function doQuery(sparql, callback)
-    {
-
-        setResult(busy);
-        service.query(sparql,
-        {
-            success: callback,
-            failure: onFailure
-        });
-    }
-
-    function displayResult(json, resultTitle)
-    {
-        var div = document.createElement('div');
-        var title = document.createElement('h2');
-        title.appendChild(document.createTextNode(resultTitle));
-        div.appendChild(title);
-        if (json.results.bindings.length == 0)
-        {
-            var p = document.createElement('p');
-            p.className = 'empty';
-            p.appendChild(document.createTextNode('[no results]'));
-            div.appendChild(p);
-        }
-        else
-        {
-            div.appendChild(jsonToHTML(json));
-        }
-        setResult(div);
-    }
-
-
     function submitQuery()
     {
-        var output = $('#selectoutput').val();
+        format = $('#selectoutput').val();
         var query = toPrefixesText(namespaces) + $('#querytext').val();
+        console.log(query);
+        $('input[name="query"]').val(query);
         var busy = $('<div class="alert alert-info"> Executing query ...</div>');
 
         setResult(busy);
-        $.get('/query?query=' + encodeURIComponent(query) + '&format=' + encodeURIComponent(output), function(data)
+        $('#queryform').submit();
+
+        /*
+
+        $.get('/query?query=' + encodeURIComponent(query) + '&id=' + encodeURIComponent(endpointID) + '&format=' + format, function(data)
         {
-            var bindings = data.results.bindings;
-            var res = '<h2>Results</h2> <table class="table table-stripe">';
-            var tem = bindings[0];
-            var th = '<thead>';
-            for (var key in tem)
+            var res;
+            if (data.error)
             {
-                th += '<td>' + key + '</td>';
+                res = '<div class="alert alert-warning">' + data.error + '</div>';
             }
-            th += '</thead>';
-
-            res += th;
-            for (i = 0; i < bindings.length; i++)
+            else
             {
-                var binding = bindings[i];
-                var line = '<tr>';
-                for (var key in binding)
+                if (format === 'browse')
                 {
-                    line += '<td>' + binding[key].value + '</td>';
+
+                    var bindings = data.results.bindings;
+                    res = '<h2>Results</h2> <table class="table table-striped">';
+                    var tem = bindings[0];
+                    var th = '<thead><tr>';
+                    for (var key in tem)
+                    {
+                        th += '<th>' + key + '</th>';
+                    }
+                    th += ' </tr></thead>';
+
+                    res += th;
+                    res += '<tbody>';
+                    for (i = 0; i < bindings.length; i++)
+                    {
+                        var binding = bindings[i];
+                        var line = '<tr>';
+                        for (var key in binding)
+                        {
+                            line += '<td>' + binding[key].value + '</td > ';
+                        }
+                        line += ' </tr>';
+                        res += line;
+                    }
+
+                    res += ' </tbody></table> ';
                 }
-                line += '</tr>';
-                res += line;
+
+                if (format === 'json')
+                {
+                    res = '<a href="' + data.path + '">Download results as JSON</a>';
+                }
+
+                if (format === 'csv')
+                {
+                    res = '<a href="' + data.path + '">Download results as CSV</a>';
+                }
             }
 
-            res += '</table>';
             res = $(res);
             setResult(res);
         });
+        */
     }
 
     function resetQuery()
     {
-        $("#querytext").val("SELECT * \nWHERE {\n...\n}");
-    }
-
-    function onFailure(report)
-    {
-        var message = report.responseText.match(/<pre>([\s\S]*)<\/pre>/);
-        if (message)
-        {
-            var pre = document.createElement('pre');
-            pre.innerHTML = message[1];
-            setResult(pre);
-        }
-        else
-        {
-            var div = document.createElement('div');
-            div.innerHTML = report.responseText;
-            setResult(div);
-        }
+        $("#querytext").val("SELECT * \nWHERE {\n  ?subject rdf:type ?class\n} LIMIT 10");
     }
 
     function setResult(node)
@@ -198,5 +183,24 @@
         $('#query-frame').empty();
         $('#result').empty();
     }
-    resetQuery();
+
+    $(document).ready(function()
+    {
+        resetQuery();
+        $('#send').bind('click', function(event)
+        {
+            submitQuery();
+            event.preventDefault();
+        });
+        $('#reset').bind('click', function(event)
+        {
+            resetQuery();
+            event.preventDefault();
+        });
+        $('#close').bind('click', function(event)
+        {
+            cls();
+            event.preventDefault();
+        });
+    });
 </script>

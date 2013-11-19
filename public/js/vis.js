@@ -3,6 +3,6 @@ $(document).ready(function() {
     $('#display').dataTable();
     $('#submit').bind('click', function(event) {
         $('#adddata').submit();
-        return false;
+        event.preventDefault();
     });
 });

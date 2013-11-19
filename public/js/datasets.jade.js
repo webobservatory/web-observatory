@@ -1,7 +1,7 @@
-function openQueryForm(url, type) {
-    if (url != '#') {
+function openQueryForm(title, id, type) {
+    if (title != '#') {
         $('#query-frame').load('/queries/' + type.toLowerCase().trim() + '.html', function() {
-            setEndpointURL(url, null);
+            setEndpointURL(title, id, null);
             start();
         });
         $('html, body').animate({
@@ -29,13 +29,13 @@ $(document).ready(function() {
     $('#display').dataTable();
 
     $('a.tp').bind('click', function(event) {
-        openQueryForm($(this).attr('href'), $(this).attr('interface'));
-        return false;
+        openQueryForm($(this).attr('href'), $(this).attr('id'), $(this).attr('interface'));
+        event.preventDefault();
     });
 
     $('#submit').bind('click', function(event) {
         $('#adddata').submit();
-        return false;
+        event.preventDefault();
     });
 
     $('#private').bind('click', function() {

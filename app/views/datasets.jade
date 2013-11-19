@@ -2,7 +2,6 @@
 html(lang='en')
   include includes/head
     link(href='/css/jquery.dataTables.css', rel='stylesheet')
-
   body
     include includes/nav
     #wrap
@@ -83,7 +82,7 @@ html(lang='en')
                   - var tf = val.readable === 'true'
                   tr(class= tf? 'alert-success':'alert-error')
                     td
-                      a.tp(href=val.title interface=val.type data-toogle='tooltip' title=val.title)= val.title
+                      a.tp(href=val.title id=val.url interface=val.type data-toogle='tooltip' title='Click to query')= val.title
                     td.span1
                       .text-center= val.type
                     td= val.desc
@@ -111,4 +110,3 @@ html(lang='en')
           #result
       #push
     include includes/footer
-

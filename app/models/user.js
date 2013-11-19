@@ -7,6 +7,7 @@ UserSchema = mongoose.Schema({
     lastName: String,
     username: String,
     email: String,
+    org: String,
     salt: String,
     hash: String,
     reset: {
@@ -56,13 +57,16 @@ UserSchema = mongoose.Schema({
 });
 
 //user control
-UserSchema.statics.signup = function(email, password, done) {
+UserSchema.statics.signup = function(firstname, lastname, organisation, email, password, done) {
     var User = this;
     hash(password, function(err, salt, hash) {
         //if (err) throw err;
         if (err)
             return done(err);
         User.create({
+            firstName: firstname,
+            lastName: lastname,
+            org: organisation,
             email: email,
             salt: salt,
             hash: hash
@@ -75,21 +79,27 @@ UserSchema.statics.signup = function(email, password, done) {
     });
 };
 
-UserSchema.statics.updateProfile = function(user, nps, username, done) {
+UserSchema.statics.updateProfile = function(user, nps, fn, ln, org, done) {
     if (nps) {
         hash(nps, function(err, salt, hash) {
-            if (username)
-                user.username = username;
+            if (fn)
+                user.firstName = fn;
+            if (ln)
+                user.lastName = ln;
+            if (org)
+                user.org = org;
             user.salt = salt;
             user.hash = hash;
             user.save(done);
         });
     } else {
-        if (username) {
-            user.username = username;
-            user.save(done);
-        } else
-            done(null, user);
+        if (fn)
+            user.firstName = fn;
+        if (ln)
+            user.lastName = ln;
+        if (org)
+            user.org = org;
+        user.save(done);
     }
 };
 
@@ -154,6 +164,8 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
             done(null, user);
         } else {
             User.create({
+                firstName: profile.givenName,
+                lastName: profile.sn,
                 email: profile.mail,
                 username: profile.displayName,
                 soton: {

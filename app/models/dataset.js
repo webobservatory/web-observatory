@@ -27,18 +27,17 @@ DatasetSchema.statics.transform = function(rows, done) {
 DatasetSchema.statics.getEntry = function(data, done) {
     var User = require('./user');
 
-    var query = {};
+    var filter = {};
     if (data.url)
-        query['owned.url'] = data.url;
-    if (data.id)
-        query['owned._id'] = data.id;
-
+        filter['owned.url'] = data.url;
+    if (data._id)
+        filter['owned._id'] = mongoose.Types.ObjectId(data._id);
     User.aggregate({
-        $match: query
+        $match: filter
     }, {
         $unwind: '$owned'
     }, {
-        $match: query
+        $match: filter
     }, {
         $project: {
             _id: '$owned._id',

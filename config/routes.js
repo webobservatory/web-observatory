@@ -7,6 +7,9 @@ var sparql = require('./middlewares/sparql.js');
 var SPARQLGetContent = sparql.SPARQLGetContent;
 var SPARQLUpdate = sparql.SPARQLUpdateContent;
 var SPARQLUpdateStatus = sparql.SPARQLUpdateStatus;
+var Recaptcha = require('recaptcha').Recaptcha;
+var pbk = '6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H';
+var prk = '6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D';
 var pass = require('../app/util/pass');
 
 module.exports = function(app, passport) {
@@ -302,34 +305,122 @@ module.exports = function(app, passport) {
     });
 
     app.get('/query', ensureLoggedIn('/login'), function(req, res) {
-
+        console.log(req.query);
         var query = req.query.query,
-            resformat = req.query.format;
-        Dataset.getEntry({
-            id: req.id
-        }, function(err, dataset) {
-            if (err || !dataset) {
-                req.flash('error', [err.message || 'Dataset not available']);
+            format = req.query.format,
+            _id = req.query.id;
+
+        async.waterfall([
+            function(cb) {
+                Dataset.getEntry({
+                    '_id': _id,
+                }, cb);
+
+            },
+            function(dataset, cb) {
+                if (!dataset)
+                    return cb({
+                        message: 'Dataset not available'
+                    });
+
+                var readable = dataset.readable;
+                if (readable) {
+                    cb(false, true, dataset);
+                } else {
+                    User.findOne({
+                        email: req.user.email,
+                        $or: [{
+                                'owned._id': _id
+                            }, {
+                                'readable._id': _id
+                            }
+                        ]
+                    }, function(err, user) {
+                        cb(err, user, dataset);
+                    });
+                }
+
+            },
+            function(user, dataset, cb) {
+                if (!user)
+                    return cb({
+                        message: "You don't have access to this dataset"
+                    });
+                cb(false, dataset);
+            },
+            function(dataset, cb) {
+
+                var url = dataset.url,
+                    type = dataset.type;
+
+                switch (type) {
+                    case 'SPARQL':
+                        sparql.query(url, query, cb); //cb(err,json)
+                        break;
+                    default:
+                        cb({
+                            message: "Dataset's type not supported"
+                        });
+                }
+            }
+        ], function(err, result) {
+            if (err) {
+                req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
 
-            var url = dataset.url,
-                type = dataset.type;
-
-            //TODO use switch
-            if (type === 'SPARQL') {
-                sparql.query(url, query, resformat, function(err, result) {
-                    if (err) {
-                        req.flash('error', [err.message]);
-                        return res.redirect(req.get('referer'));
+            switch (format) {
+                case 'json':
+                    res.attachment('result.json');
+                    res.end(JSON.stringify(result), 'UTF-8');
+                    break;
+                case 'csv':
+                    var data = [];
+                    var bindings = result.results.bindings;
+                    for (i = 0; i < bindings.length; i++) {
+                        var binding = bindings[i];
+                        var tem = {};
+                        for (var key in binding) {
+                            tem[key] = binding[key].value;
+                        }
+                        data.push(tem);
                     }
-                    res.send(result);
-                });
-            } else {
-                req.flash('error', ['Dataset type not supported']);
-                return res.redirect(req.get('referer'));
+
+                    var csvstr = '';
+                    for (i = 0; i < data.length; i++) {
+                        var datum = data[i];
+                        if (i === 0) {
+                            for (var thead in datum) {
+                                csvstr += thead + ',';
+                            }
+                            csvstr += '\n';
+                        }
+                        for (var k in datum) {
+                            csvstr += datum[k] + ',';
+                        }
+                        csvstr += '\n';
+                    }
+                    res.attachment('result.csv');
+                    res.end(csvstr, 'UTF-8');
+                    break;
+
+
+                default:
+                    var data = [];
+                    var bindings = result.results.bindings;
+                    for (i = 0; i < bindings.length; i++) {
+                        var binding = bindings[i];
+                        var tem = {};
+                        for (var key in binding) {
+                            tem[key] = binding[key].value;
+                        }
+                        data.push(tem);
+                    }
+                    res.send(data);
             }
+
         });
+
     });
 
     app.get("/", function(req, res) {
@@ -363,16 +454,39 @@ module.exports = function(app, passport) {
     }));
 
     app.get("/signup", function(req, res) {
-        res.render("signup");
+        var recaptcha = new Recaptcha(pbk, prk);
+        console.log(recaptcha.toHTML());
+        res.render('signup', {
+            layout: false,
+            recaptcha_form: recaptcha.toHTML()
+        });
     });
 
     app.post("/signup", Auth.userExist, function(req, res, next) {
-        User.signup(req.body.email, req.body.password, function(err, user) {
-            if (err) throw err;
-            req.login(user, function(err) {
-                if (err) return next(err);
-                return res.redirect("/profile");
-            });
+        var data = {
+            remoteip: req.connection.remoteAddress,
+            challenge: req.body.recaptcha_challenge_field,
+            response: req.body.recaptcha_response_field
+        };
+
+        var recaptcha = new Recaptcha(pbk, prk, data);
+        recaptcha.verify(function(success, error_code) {
+            if (success) {
+                User.signup(req.body.fn, req.body.ln, req.body.org, req.body.email, req.body.password, function(err, user) {
+                    if (err) throw err;
+                    req.login(user, function(err) {
+                        if (err) return next(err);
+                        return res.redirect("/profile");
+                    });
+                });
+            } else {
+                req.flash('error', ['Recaptcha not valid.']);
+                res.render('signup', {
+                    locals: {
+                        recaptcha_form: recaptcha.toHTML()
+                    }
+                });
+            }
         });
     });
 
@@ -410,7 +524,7 @@ module.exports = function(app, passport) {
             email: req.user.email
         }, function(err, user) {
             var parameter = {
-                user: req.user
+                'user': user
             };
             var errmsg = req.flash('error');
             if (err) {
@@ -431,8 +545,10 @@ module.exports = function(app, passport) {
     app.post("/profile", ensureLoggedIn('/login'), function(req, res) {
         var oldpw = req.body.oldpw,
             newpw = req.body.newpw,
-            email = req.user.email,
-            username = req.body.username;
+            fn = req.body.fn,
+            ln = req.body.ln,
+            org = req.body.org,
+            email = req.user.email;
         if (newpw) {
             User.isValidUserPassword(email, oldpw, function(err, user, msg) {
                 if (err) {
@@ -445,7 +561,7 @@ module.exports = function(app, passport) {
                     return res.redirect(req.get('referer'));
                 }
 
-                User.updateProfile(user, newpw, username, function(err, user) {
+                User.updateProfile(user, newpw, fn, ln, org, function(err, user) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
@@ -464,7 +580,7 @@ module.exports = function(app, passport) {
                     return res.redirect(req.get('referer'));
                 }
 
-                User.updateProfile(user, null, username, function(err, user) {
+                User.updateProfile(user, null, fn, ln, org, function(err, user) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
@@ -524,7 +640,7 @@ module.exports = function(app, passport) {
 
     app.post('/profile/reset-pass', function(req, res) {
         var tk = req.body.tk,
-            newpass = req.body.pass;
+            newpass = req.body.password;
 
         pass.resetPass(tk, newpass, function(err, user) {
             if (err || !user) {

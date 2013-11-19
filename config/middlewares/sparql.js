@@ -387,7 +387,7 @@ module.exports.getDataset = function(cb) {
     req.end();
 };
 
-module.exports.query = function(url, query, mime, cb) {
+module.exports.query = function(url, query, cb) {
 
     var opts = {
         port: 8080,
@@ -395,7 +395,7 @@ module.exports.query = function(url, query, mime, cb) {
         path: selectURL + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': mime
+            'Accept': 'application/sparql-results+json'
         }
     };
 

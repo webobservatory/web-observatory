@@ -5,8 +5,7 @@
         span.icon-bar
         span.icon-bar
         span.icon-bar
-      a.brand(href='#')
-        | Web Observatory
+      a.brand(href='/') Web Observatory beta
         span#location
       .nav-collapse.collapse
         ul.nav
@@ -39,9 +38,8 @@
             a.pull-right(href='/login') Sign in
         else
           li
-            a= user.email
-          li
-            a(href="/profile") Profile
+            a(href="/profile")
+              =(user.firstName?user.firstName:user.email)+"'s Profile"
           li 
             a(href="/logout") Logout
       // /.nav-collapse

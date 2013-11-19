@@ -41,14 +41,18 @@
 code {
     font-size: 80%;
 }
-
+#recaptcha_widget_div {
+    margin-left:auto;
+    margin-right:auto;
+    width:300px;
+}
 .btn-sticky {
-	bottom: 50%;
-	right: 0.3%;
-	padding: 0;
-	position: fixed;
-	opacity: 50.4;
-  /*
+    bottom: 50%;
+    right: 0.3%;
+    padding: 0;
+    position: fixed;
+    opacity: 50.4;
+    /*
 	-o-transition:0.3s;
 	-ms-transition:0.3s;
 	-moz-transition:0.3s;
@@ -56,13 +60,12 @@ code {
 	transition:0.3s;
   */
 }
-
 .top-sticky {
-	bottom: 40%;
-	right: 4.2%;
-	padding: 0;
-	position: fixed;
-  /*
+    bottom: 40%;
+    right: 4.2%;
+    padding: 0;
+    position: fixed;
+    /*
 	-o-transition:0.3s;
 	-ms-transition:0.3s;
 	-moz-transition:0.3s;

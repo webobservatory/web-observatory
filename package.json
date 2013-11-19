@@ -15,6 +15,7 @@
         "mongodb": "*",
         "nodemon": "*",
         "nodemailer": "*",
+        "recaptcha": "*",
         "passport": "*",
         "passport-local": "*",
         "passport-facebook": "*",

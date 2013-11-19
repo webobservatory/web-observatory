@@ -1,5 +1,5 @@
 function passMatch() {
-    var pass = $('input:password[name=pass]').val(),
+    var pass = $('input:password[name=password]').val(),
         cnfirm = $('input:password[name=confirm]').val();
 
     if (pass !== cnfirm)

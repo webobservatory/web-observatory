@@ -3,11 +3,11 @@ body
   #wrap
     .container.text-center
       .row
-        include includes/flash-banner
-      .row
         .hero-unit
           h1 Southampton
           h1 Web Observatory
+      .row
+        include includes/flash-banner
       .row
         .hide.alert.alert-warning Password not match
         form(action='/profile/reset-pass', method='post')
@@ -15,7 +15,7 @@ body
             div
               input.hide(name='tk' value=(tk?tk:undefined))
             div
-              input.input-large(placeholder='New password' type='password', name='pass' required='')
+              input.input-large(placeholder='New password' type='password', name='password' required='')
             div
               input.input-large(placeholder='Confirm passowrd' type='password', name='confirm' required='')
             div

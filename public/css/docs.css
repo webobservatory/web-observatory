@@ -29,8 +29,8 @@ h3 code {
 body > .navbar {
   font-size: 13px;
 }
-
 /* Change the docs' brand */
+/*
 body > .navbar .brand {
   padding-right: 0;
   padding-left: 0;
@@ -47,7 +47,7 @@ body > .navbar .brand:hover {
   text-decoration: none;
   text-shadow: 0 1px 0 rgba(255,255,255,.1), 0 0 30px rgba(255,255,255,.4);
 }
-
+*/
 
 /* Sections
 -------------------------------------------------- */
@@ -917,12 +917,14 @@ form.bs-docs-example {
 ------------------------- */
 @media (max-width: 980px) {
   /* Unfloat brand */
+  /*
   body > .navbar-fixed-top .brand {
     float: left;
     margin-left: 0;
     padding-left: 10px;
     padding-right: 10px;
   }
+  */
 
   /* Inline-block quick links for more spacing */
   .quick-links li {
