@@ -387,7 +387,14 @@ module.exports.getDataset = function(cb) {
     req.end();
 };
 
-module.exports.query = function(url, query, cb) {
+module.exports.query = function(url, query, output, cb) {
+
+    var content_types = {
+        xml: 'application/sparql-results+xml',
+        json: 'application/sparql-results+json',
+        csv: 'application/sparql-results+json',//some endpoints don't correctly response to /text/csv, use json then convert to csv
+        tsv: 'text/tab-separated-values'
+    };
 
     var opts = {
         port: 8080,
@@ -395,7 +402,7 @@ module.exports.query = function(url, query, cb) {
         path: selectURL + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/sparql-results+json'
+            'Accept': content_types[output] || 'application/sparql-results+json'
         }
     };
 
@@ -410,8 +417,6 @@ module.exports.query = function(url, query, cb) {
             data += chunk;
         });
         res.on('end', function() {
-            console.log(data);
-            data = JSON.parse(data);
             cb(false, data);
         });
     }).on('error', function(err) {

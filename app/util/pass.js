@@ -6,8 +6,8 @@ var hash = require('./hash');
 var smtpTransport = nodemailer.createTransport("SMTP", {
     service: "Gmail",
     auth: {
-        user: "xinxinbird@gmail.com",
-        pass: "3dqq3Vat"
+        user: "soton.wo@gmail.com",
+        pass: "webobservatory"
     }
 });
 
@@ -33,7 +33,6 @@ module.exports.forgotPass = function(email, reset_path, cb) {
                     //text: "Hello world ✔", // plaintext body
                     html: 'Click here to <a href="' + reset_path + '?tk=' + tk + '">reset your password</a>.' // html body
                 };
-                console.log('Click here to <a href="' + reset_path + '?tk=' + tk + '">reset your password</a>.');
                 smtpTransport.sendMail(mailOptions, cb);
             });
         });

@@ -305,7 +305,6 @@ module.exports = function(app, passport) {
     });
 
     app.get('/query', ensureLoggedIn('/login'), function(req, res) {
-        console.log(req.query);
         var query = req.query.query,
             format = req.query.format,
             _id = req.query.id;
@@ -355,7 +354,7 @@ module.exports = function(app, passport) {
 
                 switch (type) {
                     case 'SPARQL':
-                        sparql.query(url, query, cb); //cb(err,json)
+                        sparql.query(url, query, format, cb); //cb(err,json)
                         break;
                     default:
                         cb({
@@ -372,9 +371,10 @@ module.exports = function(app, passport) {
             switch (format) {
                 case 'json':
                     res.attachment('result.json');
-                    res.end(JSON.stringify(result), 'UTF-8');
+                    res.end(result, 'UTF-8');
                     break;
                 case 'csv':
+                    result = JSON.parse(result);
                     var data = [];
                     var bindings = result.results.bindings;
                     for (i = 0; i < bindings.length; i++) {
@@ -400,12 +400,20 @@ module.exports = function(app, passport) {
                         }
                         csvstr += '\n';
                     }
+
                     res.attachment('result.csv');
                     res.end(csvstr, 'UTF-8');
                     break;
-
-
+                case 'tsv':
+                    res.attachment('result.tsv');
+                    res.end(result, 'UTF-8');
+                    break;
+                case 'xml':
+                    res.attachment('result.xml');
+                    res.end(result, 'UTF-8');
+                    break;
                 default:
+                    result = JSON.parse(result);
                     var data = [];
                     var bindings = result.results.bindings;
                     for (i = 0; i < bindings.length; i++) {
@@ -418,9 +426,7 @@ module.exports = function(app, passport) {
                     }
                     res.send(data);
             }
-
         });
-
     });
 
     app.get("/", function(req, res) {
