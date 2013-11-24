@@ -13,6 +13,7 @@ DatasetSchema = mongoose.Schema({
 function transIter(row, done) {
     Dataset.getEntry(row, function(err, entry) {
         if (err) return done(err, null);
+        if(!entry) return done(false, null);
         row.url = entry._id;
         done(null, row);
     });

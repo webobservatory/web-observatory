@@ -17,7 +17,6 @@ module.exports = function(app, passport) {
 
     app.get('/wo/datasets', ensureLoggedIn('/login'), function(req, res) {
 
-        var errmsg = req.flash('error');
 
         async.waterfall([
             function(cb) {
@@ -43,14 +42,15 @@ module.exports = function(app, passport) {
                 SPARQLGetContent('datasets', visible, readable, cb);
             },
             function(rows, cb) {
+            console.log(rows);
                 Dataset.transform(rows, cb);
             }
         ], function(err, result) {
             if (err)
-                errmsg.push(err.message);
+                req.flash('error',[err.message]);
             res.render('datasets', {
                 info: req.flash('info'),
-                error: errmsg,
+                error: req.flash('error'),
                 user: req.user,
                 table: result,
                 scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/datasets.jade.js']
@@ -227,6 +227,31 @@ module.exports = function(app, passport) {
             res.redirect(req.get('referer'));
         });
 
+    });
+
+    app.post('/dataset/remove', ensureLoggedIn('/login'), function(req, res) {
+        var umail = req.user.email;
+        var ids = Object.keys(req.body);
+
+        User.findOne({
+            email: umail
+        }, function(err, user) {
+            if (err || !user) {
+                req.flash('error', [err.message || 'User not logged in']);
+                return res.redirect(req.get('referer'));
+            }
+            async.map(ids, function(id, cb) {
+                user.owned.id(id).remove();
+                user.save(cb);
+                //TODO remove from sparql
+            }, function(err, result) {
+                if (err)
+                    req.flash('error', [err.message]);
+                else
+                    req.flash('info', [result.length + ' datasets have been removed']);
+                res.redirect(req.get('referer'));
+            });
+        });
     });
 
     app.get('/wo/queries', ensureLoggedIn('/login'), function(req, res) {

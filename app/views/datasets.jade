@@ -79,22 +79,23 @@ html(lang='en')
             tbody
               if table
                 each val in table
-                  - var tf = val.readable === 'true'
-                  tr(class= tf? 'alert-success':'alert-error')
-                    td
-                      a.tp(href=val.title id=val.url interface=val.type data-toogle='tooltip' title='Click to query')= val.title
-                    td.span1
-                      .text-center= val.type
-                    td= val.desc
-                    td.span2
-                      .text-center
-                        a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.email)= val.email
-                    td.span1
-                      if(tf)
-                        i.icon-ok
-                      else  
-                        i.icon-remove
-                        input.tp.req(style='margin-top: 0; line-height: normal' type='checkbox' name='ids' value=val.url data-toogle='tooltip' title='Request access')
+                  if val
+                    - var tf = val.readable === 'true'
+                    tr(class= tf? 'alert-success':'alert-error')
+                      td
+                        a.tp(href=val.title id=val.url interface=val.type data-toogle='tooltip' title='Click to query')= val.title
+                      td.span1
+                        .text-center= val.type
+                      td= val.desc
+                      td.span2
+                        .text-center
+                          a(href='mailto:'+val.publisher data-toogle='tooltip' title=val.email)= val.email
+                      td.span1
+                        if(tf)
+                          i.icon-ok
+                        else  
+                          i.icon-remove
+                          input.tp.req(style='margin-top: 0; line-height: normal' type='checkbox' name='ids' value=val.url data-toogle='tooltip' title='Request access')
             tfoot
               tr
                 th Title
