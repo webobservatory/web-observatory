@@ -42,12 +42,11 @@ module.exports = function(app, passport) {
                 SPARQLGetContent('datasets', visible, readable, cb);
             },
             function(rows, cb) {
-            console.log(rows);
                 Dataset.transform(rows, cb);
             }
         ], function(err, result) {
             if (err)
-                req.flash('error',[err.message]);
+                req.flash('error', [err.message]);
             res.render('datasets', {
                 info: req.flash('info'),
                 error: req.flash('error'),
@@ -240,16 +239,18 @@ module.exports = function(app, passport) {
                 req.flash('error', [err.message || 'User not logged in']);
                 return res.redirect(req.get('referer'));
             }
-            async.map(ids, function(id, cb) {
+            for (i = 0; i < ids.length; i++) {
+                var id = ids[i];
                 user.owned.id(id).remove();
-                user.save(cb);
+            }
+            user.save(function(err) {
                 //TODO remove from sparql
-            }, function(err, result) {
                 if (err)
                     req.flash('error', [err.message]);
                 else
-                    req.flash('info', [result.length + ' datasets have been removed']);
+                    req.flash('info', [ids.length + ' datasets have been removed']);
                 res.redirect(req.get('referer'));
+
             });
         });
     });
