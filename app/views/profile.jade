@@ -75,13 +75,13 @@ html(lang='en')
                   fieldset
                     .control-group
                       label Manage datasets permisions
-                    input.hide(name='remove' value='false')
                     table.table.table-bordered.table-hover
                       thead
                         tr
                           th Title
                           th URL
                           th Private
+                          th Remove
 
                       tbody
                         each entry in owned
@@ -91,6 +91,8 @@ html(lang='en')
                             - var chk = !entry.readable?'checked':undefined
                             td.span1
                               input.prt(type='checkbox' checked=chk name=entry._id value='private')
+                            td.span1
+                              input(type='checkbox' name='remove' value=entry._id)
                     .control-group
                       .controls.btn-toolbar
                         button#status.btn.btn-primary(type='submit') Change

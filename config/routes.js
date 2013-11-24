@@ -230,7 +230,9 @@ module.exports = function(app, passport) {
 
     app.post('/dataset/remove', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email;
-        var ids = Object.keys(req.body);
+        var ids = req.body.remove;
+        if (typeof ids === 'string')
+            ids = [ids];
 
         User.findOne({
             email: umail
@@ -240,8 +242,7 @@ module.exports = function(app, passport) {
                 return res.redirect(req.get('referer'));
             }
             for (i = 0; i < ids.length; i++) {
-                var id = ids[i];
-                user.owned.id(id).remove();
+                user.owned.id(ids[i]).remove();
             }
             user.save(function(err) {
                 //TODO remove from sparql
