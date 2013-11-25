@@ -109,7 +109,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/dataset/access', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/dataset/reqaccess', ensureLoggedIn('/login'), function(req, res) {
         var sender_mail = req.user.email,
             dt_ids = req.body.ids;
         if (typeof dt_ids === 'string')
@@ -187,7 +187,53 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/dataset/status', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/dataset/edit', ensureLoggedIn('/login'), function(req, res) {
+        var umail = req.user.email,
+            data = {
+                url: req.body.origurl,
+                title: req.body.title,
+                newurl: req.body.url,
+                creator: req.body.creator,
+                desc: req.body.desc
+            };
+
+        var update = {};
+
+        if (title)
+            update['owned.$.title'] = title;
+        if (url)
+            update['owned.$.url'] = url;
+        if (creator)
+            update['owned.$.creator'] = creator;
+        if (desc)
+            update['owned.$.desc'] = desc;
+
+        update = {
+            $set: update
+        };
+
+        var query = {
+            email: umail,
+            'owned.url': data.url
+        };
+
+        async.series([
+            function(cb) {
+                sparql.updateMeta(data, cb);
+            },
+            function(cb) {
+                User.update(query, update, cb);
+            }
+        ], function(err) {
+            if (err)
+                req.flash('error', [err.message]);
+            else
+                req.flash('info', ['Meta data updated']);
+            res.redirect(req.get('referer'));
+        });
+    });
+
+    app.post('/dataset/access', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email;
         var ids = Object.keys(req.body);
 
@@ -215,12 +261,9 @@ module.exports = function(app, passport) {
                 }
             };
             User.update(query, update, cb);
-
-
-
         }, function(err, results) {
-            if (err)
-                req.flash('error', [err.message]);
+            if (err || results===0)
+                req.flash('error', [err.message || 'No change made']);
             else
                 req.flash('info', ['Dataset status changed']);
             res.redirect(req.get('referer'));

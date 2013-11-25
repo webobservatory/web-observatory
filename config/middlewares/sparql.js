@@ -2,6 +2,7 @@ var http = require('http');
 var domain = "web-001.ecs.soton.ac.uk";
 var selectURL = '/openrdf-workbench/repositories/wo/query';
 var updateURL = '/openrdf-workbench/repositories/wo/update';
+var async = require('async');
 
 var queryBuilders = {
     datasets: buildSELECTDataset,
@@ -163,6 +164,26 @@ function tableEntries(bindings, readable) {
 }
 
 
+function httpQuery(opts, cb) {
+    var req = http.request(opts, function(res) {
+        console.log("getDataset response: " + res.statusCode);
+        if (res.statusCode === 404)
+            return cb({
+                message: 'Dataset not available'
+            });
+        var data = "";
+        res.on('data', function(chunk) {
+            data += chunk;
+        });
+        res.on('end', function() {
+            cb(false, data);
+        });
+    }).on('error', function(err) {
+        console.log("Got error: " + err.message);
+        cb(err);
+    });
+    req.end();
+}
 
 module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
     var query = queryBuilders[type](visible);
@@ -178,39 +199,27 @@ module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
         }
     };
 
-    var req = http.request(opts, function(res) {
-        console.log("getContent response: " + res.statusCode);
-        if (res.statusCode === 404)
-            return cb({
-                message: 'List of datasets not available'
-            });
-        var data = "";
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            data = JSON.parse(data);
-            var rows = [];
-            if (data.results) {
-                var bindings = data.results.bindings;
-                if (bindings.length == 1 &&
-                    bindings[0]['error-message']) {
-                    return cb({
-                        message: bindings[0]['error-message'].value
-                    });
-                }
-                rows = tableEntries(bindings, readable);
-                cb(false, rows);
-            } else {
-                cb({
-                    message: 'No entry retrieved'
+    httpQuery(opts, function(err, data) {
+        if (err)
+            return cb(err);
+        data = JSON.parse(data);
+        var rows = [];
+        if (data.results) {
+            var bindings = data.results.bindings;
+            if (bindings.length == 1 &&
+                bindings[0]['error-message']) {
+                return cb({
+                    message: bindings[0]['error-message'].value
                 });
             }
-        });
-    }).on('error', function(e) {
-        cb(e);
+            rows = tableEntries(bindings, readable);
+            cb(false, rows);
+        } else {
+            cb({
+                message: 'No entry retrieved'
+            });
+        }
     });
-    req.end();
 };
 
 module.exports.SPARQLUpdateContent = function(type, data, cb) {
@@ -229,39 +238,27 @@ module.exports.SPARQLUpdateContent = function(type, data, cb) {
         }
     };
 
-    var req = http.request(opts, function(res) {
-        console.log("Got update response: " + res.statusCode);
-        if (res.statusCode === 404)
-            return cb({
-                message: 'List of datasets not available'
+    httpQuery(opts, function(err, data) {
+        if (err)
+            return cb(err);
+        if (data) {
+            data = JSON.parse(data);
+            var message = data.results.bindings[0]['error-message'].value;
+            cb({
+                'message': message
             });
-        var data = "";
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            if (data) {
-                data = JSON.parse(data);
-                var message = data.results.bindings[0]['error-message'].value;
-                cb({
-                    'message': message
-                });
-            } else
-                cb(false);
-
-        });
-    }).on('error', function(e) {
-        console.log("Got error: " + e.message);
-        cb(e);
+        } else
+            cb(false);
     });
-
-    req.end();
-
 };
 
 
 module.exports.SPARQLUpdateStatus = function(data, cb) {
     var uri = '<' + data.url + '>',
+        newuri = '<' + data.newurl + '>',
+        title = data.title,
+        creator = data.creator,
+        desc = data.desc,
         visible = data.visible,
         readable = data.readable;
 
@@ -278,6 +275,8 @@ module.exports.SPARQLUpdateStatus = function(data, cb) {
         insert += uri + ' wo:visible ' + visible + '. ';
         del += uri + ' wo:visible ?v. ';
     }
+
+
     insert = 'INSERT {' + insert + '} ';
     del = 'DELETE {' + del + '} ';
     var query = getPrefix() + 'WITH wo:void ' + del + insert + where;
@@ -295,33 +294,18 @@ module.exports.SPARQLUpdateStatus = function(data, cb) {
         }
     };
 
-    var req = http.request(opts, function(res) {
-        console.log("updateStatus response: " + res.statusCode);
-        if (res.statusCode === 404)
-            return cb({
-                message: 'Cannot retrieve metadata of datasets'
+    httpQuery(opts, function(err, data) {
+        if (err)
+            return cb(err);
+        if (data) {
+            data = JSON.parse(data);
+            var message = data.results.bindings[0]['error-message'].value;
+            cb({
+                'message': message
             });
-        var data = '';
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            if (data) {
-                data = JSON.parse(data);
-                var message = data.results.bindings[0]['error-message'].value;
-                cb({
-                    'message': message
-                });
-            } else
-                cb(false);
-
-        });
-    }).on('error', function(e) {
-        console.log("Got error: " + e.message);
-        cb(e);
+        } else
+            cb(false);
     });
-
-    req.end();
 };
 
 
@@ -351,40 +335,27 @@ module.exports.getDataset = function(cb) {
         }
     };
 
-    var req = http.request(opts, function(res) {
-        console.log("getDataset response: " + res.statusCode);
-        if (res.statusCode === 404)
-            return cb({
-                message: 'List of datasets not available'
-            });
-        var data = "";
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            data = JSON.parse(data);
-            var rows = [];
-            if (data.results) {
-                var bindings = data.results.bindings;
-                if (bindings.length == 1 &&
-                    bindings[0]['error-message']) {
-                    return cb({
-                        message: bindings[0]['error-message'].value
-                    });
-                }
-                rows = tableEntries(bindings, false);
-                cb(false, rows);
-            } else {
-                cb({
-                    message: 'No entry retrieved'
+    httpQuery(opts, function(err, data) {
+        if (err)
+            return cb(err);
+        data = JSON.parse(data);
+        var rows = [];
+        if (data.results) {
+            var bindings = data.results.bindings;
+            if (bindings.length == 1 &&
+                bindings[0]['error-message']) {
+                return cb({
+                    message: bindings[0]['error-message'].value
                 });
             }
-        });
-    }).on('error', function(e) {
-        console.log("Got error: " + e.message);
-        cb(e);
+            rows = tableEntries(bindings);
+            cb(false, rows);
+        } else {
+            cb({
+                message: 'No entry retrieved'
+            });
+        }
     });
-    req.end();
 };
 
 module.exports.query = function(url, query, output, cb) {
@@ -407,25 +378,9 @@ module.exports.query = function(url, query, output, cb) {
             'Accept': content_types[output] || 'application/sparql-results+json'
         }
     };
-    var req = http.request(opts, function(res) {
-        console.log("getDataset response: " + res.statusCode);
-        if (res.statusCode === 404)
-            return cb({
-                message: 'Dataset not available'
-            });
-        var data = "";
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            cb(false, data);
-        });
-    }).on('error', function(err) {
-        console.log("Got error: " + err.message);
-        cb(err);
-    });
-    req.end();
+    httpQuery(opts, cb);
 };
+
 
 module.exports.removeByIds = function(urls, cb) {
     var del = '',
@@ -454,30 +409,33 @@ module.exports.removeByIds = function(urls, cb) {
         }
     };
 
-    var req = http.request(opts, function(res) {
-        console.log("updateStatus response: " + res.statusCode);
-        if (res.statusCode === 404)
-            return cb({
-                message: 'Cannot retrieve metadata of datasets'
+    //async.waterfall([],function(err,result){});
+    httpQuery(opts, function(err, data) {
+        if (err)
+            return cb(err);
+        if (data) {
+            data = JSON.parse(data);
+            var message = data.results.bindings[0]['error-message'].value;
+            cb({
+                'message': message
             });
-        var data = '';
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            if (data) {
-                data = JSON.parse(data);
-                var message = data.results.bindings[0]['error-message'].value;
-                cb({
-                    'message': message
-                });
-            } else
-                cb(false);
-
-        });
-    }).on('error', function(e) {
-        console.log("Got error: " + e.message);
-        cb(e);
+        } else {
+            query = ' with wo:void delete {?person ?p ?o} where {?person a schema:Person; ?p ?o. filter (!bound(?ds)) optional {?ds a schema:Dataset. ?ds ?pre ?person}}';
+            query = getPrefix() + query;
+            opts.path = updateURL + '?update=' + encodeURIComponent(query);
+            httpQuery(opts, function(err, data) {
+                if (err)
+                    return cb(err);
+                if (data) {
+                    data = JSON.parse(data);
+                    var message = data.results.bindings[0]['error-message'].value;
+                    cb({
+                        'message': message
+                    });
+                } else {
+                    cb(false);
+                }
+            });
+        }
     });
-    req.end();
 };

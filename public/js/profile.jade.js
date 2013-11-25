@@ -30,7 +30,7 @@ $(document).ready(function() {
             else
                 staform.append('<input name="' + rc[i] + '" value="public"></input>');
         }
-        staform.attr('action', '/dataset/status');
+        staform.attr('action', '/dataset/access');
         staform.submit();
     });
 

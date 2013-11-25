@@ -71,6 +71,37 @@ html(lang='en')
                 h1 Published datasets (#{owned?owned.length:0})
               if owned && owned.length != 0
                 form#staform.hide(method='post' action='')
+                // Modal
+                  #myModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+                    .modal-header
+                      button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+                      h3#myModalLabel Edit a dataset
+                    .modal-body
+                      form#adddata.form-horizontal(action='/dataset/edit', method='post')
+                        fieldset
+
+                          .control-group
+                            input#editurl.hide(name='origurl')
+                            label.control-label(for='title') Edit title
+                            .controls
+                              input.input-xlarge(name='title' type='text' placeholder='Title of the dataset')
+                          .control-group
+                            label.control-label(for='url') Edit address
+                            .controls
+                              input.input-xlarge(name='url' type='text' placeholder='http://address-of-your-dataset/sparql')
+                              p.help-block The URL where your dataset can be accessed/queried                 
+                          .control-group
+                            label.control-label(for='creator') Edit creator
+                            .controls
+                              input.input-xlarge(name='creator' type='text')
+                              p.help-block The person who created this entry. This can be different from the one who publish the entry
+                          .control-group
+                            label.control-label(for='desc') Edit description
+                            .controls
+                              textarea.input-xlarge(name='desc' placeholder='A brief description of your dataset')
+                    .modal-footer
+                      button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
+                      button#submit.btn.btn-primary Submit
                 form.span5.form-horizontal
                   fieldset
                     .control-group
@@ -82,13 +113,12 @@ html(lang='en')
                           th URL
                           th Private
                           th Remove
-
                       tbody
                         each entry in owned
                           tr
                             td.span2= entry.title
                             td.span2= entry.url
-                            - var chk = !entry.readable==='true'?'checked':undefined
+                            - var chk = !entry.readable?'checked':undefined
                             td.span1
                               input.prt(type='checkbox' checked=chk name=entry._id value='private')
                             td.span1
@@ -101,7 +131,7 @@ html(lang='en')
               .page-header
                 h1 Reuests sent (#{requested?requested.length:0})
               if requested && requested.length != 0
-                form.span5.form-horizontal(method='post' action='/dataset/access')
+                form.span5.form-horizontal(method='post' action='/dataset/reqaccess')
                   fieldset
                     .control-group
                       lable.control-label Re-send access requests
