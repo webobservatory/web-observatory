@@ -400,6 +400,7 @@ module.exports.query = function(url, query, output, cb) {
 
     var opts = {
         host: parsed.host,
+        port: parsed.port,
         path: parsed.pathname + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
