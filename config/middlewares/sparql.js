@@ -399,7 +399,7 @@ module.exports.query = function(url, query, output, cb) {
     var parsed = require('url').parse(url);
 
     var opts = {
-        host: parsed.host,
+        hostname: parsed.hostname,
         port: parsed.port,
         path: parsed.pathname + '?query=' + encodeURIComponent(query),
         headers: {
