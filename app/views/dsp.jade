@@ -1,25 +1,30 @@
-include includes/head
-body
-  #wrap
-    .container.text-center
-      .row
-        include includes/flash-banner
-      .row
-        if result
-          table#display.table.table-bordered.table-hover
-            thead
-              tr
-                each v in result.head.vars
-                  th=v
-            tbody
-              each binding in result.results.bindings
+!!! 5
+html(lang='en')
+  include includes/head
+  script(src='/js/jquery.dataTables.js')
+  link(href='/css/jquery.dataTables.css', rel='stylesheet')
+
+  body
+    #wrap
+      .container.text-center
+        .row
+          include includes/flash-banner
+        .row
+          if result
+            table#display.table.table-bordered.table-hover
+              thead
                 tr
-                  each val in binding
-                    td=val.value
-      #push
-  include includes/footer
-  script.
-    $(document).read(
-    function(){
-      $('#display').dataTable();
-    });
+                  each v in result.head.vars
+                    th=v
+              tbody
+                each binding in result.results.bindings
+                  tr
+                    each val in binding
+                      td=val.value
+        #push
+    include includes/footer
+    script.
+      $(document).ready(
+      function(){
+        $('#display').dataTable();
+      });
