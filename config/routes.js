@@ -262,7 +262,7 @@ module.exports = function(app, passport) {
                     });
                 });
             },
-            function(urls,cb) {
+            function(urls, cb) {
                 console.log(urls);
                 sparql.removeByIds(urls, cb);
             }
@@ -355,6 +355,8 @@ module.exports = function(app, passport) {
         var query = req.query.query,
             format = req.query.format,
             _id = req.query.id;
+        console.log('Custom query');
+        console.log(query);
 
         async.waterfall([
             function(cb) {

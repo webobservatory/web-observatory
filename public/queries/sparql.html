@@ -4,7 +4,8 @@
 
 </div> <pre class='pre-scrollable' id="prefixestext"> </pre>
 
-<form id='queryform' action='/query' method='get'>
+<form id='queryform' action='/query'
+method='get'>
     <div>
         <input class='hide' name='query'></input>
         <input class='hide' name='id'></input>
@@ -40,7 +41,8 @@
         'http://dbpedia.org/resource/': '',
         'http://dbpedia.org/property/': 'dbpedia2',
         'http://dbpedia.org/': 'dbpedia',
-        'http://www.w3.org/2004/02/skos/core#': 'skos'
+        'http://www.w3.org/2004/02/skos/core#': 'skos',
+        'http://rdfs.org/sioc/ns#': 'sioc'
     };
 
     function toPrefixesText(namespaces)
@@ -90,7 +92,7 @@
     function submitQuery()
     {
         format = $('#selectoutput').val();
-        var query = toPrefixesText(namespaces) + $('#querytext').val();
+        var query = toPrefixesText(namespaces) + ' ' + $('#querytext').val();
         console.log(query);
         $('input[name="query"]').val(query);
         var busy = $('<div class="alert alert-info"> Executing query ...</div>');
