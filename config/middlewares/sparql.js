@@ -396,16 +396,16 @@ module.exports.query = function(url, query, output, cb) {
         tsv: 'text/tab-separated-values'
     };
 
+    var parsed = require('url').parse(url);
+
     var opts = {
-        port: 8080,
-        host: domain,
-        path: selectURL + '?query=' + encodeURIComponent(query),
+        host: parsed.host,
+        path: parsed.pathname + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': content_types[output] || 'application/sparql-results+json'
         }
     };
-
     var req = http.request(opts, function(res) {
         console.log("getDataset response: " + res.statusCode);
         if (res.statusCode === 404)
@@ -420,7 +420,7 @@ module.exports.query = function(url, query, output, cb) {
             cb(false, data);
         });
     }).on('error', function(err) {
-        console.log("Got error: " + e.message);
+        console.log("Got error: " + err.message);
         cb(err);
     });
     req.end();
