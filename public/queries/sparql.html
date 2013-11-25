@@ -92,7 +92,7 @@ method='get'>
     function submitQuery()
     {
         format = $('#selectoutput').val();
-        var query = toPrefixesText(namespaces) + ' ' + $('#querytext').val();
+        var query = toPrefixesText(namespaces) + ' ' + $('#querytext').val().replace('\n',' ');
         console.log(query);
         $('input[name="query"]').val(query);
         var busy = $('<div class="alert alert-info"> Executing query ...</div>');
