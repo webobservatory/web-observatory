@@ -1,0 +1,25 @@
+include includes/head
+body
+  #wrap
+    .container.text-center
+      .row
+        include includes/flash-banner
+      .row
+        if result
+          table#display.table.table-bordered.table-hover
+            thead
+              tr
+                each v in result.head.vars
+                  th=v
+            tbody
+              each binding in result.results.bindings
+                tr
+                  each val in binding
+                    td=val.value
+      #push
+  include includes/footer
+  script.
+    $(document).read(
+    function(){
+      $('#display').dataTable();
+    });

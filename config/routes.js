@@ -463,6 +463,7 @@ module.exports = function(app, passport) {
                     break;
                 default:
                     result = JSON.parse(result);
+                    /*
                     var data = [];
                     var bindings = result.results.bindings;
                     for (i = 0; i < bindings.length; i++) {
@@ -473,7 +474,11 @@ module.exports = function(app, passport) {
                         }
                         data.push(tem);
                     }
-                    res.send(data);
+                    */
+                    //res.send(result);
+                    res.render('dsp', {
+                        'result': result
+                    });
             }
         });
     });
