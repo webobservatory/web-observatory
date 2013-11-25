@@ -10,8 +10,8 @@ html(lang='en')
         .row
           include includes/flash-banner
         .row
-          if result
-            table#display.table.table-bordered.table-hover
+          table#display.table.table-bordered.table-hover
+            if result
               thead
                 tr
                   each v in result.head.vars
@@ -21,10 +21,10 @@ html(lang='en')
                   tr
                     each val in binding
                       td=val.value
-        #push
-    include includes/footer
-    script.
-      $(document).ready(
-      function(){
-        $('#display').dataTable();
-      });
+      #push
+  include includes/footer
+  script.
+    $(document).ready(
+    function(){
+      $('#display').dataTable();
+    });
