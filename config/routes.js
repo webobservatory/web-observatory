@@ -231,28 +231,48 @@ module.exports = function(app, passport) {
     app.post('/dataset/remove', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email;
         var ids = req.body.remove;
+
+        if (!ids) {
+            req.flash('error', ['No entry selected']);
+            return res.redirect(req.get('referer'));
+        }
+
         if (typeof ids === 'string')
             ids = [ids];
 
-        User.findOne({
-            email: umail
-        }, function(err, user) {
-            if (err || !user) {
-                req.flash('error', [err.message || 'User not logged in']);
+        async.waterfall([
+            function(cb) {
+                User.findOne({
+                    email: umail
+                }, function(err, user) {
+                    if (err || !user) {
+                        return cb(err || {
+                            message: 'User not logged in'
+                        });
+                    }
+
+                    var urls = [];
+                    for (i = 0; i < ids.length; i++) {
+                        var dataset = user.owned.id(ids[i]);
+                        urls.push(dataset.url);
+                        dataset.remove();
+                    }
+                    user.save(function(err) {
+                        cb(err, urls);
+                    });
+                });
+            },
+            function(urls,cb) {
+                console.log(urls);
+                sparql.removeByIds(urls, cb);
+            }
+        ], function(err) {
+            if (err) {
+                req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
-            for (i = 0; i < ids.length; i++) {
-                user.owned.id(ids[i]).remove();
-            }
-            user.save(function(err) {
-                //TODO remove from sparql
-                if (err)
-                    req.flash('error', [err.message]);
-                else
-                    req.flash('info', [ids.length + ' datasets have been removed']);
-                res.redirect(req.get('referer'));
-
-            });
+            req.flash('info', [ids.length + ' datasets removed']);
+            res.redirect(req.get('referer'));
         });
     });
 

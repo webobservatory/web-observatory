@@ -392,7 +392,7 @@ module.exports.query = function(url, query, output, cb) {
     var content_types = {
         xml: 'application/sparql-results+xml',
         json: 'application/sparql-results+json',
-        csv: 'application/sparql-results+json',//some endpoints don't correctly response to /text/csv, use json then convert to csv
+        csv: 'application/sparql-results+json', //some endpoints don't correctly response to /text/csv, use json then convert to csv
         tsv: 'text/tab-separated-values'
     };
 
@@ -422,6 +422,61 @@ module.exports.query = function(url, query, output, cb) {
     }).on('error', function(err) {
         console.log("Got error: " + e.message);
         cb(err);
+    });
+    req.end();
+};
+
+module.exports.removeByIds = function(urls, cb) {
+    var del = '',
+        values = '';
+    for (i = 0; i < urls.length; i++) {
+        values += '<' + urls[i] + '> ';
+    }
+    values = 'VALUES ?url {' + values + '}';
+
+
+    var where = 'WHERE { ?dataset ?p ?o; schema:url ?url. ' + values + ' }';
+
+    del = 'DELETE { ?dataset ?p ?o.} ';
+    var query = getPrefix() + 'WITH wo:void ' + del + where;
+
+    console.log('Remove datasets query');
+    console.log(query);
+    var opts = {
+        method: 'post',
+        port: 8080,
+        host: domain,
+        path: updateURL + '?update=' + encodeURIComponent(query),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/sparql-results+json'
+        }
+    };
+
+    var req = http.request(opts, function(res) {
+        console.log("updateStatus response: " + res.statusCode);
+        if (res.statusCode === 404)
+            return cb({
+                message: 'Cannot retrieve metadata of datasets'
+            });
+        var data = '';
+        res.on('data', function(chunk) {
+            data += chunk;
+        });
+        res.on('end', function() {
+            if (data) {
+                data = JSON.parse(data);
+                var message = data.results.bindings[0]['error-message'].value;
+                cb({
+                    'message': message
+                });
+            } else
+                cb(false);
+
+        });
+    }).on('error', function(e) {
+        console.log("Got error: " + e.message);
+        cb(e);
     });
     req.end();
 };

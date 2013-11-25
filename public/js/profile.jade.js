@@ -47,7 +47,9 @@ $(document).ready(function() {
         e.preventDefault();
         var staform = $('#staform');
 
-        var inputs = $('input[name=remove]');
+        var inputs = $('input[name=remove]:checked');
+        if (inputs.length === 0)
+            return alert('No entry selected');
         staform.append(inputs);
         staform.attr('action', '/dataset/remove');
         staform.submit();

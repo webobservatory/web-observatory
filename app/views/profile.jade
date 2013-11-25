@@ -88,7 +88,7 @@ html(lang='en')
                           tr
                             td.span2= entry.title
                             td.span2= entry.url
-                            - var chk = !entry.readable?'checked':undefined
+                            - var chk = !entry.readable==='true'?'checked':undefined
                             td.span1
                               input.prt(type='checkbox' checked=chk name=entry._id value='private')
                             td.span1
