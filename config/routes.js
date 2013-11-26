@@ -262,7 +262,7 @@ module.exports = function(app, passport) {
             };
             User.update(query, update, cb);
         }, function(err, results) {
-            if (err || results===0)
+            if (err || results === 0)
                 req.flash('error', [err.message || 'No change made']);
             else
                 req.flash('info', ['Dataset status changed']);
@@ -505,8 +505,14 @@ module.exports = function(app, passport) {
                     res.end(result, 'UTF-8');
                     break;
                 default:
-                console.log(result);
-                    result = JSON.parse(result);
+                    console.log(result);
+                    try {
+                        result = JSON.parse(result);
+                    } catch (e) {
+                        result = null;
+                        req.flash('error', [e.message]);
+                        console.log(e);
+                    }
                     /*
                     var data = [];
                     var bindings = result.results.bindings;
@@ -521,7 +527,9 @@ module.exports = function(app, passport) {
                     */
                     //res.send(result);
                     res.render('dsp', {
-                        'result': result
+                        'result': result,
+                        'info': req.flash('info'),
+                        'error': req.flash('error')
                     });
             }
         });
