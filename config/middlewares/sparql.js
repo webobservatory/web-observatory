@@ -192,9 +192,6 @@ function httpQuery(opts, cb) {
                 res.on('end', function() {
                     cb(false, data);
                 });
-                cb({
-                    message: 'Service timeout'
-                });
                 break;
             default:
                 cb({
