@@ -505,6 +505,7 @@ module.exports = function(app, passport) {
                     res.end(result, 'UTF-8');
                     break;
                 default:
+                console.log(result);
                     result = JSON.parse(result);
                     /*
                     var data = [];

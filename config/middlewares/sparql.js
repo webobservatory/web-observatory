@@ -171,6 +171,10 @@ function httpQuery(opts, cb) {
             return cb({
                 message: 'Dataset not available'
             });
+        if (res.statusCode === 502)
+            return cb({
+                message: 'Service not available'
+            });
         var data = "";
         res.on('data', function(chunk) {
             data += chunk;
