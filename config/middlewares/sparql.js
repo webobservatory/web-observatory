@@ -166,22 +166,41 @@ function tableEntries(bindings, readable) {
 
 function httpQuery(opts, cb) {
     var req = http.request(opts, function(res) {
-        console.log("getDataset response: " + res.statusCode);
-        if (res.statusCode === 404)
-            return cb({
-                message: 'Dataset not available'
-            });
-        if (res.statusCode === 502)
-            return cb({
-                message: 'Service not available'
-            });
-        var data = "";
-        res.on('data', function(chunk) {
-            data += chunk;
-        });
-        res.on('end', function() {
-            cb(false, data);
-        });
+        console.log("Response: " + res.statusCode);
+
+        switch (res.statusCode) {
+            case 404:
+                cb({
+                    message: 'Service not available'
+                });
+                break;
+            case 502:
+                cb({
+                    message: 'Service not available'
+                });
+                break;
+            case 500:
+                cb({
+                    message: 'Service timeout'
+                });
+                break;
+            case 200:
+                var data = "";
+                res.on('data', function(chunk) {
+                    data += chunk;
+                });
+                res.on('end', function() {
+                    cb(false, data);
+                });
+                cb({
+                    message: 'Service timeout'
+                });
+                break;
+            default:
+                cb({
+                    message: 'Status code: ' + res.statusCode
+                });
+        }
     }).on('error', function(err) {
         console.log("Got error: " + err.message);
         cb(err);
