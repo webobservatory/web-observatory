@@ -1,8 +1,10 @@
 !!! 5
 html(lang='en')
   include includes/head
-    link(href='/css/jquery.dataTables.css', rel='stylesheet')
   body
+    link(href='/css/jquery.dataTables.css', rel='stylesheet')
+    link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
+    //link(rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css")
     include includes/nav
     #wrap
       .container
@@ -32,14 +34,15 @@ html(lang='en')
                   .control-group
                     label.control-label(for='creator') Creator
                     .controls
-                      input.input-xlarge(name='creator' type='text', placeholder='Creator name')
+                      input.input-xlarge(name='creator' type='text' placeholder='Creator name')
                       p.help-block The person who created this entry. This can be different from the one who publish the entry (you, in this case).
                   // Text input
                   .control-group
                     label.control-label(for='addr') Data source
                     .controls
-                      input.input-xlarge(name='source' type='text', placeholder='The source of your visualisation')
-                      button#src.btn.tp(data-toogle='tooltip' title='not available yet') Search
+                      .ui-widget
+                        input#tags.input-xlarge(name='source' type='text' placeholder='The source of your visualisation')
+                      //button#src.btn.tp(data-toogle='tooltip' title='not available yet') Search
                   // Textarea
                   .control-group
                     label.control-label(for='desc') Description

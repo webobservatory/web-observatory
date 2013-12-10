@@ -14,10 +14,12 @@ var pass = require('../app/util/pass');
 
 module.exports = function(app, passport) {
 
+    app.get('/wo/datasets/names', ensureLoggedIn('/login'), function(req, res) {
+    //User.find({},
+
+    });
 
     app.get('/wo/datasets', ensureLoggedIn('/login'), function(req, res) {
-
-
         async.waterfall([
             function(cb) {
                 User.listDatasets(req.user.email, cb);
@@ -351,7 +353,7 @@ module.exports = function(app, passport) {
                 error: errmsg,
                 user: req.user,
                 table: result,
-                scripts: ['/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/vis.js']
+                scripts: ['/js/jquery-ui-1.10.3.min.js', '/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/vis.js']
             });
         });
     });
@@ -629,7 +631,30 @@ module.exports = function(app, passport) {
         failureFlash: true,
         successReturnToOrRedirect: '/'
     }));
-
+    /*
+    app.post('/auth/soton', function(req, res, next) {
+        try {
+            passport.authenticate('ldapauth', function(err, user, info) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    return res.redirect('/auth/soton');
+                }
+                if (!user) {
+                    req.flash('error', ['User not found']);
+                    return res.redirect('/auth/soton');
+                }
+                req.logIn(user, function(err) {
+                    if (err) {
+                        return next(err);
+                    }
+                    return res.redirect(req.get('referer'));
+                });
+            })(req, res, next);
+        } catch (e) {
+            console.log(e);
+        }
+    });
+*/
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
         User.findOne({
@@ -733,11 +758,6 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/logout', function(req, res) {
-        req.logout();
-        res.redirect('/');
-    });
-
     app.get('/profile/reset-pass', function(req, res) {
         var tk = req.query.tk;
         if (!tk) {
@@ -785,4 +805,10 @@ module.exports = function(app, passport) {
             res.redirect('/login');
         });
     });
+
+    app.get('/logout', function(req, res) {
+        req.logout();
+        res.redirect('/');
+    });
+
 };

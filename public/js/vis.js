@@ -1,3 +1,17 @@
+var getDsNames() {
+
+    $("#tags").autocomplete({
+        source: availableTags
+    });
+}
+
+var availableTags = [
+        "DBpedia",
+        "Twitter Dataset - Septermber 2013",
+        "Weibo Dataset",
+        "Wikipedia Dataset"
+];
+
 $(document).ready(function() {
     $('.tp').tooltip();
     $('#display').dataTable();
@@ -5,4 +19,5 @@ $(document).ready(function() {
         $('#adddata').submit();
         event.preventDefault();
     });
+    getDsNames();
 });
