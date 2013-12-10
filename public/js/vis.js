@@ -1,9 +1,11 @@
-var getDsNames() {
-
-    $("#tags").autocomplete({
-        source: availableTags
+var getDsNames = function() {
+    $.get("wo/dataset/names", function(data) {
+        availableTags = data.tags;
+        $("#tags").autocomplete({
+            source: availableTags
+        });
     });
-}
+};
 
 var availableTags = [
         "DBpedia",
