@@ -1,17 +1,18 @@
 var getDsNames = function() {
-    $.get("/wo/dataset/names", function(data) {
+    $.get('/wo/dataset/names', function(data) {
         availableTags = data.tags;
-        $("#tags").autocomplete({
+        $('#tags').autocomplete({
             source: availableTags
         });
     });
 };
 
 var availableTags = [
-        "DBpedia",
-        "Twitter Dataset - Septermber 2013",
-        "Weibo Dataset",
-        "Wikipedia Dataset"
+        'DBpedia',
+        'Twitter Dataset - Septermber 2013',
+        'Sina Weibo',
+        'Weibo Dataset',
+        'Wikipedia Dataset'
 ];
 
 $(document).ready(function() {
