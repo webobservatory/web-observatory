@@ -1,5 +1,5 @@
 var getDsNames = function() {
-    $.get('/wo/dataset/names', function(data) {
+    $.get('/wo/datasets/names', function(data) {
         availableTags = data.tags;
         $('#tags').autocomplete({
             source: availableTags
