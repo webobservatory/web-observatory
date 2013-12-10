@@ -15,8 +15,17 @@ var pass = require('../app/util/pass');
 module.exports = function(app, passport) {
 
     app.get('/wo/datasets/names', ensureLoggedIn('/login'), function(req, res) {
-    //User.find({},
-
+        //User.find({},
+        var availableTags = [
+                'DBpedia',
+                'Twitter Dataset - Septermber 2013',
+                'Sina Weibo',
+                'Weibo Dataset',
+                'Wikipedia Dataset'
+        ];
+        res.json({
+            tags: availableTags
+        });
     });
 
     app.get('/wo/datasets', ensureLoggedIn('/login'), function(req, res) {
