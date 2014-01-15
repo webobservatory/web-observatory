@@ -68,6 +68,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //add datasets
     app.post('/wo/datasets', ensureLoggedIn('/login'), function(req, res) {
 
         var data = {
@@ -120,6 +121,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //request access of datasets
     app.post('/dataset/reqaccess', ensureLoggedIn('/login'), function(req, res) {
         var sender_mail = req.user.email,
             dt_ids = req.body.ids;
@@ -163,6 +165,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //approve access to datasets
     app.post('/dataset/approve', ensureLoggedIn('/login'), function(req, res) {
         var clr = req.body.clr === 'true',
             umail = req.user.email,
@@ -198,6 +201,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //TODO edit datasets' metadata
     app.post('/dataset/edit', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email,
             data = {
@@ -244,6 +248,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //change datasets' access control
     app.post('/dataset/access', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email;
         var ids = Object.keys(req.body);
@@ -282,6 +287,7 @@ module.exports = function(app, passport) {
 
     });
 
+    //remove dataset
     app.post('/dataset/remove', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email;
         var ids = req.body.remove;
@@ -367,6 +373,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //add visualisations
     app.post('/wo/visualisations', ensureLoggedIn('/login'), function(req, res) {
         var data = {
             title: req.body.title,
@@ -405,6 +412,55 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.post('/visualisations/remove', ensureLoggedIn('/login'), function(req, res) {
+        var umail = req.user.email;
+        var ids = req.body.remove;
+
+        if (!ids) {
+            req.flash('error', ['No entry selected']);
+            return res.redirect(req.get('referer'));
+        }
+
+        if (typeof ids === 'string')
+            ids = [ids];
+
+        async.waterfall([
+            function(cb) {
+                User.findOne({
+                    email: umail
+                }, function(err, user) {
+                    if (err || !user) {
+                        return cb(err || {
+                            message: 'User not logged in'
+                        });
+                    }
+
+                    var urls = [];
+                    for (i = 0; i < ids.length; i++) {
+                        var visualisation = user.ownedVis.id(ids[i]);
+                        urls.push(visualisation.url);
+                        visualisation.remove();
+                    }
+                    user.save(function(err) {
+                        cb(err, urls);
+                    });
+                });
+            },
+            function(urls, cb) {
+                console.log(urls);
+                sparql.removeByIds(urls, cb);
+            }
+        ], function(err) {
+            if (err) {
+                req.flash('error', [err.message]);
+                return res.redirect(req.get('referer'));
+            }
+            req.flash('info', [ids.length + ' datasets removed']);
+            res.redirect(req.get('referer'));
+        });
+    });
+
+    //execute users' queries
     app.get('/query', ensureLoggedIn('/login'), function(req, res) {
         var query = req.query.query,
             format = req.query.format,
@@ -678,6 +734,7 @@ module.exports = function(app, passport) {
             } else {
                 parameter.msg = user.msg;
                 parameter.owned = user.owned;
+                parameter.ownedVis = user.ownedVis;
                 parameter.requested = user.requested;
             }
 
@@ -688,6 +745,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //update user profile
     app.post("/profile", ensureLoggedIn('/login'), function(req, res) {
         var oldpw = req.body.oldpw,
             newpw = req.body.newpw,
@@ -740,6 +798,7 @@ module.exports = function(app, passport) {
         }
     });
 
+    //remove messages
     app.post('/profile/message', ensureLoggedIn('/login'), function(req, res) {
         var msgid = req.body.msgid;
         if (typeof msgid === 'string')
@@ -767,6 +826,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //reseting password
     app.get('/profile/reset-pass', function(req, res) {
         var tk = req.query.tk;
         if (!tk) {

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var async = require('async');
 
-DatasetSchema = mongoose.Schema({
+var DatasetSchema = mongoose.Schema({
     url: String,
     title: String,
     type: String,
@@ -13,7 +13,7 @@ DatasetSchema = mongoose.Schema({
 function transIter(row, done) {
     Dataset.getEntry(row, function(err, entry) {
         if (err) return done(err, null);
-        if(!entry) return done(false, null);
+        if (!entry) return done(false, null);
         row.url = entry._id;
         done(null, row);
     });

@@ -1,5 +1,7 @@
 var sparql = require('../config/middlewares/sparql');
+var logger = require('../app/util/logger');
 var User = require('../app/models/user');
+var Ds = require('../app/models/dataset');
 var async = require('async');
 
 String.prototype.contains = function(str) {
@@ -9,8 +11,7 @@ String.prototype.contains = function(str) {
 module.exports = function() {
     var exist = [];
     sparql.getDataset(function(err, datasets) {
-        if (err)
-            return console.log('Error retrieving all datasets: ' + err.message);
+        if (err) return logger.error('Error retrieving all datasets: ' + err.message);
         //datasets contains all datasets order by publisher email
         var users = [];
         for (var key in datasets) {
@@ -32,37 +33,32 @@ module.exports = function() {
         },
 
         function(err, results) {
-            if (err) return console.log(err.message);
+            if (err) return logger.error(err.message);
 
             async.map(datasets, function(dataset, cb) {
-                User.findOne({
-                    email: dataset.email
-                }, function(err, user) {
-                    if (err)
-                        return cb(err);
+                Ds.findOne({
+                    publisher: dataset.email
+                }, function(err, ds) {
+                    if (err) return cb(err);
 
-                    var entry = {
-                        url: dataset.url,
-                        title: dataset.title,
-                        publisher: dataset.email,
-                        type: dataset.addType,
-                        readable: dataset.readable === 'true',
-                        visible: dataset.visible === 'true'
-                    };
+                    if (!ds) ds = new Ds();
 
-                    if (!user) {
-                        return cb({
-                            message: 'User not found'
-                        });
-                    } else {
-                        if (exist.indexOf(user.email) === -1) {
-                            exist.push(user.email);
+                    ds.url = dataset.url;
+                    ds.title = dataset.title;
+                    ds.publisher = dataset.email;
+                    ds.type = dataset.addType;
+                    ds.readable = dataset.readable === 'true';
+                    ds.visible = dataset.visible === 'true';
+                    ds.save(function(err) {
+                    if(err) return cb(err);
+                        if (exist.indexOf(ds.publisher) === -1) {
+                            exist.push(ds.publisher);
                         }
                         if (dataset.class.toLowerCase().contains('dataset'))
-                            User.addOwn(dataset.email, entry, cb);
+                            User.addOwnDs(dataset.email, ds._id, cb);
                         else
-                            User.addOwnVis(dataset.email, entry, cb);
-                    }
+                            User.addOwnVis(dataset.email, ds._id, cb);
+                    });
                 });
             }, function(err, results) {
                 var updated_usr = 0;
@@ -72,10 +68,10 @@ module.exports = function() {
                     else
                         updated_usr += results[i];
                 }
-                if (err) return console.log('Error initilising: ' + err.message);
-                console.log('Initilisation completed, ' + exist.length + ' existing users, ' + updated_usr + ' updates have been made.');
-            });
+                if (err) return logger.error('Error initilising: ' + err.message);
+                logger.info('Initilisation completed, ' + exist.length + ' existing users, ' + updated_usr + ' updates have been made.');
 
+            });
         });
     });
 };

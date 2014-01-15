@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var hash = require('../util/hash');
-var DatasetSchema = mongoose.model('Dataset').schema;
+var logger = require('../util/logger');
+//var DatasetSchema = mongoose.model('Dataset').schema;
 
 UserSchema = mongoose.Schema({
     firstName: String,
@@ -10,10 +11,6 @@ UserSchema = mongoose.Schema({
     org: String,
     salt: String,
     hash: String,
-    reset: {
-        token: String,
-        time_stamp: Date
-    },
     facebook: {
         id: String,
         email: String,
@@ -29,25 +26,52 @@ UserSchema = mongoose.Schema({
         email: String,
         name: String
     },
+    //password reset
+    reset: {
+        token: String,
+        time_stamp: Date
+    },
+    //datasets relevant
     visible: [ //list of datasets that are visible to this user
-        DatasetSchema
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Dataset'
+        }
     ],
     readable: [ //list of datasets that the current user can query
-        DatasetSchema
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Dataset'
+        }
     ],
-    owned: [ //list of datasets that are published by the current user
-        DatasetSchema
+    ownDs: [ //list of datasets that are published by the current user
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Dataset'
+        }
     ],
-    ownedVis: [DatasetSchema],
-    requested: [DatasetSchema],
+    ownVis: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Dataset'
+        }
+    ],
+    reqDs: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Dataset'
+        }
+    ], //requested access to these datasets
     msg: {
-        requests: [{
+        requests: [{ //received requests
                 sender: String,
-                dataset: [DatasetSchema],
+                dataset: [{
+                        type: Schema.Types.ObjectId,
+                        ref: 'Dataset'
+                    }
+                ],
                 read: Boolean
             }
         ],
-        general: [{
+        general: [{ //general messages
                 sender: String,
                 content: String,
                 read: Boolean
@@ -192,37 +216,37 @@ UserSchema.statics.accCtrl = function(deny, request, done) {
 };
 
 UserSchema.statics.grantAccess = function(request, done) {
-    console.log('grant');
     var User = this;
     var dataset = request.dataset[0];
     var query = {
         email: request.sender,
         readable: {
-            $ne: dataset
+            $ne: dataset._id
         }
     }; //grant access only if the user cannot access to the given dataset
 
     var update = {
         $push: {
-            readable: dataset,
+            readable: dataset._id,
             'msg.general': {
-                content: 'Your request for accessing ' + request.dataset[0].title + ' has been approved',
+                content: 'Your request for accessing ' + dataset.title + ' has been approved',
                 read: false
             }
         },
         $pull: {
-            requested: dataset
+            requested: dataset._id
         }
     };
 
     User.update(query, update, function(err, user) {
+        logger.info('Request approved; user: ' + user.email + '; dataset: ' + dataset.url + ';');
         done(err, request);
     });
 };
 
 UserSchema.statics.denyAccess = function(request, done) {
-    console.log('deny');
     var User = this;
+    var dataset = request.dataset[0];
     var query = {
         email: request.sender,
     };
@@ -230,13 +254,14 @@ UserSchema.statics.denyAccess = function(request, done) {
     var update = {
         $push: {
             'msg.general': {
-                content: 'Your request for accessing ' + request.dataset[0].title + ' has been denied',
+                content: 'Your request for accessing ' + dataset.title + ' has been denied',
                 read: false
             }
         }
     };
 
     User.update(query, update, function(err, user) {
+        logger.info('Request denied; user: ' + user.email + '; dataset: ' + dataset.url + ';');
         done(err, request);
     });
 };
@@ -251,21 +276,22 @@ UserSchema.statics.rmReq = function(umail, reqs, done) {
     User.update({
         email: umail
     }, update, function(err, user) {
+        logger.info('Requests removed; user: ' + user.email + ';');
         done(err, user);
     });
 };
 
-UserSchema.statics.addOwn = function(publisher, dataset, done) {
+UserSchema.statics.addOwnDs = function(publisher, ds_id, done) {
     var query = {
         email: publisher,
-        'owned.url': {
-            $ne: dataset.url
+        'owned._id': {
+            $ne: ds_id
         }
     };
 
     var update = {
         $push: {
-            owned: dataset
+            owned: ds_id
         }
     };
 
@@ -274,18 +300,18 @@ UserSchema.statics.addOwn = function(publisher, dataset, done) {
     });
 };
 
-UserSchema.statics.addOwnVis = function(publisher, vis, done) {
+UserSchema.statics.addOwnVis = function(publisher, vis_id, done) {
 
     var query = {
         email: publisher,
-        'ownedVis.url': {
-            $ne: vis.url
+        'ownedVis._id': {
+            $ne: vis_id
         }
     };
 
     var update = {
         $push: {
-            ownedVis: vis
+            ownedVis: vis_id
         }
     };
 
