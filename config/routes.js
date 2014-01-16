@@ -30,10 +30,11 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/wo/datasets', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/wo/datasets', function(req, res) {
         async.waterfall([
             function(cb) {
-                User.listDatasets(req.user.email, cb);
+            var email = req.user?req.user.email:null;
+                User.listDatasets(email, cb);
             },
             function(_visible, _readable, owned, cb) {
                 var visible = [];
@@ -345,8 +346,8 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/wo/visualisations', ensureLoggedIn('/login'), function(req, res) {
-        var email = req.user.email;
+    app.get('/wo/visualisations', function(req, res) {
+        var email = req.user?req.user.email:null;
         var errmsg = req.flash('error');
 
         async.waterfall([

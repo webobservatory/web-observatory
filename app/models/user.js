@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var hash = require('../util/hash');
 var logger = require('../util/logger');
 var Schema = mongoose.Schema;
-//var DatasetSchema = mongoose.model('Dataset').schema;
+var DatasetSchema = mongoose.model('Dataset').schema;
 
 UserSchema = mongoose.Schema({
     firstName: String,
@@ -347,34 +347,40 @@ UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
 };
 
 UserSchema.statics.listDatasets = function(email, cb) {
+    if (email) {
+        var query = {
+            email: email
+        };
 
-    var query = {
-        email: email
-    };
-
-    this.findOne(query)
-        .populate('visible')
-        .populate('readable')
-        .populate('ownDs')
-        .exec(function(err, user) {
-        if (err)
-            return cb(err);
-        cb(err, user.visible, user.readable, user.ownDs);
-    });
+        this.findOne(query)
+            .populate('visible')
+            .populate('readable')
+            .populate('ownDs')
+            .exec(function(err, user) {
+            if (err)
+                return cb(err);
+            cb(err, user.visible, user.readable, user.ownDs);
+        });
+    } else {
+        cb(null, [], [], []);
+    }
 };
 UserSchema.statics.listVisualisations = function(email, cb) {
+    if (email) {
+        var query = {
+            email: email
+        };
 
-    var query = {
-        email: email
-    };
-
-    this.findOne(query)
-        .populate('ownVis')
-        .exec(function(err, user) {
-        if (err)
-            return cb(err);
-        cb(err, user.ownVis);
-    });
+        this.findOne(query)
+            .populate('ownVis')
+            .exec(function(err, user) {
+            if (err)
+                return cb(err);
+            cb(err, user.ownVis);
+        });
+    } else {
+        cb(null, []);
+    }
 };
 
 //message handling
