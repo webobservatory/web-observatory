@@ -11,11 +11,13 @@ var Recaptcha = require('recaptcha').Recaptcha;
 var pbk = '6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H';
 var prk = '6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D';
 var pass = require('../app/util/pass');
+var logger = require('../app/util/logger');
 
 module.exports = function(app, passport) {
 
     app.get('/wo/datasets/names', ensureLoggedIn('/login'), function(req, res) {
         //User.find({},
+        //TODO search for all urls
         var availableTags = [
                 'DBpedia',
                 'Twitter Dataset - Septermber 2013',
@@ -323,7 +325,7 @@ module.exports = function(app, passport) {
                 });
             },
             function(urls, cb) {
-                console.log(urls);
+                logger.info('URLs: ' + urls);
                 sparql.removeByIds(urls, cb);
             }
         ], function(err) {
@@ -447,7 +449,7 @@ module.exports = function(app, passport) {
                 });
             },
             function(urls, cb) {
-                console.log(urls);
+                logger.info('URLs: ' + urls);
                 sparql.removeByIds(urls, cb);
             }
         ], function(err) {
@@ -465,8 +467,7 @@ module.exports = function(app, passport) {
         var query = req.query.query,
             format = req.query.format,
             _id = req.query.id;
-        console.log('Custom query');
-        console.log(query);
+        logger.info('Custom query: ' + query);
 
         async.waterfall([
             function(cb) {
@@ -572,13 +573,13 @@ module.exports = function(app, passport) {
                     res.end(result, 'UTF-8');
                     break;
                 default:
-                    console.log(result);
+                    logger.info('Result: ' + result);
                     try {
                         result = JSON.parse(result);
                     } catch (e) {
                         result = null;
                         req.flash('error', [e.message]);
-                        console.log(e);
+                        logger.error(e);
                     }
                     /*
                     var data = [];
@@ -634,7 +635,6 @@ module.exports = function(app, passport) {
 
     app.get("/signup", function(req, res) {
         var recaptcha = new Recaptcha(pbk, prk);
-        console.log(recaptcha.toHTML());
         res.render('signup', {
             layout: false,
             recaptcha_form: recaptcha.toHTML()
@@ -673,6 +673,7 @@ module.exports = function(app, passport) {
         scope: "email"
     }));
 
+    /*
     app.get("/auth/facebook/callback",
         passport.authenticate("facebook", {
         successReturnToOrRedirect: '/',
@@ -683,7 +684,7 @@ module.exports = function(app, passport) {
             user: req.user
         });
     });
-
+    */
     app.get('/auth/soton', function(req, res) {
         res.render('soton', {
             'info': req.flash('info'),
@@ -716,7 +717,7 @@ module.exports = function(app, passport) {
                 });
             })(req, res, next);
         } catch (e) {
-            console.log(e);
+            logger.log(e);
         }
     });
 */

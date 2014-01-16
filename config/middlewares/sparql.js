@@ -3,6 +3,7 @@ var domain = "web-001.ecs.soton.ac.uk";
 var selectURL = '/openrdf-workbench/repositories/wo/query';
 var updateURL = '/openrdf-workbench/repositories/wo/update';
 var async = require('async');
+var logger = require('../../app/util/logger');
 
 var queryBuilders = {
     datasets: buildSELECTDataset,
@@ -166,7 +167,7 @@ function tableEntries(bindings, readable) {
 
 function httpQuery(opts, cb) {
     var req = http.request(opts, function(res) {
-        console.log("Response: " + res.statusCode);
+        logger.info("Response: " + res.statusCode);
 
         switch (res.statusCode) {
             case 404:
@@ -199,7 +200,7 @@ function httpQuery(opts, cb) {
                 });
         }
     }).on('error', function(err) {
-        console.log("Got error: " + err.message);
+        logger.error(err.message);
         cb(err);
     });
     req.end();
@@ -207,8 +208,7 @@ function httpQuery(opts, cb) {
 
 module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
     var query = queryBuilders[type](visible);
-    console.log('Select query');
-    console.log(query);
+    logger.info('Select query: ' + query);
     var opts = {
         port: 8080,
         host: domain,
@@ -245,8 +245,7 @@ module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
 module.exports.SPARQLUpdateContent = function(type, data, cb) {
 
     var query = updateQryBuilders[type](data);
-    console.log('Update query');
-    console.log(query);
+    logger.info('Update query: ' + query);
     var opts = {
         method: 'post',
         port: 8080,
@@ -301,8 +300,7 @@ module.exports.SPARQLUpdateStatus = function(data, cb) {
     del = 'DELETE {' + del + '} ';
     var query = getPrefix() + 'WITH wo:void ' + del + insert + where;
 
-    console.log('Update status query');
-    console.log(query);
+    logger.info('Update status query: ' + query);
     var opts = {
         method: 'post',
         port: 8080,
@@ -416,8 +414,7 @@ module.exports.removeByIds = function(urls, cb) {
     del = 'DELETE { ?dataset ?p ?o.} ';
     var query = getPrefix() + 'WITH wo:void ' + del + where;
 
-    console.log('Remove datasets query');
-    console.log(query);
+    logger.info('Remove datasets query: ' + query);
     var opts = {
         method: 'post',
         port: 8080,

@@ -50,7 +50,8 @@ module.exports = function() {
                     ds.readable = dataset.readable === 'true';
                     ds.visible = dataset.visible === 'true';
                     ds.save(function(err) {
-                    if(err) return cb(err);
+                    if(err) return cb(err,ds);
+                    logger.info('ds: '+ds);
                         if (exist.indexOf(ds.publisher) === -1) {
                             exist.push(ds.publisher);
                         }

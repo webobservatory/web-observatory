@@ -28,11 +28,18 @@ DatasetSchema.statics.transform = function(rows, done) {
 DatasetSchema.statics.getEntry = function(data, done) {
     var User = require('./user');
 
-    var filter = {};
+    var query = {};
     if (data.url)
-        filter['owned.url'] = data.url;
+        query.url = data.url;
     if (data._id)
-        filter['owned._id'] = mongoose.Types.ObjectId(data._id);
+        query._id = mongoose.Types.ObjectId(data._id);
+console.log(query);
+    this.findOne(query, done);
+
+
+
+
+    /*
     User.aggregate({
         $match: filter
     }, {
@@ -52,6 +59,7 @@ DatasetSchema.statics.getEntry = function(data, done) {
     }, function(err, entry) {
         done(err, entry[0]);
     });
+    */
 };
 
 DatasetSchema.statics.getURL = function(oid, done) {

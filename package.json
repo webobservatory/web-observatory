@@ -13,6 +13,7 @@
         "express": "*",
         "jade": "*",
         "mongodb": "*",
+        "moment": "*",
         "nodemon": "*",
         "nodemailer": "*",
         "recaptcha": "*",

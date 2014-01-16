@@ -28,7 +28,7 @@ var init = require('./init/init');
 require('./config/passport')(passport, config);
 
 var app = express();
-
+app.locals.moment = require('moment');
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/app/views');
@@ -52,14 +52,13 @@ app.configure(function() {
 app.configure('development', function() {
     app.use(express.errorHandler());
 });
-/*
+
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
     res.render('500', {
         error: err
     });
 });
-*/
 
 app.use(function(req, res, next) {
     res.status(404);

@@ -1,8 +1,8 @@
 module.exports = {
     development: {
-        db: 'mongodb://localhost/wo',
+        db: 'mongodb://localhost/eins',
         app: {
-            name: 'Web Observatory'
+            name: 'EINS Portal'
         },
         facebook: {
             clientID: "clientID",
@@ -13,7 +13,7 @@ module.exports = {
     production: {
         db: process.env.MONGOLAB_URI || process.env.MONGOHQ_URL,
         app: {
-            name: 'Web Observatory'
+            name: 'EINS Portal'
         },
         facebook: {
             clientID: "clientID",

@@ -1,6 +1,7 @@
 var mongoose = require('mongoose');
 var hash = require('../util/hash');
 var logger = require('../util/logger');
+var Schema = mongoose.Schema;
 //var DatasetSchema = mongoose.model('Dataset').schema;
 
 UserSchema = mongoose.Schema({
@@ -284,18 +285,19 @@ UserSchema.statics.rmReq = function(umail, reqs, done) {
 UserSchema.statics.addOwnDs = function(publisher, ds_id, done) {
     var query = {
         email: publisher,
-        'owned._id': {
+        'ownDs': {
             $ne: ds_id
         }
     };
 
     var update = {
         $push: {
-            owned: ds_id
+            ownDs: ds_id
         }
     };
 
     this.update(query, update, function(err, count) {
+        logger.info('Dataset add; user: ' + publisher + '; dataset: ' + ds_id + ';');
         done(err, count);
     });
 };
@@ -304,18 +306,19 @@ UserSchema.statics.addOwnVis = function(publisher, vis_id, done) {
 
     var query = {
         email: publisher,
-        'ownedVis._id': {
+        'ownVis': {
             $ne: vis_id
         }
     };
 
     var update = {
         $push: {
-            ownedVis: vis_id
+            ownVis: vis_id
         }
     };
 
     this.update(query, update, function(err, count) {
+        logger.info('Vis add; user: ' + publisher + '; vis: ' + vis_id + ';');
         done(err, count);
     });
 };
@@ -349,10 +352,14 @@ UserSchema.statics.listDatasets = function(email, cb) {
         email: email
     };
 
-    this.findOne(query, function(err, user) {
+    this.findOne(query)
+        .populate('visible')
+        .populate('readable')
+        .populate('ownDs')
+        .exec(function(err, user) {
         if (err)
             return cb(err);
-        cb(err, user.visible, user.readable, user.owned);
+        cb(err, user.visible, user.readable, user.ownDs);
     });
 };
 UserSchema.statics.listVisualisations = function(email, cb) {
@@ -361,10 +368,12 @@ UserSchema.statics.listVisualisations = function(email, cb) {
         email: email
     };
 
-    this.findOne(query, function(err, user) {
+    this.findOne(query)
+        .populate('ownVis')
+        .exec(function(err, user) {
         if (err)
             return cb(err);
-        cb(err, user.ownedVis);
+        cb(err, user.ownVis);
     });
 };
 
