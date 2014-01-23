@@ -1,0 +1,72 @@
+doctype html
+html(lang='en')
+  include includes/head
+  body
+    include includes/nav
+    #wrap
+      .container
+        .row
+          include includes/flash-banner
+        .row
+          .span3
+          form#adddata.form-horizontal(action='/add/'+type, method='post')
+            fieldset
+                  // Text input
+                  .control-group
+                    label.control-label(for='name') Title
+                    .controls
+                      input.input-xlarge(name='name' type='text', placeholder='Title of the dataset', required='')
+                  // Text input
+                  .control-group
+                    label.control-label(for='url') Address
+                    .controls
+                      input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-dataset', required='')
+                      p.help-block= 'The URL where your '+type ' can be accessed'
+                  // Text input
+                  .control-group
+                    label.control-label(for='creator') Creator
+                    .controls
+                      input.input-xlarge(name='creator' type='text', placeholder='Creator name')
+                      p.help-block= 'The person who created this '+type+'. This can be different from the one who publish this entry'
+                  .control-group
+                    label.control-label(for='type') Entry type
+                    .controls
+                    select.(name='type')
+                      option= type
+                  // Select Basic
+                  if type === 'dataset'
+                    .control-group
+                      label.control-label(for='type') Dataset type
+                      .controls
+                          select.(name='querytype')
+                            option SPARQL
+                            option Mongodb
+                  if type === 'visualisation'
+                    .control-group
+                      label.control-label(for='basedOn') Related dataset
+                      .controls
+                        input.input-xlarge(name='basedOn' type='text', placeholder='')
+                        p.help-block The dataset based on which this visualisation is produced. You should add the dataset first if it's not recorded in this web site.
+                  // Textarea
+                  .control-group
+                    label.control-label(for='des') Description
+                    .controls
+                      textarea.input-xlarge(name='des' placeholder='A brief description of your dataset')
+                  // Security 
+                  .control-group
+                    label.control-label(for='access') Security Settings
+                    .controls
+                      label.checkbox(for='read')
+                        input#private(type='checkbox', name='readable', value='false')
+                        | Private dataset
+                      p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
+                      label#visible.hide.checkbox(for='visible')
+                        input(type='checkbox', name='visible', value='false')
+                        = 'Do not list my private '+ type +' in the catalogue'
+              .control-group
+                .controls
+                  button.btn.btn-primary(type="submit") Submit
+          .span3
+      #push
+    include includes/footer
+
