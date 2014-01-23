@@ -145,19 +145,13 @@ function buildUpdate(type, data) {
  *readable: list of urls of datasets that are readable to the current user
  */
 
-function tableEntries(bindings, readable) {
+function tableEntries(bindings) {
     var rows = [];
     for (i = 0; i < bindings.length; i++) {
         var binding = bindings[i];
         var row = {};
         for (var key in binding) {
             row[key] = binding[key].value;
-        }
-        //readable to the current user? set readable to true
-        if (readable &&
-            row.readable === 'false' &&
-            readable.indexOf(row.url) != -1) {
-            row.readable = 'true';
         }
         rows.push(row);
     }
@@ -329,17 +323,20 @@ module.exports.SPARQLUpdateStatus = function(data, cb) {
 
 module.exports.getDataset = function(cb) {
     var query =
-        'SELECT DISTINCT ?title ?url ?class ?addType ?email ?readable ?visible' +
+        'SELECT DISTINCT ?title ?url ?class ?addType ?email ?readable ?visible ?des ?creator ?basedOn ' +
         'WHERE { ' +
         '?entry schema:name ?title; ' +
         'schema:url ?url; ' +
         'schema:additionalType ?addType; ' +
+        'schema:description ?des; ' +
         'rdf:type ?class; ' +
         'schema:publisher ?publisher. ' +
         'VALUES ?class {schema:Dataset schema:WebPage}. ' +
         '?publisher schema:email ?email. ' +
         'OPTIONAL {?entry wo:visible ?visible} ' +
         'OPTIONAL {?entry wo:readable ?readable} ' +
+        'OPTIONAL {?entry schema:isBasedOnUrl ?basedOn} ' +
+        'OPTIONAL {?entry schema:creator ?creator} ' +
         '} ' +
         'ORDER BY ?email';
     query = getPrefix() + query;

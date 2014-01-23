@@ -21,17 +21,11 @@
               b.caret
             ul.dropdown-menu(role='menu', aria-labelledby='dLabel')
               li
-                a(href='/wo/datasets') Datasets
+                a(href='/catlg/dataset') Datasets
               li
-                a(href='/wo/queries') Queries
+                a(href='/query') Queries
               li
-                a(href='/wo/visualisations') Visualisations
-              //
-                 
-                            <li class="divider"></li>
-                            <li class="nav-header">Nav header</li>
-                            <li><a href="#">Separated link</a></li>
-                            <li><a href="#">One more separated link</a></li>
+                a(href='/catlg/visualisation') Visualisations
       ul.nav.pull-right
         if user == null                  
           li.active
@@ -42,5 +36,4 @@
               =(user.firstName?user.firstName:user.email)+"'s Profile"
           li 
             a(href="/logout") Logout
-      // /.nav-collapse
 

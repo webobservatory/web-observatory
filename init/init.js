@@ -1,7 +1,7 @@
 var sparql = require('../config/middlewares/sparql');
 var logger = require('../app/util/logger');
 var User = require('../app/models/user');
-var Ds = require('../app/models/dataset');
+var Etry = require('../app/models/entry');
 var async = require('async');
 
 String.prototype.contains = function(str) {
@@ -10,14 +10,14 @@ String.prototype.contains = function(str) {
 
 module.exports = function() {
     var exist = [];
-    sparql.getDataset(function(err, datasets) {
-        if (err) return logger.error('Error retrieving all datasets: ' + err.message);
-        //datasets contains all datasets order by publisher email
+    sparql.getDataset(function(err, entries) {
+        if (err) return logger.error('Error retrieving all entries: ' + err.message);
+        //entries contains all entries order by publisher email
         var users = [];
-        for (var key in datasets) {
-            var dataset = datasets[key];
-            if (users.indexOf(dataset.email) === -1)
-                users.push(dataset.email);
+        for (var key in entries) {
+            var et = entries[key];
+            if (users.indexOf(et.email) === -1)
+                users.push(et.email);
         }
 
         async.map(users, function(usr_email, cb) {
@@ -35,30 +35,32 @@ module.exports = function() {
         function(err, results) {
             if (err) return logger.error(err.message);
 
-            async.map(datasets, function(dataset, cb) {
-                Ds.findOne({
-                    publisher: dataset.email
-                }, function(err, ds) {
+            async.map(entries, function(et, cb) {
+                Etry.findOne({
+                    url: et.url
+                }, function(err, entry) {
                     if (err) return cb(err);
 
-                    if (!ds) ds = new Ds();
+                    if (!entry) entry = new Etry();
 
-                    ds.url = dataset.url;
-                    ds.title = dataset.title;
-                    ds.publisher = dataset.email;
-                    ds.type = dataset.addType;
-                    ds.readable = dataset.readable === 'true';
-                    ds.visible = dataset.visible === 'true';
-                    ds.save(function(err) {
-                    if(err) return cb(err,ds);
-                    logger.info('ds: '+ds);
-                        if (exist.indexOf(ds.publisher) === -1) {
-                            exist.push(ds.publisher);
+                    entry.url = et.url;
+                    entry.name = et.title;
+                    entry.publisher = et.email;
+                    if(et.class.indexOf('Dataset') !== -1) entry.type = 'dataset';
+                    if(et.class.indexOf('WebPage') !== -1) entry.type = 'visualisation';
+                    entry.des = et.des;
+                    entry.readable = et.readable === 'true';
+                    entry.visible = et.visible === 'true';
+                    entry.querytype = et.addType || '';
+                    entry.creator = et.creator || '';
+                    entry.related = et.basedOn || '';
+                    entry.save(function(err) {
+                    if(err) return cb(err,entry);
+                    logger.info('entry: '+entry);
+                        if (exist.indexOf(entry.publisher) === -1) {
+                            exist.push(entry.publisher);
                         }
-                        if (dataset.class.toLowerCase().contains('dataset'))
-                            User.addOwnDs(dataset.email, ds._id, cb);
-                        else
-                            User.addOwnVis(dataset.email, ds._id, cb);
+                            User.addOwn(et.email, entry._id, cb);
                     });
                 });
             }, function(err, results) {
@@ -71,7 +73,6 @@ module.exports = function() {
                 }
                 if (err) return logger.error('Error initilising: ' + err.message);
                 logger.info('Initilisation completed, ' + exist.length + ' existing users, ' + updated_usr + ' updates have been made.');
-
             });
         });
     });

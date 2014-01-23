@@ -1,0 +1,134 @@
+doctype html
+html(lang='en')
+  include includes/head
+    //link(href='/css/jquery.dataTables.css', rel='stylesheet')
+  body
+    include includes/nav
+    #wrap
+      .container
+        .row
+          include includes/flash-banner
+        .row
+          if user
+            a.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
+          else
+            .hide.alert.alert-info
+              = 'Please login to add and edit '+type+'s'
+            a.disabled.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
+          div(style='height:30px') 
+        .row
+          table#display.table.table-striped.table-bordered
+            thead
+              tr
+                th
+                th Name
+                th Source
+                th Publisher
+                th Description
+            tbody
+              if table
+                each val in table
+                  if val
+                    tr
+                      td
+                        .btn-group
+                          i.icon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
+                          ul.dropdown-menu
+                            //li
+                              a(href='#') Details
+                            if user
+                              if type === 'dataset'
+                                li
+                                  a.query(href='#' eid=val._id) Query
+                              li
+                                a.edit(href='#' eid=val._id) Edit
+                              li.divider
+                              li.btn-danger
+                                a.del(href='#' eid=val._id) Delete
+                            else
+                              if type === 'dataset'
+                                li.disabled
+                                  a(href='#' eid=val._id) Query
+                              li.disabled
+                                a(href='#' eid=val._id) Edit
+                              li.divider
+                              li.disabled.btn-danger  
+                                a(href='#' eid=val._id) Delete
+                      - var name=val.name || '';
+                      - if(name.length>30) {
+                      -   name = name.substring(0,27);
+                      -   name = name + '...';}
+                      td.span3
+                        a.tp(href='#' data-toogle='tooltip' title=val.name)= name
+                      td
+                        = val.related
+                      td
+                        = val.publisher
+                      //display no more than 20 characters of description
+                      - var des=''
+                      - if(val.des!=='') {
+                      -   des = val.des.substring(0,50);
+                      -   des = des + '...';}
+                      td
+                        .tp(data-toogle='tooltip' title=val.des)
+                          = des
+            tfoot
+              tr
+                th
+                th Name
+                th Source
+                th Publisher
+                th Description
+
+          #editModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+            .modal-header
+              button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+              h3#myModalLabel= 'Edit the selected '+type
+              p.help-block Blank field will remain unchanged
+            .modal-body
+              form#editForm.form-horizontal(action='/edit', method='post')
+                fieldset
+                  // Text input
+                  .control-group
+                    label.control-label(for='name') Name
+                    .controls
+                      input.input-xlarge(name='name' type='text', placeholder='Title of the '+type, required='')
+                      p.help-block= 'Edit the name of your '+type
+                      input#eid.hide.input-xlarge(name='eid' required='')
+                  // Text input
+                  .control-group
+                    label.control-label(for='url') Location
+                    .controls
+                      input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-entry')
+                      p.help-block= 'Edit the URL of your '+type
+                  // Text input
+                  .control-group
+                    label.control-label(for='lice') Licensing
+                    .controls
+                      input.input-xlarge(name='lice' type='text', placeholder='GPL, MIT etc.')
+                      p.help-block= 'Change the license of the '+type
+                  // Text input
+                  .control-group
+                    label.control-label(for='creator') Keywords
+                    .controls
+                      input.input-xlarge(name='kw' type='text', placeholder='key,words')
+                      p.help-block= 'Edit the keywords of your '+type+', separated by ","'
+                  // Select Basic
+                  .control-group.hide
+                    label.control-label(for='type') Type
+                    .controls
+                      select(name='type')
+                        option= type
+                  // Textarea
+                  .control-group
+                    label.control-label(for='desc') Description
+                    .controls
+                      textarea.input-xlarge(name='des')
+                      p.help-block= 'Change the description of your '+type
+            .modal-footer
+              button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
+              button#submit.btn.btn-primary Save
+          div(style='height:30px') 
+      #push
+    include includes/footer
+

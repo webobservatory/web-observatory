@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var hash = require('../util/hash');
 var logger = require('../util/logger');
 var Schema = mongoose.Schema;
-var DatasetSchema = mongoose.model('Dataset').schema;
+var EntrySchema = mongoose.model('Entry').schema;
 
 UserSchema = mongoose.Schema({
     firstName: String,
@@ -36,29 +36,24 @@ UserSchema = mongoose.Schema({
     visible: [ //list of datasets that are visible to this user
         {
             type: Schema.Types.ObjectId,
-            ref: 'Dataset'
+            ref: 'Entry'
         }
     ],
     readable: [ //list of datasets that the current user can query
         {
             type: Schema.Types.ObjectId,
-            ref: 'Dataset'
+            ref: 'Entry'
         }
     ],
-    ownDs: [ //list of datasets that are published by the current user
+    own: [ //list of datasets that are published by the current user
         {
             type: Schema.Types.ObjectId,
-            ref: 'Dataset'
+            ref: 'Entry'
         }
     ],
-    ownVis: [{
+    accreq: [{
             type: Schema.Types.ObjectId,
-            ref: 'Dataset'
-        }
-    ],
-    reqDs: [{
-            type: Schema.Types.ObjectId,
-            ref: 'Dataset'
+            ref: 'Entry'
         }
     ], //requested access to these datasets
     msg: {
@@ -66,7 +61,7 @@ UserSchema = mongoose.Schema({
                 sender: String,
                 dataset: [{
                         type: Schema.Types.ObjectId,
-                        ref: 'Dataset'
+                        ref: 'Entry'
                     }
                 ],
                 read: Boolean
@@ -235,7 +230,7 @@ UserSchema.statics.grantAccess = function(request, done) {
             }
         },
         $pull: {
-            requested: dataset._id
+            accreq: dataset._id
         }
     };
 
@@ -268,7 +263,6 @@ UserSchema.statics.denyAccess = function(request, done) {
 };
 
 UserSchema.statics.rmReq = function(umail, reqs, done) {
-
     var update = {
         $pullAll: {
             'msg.requests': reqs
@@ -282,55 +276,47 @@ UserSchema.statics.rmReq = function(umail, reqs, done) {
     });
 };
 
-UserSchema.statics.addOwnDs = function(publisher, ds_id, done) {
+UserSchema.statics.addOwn = function(publisher, etry_id, done) {
     var query = {
         email: publisher,
-        'ownDs': {
-            $ne: ds_id
+        'own': {
+            $ne: etry_id
         }
     };
 
     var update = {
         $push: {
-            ownDs: ds_id
+            own: etry_id
         }
     };
 
     this.update(query, update, function(err, count) {
-        logger.info('Dataset add; user: ' + publisher + '; dataset: ' + ds_id + ';');
+        logger.info('Entry add; user: ' + publisher + '; dataset: ' + etry_id + ';');
         done(err, count);
     });
 };
 
-UserSchema.statics.addOwnVis = function(publisher, vis_id, done) {
-
-    var query = {
-        email: publisher,
-        'ownVis': {
-            $ne: vis_id
+UserSchema.statics.addEtry = function(eml, entry_id, cb) {
+    this.findOne({
+        email: eml
+    }, function(err, user) {
+        if (err || !user) {
+            err = err || {
+                message: 'User ' + eml + ' does not exist.'
+            };
+            logger.error(err);
+            return cb(err);
         }
-    };
-
-    var update = {
-        $push: {
-            ownVis: vis_id
-        }
-    };
-
-    this.update(query, update, function(err, count) {
-        logger.info('Vis add; user: ' + publisher + '; vis: ' + vis_id + ';');
-        done(err, count);
+        user.ownEtry.push(entry_id);
+        user.save(cb);
     });
 };
 
-UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
-
+UserSchema.statics.hasAccessTo = function(email, ds_id, done) {
     var User = this;
     var query = {
         email: email,
-        readable: {
-            url: dataset_url
-        }
+        readable: ds_id
     };
 
     this.findOne(query, function(err, user) {
@@ -338,49 +324,10 @@ UserSchema.statics.hasAccessTo = function(email, dataset_url, done) {
         if (err) return done(err);
 
         if (!user) return done(null, false, {
-                message: 'Access is not allowed'
+                message: 'Access denied'
             });
-
         done(null, user);
     });
-
-};
-
-UserSchema.statics.listDatasets = function(email, cb) {
-    if (email) {
-        var query = {
-            email: email
-        };
-
-        this.findOne(query)
-            .populate('visible')
-            .populate('readable')
-            .populate('ownDs')
-            .exec(function(err, user) {
-            if (err)
-                return cb(err);
-            cb(err, user.visible, user.readable, user.ownDs);
-        });
-    } else {
-        cb(null, [], [], []);
-    }
-};
-UserSchema.statics.listVisualisations = function(email, cb) {
-    if (email) {
-        var query = {
-            email: email
-        };
-
-        this.findOne(query)
-            .populate('ownVis')
-            .exec(function(err, user) {
-            if (err)
-                return cb(err);
-            cb(err, user.ownVis);
-        });
-    } else {
-        cb(null, []);
-    }
 };
 
 //message handling
