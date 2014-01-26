@@ -22,7 +22,10 @@ html(lang='en')
               tr
                 th
                 th Name
-                th Source
+                if type === 'dataset'
+                  th Type
+                if type == 'visualisation'
+                  th Source
                 th Publisher
                 th Description
             tbody
@@ -39,20 +42,20 @@ html(lang='en')
                             if user
                               if type === 'dataset'
                                 li
-                                  a.query(href='#' eid=val._id) Query
+                                  a.query(href='/query/'+val.querytype+'/'+val._id) Query
                               li
                                 a.edit(href='#' eid=val._id) Edit
                               li.divider
-                              li.btn-danger
+                              //li.btn-danger
                                 a.del(href='#' eid=val._id) Delete
                             else
                               if type === 'dataset'
                                 li.disabled
-                                  a(href='#' eid=val._id) Query
+                                  a(href='#') Query
                               li.disabled
-                                a(href='#' eid=val._id) Edit
+                                a(href='#') Edit
                               li.divider
-                              li.disabled.btn-danger  
+                              //li.disabled.btn-danger  
                                 a(href='#' eid=val._id) Delete
                       - var name=val.name || '';
                       - if(name.length>30) {
@@ -60,8 +63,12 @@ html(lang='en')
                       -   name = name + '...';}
                       td.span3
                         a.tp(href='#' data-toogle='tooltip' title=val.name)= name
-                      td
-                        = val.related
+                      if type == 'dataset'
+                        td
+                          = val.querytype
+                      if type == 'visualisation'
+                        td
+                          = val.related
                       td
                         = val.publisher
                       //display no more than 20 characters of description
@@ -76,7 +83,10 @@ html(lang='en')
               tr
                 th
                 th Name
-                th Source
+                if type === 'dataset'
+                  th Type
+                if type == 'visualisation'
+                  th Source
                 th Publisher
                 th Description
 

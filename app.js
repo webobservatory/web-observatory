@@ -22,8 +22,8 @@ fs.readdirSync(models_dir).forEach(function(file) {
     require(models_dir + '/' + file);
 });
 //initialise mongoDB
-var init = require('./init/init');
-    init();
+//var init = require('./init/init');
+//    init();
 
 require('./config/passport')(passport, config);
 

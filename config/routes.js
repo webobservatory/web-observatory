@@ -71,7 +71,7 @@ module.exports = function(app, passport) {
         var email = req.user.email;
         var etry_id = req.body.eid;
         var etry = {
-        /*
+            /*
             url: req.body.url,
             name: req.body.name,
             //community: req.body.community,
@@ -81,11 +81,11 @@ module.exports = function(app, passport) {
             */
         };
 
-        if(req.body.url.trim()) etry.url=req.body.url;
-        if(req.body.name.trim()) etry.name=req.body.name;
-        if(req.body.des.trim()) etry.des=req.body.des;
-        if(req.body.lice.trim()) etry.lice=req.body.lice;
-        if(req.body.kw.trim()) etry.kw=req.body.kw.split(',');
+        if (req.body.url.trim()) etry.url = req.body.url;
+        if (req.body.name.trim()) etry.name = req.body.name;
+        if (req.body.des.trim()) etry.des = req.body.des;
+        if (req.body.lice.trim()) etry.lice = req.body.lice;
+        if (req.body.kw.trim()) etry.kw = req.body.kw.split(',');
 
         modctrl.editEtry(etry_id, etry, function(err) {
             if (err) {
@@ -370,7 +370,7 @@ module.exports = function(app, passport) {
     });
 
     app.get('/wo/visualisations', function(req, res) {
-        var email = req.user?req.user.email:null;
+        var email = req.user ? req.user.email : null;
         var errmsg = req.flash('error');
 
         async.waterfall([
@@ -485,17 +485,27 @@ module.exports = function(app, passport) {
             res.redirect(req.get('referer'));
         });
     });
+    app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
+        res.render(req.params.format, {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user,
+            dsID: req.params.dsId,
+            scripts: ['/js/sparql.jade.js', '/js/sparql.js']
+        });
+    });
+
 
     //execute users' queries
-    app.get('/query', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
         var query = req.query.query,
             format = req.query.format,
-            _id = req.query.id;
-        logger.info('Custom query: ' + query);
+            _id = req.params.dsId;
+        logger.info('User: ' + req.user.email + '; query: ' + query);
 
         async.waterfall([
             function(cb) {
-                Dataset.getEntry({
+                Entry.findOne({
                     '_id': _id,
                 }, cb);
 
@@ -506,14 +516,14 @@ module.exports = function(app, passport) {
                         message: 'Dataset not available'
                     });
 
-                var readable = dataset.readable;
+                var readable = dataset.opAcc;
                 if (readable) {
                     cb(false, true, dataset);
                 } else {
                     User.findOne({
                         email: req.user.email,
                         $or: [{
-                                'owned._id': _id
+                                'own._id': _id
                             }, {
                                 'readable._id': _id
                             }
@@ -534,7 +544,7 @@ module.exports = function(app, passport) {
             function(dataset, cb) {
 
                 var url = dataset.url,
-                    type = dataset.type;
+                    type = dataset.querytype;
 
                 switch (type) {
                     case 'SPARQL':
