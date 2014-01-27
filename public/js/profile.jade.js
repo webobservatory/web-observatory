@@ -1,3 +1,11 @@
+function editEtry(etryId, acc, vis) {
+    $('#editForm')[0].reset();
+    $('#eid').val(etryId);
+    $('#private').prop('checked', acc === 'false');
+    $('#visible').prop('checked', vis === 'false');
+    $('#editModal').modal('show');
+}
+
 function noChecked() {
     return $('#requests form input:checkbox:checked').length === 0;
 }
@@ -5,7 +13,21 @@ function noChecked() {
 var rc = []; //datasets whose readability have been changed
 var vc = []; //datasets whose visibility have been changed
 
+function delEtry(etryId, name) {
+    $('#delModal .modal-body').text('Are you sure to delete ' + name + '?');
+    $('#del').attr('href', '/remove/' + etryId);
+    $('#delModal').modal('show');
+}
+
 $(document).ready(function() {
+    $('.tp').tooltip();
+    $('#display').dataTable({
+        "sDom": "<'row'<'span4'l><'span4'f>r>t<'row'<'span4'i><'span4'p>>",
+        "sPaginationType": "bootstrap"
+    });
+    $.extend($.fn.dataTableExt.oStdClasses, {
+        "sWrapper": "dataTables_wrapper form-inline"
+    });
     $('.prt').bind('click', function(e) {
         var id = $(this).attr('name');
         var i = rc.indexOf("b");
@@ -17,21 +39,14 @@ $(document).ready(function() {
     });
 
 
-    $('#status').bind('click', function(e) {
+    $('.edit').bind('click', function(e) {
+        editEtry($(this).attr('eid'), $(this).attr('acc'), $(this).attr('vis'));
         e.preventDefault();
-        if (rc.length === 0)
-            return;
-        var staform = $('#staform');
+    });
 
-        for (i = 0; i < rc.length; i++) {
-            var input = $('input[name="' + rc[i] + '"]');
-            if (input.is(':checked'))
-                staform.append('<input name="' + rc[i] + '" value="private"></input>');
-            else
-                staform.append('<input name="' + rc[i] + '" value="public"></input>');
-        }
-        staform.attr('action', '/dataset/access');
-        staform.submit();
+    $('.del').bind('click', function(e) {
+        delEtry($(this).attr('eid'), $(this).attr('name'));
+        e.preventDefault();
     });
 
     $('#approve').bind('click', function(e) {
@@ -41,18 +56,6 @@ $(document).ready(function() {
             return;
         }
         $('#requests form').submit();
-    });
-
-    $('#rmdt').bind('click', function(e) {
-        e.preventDefault();
-        var staform = $('#staform');
-
-        var inputs = $('input[name=remove]:checked');
-        if (inputs.length === 0)
-            return alert('No entry selected');
-        staform.append(inputs);
-        staform.attr('action', '/dataset/remove');
-        staform.submit();
     });
 
     $('#clear').bind('click', function(e) {
@@ -68,5 +71,9 @@ $(document).ready(function() {
     $('.disabled').bind('click', function(e) {
         alert('Comming soon');
         e.preventDefault();
+    });
+
+    $('#submit').bind('click', function() {
+        $('#editForm').submit();
     });
 });

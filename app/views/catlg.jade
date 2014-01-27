@@ -40,29 +40,20 @@ html(lang='en')
                             //li
                               a(href='#') Details
                             if user
-                              if type === 'dataset'
-                                li
-                                  a.query(href='/query/'+val.querytype+'/'+val._id) Query
                               li
-                                a.edit(href='#' eid=val._id) Edit
-                              li.divider
-                              //li.btn-danger
-                                a.del(href='#' eid=val._id) Delete
+                                a.edit(href='#' eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString()) Edit
                             else
-                              if type === 'dataset'
-                                li.disabled
-                                  a(href='#') Query
                               li.disabled
                                 a(href='#') Edit
-                              li.divider
-                              //li.disabled.btn-danger  
-                                a(href='#' eid=val._id) Delete
                       - var name=val.name || '';
                       - if(name.length>30) {
                       -   name = name.substring(0,27);
                       -   name = name + '...';}
                       td.span3
-                        a.tp(href='#' data-toogle='tooltip' title=val.name)= name
+                        if(val.opAcc)
+                          a.tp(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id) data-toogle='tooltip' title='Click to access')= name
+                        else
+                          a.tp(href=(type==='visualisation'?val.url:'#') data-toogle='tooltip' title='Requesting access under development')= name
                       if type == 'dataset'
                         td
                           = val.querytype
@@ -111,24 +102,6 @@ html(lang='en')
                     .controls
                       input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-entry')
                       p.help-block= 'Edit the URL of your '+type
-                  // Text input
-                  .control-group
-                    label.control-label(for='lice') Licensing
-                    .controls
-                      input.input-xlarge(name='lice' type='text', placeholder='GPL, MIT etc.')
-                      p.help-block= 'Change the license of the '+type
-                  // Text input
-                  .control-group
-                    label.control-label(for='creator') Keywords
-                    .controls
-                      input.input-xlarge(name='kw' type='text', placeholder='key,words')
-                      p.help-block= 'Edit the keywords of your '+type+', separated by ","'
-                  // Select Basic
-                  .control-group.hide
-                    label.control-label(for='type') Type
-                    .controls
-                      select(name='type')
-                        option= type
                   // Textarea
                   .control-group
                     label.control-label(for='desc') Description

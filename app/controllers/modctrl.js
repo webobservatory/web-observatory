@@ -17,7 +17,7 @@ module.exports.visibleEtry = function(email, typ, cb) {
 
         User.findOne({
             'email': email
-        }, function(err, user) {
+        }).populate('own').exec(function(err, user) {
             if (err) {
                 logger.error(err);
                 return cb(err, entries);
@@ -54,7 +54,10 @@ module.exports.visibleEtry = function(email, typ, cb) {
 
 module.exports.addEtry = function(email, etry, cb) {
 
-    EntrySchema.findOne(etry, function(err, entry) {
+    EntrySchema.findOne({
+        name: etry.name,
+        url: etry.url
+    }, function(err, entry) {
         if (err) {
             logger.error(err);
             return cb(err);

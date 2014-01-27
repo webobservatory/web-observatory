@@ -38,22 +38,27 @@ module.exports = function(app, passport) {
             error: req.flash('error'),
             user: req.user,
             type: req.params.typ,
-            scripts: []
+            scripts: ['/js/addetry.jade.js']
         });
     });
     //add entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function(req, res) {
         var email = req.user.email;
+        console.log(req.body.acc);
+        console.log(req.body.vis);
         var etry = {
             url: req.body.url,
             name: req.body.name,
             type: req.params.typ,
+            querytype: req.body.querytype,
             desc: req.body.desc,
             publisher: email,
             //community: req.body.community,
             lice: req.body.lice,
-            kw: req.body.kw.split(','),
-            des: req.body.des
+            kw: req.body.kw ? req.body.kw.split(',') : [],
+            des: req.body.des,
+            opAcc: req.body.acc !== 'false',
+            opVis: req.body.vis !== 'false'
         };
 
         modctrl.addEtry(email, etry, function(err) {
@@ -85,7 +90,10 @@ module.exports = function(app, passport) {
         if (req.body.name.trim()) etry.name = req.body.name;
         if (req.body.des.trim()) etry.des = req.body.des;
         if (req.body.lice.trim()) etry.lice = req.body.lice;
+        if (req.body.related.trim()) etry.related = req.body.related;
         if (req.body.kw.trim()) etry.kw = req.body.kw.split(',');
+        if (req.body.vis.trim()) etry.vis = req.body.vis === 'true';
+        if (req.body.acc.trim()) etry.acc = req.body.acc === 'true';
 
         modctrl.editEtry(etry_id, etry, function(err) {
             if (err) {
@@ -98,10 +106,10 @@ module.exports = function(app, passport) {
         });
     });
 
-    //remove dataset
-    app.post('remove', ensureLoggedIn('/login'), function(req, res) {
+    //remove entries
+    app.get('/remove/:eid', ensureLoggedIn('/login'), function(req, res) {
         var umail = req.user.email;
-        var ids = req.body.remove;
+        var ids = req.params.eid.split(',');
 
         if (!ids) {
             req.flash('error', ['No entry selected']);
@@ -111,51 +119,47 @@ module.exports = function(app, passport) {
         if (typeof ids === 'string')
             ids = [ids];
 
-        async.waterfall([
-            function(cb) {
-                User.findOne({
-                    email: umail
-                }, function(err, user) {
-                    if (err || !user) {
-                        return cb(err || {
-                            message: 'User not logged in'
-                        });
-                    }
 
-                    var urls = [];
-                    for (i = 0; i < ids.length; i++) {
-                        var dataset = user.owned.id(ids[i]);
-                        urls.push(dataset.url);
-                        dataset.remove();
-                    }
-                    user.save(function(err) {
-                        cb(err, urls);
-                    });
-                });
-            },
-            function(urls, cb) {
-                logger.info('URLs: ' + urls);
-                sparql.removeByIds(urls, cb);
-            }
-        ], function(err) {
-            if (err) {
+
+        User.findOne({
+            email: umail
+        }, function(err, user) {
+            if (err || !user) {
+                err = err || {
+                    message: 'User not logged in'
+                };
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
-            req.flash('info', [ids.length + ' datasets removed']);
-            res.redirect(req.get('referer'));
+
+            async.map(ids, function(eid, cb) {
+                Entry.findByIdAndRemove(eid, cb);
+                user.own.pull(eid);
+            }, function(err) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    return res.redirect(req.get('referer'));
+                }
+                user.save(function(err) {
+                    if (err)
+                        req.flash('error', [err.message]);
+                    else
+                        req.flash('info', ['Entry deleted successfully']);
+                    return res.redirect(req.get('referer'));
+                });
+            });
         });
     });
 
     //request access of datasets
-    app.post('/dataset/reqaccess', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/reqacc/:eid', ensureLoggedIn('/login'), function(req, res) {
         var sender_mail = req.user.email,
-            dt_ids = req.body.ids;
+            dt_ids = req.params.eid.split(',');
         if (typeof dt_ids === 'string')
             dt_ids = [dt_ids];
         async.map(dt_ids, function(dtid, cb) {
             User.findOne({
-                'owned._id': dtid
+                'own': dtid
             }, function(err, user) {
                 if (err)
                     return cb(err);
@@ -163,10 +167,16 @@ module.exports = function(app, passport) {
                     return cb({
                         message: 'No publisher found for requested dataset' + dtid
                     });
-                var dt = user.owned.id(dtid);
-                User.addReq(sender_mail, dt, cb);
+
+                user.msg.requests.push({
+                    sender: sender_mail,
+                    dataset: dtid
+                });
+                user.save(function(err) {
+                    cb(err, dtid);
+                });
             });
-        }, function(err, req_dts) {
+        }, function(err, req_dtids) {
             if (err) {
                 req.flash('error', [err.message]);
                 res.redirect(req.get('referer'));
@@ -174,8 +184,8 @@ module.exports = function(app, passport) {
                 req.flash('info', ['Request sent']);
                 var update = {
                     $addToSet: {
-                        requested: {
-                            $each: req_dts
+                        accreq: {
+                            $each: req_dtids
                         }
                     }
                 };
@@ -208,8 +218,9 @@ module.exports = function(app, passport) {
             }
 
             async.map(reqids, function(rid, cb) {
-                var rst = user.msg.requests.id(rid);
+                var rst = user.msg.accreq.id(rid).populate('dataset');
                 User.accCtrl(clr, rst, cb);
+                //TODO
 
             }, function(err, requests) {
                 if (err) {
@@ -227,264 +238,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    //TODO edit datasets' metadata
-    app.post('/dataset/edit', ensureLoggedIn('/login'), function(req, res) {
-        var umail = req.user.email,
-            data = {
-                url: req.body.origurl,
-                title: req.body.title,
-                newurl: req.body.url,
-                creator: req.body.creator,
-                desc: req.body.desc
-            };
-
-        var update = {};
-
-        if (title)
-            update['owned.$.title'] = title;
-        if (url)
-            update['owned.$.url'] = url;
-        if (creator)
-            update['owned.$.creator'] = creator;
-        if (desc)
-            update['owned.$.desc'] = desc;
-
-        update = {
-            $set: update
-        };
-
-        var query = {
-            email: umail,
-            'owned.url': data.url
-        };
-
-        async.series([
-            function(cb) {
-                sparql.updateMeta(data, cb);
-            },
-            function(cb) {
-                User.update(query, update, cb);
-            }
-        ], function(err) {
-            if (err)
-                req.flash('error', [err.message]);
-            else
-                req.flash('info', ['Meta data updated']);
-            res.redirect(req.get('referer'));
-        });
-    });
-
-    //change datasets' access control
-    app.post('/dataset/access', ensureLoggedIn('/login'), function(req, res) {
-        var umail = req.user.email;
-        var ids = Object.keys(req.body);
-
-        async.map(ids, function(id, cb) {
-            var isPrivate = req.body[id] === 'private';
-            User.findOne({
-                email: umail
-            }, function(err, user) {
-                var url = user.owned.id(id).url;
-                SPARQLUpdateStatus({
-                    'url': url,
-                    'readable': !isPrivate
-                }, function(err) {
-                    if (err)
-                        req.flash('error', [err.message]);
-                });
-            });
-            var query = {
-                email: umail,
-                'owned._id': id
-            };
-            var update = {
-                $set: {
-                    'owned.$.readable': !isPrivate
-                }
-            };
-            User.update(query, update, cb);
-        }, function(err, results) {
-            if (err || results === 0)
-                req.flash('error', [err.message || 'No change made']);
-            else
-                req.flash('info', ['Dataset status changed']);
-            res.redirect(req.get('referer'));
-        });
-
-    });
-
-    //remove dataset
-    app.post('/dataset/remove', ensureLoggedIn('/login'), function(req, res) {
-        var umail = req.user.email;
-        var ids = req.body.remove;
-
-        if (!ids) {
-            req.flash('error', ['No entry selected']);
-            return res.redirect(req.get('referer'));
-        }
-
-        if (typeof ids === 'string')
-            ids = [ids];
-
-        async.waterfall([
-            function(cb) {
-                User.findOne({
-                    email: umail
-                }, function(err, user) {
-                    if (err || !user) {
-                        return cb(err || {
-                            message: 'User not logged in'
-                        });
-                    }
-
-                    var urls = [];
-                    for (i = 0; i < ids.length; i++) {
-                        var dataset = user.owned.id(ids[i]);
-                        urls.push(dataset.url);
-                        dataset.remove();
-                    }
-                    user.save(function(err) {
-                        cb(err, urls);
-                    });
-                });
-            },
-            function(urls, cb) {
-                logger.info('URLs: ' + urls);
-                sparql.removeByIds(urls, cb);
-            }
-        ], function(err) {
-            if (err) {
-                req.flash('error', [err.message]);
-                return res.redirect(req.get('referer'));
-            }
-            req.flash('info', [ids.length + ' datasets removed']);
-            res.redirect(req.get('referer'));
-        });
-    });
-
-    app.get('/wo/queries', ensureLoggedIn('/login'), function(req, res) {
-        res.render('queries', {
-            user: req.user,
-            scripts: ['/js/query.jade.js']
-        });
-    });
-
-    app.get('/wo/visualisations', function(req, res) {
-        var email = req.user ? req.user.email : null;
-        var errmsg = req.flash('error');
-
-        async.waterfall([
-            function(cb) {
-                User.listVisualisations(email, cb);
-            },
-            function(owned, cb) {
-
-                var visible = [];
-                for (i = 0; i < owned.length; i++) {
-                    visible.push(owned[i].url);
-                }
-
-                SPARQLGetContent('visualisations', visible, null, cb);
-            }
-        ], function(err, result) {
-            if (err)
-                errmsg.push(err.message);
-            res.render('visualisations', {
-                info: req.flash('info'),
-                error: errmsg,
-                user: req.user,
-                table: result,
-                scripts: ['/js/jquery-ui-1.10.3.min.js', '/js/jquery.dataTables.js', '/js/underscore-min.js', '/js/vis.js']
-            });
-        });
-    });
-
-    //add visualisations
-    app.post('/wo/visualisations', ensureLoggedIn('/login'), function(req, res) {
-        var data = {
-            title: req.body.title,
-            source: req.body.source,
-            url: req.body.url,
-            desc: req.body.desc,
-            visible: req.body.visible,
-            readable: 'false',
-            creator: req.body.creator,
-            username: req.user.username,
-            email: req.user.email,
-            addType: 'Visualisation'
-        };
-
-        async.series([
-            function(cb) {
-                SPARQLUpdate('visualisations', data, cb);
-            },
-            function(cb) {
-                var vis = {
-                    url: data.url,
-                    title: data.title,
-                    type: data.addType,
-                    publisher: data.email,
-                    readable: data.readable === 'true',
-                    visible: data.visible === 'true'
-                };
-                User.addOwnVis(req.user.email, vis, cb);
-            }
-        ], function(err) {
-            if (err)
-                req.flash('error', [err.message]);
-            else
-                req.flash('info', ['Visualisation added succeffully']);
-            res.redirect('/wo/visualisations');
-        });
-    });
-
-    app.post('/visualisations/remove', ensureLoggedIn('/login'), function(req, res) {
-        var umail = req.user.email;
-        var ids = req.body.remove;
-
-        if (!ids) {
-            req.flash('error', ['No entry selected']);
-            return res.redirect(req.get('referer'));
-        }
-
-        if (typeof ids === 'string')
-            ids = [ids];
-
-        async.waterfall([
-            function(cb) {
-                User.findOne({
-                    email: umail
-                }, function(err, user) {
-                    if (err || !user) {
-                        return cb(err || {
-                            message: 'User not logged in'
-                        });
-                    }
-
-                    var urls = [];
-                    for (i = 0; i < ids.length; i++) {
-                        var visualisation = user.ownedVis.id(ids[i]);
-                        urls.push(visualisation.url);
-                        visualisation.remove();
-                    }
-                    user.save(function(err) {
-                        cb(err, urls);
-                    });
-                });
-            },
-            function(urls, cb) {
-                logger.info('URLs: ' + urls);
-                sparql.removeByIds(urls, cb);
-            }
-        ], function(err) {
-            if (err) {
-                req.flash('error', [err.message]);
-                return res.redirect(req.get('referer'));
-            }
-            req.flash('info', [ids.length + ' datasets removed']);
-            res.redirect(req.get('referer'));
-        });
-    });
+    //execute user queries
     app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
         res.render(req.params.format, {
             info: req.flash('info'),
@@ -495,8 +249,6 @@ module.exports = function(app, passport) {
         });
     });
 
-
-    //execute users' queries
     app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
         var query = req.query.query,
             format = req.query.format,
@@ -707,18 +459,6 @@ module.exports = function(app, passport) {
         scope: "email"
     }));
 
-    /*
-    app.get("/auth/facebook/callback",
-        passport.authenticate("facebook", {
-        successReturnToOrRedirect: '/',
-        failureRedirect: '/login',
-        failureFlash: true
-    }), function(req, res) {
-        res.render("profile", {
-            user: req.user
-        });
-    });
-    */
     app.get('/auth/soton', function(req, res) {
         res.render('soton', {
             'info': req.flash('info'),
@@ -731,35 +471,11 @@ module.exports = function(app, passport) {
         failureFlash: true,
         successReturnToOrRedirect: '/'
     }));
-    /*
-    app.post('/auth/soton', function(req, res, next) {
-        try {
-            passport.authenticate('ldapauth', function(err, user, info) {
-                if (err) {
-                    req.flash('error', [err.message]);
-                    return res.redirect('/auth/soton');
-                }
-                if (!user) {
-                    req.flash('error', ['User not found']);
-                    return res.redirect('/auth/soton');
-                }
-                req.logIn(user, function(err) {
-                    if (err) {
-                        return next(err);
-                    }
-                    return res.redirect(req.get('referer'));
-                });
-            })(req, res, next);
-        } catch (e) {
-            logger.log(e);
-        }
-    });
-*/
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
         User.findOne({
             email: req.user.email
-        }, function(err, user) {
+        }).populate('own').populate('accreq').exec(function(err, user) {
             var parameter = {
                 'user': user
             };
@@ -768,14 +484,13 @@ module.exports = function(app, passport) {
                 errmsg.push(err.message);
             } else {
                 parameter.msg = user.msg;
-                parameter.owned = user.owned;
-                parameter.ownedVis = user.ownedVis;
-                parameter.requested = user.requested;
+                parameter.owned = user.own;
+                parameter.requested = user.accreq;
             }
 
             parameter.error = errmsg;
             parameter.info = req.flash('info');
-            parameter.scripts = ['/js/profile.jade.js'];
+            parameter.scripts = ['/js/profile.jade.js', '/js/jquery.dataTables.js', '/js/paging.js'];
             res.render('profile', parameter);
         });
     });

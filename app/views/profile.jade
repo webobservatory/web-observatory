@@ -19,7 +19,7 @@ html(lang='en')
                 | Dataset management
               li
                 a(href='#owneddataset')
-                  | Published datasets
+                  | Published entries
                   i.icon-chevron-right 
               li
                 a(href='#requesteddataset')
@@ -68,65 +68,116 @@ html(lang='en')
                       button.btn.btn-primary(type='submit') Save
             section.row#owneddataset
               .page-header
-                h1 Published datasets (#{owned?owned.length:0})
+                h1 Published entries (#{owned?owned.length:0})
               if owned && owned.length != 0
-                form#staform.hide(method='post' action='')
-                // Modal
-                  #myModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
-                    .modal-header
-                      button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
-                      h3#myModalLabel Edit a dataset
-                    .modal-body
-                      form#adddata.form-horizontal(action='/dataset/edit', method='post')
-                        fieldset
 
-                          .control-group
-                            input#editurl.hide(name='origurl')
-                            label.control-label(for='title') Edit title
-                            .controls
-                              input.input-xlarge(name='title' type='text' placeholder='Title of the dataset')
-                          .control-group
-                            label.control-label(for='url') Edit address
-                            .controls
-                              input.input-xlarge(name='url' type='text' placeholder='http://address-of-your-dataset/sparql')
-                              p.help-block The URL where your dataset can be accessed/queried                 
-                          .control-group
-                            label.control-label(for='creator') Edit creator
-                            .controls
-                              input.input-xlarge(name='creator' type='text')
-                              p.help-block The person who created this entry. This can be different from the one who publish the entry
-                          .control-group
-                            label.control-label(for='desc') Edit description
-                            .controls
-                              textarea.input-xlarge(name='desc' placeholder='A brief description of your dataset')
-                    .modal-footer
-                      button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
-                      button#submit.btn.btn-primary Submit
-                form.span5.form-horizontal
-                  fieldset
-                    .control-group
-                      label Manage datasets permisions
-                    table.table.table-bordered.table-hover
-                      thead
+              table#display.table.table-striped.table-bordered
+                thead
+                  tr
+                    th
+                    th Name
+                    th Type
+                    th Description
+                    th Displayed
+                    th Accessible
+                tbody
+                  if owned
+                    each val in owned
+                      if val
                         tr
-                          th Title
-                          th URL
-                          th Private
-                          th Remove
-                      tbody
-                        each entry in owned
-                          tr
-                            td.span2= entry.title
-                            td.span2= entry.url
-                            - var chk = !entry.readable?'checked':undefined
-                            td.span1
-                              input.prt(type='checkbox' checked=chk name=entry._id value='private')
-                            td.span1
-                              input(type='checkbox' name='remove' value=entry._id)
-                    .control-group
-                      .controls.btn-toolbar
-                        button#status.btn.btn-primary(type='submit') Change
-                        button#rmdt.btn.btn-danger(type='submit') Remove
+                          td
+                            .btn-group
+                              i.icon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
+                              ul.dropdown-menu
+                                //li
+                                  a(href='#') Details
+                                li
+                                  a.edit(href='#' eid=val._id name=val.name url=val.url des=val.des vis=val.opVis.toString() acc=val.opAcc.toString()) Edit
+                                li.divider
+                                li.btn-danger
+                                  a.del(href='#' eid=val._id name=val.name) Delete
+                          - var name=val.name || '';
+                          - if(name.length>30) {
+                          -   name = name.substring(0,27);
+                          -   name = name + '...';}
+                          td.span3
+                            a.tp(href='#' data-toogle='tooltip' title=val.url)= name
+                          td= (val.type === 'dataset'?val.querytype:val.type)
+                          //display no more than 20 characters of description
+                          - var des=''
+                          - if(val.des!=='') {
+                          -   des = val.des.substring(0,50);
+                          -   des = des + '...';}
+                          td
+                            .tp(data-toogle='tooltip' title=val.des)
+                              = des
+                          td
+                            if val.opVis
+                              i.icon-ok
+                            else
+                              i.icon-remove
+                          td
+                            if val.opAcc
+                              i.icon-ok
+                            else
+                              i.icon-remove
+                tfoot
+                  tr
+                    th
+                    th Name
+                    th Type
+                    th Description
+                    th Displayed
+                    th Accessible
+
+                #delModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+                  .modal-header
+                  .modal-body
+                  .modal-footer
+                    button.btn(data-dismiss='modal', aria-hidden='true') Cancel
+                    a#del.btn.btn-danger(href='') Confirm
+
+                #editModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+                  .modal-header
+                    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+                    h3#myModalLabel= 'Edit the selected entry'
+                    p.help-block Blank field will remain unchanged
+                  .modal-body
+                    form#editForm.form-horizontal(action='/edit', method='post')
+                      fieldset
+                        // Text input
+                        .control-group
+                          label.control-label(for='name') Name
+                          .controls
+                            input.input-xlarge(name='name' type='text', placeholder='Title of the entry', required='')
+                            p.help-block= 'Edit the name of your entry'
+                            input#eid.hide.input-xlarge(name='eid' required='')
+                        // Text input
+                        .control-group
+                          label.control-label(for='url') Location
+                          .controls
+                            input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-entry')
+                            p.help-block= 'Edit the URL of your entry'
+                        // Textarea
+                        .control-group
+                          label.control-label(for='desc') Description
+                          .controls
+                            textarea.input-xlarge(name='des')
+                            p.help-block= 'Change the description of your entry'
+                        // Security 
+                        .control-group
+                          label.control-label(for='access') Security Settings
+                          .controls.dataset
+                            label.checkbox(for='read')
+                              input#private(type='checkbox', name='acc', value='false')
+                              | Private entry
+                            p.help-block Private entry; I wish to authorise individual users to access this entry. This option doesn't apply to visualisations
+                            label.checkbox(for='visible')
+                              input#visible(type='checkbox', name='vis', value='false')
+                              | Do not list my entry in the catalogue
+                  .modal-footer
+                    button.btn(data-dismiss='modal', aria-hidden='true') Cancel
+                    button#submit.btn.btn-primary Save
             section.row#requesteddataset
               .page-header
                 h1 Reuests sent (#{requested?requested.length:0})
@@ -138,7 +189,7 @@ html(lang='en')
                     each entry in requested
                       .control-group
                         .controls
-                          label.incline.checkbox= entry.title
+                          label.incline.checkbox= entry.name
                             input(name='ids' value=entry._id type='checkbox')
                     .control-group
                       .controls
@@ -146,10 +197,10 @@ html(lang='en')
               if visible
                 h2 Visible datasets & visualisations
                 each entry in visible
-                  p= entry.title
+                  p= entry.name
               if readable
                 h2 Accessible datasets
-                  p= entry.title
+                  p= entry.name
 
             section.row#requests
               .page-header

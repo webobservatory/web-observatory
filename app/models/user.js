@@ -59,11 +59,10 @@ UserSchema = mongoose.Schema({
     msg: {
         requests: [{ //received requests
                 sender: String,
-                dataset: [{
+                dataset: {
                         type: Schema.Types.ObjectId,
                         ref: 'Entry'
-                    }
-                ],
+                    },
                 read: Boolean
             }
         ],
@@ -213,7 +212,7 @@ UserSchema.statics.accCtrl = function(deny, request, done) {
 
 UserSchema.statics.grantAccess = function(request, done) {
     var User = this;
-    var dataset = request.dataset[0];
+    var dataset = request.dataset;
     var query = {
         email: request.sender,
         readable: {
@@ -307,7 +306,7 @@ UserSchema.statics.addEtry = function(eml, entry_id, cb) {
             logger.error(err);
             return cb(err);
         }
-        user.ownEtry.push(entry_id);
+        user.own.push(entry_id);
         user.save(cb);
     });
 };
@@ -327,26 +326,6 @@ UserSchema.statics.hasAccessTo = function(email, ds_id, done) {
                 message: 'Access denied'
             });
         done(null, user);
-    });
-};
-
-//message handling
-UserSchema.statics.addReq = function(sender, dataset, done) {
-    var query = {
-        email: dataset.publisher
-    };
-    var update = {
-        $addToSet: {
-            'msg.requests': {
-                'sender': sender,
-                'dataset': [dataset],
-                read: false
-            }
-        }
-    };
-
-    this.update(query, update, function(err, user) {
-        done(err, dataset);
     });
 };
 

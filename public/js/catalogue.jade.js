@@ -1,9 +1,9 @@
 function editEtry(etryId) {
     $('#eid').val(etryId);
+    $('#private').prop('checked', acc==='false');
+    $('#visible').prop('checked', vis==='false');
     $('#editModal').modal('show');
 }
-
-function delEtry(etryId) {}
 
 $(document).ready(function() {
 
@@ -15,12 +15,10 @@ $(document).ready(function() {
     $.extend($.fn.dataTableExt.oStdClasses, {
         "sWrapper": "dataTables_wrapper form-inline"
     });
-    $('.edit:not(.disabled)').bind('click', function() {
-        editEtry($(this).attr('eid'));
-    });
 
-    $('.del:not(.disabled)').bind('click', function() {
-        delEtry($(this).attr('eid'));
+    $('.edit').bind('click', function(e) {
+        editEtry($(this).attr('eid'),$(this).attr('acc'),$(this).attr('vis'));
+        e.preventDefault();
     });
 
     $('#submit').bind('click', function() {

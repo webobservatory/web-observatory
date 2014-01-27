@@ -21,24 +21,24 @@ html(lang='en')
                     label.control-label(for='url') Address
                     .controls
                       input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-dataset', required='')
-                      p.help-block= 'The URL where your '+type ' can be accessed'
+                      p.help-block= 'The URL where your '+type +' can be accessed'
                   // Text input
                   .control-group
                     label.control-label(for='creator') Creator
                     .controls
                       input.input-xlarge(name='creator' type='text', placeholder='Creator name')
                       p.help-block= 'The person who created this '+type+'. This can be different from the one who publish this entry'
-                  .control-group
+                  .control-group.hide
                     label.control-label(for='type') Entry type
                     .controls
-                    select.(name='type')
-                      option= type
+                      select(name='type')
+                        option= type
                   // Select Basic
                   if type === 'dataset'
                     .control-group
                       label.control-label(for='type') Dataset type
                       .controls
-                          select.(name='querytype')
+                          select(name='querytype')
                             option SPARQL
                             option Mongodb
                   if type === 'visualisation'
@@ -55,17 +55,23 @@ html(lang='en')
                   // Security 
                   .control-group
                     label.control-label(for='access') Security Settings
+                    if type === 'dataset'
+                      .controls
+                        label.checkbox(for='read')
+                          input#private(type='checkbox', name='acc', value='false')
+                          | Private dataset
+                        p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
+                        label#visible.hide.checkbox(for='visible')
+                          input(type='checkbox', name='vis', value='false')
+                          = 'Do not list my private '+ type +' in the catalogue'
+                    if type === 'visualisation'
+                      .controls
+                        label#visible.checkbox(for='visible')
+                          input(type='checkbox', name='vis', value='false')
+                          = 'Do not list my '+ type +' in the catalogue'
+                  .control-group
                     .controls
-                      label.checkbox(for='read')
-                        input#private(type='checkbox', name='readable', value='false')
-                        | Private dataset
-                      p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
-                      label#visible.hide.checkbox(for='visible')
-                        input(type='checkbox', name='visible', value='false')
-                        = 'Do not list my private '+ type +' in the catalogue'
-              .control-group
-                .controls
-                  button.btn.btn-primary(type="submit") Submit
+                      button.btn.btn-primary(type="submit") Submit
           .span3
       #push
     include includes/footer
