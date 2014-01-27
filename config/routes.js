@@ -46,7 +46,10 @@ module.exports = function(app, passport) {
         var term = req.query.term;
         Entry.find({
             type: 'dataset',
-            name: { $regex: term, $options: 'i' }
+            name: {
+                $regex: term,
+                $options: 'i'
+            }
         }, 'name', function(err, etries) {
             var names = etries.map(function(etry) {
                 return etry.name;
@@ -183,6 +186,10 @@ module.exports = function(app, passport) {
 
         var issuer = req.user.email,
             etryIds = req.body.ids;
+        if (!etryIds) {
+            req.flash('info', ['No entry selected']);
+            res.redirect(req.get('referer'));
+        }
         if (typeof etryIds === 'string')
             etryIds = [etryIds];
 
