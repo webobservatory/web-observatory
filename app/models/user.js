@@ -55,24 +55,22 @@ UserSchema = mongoose.Schema({
             type: Schema.Types.ObjectId,
             ref: 'Entry'
         }
-    ], //requested access to these datasets
-    msg: {
-        requests: [{ //received requests
-                sender: String,
-                dataset: {
-                        type: Schema.Types.ObjectId,
-                        ref: 'Entry'
-                    },
-                read: Boolean
-            }
-        ],
-        general: [{ //general messages
-                sender: String,
-                content: String,
-                read: Boolean
-            }
-        ]
-    }
+    ], //access requests sent to these datasets
+    pendingreq: [{ //received requests
+            sender: String,
+            entry: {
+                type: Schema.Types.ObjectId,
+                ref: 'Entry'
+            },
+            read: Boolean
+        }
+    ],
+    msg: [{ //general messages
+            sender: String,
+            content: String,
+            read: Boolean
+        }
+    ]
 });
 
 //user control
@@ -203,77 +201,7 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
 
 //dataset access control
 
-UserSchema.statics.accCtrl = function(deny, request, done) {
-    if (deny)
-        User.denyAccess(request, done);
-    else
-        User.grantAccess(request, done);
-};
 
-UserSchema.statics.grantAccess = function(request, done) {
-    var User = this;
-    var dataset = request.dataset;
-    var query = {
-        email: request.sender,
-        readable: {
-            $ne: dataset._id
-        }
-    }; //grant access only if the user cannot access to the given dataset
-
-    var update = {
-        $push: {
-            readable: dataset._id,
-            'msg.general': {
-                content: 'Your request for accessing ' + dataset.title + ' has been approved',
-                read: false
-            }
-        },
-        $pull: {
-            accreq: dataset._id
-        }
-    };
-
-    User.update(query, update, function(err, user) {
-        logger.info('Request approved; user: ' + user.email + '; dataset: ' + dataset.url + ';');
-        done(err, request);
-    });
-};
-
-UserSchema.statics.denyAccess = function(request, done) {
-    var User = this;
-    var dataset = request.dataset[0];
-    var query = {
-        email: request.sender,
-    };
-
-    var update = {
-        $push: {
-            'msg.general': {
-                content: 'Your request for accessing ' + dataset.title + ' has been denied',
-                read: false
-            }
-        }
-    };
-
-    User.update(query, update, function(err, user) {
-        logger.info('Request denied; user: ' + user.email + '; dataset: ' + dataset.url + ';');
-        done(err, request);
-    });
-};
-
-UserSchema.statics.rmReq = function(umail, reqs, done) {
-    var update = {
-        $pullAll: {
-            'msg.requests': reqs
-        }
-    };
-    User.update({
-        email: umail
-    }, update, function(err, user) {
-        logger.info('Requests removed; user: ' + user.email + ';');
-        done(err, user);
-    });
-};
 
 UserSchema.statics.addOwn = function(publisher, etry_id, done) {
     var query = {

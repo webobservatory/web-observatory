@@ -153,88 +153,53 @@ module.exports = function(app, passport) {
 
     //request access of datasets
     app.get('/reqacc/:eid', ensureLoggedIn('/login'), function(req, res) {
-        var sender_mail = req.user.email,
-            dt_ids = req.params.eid.split(',');
-        if (typeof dt_ids === 'string')
-            dt_ids = [dt_ids];
-        async.map(dt_ids, function(dtid, cb) {
-            User.findOne({
-                'own': dtid
-            }, function(err, user) {
-                if (err)
-                    return cb(err);
-                if (!user)
-                    return cb({
-                        message: 'No publisher found for requested dataset' + dtid
-                    });
+        var issuer = req.user.email,
+            etryIds = [req.params.eid];
 
-                user.msg.requests.push({
-                    sender: sender_mail,
-                    dataset: dtid
-                });
-                user.save(function(err) {
-                    cb(err, dtid);
-                });
-            });
-        }, function(err, req_dtids) {
+        modctrl.reqAccToEtry(etryIds, issuer, function(err) {
             if (err) {
                 req.flash('error', [err.message]);
-                res.redirect(req.get('referer'));
             } else {
                 req.flash('info', ['Request sent']);
-                var update = {
-                    $addToSet: {
-                        accreq: {
-                            $each: req_dtids
-                        }
-                    }
-                };
-
-                User.update({
-                    email: sender_mail
-                }, update, function(err, user) {
-                    if (err)
-                        req.flash('error', [err.message]);
-                    res.redirect(req.get('referer'));
-                });
             }
+            res.redirect(req.get('referer'));
+        });
+    });
+
+    app.post('/reqacc', ensureLoggedIn('/login'), function(req, res) {
+
+        var issuer = req.user.email,
+            etryIds = req.body.ids;
+        if (typeof etryIds === 'string')
+            etryIds = [etryIds];
+
+        modctrl.reqAccToEtry(etryIds, issuer, function(err) {
+            if (err) {
+                req.flash('error', [err.message]);
+            } else {
+                req.flash('info', ['Request sent']);
+            }
+            res.redirect(req.get('referer'));
         });
     });
 
     //approve access to datasets
-    app.post('/dataset/approve', ensureLoggedIn('/login'), function(req, res) {
-        var clr = req.body.clr === 'true',
-            umail = req.user.email,
+    app.post('/aprvacc', ensureLoggedIn('/login'), function(req, res) {
+        var deny = req.body.deny === 'true',
+            owner = req.user.email,
             reqids = req.body.reqids;
         if (typeof reqids === 'string')
             reqids = [reqids];
 
-        User.findOne({
-            email: umail
-        }, function(err, user) {
+        modctrl.aprvAccToEtry(deny, reqids, owner, function(err) {
+        
             if (err) {
                 req.flash('error', [err.message]);
-                return res.redirect(req.get('referer'));
+            } else {
+                req.flash('info', [deny?'Request denied':'Request approved']);
             }
-
-            async.map(reqids, function(rid, cb) {
-                var rst = user.msg.accreq.id(rid).populate('dataset');
-                User.accCtrl(clr, rst, cb);
-                //TODO
-
-            }, function(err, requests) {
-                if (err) {
-                    req.flash('error', [err.message]);
-                    return res.redirect(req.get('referer'));
-                }
-                User.rmReq(umail, requests, function(err, user) {
-                    if (err)
-                        req.flash('error', [err.message]);
-                    else
-                        req.flash('info', [clr ? 'Request denied' : 'Access granted']);
-                    res.redirect(req.get('referer'));
-                });
-            });
+            res.redirect(req.get('referer'));
+        
         });
     });
 
@@ -475,7 +440,7 @@ module.exports = function(app, passport) {
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
         User.findOne({
             email: req.user.email
-        }).populate('own').populate('accreq').exec(function(err, user) {
+        }).populate('own').populate('accreq').populate('pendingreq.entry').exec(function(err, user) {
             var parameter = {
                 'user': user
             };
@@ -486,6 +451,7 @@ module.exports = function(app, passport) {
                 parameter.msg = user.msg;
                 parameter.owned = user.own;
                 parameter.requested = user.accreq;
+                parameter.pending = user.pendingreq;
             }
 
             parameter.error = errmsg;
@@ -562,7 +528,7 @@ module.exports = function(app, passport) {
                 return res.redirect(req.get('referer'));
             }
             for (var mid in msgid) {
-                user.msg.general.remove(msgid[mid]);
+                user.msg.remove(msgid[mid]);
             }
 
             user.save(function(err) {

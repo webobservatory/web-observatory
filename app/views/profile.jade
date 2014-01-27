@@ -182,7 +182,7 @@ html(lang='en')
               .page-header
                 h1 Reuests sent (#{requested?requested.length:0})
               if requested && requested.length != 0
-                form.span5.form-horizontal(method='post' action='/dataset/reqaccess')
+                form.span5.form-horizontal(method='post' action='/reqacc')
                   fieldset
                     .control-group
                       lable.control-label Re-send access requests
@@ -194,25 +194,21 @@ html(lang='en')
                     .control-group
                       .controls
                         button#req.btn.btn-primary(type='submit') Request
-              if visible
-                h2 Visible datasets & visualisations
-                each entry in visible
-                  p= entry.name
-              if readable
-                h2 Accessible datasets
-                  p= entry.name
 
             section.row#requests
               .page-header
-                h1 Requests received (#{msg && msg.requests?msg.requests.length:0})
-              if msg && msg.requests && msg.requests.length != 0
-                form.span5.form-horizontal(method='post' action='/dataset/approve')
+                h1 Requests received (#{pending && pending?pending.length:0})
+              if pending && pending.length != 0
+                form.form-horizontal(method='post' action='/aprvacc')
                   fieldset
-                    input#clrflag.hide(name='clr')
-                    each m in msg.requests
+                    input#clrflag.hide(name='deny')
+                    each m in pending
                       .control-group
                         .controls
-                          label.checkbox User #{m.sender} requested access to dataset #{m.dataset[0].title}
+                          label.checkbox
+                            = 'User '+m.sender+' requested access to '+m.entry.type+' '
+                            a.tp(title=m.entry.url)= m.entry.name
+                            
                             input(type='checkbox' name='reqids' value= m._id)
                     .control-group
                       .controls.btn-toolbar
@@ -220,11 +216,11 @@ html(lang='en')
                         button.btn.btn-danger#clear Deny
             section.row#msgbox
               .page-header
-                h1 Inbox (#{msg && msg.general?msg.general.length:0})
+                h1 Inbox (#{ msg?msg.length:0})
               form.span5.form-horizontal(method='post' action='/profile/message')
                 fieldset
-                  if msg && msg.general && msg.general.length != 0
-                    each m in msg.general
+                  if msg && msg.length != 0
+                    each m in msg
                       .control-group
                         .controls
                           label.checkbox
