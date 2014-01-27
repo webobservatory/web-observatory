@@ -12,4 +12,9 @@ $(document).ready(function() {
             $('#visible input').prop('checked', false);
         }
     });
+    var availableTags = ['aaaa', 'aaaB','baaB'];
+
+    $('#dsTils').autocomplete({
+        source: '/autocomplete'
+    });
 });

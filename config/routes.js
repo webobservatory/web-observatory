@@ -38,7 +38,20 @@ module.exports = function(app, passport) {
             error: req.flash('error'),
             user: req.user,
             type: req.params.typ,
-            scripts: ['/js/addetry.jade.js']
+            scripts: ['/js/addetry.jade.js', '/js/jquery-ui-1.10.3.min.js']
+        });
+    });
+
+    app.get('/autocomplete', function(req, res) {
+        var term = req.query.term;
+        Entry.find({
+            type: 'dataset',
+            name: { $regex: term, $options: 'i' }
+        }, 'name', function(err, etries) {
+            var names = etries.map(function(etry) {
+                return etry.name;
+            });
+            res.json(names);
         });
     });
     //add entry
@@ -192,14 +205,14 @@ module.exports = function(app, passport) {
             reqids = [reqids];
 
         modctrl.aprvAccToEtry(deny, reqids, owner, function(err) {
-        
+
             if (err) {
                 req.flash('error', [err.message]);
             } else {
-                req.flash('info', [deny?'Request denied':'Request approved']);
+                req.flash('info', [deny ? 'Request denied' : 'Request approved']);
             }
             res.redirect(req.get('referer'));
-        
+
         });
     });
 

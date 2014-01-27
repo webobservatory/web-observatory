@@ -9,9 +9,8 @@ html(lang='en')
         .row
           include includes/flash-banner
         .row
-          if user
             a.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
-          else
+          //else
             .hide.alert.alert-info
               = 'Please login to add and edit '+type+'s'
             a.disabled.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type

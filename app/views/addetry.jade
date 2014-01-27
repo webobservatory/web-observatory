@@ -1,6 +1,7 @@
 doctype html
 html(lang='en')
   include includes/head
+  link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
   body
     include includes/nav
     #wrap
@@ -9,7 +10,7 @@ html(lang='en')
           include includes/flash-banner
         .row
           .span3
-          form#adddata.form-horizontal(action='/add/'+type, method='post')
+          form.span4#adddata.form-horizontal(action='/add/'+type, method='post')
             fieldset
                   // Text input
                   .control-group
@@ -40,13 +41,15 @@ html(lang='en')
                       .controls
                           select(name='querytype')
                             option SPARQL
+                            option SQL
                             option Mongodb
                   if type === 'visualisation'
                     .control-group
                       label.control-label(for='basedOn') Related dataset
                       .controls
-                        input.input-xlarge(name='basedOn' type='text', placeholder='')
-                        p.help-block The dataset based on which this visualisation is produced. You should add the dataset first if it's not recorded in this web site.
+                        .ui-widget
+                          input#dsTils.input-xlarge(name='basedOn' type='text' required='')
+                        p.help-block The dataset based on which this visualisation is produced. You should add the dataset first if it's not registered in this web site.
                   // Textarea
                   .control-group
                     label.control-label(for='des') Description
@@ -72,7 +75,7 @@ html(lang='en')
                   .control-group
                     .controls
                       button.btn.btn-primary(type="submit") Submit
-          .span3
+          .span4
       #push
     include includes/footer
 
