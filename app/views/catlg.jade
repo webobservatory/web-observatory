@@ -28,6 +28,7 @@ html(lang='en')
                   th Source
                 th Publisher
                 th Description
+                th Access
             tbody
               if table
                 each val in table
@@ -70,6 +71,11 @@ html(lang='en')
                       td
                         .tp(data-toogle='tooltip' title=val.des)
                           = des
+                      td
+                        if val.opAcc
+                          i.icon-ok
+                        else 
+                          i.icon-remove
             tfoot
               tr
                 th
@@ -80,6 +86,7 @@ html(lang='en')
                   th Source
                 th Publisher
                 th Description
+                th Access
 
           #editModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
             .modal-header
