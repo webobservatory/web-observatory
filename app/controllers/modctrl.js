@@ -2,6 +2,7 @@ var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     EntrySchema = mongoose.model('Entry'),
     async = require('async'),
+    crypto = require('crypto'),
     logger = require('../util/logger');
 
 module.exports.visibleEtry = function(email, typ, cb) {
@@ -67,8 +68,12 @@ module.exports.visibleEtry = function(email, typ, cb) {
 module.exports.addEtry = function(email, etry, cb) {
 
     EntrySchema.findOne({
-        name: etry.name,
-        url: etry.url
+        $or: [{
+                name: etry.name
+            }, {
+                url: etry.url
+            }
+        ]
     }, function(err, entry) {
         if (err) {
             logger.error(err);
@@ -77,9 +82,20 @@ module.exports.addEtry = function(email, etry, cb) {
         if (entry) {
             logger.warn('Existing entry; user: ' + email + '; entry: ' + (entry.url || entry.name) + ';');
             return cb({
-                message: 'Tried to add an existing entry'
+                message: 'Existing entry name or url'
             });
         }
+
+        if (etry.auth && etry.auth.encpwd) {
+            var key = etry.url,
+                enc_alg = 'aes256',
+                pwd = etry.auth.encpwd;
+
+            var cipher = crypto.createCipher(enc_alg, key);
+            var encrypted = cipher.update(pwd, 'utf8', 'hex') + cipher.final('hex');
+            etry.auth.encpwd = encrypted;
+        }
+
         EntrySchema.create(etry, function(err, entry) {
             if (err) {
                 logger.error(err);

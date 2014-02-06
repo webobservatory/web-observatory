@@ -88,9 +88,7 @@ UserSchema.statics.signup = function(firstname, lastname, organisation, email, p
             salt: salt,
             hash: hash
         }, function(err, user) {
-            //if (err) throw err;
-            if (err)
-                return done(err);
+            if (err) return done(err);
             done(null, user);
         });
     });
@@ -129,7 +127,7 @@ UserSchema.statics.isValidUserPassword = function(email, password, done) {
                 message: 'Incorrect email.'
             });
 
-        if (!user.salt)
+        if (!user.salt || !user.hash)
             return done(null, false, {
                 message: 'Password not set. Please reset your password first.'
             });

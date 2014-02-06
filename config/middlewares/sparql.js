@@ -373,7 +373,7 @@ module.exports.getDataset = function(cb) {
     });
 };
 
-module.exports.query = function(url, query, output, cb) {
+module.exports.query = function(url, query, mime, cb) {
 
     var content_types = {
         xml: 'application/sparql-results+xml',
@@ -390,7 +390,7 @@ module.exports.query = function(url, query, output, cb) {
         path: parsed.pathname + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': content_types[output] || 'application/sparql-results+json'
+            'Accept': content_types[mime] || 'application/sparql-results+json'
         }
     };
     httpQuery(opts, cb);

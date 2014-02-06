@@ -3,10 +3,7 @@ var Entry = require('../app/models/entry');
 var Auth = require('./middlewares/authorization.js');
 var async = require('async');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
-var sparql = require('./middlewares/sparql.js');
-var SPARQLGetContent = sparql.SPARQLGetContent;
-var SPARQLUpdate = sparql.SPARQLUpdateContent;
-var SPARQLUpdateStatus = sparql.SPARQLUpdateStatus;
+var qryDrv = require('./middlewares/queries.js');
 var Recaptcha = require('recaptcha').Recaptcha;
 var pbk = '6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H';
 var prk = '6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D';
@@ -15,6 +12,21 @@ var logger = require('../app/util/logger');
 var modctrl = require('../app/controllers/modctrl');
 
 module.exports = function(app, passport) {
+
+    app.get("/", function(req, res) {
+        if (req.isAuthenticated()) {
+            res.render("index", {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user
+            });
+        } else {
+            res.render("index", {
+                info: req.flash('info'),
+                error: req.flash('error')
+            });
+        }
+    });
 
     //list entries
     app.get('/catlg/:typ(dataset|visualisation)', function(req, res) {
@@ -64,12 +76,17 @@ module.exports = function(app, passport) {
         console.log(req.body.vis);
         var etry = {
             url: req.body.url,
+            auth: {
+                user: req.body.user,
+                encpwd: req.body.pwd,
+                apikey: req.body.apikey
+            },
             name: req.body.name,
             type: req.params.typ,
-            querytype: req.body.querytype,
+            querytype: req.body.querytype.toLowerCase(),
             desc: req.body.desc,
             publisher: email,
-            //community: req.body.community,
+            git: req.body.git,
             lice: req.body.lice,
             kw: req.body.kw ? req.body.kw.split(',') : [],
             des: req.body.des,
@@ -88,6 +105,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //TODO change to /edit/:eid
     app.post('/edit', ensureLoggedIn('/login'), function(req, res) {
         var email = req.user.email;
         var etry_id = req.body.eid;
@@ -225,73 +243,28 @@ module.exports = function(app, passport) {
 
     //execute user queries
     app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
-        res.render(req.params.format, {
+
+        res.render('query/' + req.params.format.toLowerCase(), {
             info: req.flash('info'),
             error: req.flash('error'),
             user: req.user,
             dsID: req.params.dsId,
-            scripts: ['/js/sparql.jade.js', '/js/sparql.js']
         });
     });
 
     app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
         var query = req.query.query,
-            format = req.query.format,
+            mime = req.query.format,
             _id = req.params.dsId;
         logger.info('User: ' + req.user.email + '; query: ' + query);
 
         async.waterfall([
             function(cb) {
-                Entry.findOne({
-                    '_id': _id,
-                }, cb);
-
+                Auth.hasAccToDB(req.user.email, _id, cb);
             },
-            function(dataset, cb) {
-                if (!dataset)
-                    return cb({
-                        message: 'Dataset not available'
-                    });
-
-                var readable = dataset.opAcc;
-                if (readable) {
-                    cb(false, true, dataset);
-                } else {
-                    User.findOne({
-                        email: req.user.email,
-                        $or: [{
-                                'own._id': _id
-                            }, {
-                                'readable._id': _id
-                            }
-                        ]
-                    }, function(err, user) {
-                        cb(err, user, dataset);
-                    });
-                }
-
-            },
-            function(user, dataset, cb) {
-                if (!user)
-                    return cb({
-                        message: "You don't have access to this dataset"
-                    });
-                cb(false, dataset);
-            },
-            function(dataset, cb) {
-
-                var url = dataset.url,
-                    type = dataset.querytype;
-
-                switch (type) {
-                    case 'SPARQL':
-                        sparql.query(url, query, format, cb); //cb(err,json)
-                        break;
-                    default:
-                        cb({
-                            message: "Dataset's type not supported"
-                        });
-                }
+            function(ds, cb) {
+                var queryDriver = qryDrv.drivers[ds.querytype.toLowerCase()];
+                queryDriver(query, mime, ds, cb);
             }
         ], function(err, result) {
             if (err) {
@@ -299,7 +272,7 @@ module.exports = function(app, passport) {
                 return res.redirect(req.get('referer'));
             }
 
-            switch (format) {
+            switch (mime) {
                 case 'json':
                     res.attachment('result.json');
                     res.end(result, 'UTF-8');
@@ -352,19 +325,6 @@ module.exports = function(app, passport) {
                         req.flash('error', [e.message]);
                         logger.error(e);
                     }
-                    /*
-                    var data = [];
-                    var bindings = result.results.bindings;
-                    for (i = 0; i < bindings.length; i++) {
-                        var binding = bindings[i];
-                        var tem = {};
-                        for (var key in binding) {
-                            tem[key] = binding[key].value;
-                        }
-                        data.push(tem);
-                    }
-                    */
-                    //res.send(result);
                     res.render('dsp', {
                         'result': result,
                         'info': req.flash('info'),
@@ -372,21 +332,6 @@ module.exports = function(app, passport) {
                     });
             }
         });
-    });
-
-    app.get("/", function(req, res) {
-        if (req.isAuthenticated()) {
-            res.render("index", {
-                info: req.flash('info'),
-                error: req.flash('error'),
-                user: req.user
-            });
-        } else {
-            res.render("index", {
-                info: req.flash('info'),
-                error: req.flash('error')
-            });
-        }
     });
 
     //authentication

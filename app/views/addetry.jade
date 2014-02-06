@@ -19,10 +19,34 @@ html(lang='en')
                       input.input-xlarge(name='name' type='text', placeholder='Title of the dataset', required='')
                   // Text input
                   .control-group
-                    label.control-label(for='url') Address
+                    label.control-label(for='url') URL
                     .controls
-                      input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-dataset', required='')
-                      p.help-block= 'The URL where your '+type +' can be accessed'
+                      input.input-xlarge(name='url' type='text', placeholder='xxxxx://address-of-your-entry', required='')
+                      p.help-block= 'The URL of your '+type
+                  if type==='dataset'
+                    // Text input
+                    .control-group
+                      label.control-label(for='user') Username
+                      .controls
+                        input.input-xlarge(name='user' type='text', placeholder='User name of your dataset')
+                        p.help-block Username of your dataset
+                    // Text input
+                    .control-group
+                      label.control-label(for='pwd') Password
+                      .controls
+                        input.input-xlarge(name='pwd' type='password', placeholder='Password of your dataset')
+                        p.help-block Your password will be encripted
+                    .control-group
+                      label.control-label(for='type') Dataset type
+                      .controls
+                          select(name='querytype')
+                            option SPARQL
+                            option MySQL
+                            option PostgreSQL
+                            option MongoDB
+                    .control-group
+                      .controls
+                        button#dbtest.btn Test connection
                   // Text input
                   .control-group
                     label.control-label(for='creator') Creator
@@ -35,14 +59,6 @@ html(lang='en')
                       select(name='type')
                         option= type
                   // Select Basic
-                  if type === 'dataset'
-                    .control-group
-                      label.control-label(for='type') Dataset type
-                      .controls
-                          select(name='querytype')
-                            option SPARQL
-                            option SQL
-                            option Mongodb
                   if type === 'visualisation'
                     .control-group
                       label.control-label(for='basedOn') Related dataset
@@ -51,11 +67,17 @@ html(lang='en')
                           input#dsTils.input-xlarge(name='basedOn' type='text' required='')
                         p.help-block The dataset based on which this visualisation is produced.
                         p.help-block You should add the dataset first if it's not registered in this web site.
+                    .control-group
+                      label.control-label(for='git') Source code
+                      .controls
+                        input#dsTils.input-xlarge(name='git' type='text', placeholder='Github/Sourceforge etc.')
+                        p.help-block The url of your online repository that hosts this visualisation
                   // Textarea
                   .control-group
                     label.control-label(for='des') Description
                     .controls
-                      textarea.input-xlarge(name='des' placeholder='A brief description of your dataset')
+                      textarea.input-xlarge(name='des' placeholder='')
+                      p.help-block A brief description of your entry
                   // Security 
                   .control-group
                     label.control-label(for='access') Security Settings

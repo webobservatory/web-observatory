@@ -15,6 +15,7 @@
         "mongodb": "*",
         "moment": "*",
         "mongoose": "*",
+        "mysql": "*",
         "nodemon": "*",
         "nodemailer": "*",
         "recaptcha": "*",
@@ -22,6 +23,7 @@
         "passport-local": "*",
         "passport-facebook": "*",
         "passport-ldapauth": "*",
+        "pq": "*",
         "winston": "*"
     }
 }

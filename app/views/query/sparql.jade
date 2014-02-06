@@ -1,12 +1,14 @@
 doctype html
 html(lang='en')
-  include includes/head
+  include ../includes/head
+  script(src='/js/sparql.jade.js')
+  script(src='/js/sparql.js')
   body
-    include includes/nav
+    include ../includes/nav
     #wrap
       .container
         .row
-          include includes/flash-banner
+          include ../includes/flash-banner
         .row
           h2 SPARQL
           span#endpoint
@@ -27,4 +29,4 @@ html(lang='en')
                 button#reset.btn.btn-warning Reset
             #result
       #push
-    include includes/footer
+    include ../includes/footer
