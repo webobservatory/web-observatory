@@ -1,77 +1,64 @@
 doctype html
-// required data: user.username | user.email; msg.request; msg.general; owned.dataset; requested
 html(lang='en')
   include includes/head
-  body(data-spy='scroll', data-target='.bs-docs-sidebar')
+  link(href='/css/dashboard.css', rel='stylesheet')
+  body(data-spy='scroll', data-target='.sidebar')
     include includes/nav
     #wrap
-      .container
+      .container-fluid
         .row
-          .span3.bs-docs-sidebar
-            ul.nav.nav-list.bs-docs-sidenav.affix
-              li.nav-header
-                | General settings
+          .col-md-2.sidebar
+            ul.nav.nav-stacked.nav-pills
               li
                 a(href='#account')
                   | Account settings
-                  i.icon-chevron-right 
-              li.nav-header
-                | Dataset management
               li
                 a(href='#owneddataset')
                   | Published entries
-                  i.icon-chevron-right 
               li
                 a(href='#requesteddataset')
                   | Reuests sent
-                  i.icon-chevron-right 
               li
                 a(href='#requests')
                   | Requests received
-                  i.icon-chevron-right 
-              li.nav-header
-                | Messages
               li
                 a(href='#msgbox')
                   | Inbox
-                  i.icon-chevron-right 
-          .span9
+                   
+          .col-md-10.col-md-offset-2.main
             include includes/flash-banner
-            section.row#account
+            .row#account
               .page-header
                 h1 Account settings
                 h4
-                  i.icon-user
+                  .glyphicon.glyphicon-user
                   =user.email
-              form.span5.form-horizontal(method='post' action='/profile')
-                fieldset
-                  label Update names
-                  .control-group
-                    label.control-label First name
-                    .controls
-                      input(type='text' name='fn' placeholder= user.firstName?user.firstName:'')
-                  .control-group
-                    label.control-label Last name
-                    .controls
-                      input(type='text' name='ln' placeholder= user.lastName?user.lastName:'')
-                  label Update password
-                  .control-group
-                    label.control-label Current password
-                    .controls
-                      input(type='password' name='oldpw')
-                  .control-group
-                    label.control-label New password
-                    .controls
-                      input(type='password' name='newpw')
-                  .control-group
-                    .controls
-                      button.btn.btn-primary(type='submit') Save
-            section.row#owneddataset
+              form.form-horizontal(method='post' action='/profile')
+                .form-group
+                  label.col-md-2.control-label First name
+                  .col-md-3
+                    input.form-control(type='text' name='fn' placeholder= user.firstName?user.firstName:'')
+                .form-group
+                  label.col-md-2.control-label Last name
+                  .col-md-3
+                    input.form-control(type='text' name='ln' placeholder= user.lastName?user.lastName:'')
+                .form-group
+                  label.col-md-2.control-label Current password
+                  .col-md-3
+                    input.form-control(type='password' name='oldpw')
+                .form-group
+                  label.col-md-2.control-label New password
+                  .col-md-3
+                    input.form-control(type='password' name='newpw')
+                .form-group
+                  .col-md-3.col-md-offset-2
+                    button.btn.btn-primary(type='submit') Save
+            .row#owneddataset
               .page-header
                 h1 Published entries (#{owned?owned.length:0})
               if owned && owned.length != 0
 
-              table#display.table.table-striped.table-bordered
+              table#display.table.table-striped
                 thead
                   tr
                     th
@@ -87,12 +74,12 @@ html(lang='en')
                         tr
                           td
                             .btn-group
-                              i.icon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
+                              .glyphicon.glyphicon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
                               ul.dropdown-menu
                                 //li
                                   a(href='#') Details
                                 li
-                                  a.edit(href='#' eid=val._id name=val.name url=val.url des=val.des vis=val.opVis.toString() acc=val.opAcc.toString()) Edit
+                                  a.edit(href='edit/'+val._id) Edit
                                 li.divider
                                 li.btn-danger
                                   a.del(href='#' eid=val._id name=val.name) Delete
@@ -100,12 +87,12 @@ html(lang='en')
                           - if(name.length>30) {
                           -   name = name.substring(0,27);
                           -   name = name + '...';}
-                          td.span3
-                            a.tp(href='#' data-toogle='tooltip' title=val.url)= name
+                          td.col-md-3
+                            a.tp(data-toogle='tooltip' title=val.url)= name
                           td= (val.type === 'dataset'?val.querytype:val.type)
                           //display no more than 20 characters of description
-                          - var des=''
-                          - if(val.des!=='') {
+                          - var des=val.des?val.des:''
+                          - if(des.length>47) {
                           -   des = val.des.substring(0,50);
                           -   des = des + '...';}
                           td
@@ -113,14 +100,14 @@ html(lang='en')
                               = des
                           td
                             if val.opVis
-                              i.icon-ok
+                              .glyphicon.glyphicon-ok
                             else
-                              i.icon-remove
+                              .glyphicon.glyphicon-remove
                           td
                             if val.opAcc
-                              i.icon-ok
+                              .glyphicon.glyphicon-ok
                             else
-                              i.icon-remove
+                              .glyphicon.glyphicon-remove
                 tfoot
                   tr
                     th
@@ -130,104 +117,68 @@ html(lang='en')
                     th Displayed
                     th Accessible
 
-                #delModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
-                  .modal-header
-                  .modal-body
-                  .modal-footer
-                    button.btn(data-dismiss='modal', aria-hidden='true') Cancel
-                    a#del.btn.btn-danger(href='') Confirm
-
-                #editModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
-                  .modal-header
-                    button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
-                    h3#myModalLabel= 'Edit the selected entry'
-                    p.help-block Blank field will remain unchanged
-                  .modal-body
-                    form#editForm.form-horizontal(action='/edit', method='post')
-                      fieldset
-                        // Text input
-                        .control-group
-                          label.control-label(for='name') Name
-                          .controls
-                            input.input-xlarge(name='name' type='text', placeholder='Title of the entry', required='')
-                            p.help-block= 'Edit the name of your entry'
-                            input#eid.hide.input-xlarge(name='eid' required='')
-                        // Text input
-                        .control-group
-                          label.control-label(for='url') Location
-                          .controls
-                            input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-entry')
-                            p.help-block= 'Edit the URL of your entry'
-                        // Textarea
-                        .control-group
-                          label.control-label(for='desc') Description
-                          .controls
-                            textarea.input-xlarge(name='des')
-                            p.help-block= 'Change the description of your entry'
-                        // Security 
-                        .control-group
-                          label.control-label(for='access') Security Settings
-                          .controls.dataset
-                            label.checkbox(for='read')
-                              input#private(type='checkbox', name='acc', value='false')
-                              | Private entry
-                            p.help-block Private entry; I wish to authorise individual users to access this entry. This option doesn't apply to visualisations
-                            label.checkbox(for='visible')
-                              input#visible(type='checkbox', name='vis', value='false')
-                              | Do not list my entry in the catalogue
-                  .modal-footer
-                    button.btn(data-dismiss='modal', aria-hidden='true') Cancel
-                    button#submit.btn.btn-primary Save
-            section.row#requesteddataset
+                #delModal.modal.fade
+                  .modal-dialog.modal-md
+                    .modal-content
+                      .modal-header
+                      .modal-body
+                      .modal-footer
+                        button.btn(data-dismiss='modal', aria-hidden='true') Cancel
+                        a#del.btn.btn-danger(href='') Confirm
+            .row#requesteddataset
               .page-header
                 h1 Reuests sent (#{requested?requested.length:0})
               if requested && requested.length != 0
-                form.span5.form-horizontal(method='post' action='/reqacc')
+                form.form-horizontal(method='post' action='/reqacc')
                   fieldset
-                    .control-group
+                    .form-group
                       lable.control-label Re-send access requests
                     each entry in requested
-                      .control-group
-                        .controls
-                          label.incline.checkbox= entry.name
+                      .form-group
+                        .checkbox
+                          label= entry.name
                             input(name='ids' value=entry._id type='checkbox')
-                    .control-group
-                      .controls
+                    .form-group
+                      .col-md-3
                         button#req.btn.btn-primary(type='submit') Request
 
-            section.row#requests
+            .row#requests
               .page-header
                 h1 Requests received (#{pending && pending?pending.length:0})
               if pending && pending.length != 0
                 form.form-horizontal(method='post' action='/aprvacc')
-                  fieldset
-                    input#clrflag.hide(name='deny')
-                    each m in pending
-                      .control-group
-                        .controls
-                          label.checkbox
+                  input.form-control#clrflag.hide(name='deny')
+                  each m in pending
+                    .form-group
+                      .col-md-offset-2
+                        .checkbox
+                          label
                             = 'User '+m.sender+' requested access to '+m.entry.type+' '
                             a.tp(title=m.entry.url)= m.entry.name
                             
                             input(type='checkbox' name='reqids' value= m._id)
-                    .control-group
-                      .controls.btn-toolbar
-                        button.btn.btn-primary#approve Approve
-                        button.btn.btn-danger#clear Deny
-            section.row#msgbox
+                  .form-group
+                    .col-md-3.btn-toolbar
+                      button.btn.btn-primary#approve Approve
+                      button.btn.btn-danger#clear Deny
+            .row#msgbox
               .page-header
                 h1 Inbox (#{ msg?msg.length:0})
-              form.span5.form-horizontal(method='post' action='/profile/message')
-                fieldset
-                  if msg && msg.length != 0
-                    each m in msg
-                      .control-group
-                        .controls
-                          label.checkbox
+              form.form-horizontal(method='post' action='/profile/message')
+                if msg && msg.length != 0
+                  each m in msg
+                    .form-group
+                      .col-md-3.col-md-offset-2
+                        .checkbox
+                          label
                             = m.content
                             input(type='checkbox' name='msgid' value= m._id)
-                    .control-group
-                      .controls
-                        button.btn.btn-danger Clear
+                  .form-group
+                    .col-md-3.col-md-offset-2
+                      button.btn.btn-danger Clear
       #push
     include includes/footer
+    link(href='/css/datatables.css', rel='stylesheet')
+    //script(src='/js/jquery.dataTables.min.js')
+    //script(src='/js/bt3datatables.js')
+    script(src='/js/profile.jade.js')

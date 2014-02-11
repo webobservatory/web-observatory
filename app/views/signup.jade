@@ -1,4 +1,5 @@
 include includes/head
+link(href='/css/signin.css', rel='stylesheet')
 script.
   var RecaptchaOptions = {
        theme : 'white',
@@ -8,35 +9,28 @@ body
   #wrap
     .container.text-center
       .row
-        .hero-unit
+        .jumbotron
           h1 Southampton
           h1 Web Observatory
       .row
         include includes/flash-banner
       .row
-        .hide.alert.alert-warning Password not match
+        .collapse.alert.alert-warning Password not match
       .row
-        form#singup(method="POST", action="/signup")
-          fieldset
-            legend Please fill your details
-            div
-              input.input-large(placeholder='First name' type='text', name='fn' required='')
-            div
-              input.input-large(placeholder='Last name' type='text', name='ln' required='')
-            div
-              input.input-large(placeholder='Organisation' type='text', name='org' )
-            div
-              input.input-large(placeholder='Email' type='text', name='email' required='')
-            div
-              input.input-large(placeholder='Password' type='password', name='password' required='')
-            div
-              input.input-large(placeholder='Confirm password' type='password', name='confirm' required='')
-            div
-              label and verify you're human
-            div
-              != recaptcha_form
-            div
-              button.btn.btn-primary(type="submit") Sign Up
+        form.form-signin#singup(method="POST", action="/signup")
+          label.form-signin-heading Please fill your details
+          input.form-control(placeholder='First name' type='text', name='fn' required='')
+          input.form-control(placeholder='Last name' type='text', name='ln' required='')
+          input.form-control(placeholder='Organisation' type='text', name='org' )
+          input.form-control(placeholder='Email' type='email', name='email' required='')
+          input.form-control(placeholder='Password' type='password', name='password' required='')
+          input.form-control(placeholder='Confirm password' type='password' data-validation-matches-match='password' data-validation-matches-message=
+    "Must match password entered above" name='confirm' required='')
+          label 
+            and verify you're human
+          != recaptcha_form
+          button.btn.btn-primary.btn-lg.btn-block(type="submit") Sign Up
       #push
   include includes/footer
+  script(src='/js/jqBootstrapValidation.js')
   script(src='/js/reset-pass.jade.js')

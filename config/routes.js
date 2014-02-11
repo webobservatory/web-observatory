@@ -13,6 +13,13 @@ var modctrl = require('../app/controllers/modctrl');
 
 module.exports = function(app, passport) {
 
+    app.get("/sidenav", function(req, res) {
+
+        res.render("sidenav", {
+            info: req.flash('info'),
+            error: req.flash('error')
+        });
+    });
     app.get("/", function(req, res) {
         if (req.isAuthenticated()) {
             res.render("index", {
@@ -38,8 +45,7 @@ module.exports = function(app, passport) {
                 error: req.flash('error'),
                 user: req.user,
                 table: entries,
-                type: req.params.typ,
-                scripts: ['/js/jquery.dataTables.js', '/js/catalogue.jade.js', '/js/paging.js']
+                type: req.params.typ
             });
         });
     });
@@ -50,7 +56,6 @@ module.exports = function(app, passport) {
             error: req.flash('error'),
             user: req.user,
             type: req.params.typ,
-            scripts: ['/js/addetry.jade.js', '/js/jquery-ui-1.10.3.min.js']
         });
     });
 
@@ -72,8 +77,6 @@ module.exports = function(app, passport) {
     //add entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function(req, res) {
         var email = req.user.email;
-        console.log(req.body.acc);
-        console.log(req.body.vis);
         var etry = {
             url: req.body.url,
             auth: {
@@ -83,7 +86,7 @@ module.exports = function(app, passport) {
             },
             name: req.body.name,
             type: req.params.typ,
-            querytype: req.body.querytype.toLowerCase(),
+            querytype: req.body.querytype,
             desc: req.body.desc,
             publisher: email,
             git: req.body.git,
@@ -105,10 +108,34 @@ module.exports = function(app, passport) {
         });
     });
 
-    //TODO change to /edit/:eid
-    app.post('/edit', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/edit/:eid', ensureLoggedIn('/login'), function(req, res) {
+
+        var eid = req.params.eid;
+
+        Entry.findOne({
+            _id: eid,
+            publisher: req.user.email
+        }, function(err, entry) {
+            if (err || !entry) {
+                logger.error(err || {
+                    message: 'Entry not found under the current user'
+                });
+                req.flash('error', ["Entry not found under the current user"]);
+                return res.redirect('profile'); //TODO ajax rather than refreshing
+            }
+
+            res.render('editetry', {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user,
+                data: entry
+            });
+        });
+    });
+
+    app.post('/edit/:eid', ensureLoggedIn('/login'), function(req, res) {
         var email = req.user.email;
-        var etry_id = req.body.eid;
+        var etry_id = req.params.eid;
         var etry = {
             /*
             url: req.body.url,
@@ -120,23 +147,37 @@ module.exports = function(app, passport) {
             */
         };
 
-        if (req.body.url.trim()) etry.url = req.body.url;
-        if (req.body.name.trim()) etry.name = req.body.name;
-        if (req.body.des.trim()) etry.des = req.body.des;
-        if (req.body.lice.trim()) etry.lice = req.body.lice;
-        if (req.body.related.trim()) etry.related = req.body.related;
-        if (req.body.kw.trim()) etry.kw = req.body.kw.split(',');
-        if (req.body.vis.trim()) etry.vis = req.body.vis === 'true';
-        if (req.body.acc.trim()) etry.acc = req.body.acc === 'true';
+        //Auth
+        User.findOne({
+            email: req.user.email,
+            own: etry_id
+        }, function(err, user) {
 
-        modctrl.editEtry(etry_id, etry, function(err) {
-            if (err) {
-                req.flash('error', [err.message]);
-                res.redirect('/edit');
-            } else {
-                req.flash('info', ['Entry edited']);
-                res.redirect(req.get('referer'));
+            if (err || !user) {
+                logger.error(err || {
+                    message: 'Entry not found under the current user'
+                });
+                req.flash('error', [err ? err.message : 'Entry not found under the current user']);
+                return res.redirect(req.get('referer'));
             }
+            if (req.body.url) etry.url = req.body.url;
+            if (req.body.name) etry.name = req.body.name;
+            if (req.body.des) etry.des = req.body.des;
+            if (req.body.lice) etry.lice = req.body.lice;
+            if (req.body.related) etry.related = req.body.related;
+            if (req.body.kw) etry.kw = req.body.kw.split(',');
+            if (req.body.vis) etry.vis = req.body.vis === 'true';
+            if (req.body.acc) etry.acc = req.body.acc === 'true';
+
+            modctrl.editEtry(etry_id, etry, function(err) {
+                if (err) {
+                    req.flash('error', [err.message]);
+                    res.redirect(req.get('referer'));
+                } else {
+                    req.flash('info', ['Entry edited']);
+                    res.redirect('profile');
+                }
+            });
         });
     });
 
@@ -152,8 +193,6 @@ module.exports = function(app, passport) {
 
         if (typeof ids === 'string')
             ids = [ids];
-
-
 
         User.findOne({
             email: umail
@@ -201,7 +240,6 @@ module.exports = function(app, passport) {
     });
 
     app.post('/reqacc', ensureLoggedIn('/login'), function(req, res) {
-
         var issuer = req.user.email,
             etryIds = req.body.ids;
         if (!etryIds) {
@@ -237,13 +275,11 @@ module.exports = function(app, passport) {
                 req.flash('info', [deny ? 'Request denied' : 'Request approved']);
             }
             res.redirect(req.get('referer'));
-
         });
     });
 
     //execute user queries
     app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
-
         res.render('query/' + req.params.format.toLowerCase(), {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -421,7 +457,6 @@ module.exports = function(app, passport) {
 
             parameter.error = errmsg;
             parameter.info = req.flash('info');
-            parameter.scripts = ['/js/profile.jade.js', '/js/jquery.dataTables.js', '/js/paging.js'];
             res.render('profile', parameter);
         });
     });

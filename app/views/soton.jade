@@ -1,23 +1,19 @@
 include includes/head
+link(href='/css/signin.css', rel='stylesheet')
 body
   #wrap
     .container.text-center
       .row
         include includes/flash-banner
       .row
-        .hero-unit
-          h1 Southampton 
+        .jumbotron
+          h1 Southampton
           h1 Web Observatory
       .row
-        p Login using your Soton account
-      .row
-        form(method="POST", action="/auth/soton")
-          fieldset
-            div
-              input.input-large(placeholder='Soton username' type='text', name='username' required='')
-            div
-              input.input-large(placeholder='Soton password' type='password', name='password' required='')
-            div
-              button.btn.btn-primary(type="submit") Sign In
+        form.form-signin(method="POST", action="/auth/soton")
+          label.form-signin-heading Soton account login 
+          input.form-control.input-large(placeholder='Soton username' type='text', name='username' required='')
+          input.form-control.input-large(placeholder='Soton password' type='password', name='password' required='')
+          button.btn.btn-primary.btn-lg.btn-block(type="submit") Sign In
       #push
   include includes/footer

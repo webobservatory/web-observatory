@@ -1,37 +1,35 @@
-.navbar.navbar-inverse.navbar-fixed-top
-  .navbar-inner
-    .container
-      button.btn.btn-navbar(type='button', data-toggle='collapse', data-target='.nav-collapse')
+nav.navbar.navbar-inverse.navbar-fixed-top
+  .container-fluid
+    .navbar-header
+      button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
         span.icon-bar
         span.icon-bar
         span.icon-bar
-      a.brand(href='/') Web Observatory beta
-        span#location
-      .nav-collapse.collapse
-        ul.nav
-          li.active
-            a(href='/') Home
-          li
-            a(href='#about') About
-          li
-            a(href='#contact') Contact
-          li.dropdown
-            a.dropdown-toggle(href='#', data-toggle='dropdown')
-              | Quick Menu
-              b.caret
-            ul.dropdown-menu(role='menu', aria-labelledby='dLabel')
-              li
-                a(href='/catlg/dataset') Datasets
-              li
-                a(href='/catlg/visualisation') Visualisations
-      ul.nav.pull-right
+      a.navbar-brand(href='/') Web Observatory beta
+    .navbar-collapse.collapse
+      ul.navbar-nav.nav
+        li.active
+          a(href='/') Home
+        li
+          a(href='#about') About
+        li
+          a(href='#contact') Contact
+        li.dropdown
+          a.dropdown-toggle(href='#', data-toggle='dropdown')
+            | Quick Menu
+            b.caret
+          ul.dropdown-menu(role='menu')
+            li
+              a(href='/catlg/dataset') Datasets
+            li
+              a(href='/catlg/visualisation') Visualisations
+      ul.navbar-right.nav.navbar-nav
         if user == null                  
           li.active
-            a.pull-right(href='/login') Sign in
+            a(href='/login') Sign in
         else
           li
             a(href="/profile")
               =(user.firstName?user.firstName:user.email)+"'s Profile"
           li 
             a(href="/logout") Logout
-

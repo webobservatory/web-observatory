@@ -1,16 +1,13 @@
 doctype html
 html(lang='en')
   include includes/head
-  script(src='/js/jquery.dataTables.js')
-  link(href='/css/jquery.dataTables.css', rel='stylesheet')
-
   body
     #wrap
-      .container.text-center
+      .container
         .row
           include includes/flash-banner
         .row
-          table#display.table.table-bordered.table-hover
+          table#display.table.table-striped.table-bordered.table-hover
             if result
               thead
                 tr
@@ -19,8 +16,8 @@ html(lang='en')
               tbody
                 each binding in result.results.bindings
                   tr
-                    each val in binding
-                      td=val.value
+                    each v in result.head.vars
+                      td=binding[v].value
       #push
   include includes/footer
   script.
@@ -28,3 +25,4 @@ html(lang='en')
     function(){
       $('#display').dataTable();
     });
+  script(src='/js/jquery.dataTables.js')

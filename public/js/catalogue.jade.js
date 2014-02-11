@@ -1,7 +1,7 @@
-function editEtry(etryId) {
+function editEtry(etryId, acc, vis) {
     $('#eid').val(etryId);
-    $('#private').prop('checked', acc==='false');
-    $('#visible').prop('checked', vis==='false');
+    $('#private').prop('checked', acc === 'false');
+    $('#visible').prop('checked', vis === 'false');
     $('#editModal').modal('show');
 }
 
@@ -9,15 +9,11 @@ $(document).ready(function() {
 
     $('.tp').tooltip();
     $('#display').dataTable({
-        "sDom": "<'row'<'span6'l><'span6'f>r>t<'row'<'span6'i><'span6'p>>",
-        "sPaginationType": "bootstrap"
-    });
-    $.extend($.fn.dataTableExt.oStdClasses, {
-        "sWrapper": "dataTables_wrapper form-inline"
+        "sPaginationType": "bs_normal"
     });
 
     $('.edit').bind('click', function(e) {
-        editEtry($(this).attr('eid'),$(this).attr('acc'),$(this).attr('vis'));
+        editEtry($(this).attr('eid'), $(this).attr('acc'), $(this).attr('vis'));
         e.preventDefault();
     });
 

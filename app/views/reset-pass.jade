@@ -1,25 +1,23 @@
 include includes/head
+link(href='/css/signin.css', rel='stylesheet')
 body
   #wrap
     .container.text-center
       .row
-        .hero-unit
+        .jumbotron
           h1 Southampton
           h1 Web Observatory
       .row
         include includes/flash-banner
       .row
         .hide.alert.alert-warning Password not match
-        form(action='/profile/reset-pass', method='post')
-          fieldset
-            div
-              input.hide(name='tk' value=(tk?tk:undefined))
-            div
-              input.input-large(placeholder='New password' type='password', name='password' required='')
-            div
-              input.input-large(placeholder='Confirm passowrd' type='password', name='confirm' required='')
-            div
-              button.btn.btn-primary(type='submit') Continue
+        form.form-signin(action='/profile/reset-pass', method='post')
+          label.form-signin-heading Input new password
+          input.form-control.hide(name='tk' value=(tk?tk:undefined))
+          input.form-control.input-large(placeholder='New password' type='password', name='password' required='')
+          input.form-control.input-large(placeholder='Confirm passowrd' type='password' data-validation-matches-match="password" , name='confirm' required='')
+          button.btn.btn-primary(type='submit') Continue
       #push
   include includes/footer
+  script(src='/js/jqBootstrapValidation.js')
   script(src='/js/reset-pass.jade.js')

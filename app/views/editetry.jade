@@ -8,50 +8,46 @@ html(lang='en')
         .row
           include includes/flash-banner
         .row
-          form#adddata.form-horizontal(action='/add/'+type, method='post')
+          form#adddata.form-horizontal(action='/edit/'+data._id, method='post')
             // Text input
             .form-group
               label.col-md-4.control-label(for='name') Title
               .col-md-3
-                input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the dataset', required='')
+                input.form-control(name='name' type='text', placeholder=data.name)
             // Text input
             .form-group
               label.col-md-4.control-label(for='url') URL
               .col-md-3
-                input.form-control.input-xlarge(name='url' type='url', placeholder='xxxxx://address-of-your-entry', required='')
-                p.help-block= 'The URL of your '+type
-            if type==='dataset'
+                input.form-control(name='url' type='url', placeholder=data.url)
+                p.help-block= 'The URL of your '+data.type
+            if data.type==='dataset'
               // Text input
               .form-group
                 label.col-md-4.control-label(for='user') Username
                 .col-md-3
-                  input.form-control.input-xlarge(name='user' type='text', placeholder='User name of your dataset')
+                  input.form-control(name='user' type='text', placeholder=data.auth?data.auth.user:null)
                   p.help-block Username of your dataset
               // Text input
               .form-group
                 label.col-md-4.control-label(for='pwd') Password
                 .col-md-3
-                  input.form-control.input-xlarge(name='pwd' type='password', placeholder='Password of your dataset')
+                  input.form-control(name='pwd' type='password', placeholder='Password of your dataset')
                   p.help-block Your password will be encripted
               .form-group
                 label.col-md-4.control-label(for='type') Dataset type
-                .col-md-2
-                  select.form-control(name='querytype')
-                    option SPARQL
-                    option MySQL
-                    option PostgreSQL
-                    option MongoDB
+                .col-md-3
+                    p.form-control-static(name='querytype')= data.querytype
               .form-group
                 .col-md-3.col-md-offset-4
-                  button#dbtest.btn
+                  button#dbtest.btn.disabled
                     span.glyphicon.glyphicon-globe
                     = ' Test connection'
-            if type === 'visualisation'
+            if data.type === 'visualisation'
               .form-group
                 label.col-md-4.control-label(for='basedOn') Related dataset
                 .col-md-3
                   .ui-widget
-                    input#dsTils.form-control.input-xlarge(name='basedOn' type='text' required='')
+                    input#dsTils.form-control(name='basedOn' type='text' placeholder=data.related)
                     p.help-block The dataset based on which this visualisation is produced. You should add the dataset first if it's not registered in this web site.
             .form-group
               .col-md-3.col-md-offset-4
@@ -63,51 +59,51 @@ html(lang='en')
               .form-group
                 label.col-md-4.control-label(for='creator') Creator
                 .col-md-3
-                  input.form-control.input-xlarge(name='creator' type='text', placeholder='Creator name')
-                  p.help-block= 'The person who created this '+type+'. This can be different from the one who publish this entry'
+                  input.form-control(name='creator' type='text', placeholder=data.creator)
+                  p.help-block= 'The person who created this '+data.type+'. This can be different from the one who publish this entry'
               .form-group.hide
                 label.col-md-4.control-label(for='type') Entry type
                 .col-md-3
                   select(name='type')
                     option= type
-              // Select Basic
-              if type === 'visualisation'
+              // Git
+              if data.type === 'visualisation'
                 .form-group
                   label.col-md-4.control-label(for='git') Source code
                   .col-md-3
-                    input.form-control.input-xlarge(name='git' type='text', placeholder='Github/Sourceforge etc.')
+                    input.form-control(name='git' type='text', placeholder=data.git)
                     p.help-block The url of your online repository that hosts this visualisation
               // Textarea
               .form-group
                 label.col-md-4.control-label(for='des') Description
                 .col-md-3
-                  textarea.form-control(name='des' placeholder='')
+                  textarea.form-control(name='des' placeholder=data.des)
                   p.help-block A brief description of your entry
             // Security 
             .form-group
               label.col-md-4.control-label(for='access') Security Settings
-              if type === 'dataset'
+              if data.type === 'dataset'
                 .col-md-3
                   label.checkbox(for='read')
-                    input#private(type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
+                    input#private(checked=data.opAcc!=='true'?undefined:true type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
                     | Private dataset
-                  p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
-                  #visible.collapse
+                  p.help-block= 'Private '+data.type+'; I wish to authorise individual users to access this '+data.type
+                  #visible.collapse(class=data.opAcc==='true'?'in':undefined)
                     div
                       label.checkbox(for='visible')
-                        input(type='checkbox', name='vis', value='false')
-                        = 'Do not list my private '+ type +' in the catalogue'
-              if type === 'visualisation'
+                        input(checked=data.opVis!=='true'?undefined:true type='checkbox', name='vis', value='false')
+                        = 'Do not list my private '+ data.type +' in the catalogue'
+              if data.type === 'visualisation'
                 .col-md-3
                   label#visible.checkbox(for='visible')
-                    input(type='checkbox', name='vis', value='false')
-                    = 'Do not list my '+ type +' in the catalogue'
+                    input(checked=data.opVis!=='true'?undefined:true type='checkbox', name='vis', value='false')
+                    = 'Do not list my '+ data.type +' in the catalogue'
             .form-group
               .col-md-3.col-md-offset-4
                 button.btn.btn-primary(type="submit") Submit
       #push
     include includes/footer
     link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
-    script(src='/js/jqBootstrapValidation.js')
-    script(src='/js/addetry.jade.js')
+    script(src='/js/editetry.jade.js')
     script(src='/js/jquery-ui-1.10.3.min.js')
+    script(src='/js/jqBootstrapValidation.js')

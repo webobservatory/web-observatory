@@ -1,8 +1,6 @@
 doctype html
 html(lang='en')
   include ../includes/head
-  script(src='/js/sparql.jade.js')
-  script(src='/js/sparql.js')
   body
     include ../includes/nav
     #wrap
@@ -10,23 +8,28 @@ html(lang='en')
         .row
           include ../includes/flash-banner
         .row
-          h2 SPARQL
-          span#endpoint
-          pre#prefixestext.pre-scrollable
-          form#queryform(action='/endpoint/'+dsID+'/sparql', method='get')
-              div
-                  input.hide(name='query')
-                  textarea#querytext.span7(rows='5')
-              div
+          form.form-horizontal.col-sm-5#queryform(action='/endpoint/'+dsID+'/sparql', method='get')
+            .form-group
+              h2 SPARQL
+              pre#prefixestext.pre-scrollable
+            .form-group
+                input.form-control.hide(name='query')
+                textarea.form-control#querytext(rows='5')
+            .form-group
+              label.control-label.col-sm-2
                 | Results:
-                select#selectoutput(name='format')
+              .col-sm-3
+                select.form-control#selectoutput(name='format')
                   option(value='browse') Browse
                   option(value='json') JSON
                   option(value='csv') CSV
                   option(value='xml') XML
+            .form-group
               .btn-group
                 button#send.btn.btn-primary Submit
                 button#reset.btn.btn-warning Reset
-            #result
+          #result
       #push
     include ../includes/footer
+    script(src='/js/sparql.jade.js')
+    script(src='/js/sparql.js')

@@ -1,7 +1,6 @@
 doctype html
 html(lang='en')
   include includes/head
-    //link(href='/css/jquery.dataTables.css', rel='stylesheet')
   body
     include includes/nav
     #wrap
@@ -16,7 +15,7 @@ html(lang='en')
             a.disabled.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
           div(style='height:30px') 
         .row
-          table#display.table.table-striped.table-bordered
+          table#display.table.table-striped.table-hover
             thead
               tr
                 th
@@ -35,13 +34,15 @@ html(lang='en')
                     tr
                       td
                         .btn-group
-                          i.icon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
+                          span.glyphicon.glyphicon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
                           ul.dropdown-menu
                             //li
                               a(href='#') Details
                             if user
                               li
                                 a.edit(href='#' eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString()) Edit
+                              li
+                                a.edit(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id) eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString())= type==='visualisation'?'Show':'Query'
                             else
                               li.disabled
                                 a(href='#') Edit
@@ -49,11 +50,11 @@ html(lang='en')
                       - if(name.length>30) {
                       -   name = name.substring(0,27);
                       -   name = name + '...';}
-                      td.span3
+                      td.col-md-3
                         if(val.opAcc)
                           a.tp(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id) data-toogle='tooltip' title='Click to access')= name
                         else
-                          a.alert-error.tp(href=(type==='visualisation'?val.url:'/reqacc/'+val._id) data-toogle='tooltip' title='Private entry. Click to request access')= name
+                          a.tp(href=(type==='visualisation'?val.url:'/reqacc/'+val._id) data-toogle='tooltip' title='Private entry. Click to request access')= name
                       if type == 'dataset'
                         td
                           = val.querytype
@@ -62,9 +63,9 @@ html(lang='en')
                           = val.related
                       td
                         = val.publisher
-                      //display no more than 20 characters of description
-                      - var des=''
-                      - if(val.des!=='') {
+                      //display no more than 50 characters of description
+                      - var des=val.des?val.des:''
+                      - if(des.length>47) {
                       -   des = val.des.substring(0,50);
                       -   des = des + '...';}
                       td
@@ -72,9 +73,9 @@ html(lang='en')
                           = des
                       td
                         if val.opAcc
-                          i.icon-ok
+                          span.glyphicon.glyphicon-ok
                         else 
-                          i.icon-remove
+                          span.glyphicon.glyphicon-remove
             tfoot
               tr
                 th
@@ -87,37 +88,42 @@ html(lang='en')
                 th Description
                 th Access
 
-          #editModal.modal.hide.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
-            .modal-header
-              button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
-              h3#myModalLabel= 'Edit the selected '+type
-              p.help-block Blank field will remain unchanged
-            .modal-body
-              form#editForm.form-horizontal(action='/edit', method='post')
-                fieldset
-                  // Text input
-                  .control-group
-                    label.control-label(for='name') Name
-                    .controls
-                      input.input-xlarge(name='name' type='text', placeholder='Title of the '+type, required='')
-                      p.help-block= 'Edit the name of your '+type
-                      input#eid.hide.input-xlarge(name='eid' required='')
-                  // Text input
-                  .control-group
-                    label.control-label(for='url') Location
-                    .controls
-                      input.input-xlarge(name='url' type='text', placeholder='http://address-of-your-entry')
-                      p.help-block= 'Edit the URL of your '+type
-                  // Textarea
-                  .control-group
-                    label.control-label(for='desc') Description
-                    .controls
-                      textarea.input-xlarge(name='des')
-                      p.help-block= 'Change the description of your '+type
-            .modal-footer
-              button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
-              button#submit.btn.btn-primary Save
+          #editModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+            .modal-dialog
+              .modal-content
+                .modal-header
+                  button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+                  h3#myModalLabel= 'Edit the selected '+type
+                  p.help-block Blank field will remain unchanged
+                .modal-body
+                  form#editForm.form-horizontal(action='/edit', method='post')
+                    fieldset
+                      // Text input
+                      .form-group
+                        label.control-label.col-md-4(for='name') Name
+                        .col-md-6
+                          input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the '+type, required='')
+                          p.help-block= 'Edit the name of your '+type
+                          input#eid.hide.input-xlarge(name='eid' required='')
+                      // Text input
+                      .form-group
+                        label.control-label.col-md-4(for='url') Location
+                        .col-md-6
+                          input.form-control.input-xlarge(name='url' type='text', placeholder='http://address-of-your-entry')
+                          p.help-block= 'Edit the URL of your '+type
+                      // Textarea
+                      .form-group
+                        label.control-label.col-md-4(for='desc') Description
+                        .col-md-6
+                          textarea.form-control(name='des')
+                          p.help-block= 'Change the description of your '+type
+                .modal-footer
+                  button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
+                  button#submit.btn.btn-primary Save
           div(style='height:30px') 
       #push
     include includes/footer
-
+    link(href='/css/datatables.css', rel='stylesheet')
+    script(src='/js/jquery.dataTables.min.js')
+    script(src='/js/bt3datatables.js')
+    script(src='/js/catalogue.jade.js')

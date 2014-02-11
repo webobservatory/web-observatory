@@ -12,7 +12,10 @@ $(document).ready(function() {
             $('#visible input').prop('checked', false);
         }
     });
-    var availableTags = ['aaaa', 'aaaB','baaB'];
+    $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+    $('#optogl').bind('click', function() {
+        $('#optogl span').toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
+    });
 
     $('#dsTils').autocomplete({
         source: '/autocomplete'

@@ -138,8 +138,6 @@ $(document).ready(function() {
         resetQuery();
         event.preventDefault();
     });
-});
-$(document).ready(function() {
     $(".tp").tooltip();
     start();
 });
