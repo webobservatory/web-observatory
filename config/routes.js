@@ -13,13 +13,6 @@ var modctrl = require('../app/controllers/modctrl');
 
 module.exports = function(app, passport) {
 
-    app.get("/sidenav", function(req, res) {
-
-        res.render("sidenav", {
-            info: req.flash('info'),
-            error: req.flash('error')
-        });
-    });
     app.get("/", function(req, res) {
         if (req.isAuthenticated()) {
             res.render("index", {
@@ -50,12 +43,20 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.get('/stats', function(req, res) {
+        res.render('stats', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user,
+        });
+    });
+
     app.get('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function(req, res) {
         res.render('addetry', {
             info: req.flash('info'),
             error: req.flash('error'),
             user: req.user,
-            type: req.params.typ,
+            type: req.params.typ
         });
     });
 

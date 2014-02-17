@@ -20,6 +20,7 @@
         "nodemailer": "*",
         "recaptcha": "*",
         "passport": "*",
+        "passport-http-bearer": "*",
         "passport-local": "*",
         "passport-facebook": "*",
         "passport-ldapauth": "*",
