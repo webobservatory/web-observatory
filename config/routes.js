@@ -44,10 +44,28 @@ module.exports = function(app, passport) {
     });
 
     app.get('/stats', function(req, res) {
-        res.render('stats', {
-            info: req.flash('info'),
-            error: req.flash('error'),
-            user: req.user,
+        var sequence = {};
+
+        Entry.find({}, function(err, entries) {
+            for (i = 0; i < entries.length; i++) {
+                var etry = entries[i];
+                var type = etry.type;
+                var additional = etry.querytype;
+                var key = type;
+                if (type === 'dataset')
+                    key = key + '-' + additional;
+                if (!sequence[key]) {
+                    sequence[key] = 1;
+                } else {
+                    sequence[key] = sequence[key] + 1;
+                }
+            }
+            res.render('stats', {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user,
+                seq: sequence
+            });
         });
     });
 

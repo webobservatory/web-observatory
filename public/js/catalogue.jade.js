@@ -26,4 +26,10 @@ $(document).ready(function() {
         $('.alert.alert-info').fadeIn('fast');
         event.preventDefault();
     });
+    //datatable bt3
+    var search_input = $('.dataTables_filter input[type=text]');
+    search_input.attr('placeholder', 'Search').addClass('form-control input-small');
+    $('.dataTables_length select').addClass('form-control input-small');
+    //$('.dataTables_length label').addClass('control-label');
+
 });

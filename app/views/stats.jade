@@ -9,23 +9,26 @@ html(lang='en')
           include includes/flash-banner
           div(style='height:30px') 
         .row
-          .col-md-offset-2
-            #sequence
-        .row
-          #main.col-md-offset-2
-            .col-md-3#chart
-              #explanation(style="visibility: hidden;")
-                span#percentage
-                br
-                | of entries as the selected type
-            .col-md-2#sidebar
-              .row
-                input#togglelegend(type='checkbox')
-                | Legend
-              .row
-                #legend(style="visibility: hidden;")
+          #main
+            .row
+              #sequence
+            .row
+                #chart
+                  #explanation(style="visibility: hidden;")
+                    span#percentage
+                    br
+                    | of entries as the selected type
+                #sidebar
+                  .row
+                    .checkbox
+                      input#togglelegend(type='checkbox')
+                      | Legend
+                  .row
+                    #legend(style="visibility: hidden;")
       #push
     include includes/footer
+    script.
+      var data=!{JSON.stringify(seq)}
     script(src='/js/d3.v3.min.js')
     script(src='/js/stats.jade.js')
     link(href='/css/stats.css', rel='stylesheet')
