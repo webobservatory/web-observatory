@@ -1,7 +1,8 @@
 var crypto = require('crypto'),
     sparql = require('./sparql.js'),
     mysql = require('mysql'),
-    pq = require('pq');
+    pq = require('pq'),
+    mongoose = require('mongoose');
 
 var enc_alg = 'aes256';
 
@@ -48,13 +49,30 @@ function mysqlDriver(query, mime, ds, cb) {
     connection.end();
 }
 
+function mgdbDriver(query, mime, ds, cb) {
+    var url = ds.url,
+        pwd = decryptPwd(ds);
+    var opts = {
+        user: ds.user,
+        pass: pwd
+    };
+    query = JSON.parse(query);
+    var modname = query.modname;
+    var connection = mongoose.createConnection(url, opts);
+    var model = connection.model(modname);
+    model.find(query.query, function(err, results) {
+        cb(err, results);
+    });
+}
+
 function sparqlDriver(query, mime, ds, cb) {
     sparql.query(ds.url, query, mime, cb);
 }
 var drivers = {
     sparql: sparqlDriver,
     mysql: mysqlDriver,
-    postgressql: pqDriver
+    postgressql: pqDriver,
+    mongodb: mgdbDriver
 };
 
 module.exports.drivers = drivers;
