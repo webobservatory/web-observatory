@@ -4,7 +4,7 @@ var http = require('http'),
     updateURL = '/openrdf-workbench/repositories/wo/update',
     async = require('async'),
     logger = require('../../app/util/logger');
-
+/*
 var queryBuilders = {
     datasets: buildSELECTDataset,
     visualisations: buildSELECTVis
@@ -158,47 +158,6 @@ function tableEntries(bindings) {
     return rows;
 }
 
-
-function httpQuery(opts, cb) {
-    var req = http.request(opts, function(res) {
-        logger.info("Response: " + res.statusCode);
-
-        switch (res.statusCode) {
-            case 404:
-                cb({
-                    message: 'Service not available'
-                });
-                break;
-            case 502:
-                cb({
-                    message: 'Service not available'
-                });
-                break;
-            case 500:
-                cb({
-                    message: 'Service timeout'
-                });
-                break;
-            case 200:
-                var data = "";
-                res.on('data', function(chunk) {
-                    data += chunk;
-                });
-                res.on('end', function() {
-                    cb(false, data);
-                });
-                break;
-            default:
-                cb({
-                    message: 'Status code: ' + res.statusCode
-                });
-        }
-    }).on('error', function(err) {
-        logger.error(err.message);
-        cb(err);
-    });
-    req.end();
-}
 
 module.exports.SPARQLGetContent = function(type, visible, readable, cb) {
     var query = queryBuilders[type](visible);
@@ -373,22 +332,6 @@ module.exports.getDataset = function(cb) {
     });
 };
 
-module.exports.query = function(url, query, mime, cb) {
-
-    var parsed = require('url').parse(url);
-
-    var opts = {
-        hostname: parsed.hostname,
-        port: parsed.port,
-        path: parsed.pathname + '?query=' + encodeURIComponent(query),
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': mime
-        }
-    };
-    httpQuery(opts, cb);
-};
-
 module.exports.removeByIds = function(urls, cb) {
     var del = '',
         values = '';
@@ -444,4 +387,62 @@ module.exports.removeByIds = function(urls, cb) {
             });
         }
     });
+};
+*/
+
+function httpQuery(opts, cb) {
+    var req = http.request(opts, function(res) {
+        logger.info("Response: " + res.statusCode);
+
+        switch (res.statusCode) {
+            case 404:
+                cb({
+                    message: 'Service not available'
+                });
+                break;
+            case 502:
+                cb({
+                    message: 'Service not available'
+                });
+                break;
+            case 500:
+                cb({
+                    message: 'Service timeout'
+                });
+                break;
+            case 200:
+                var data = "";
+                res.on('data', function(chunk) {
+                    data += chunk;
+                });
+                res.on('end', function() {
+                    cb(false, data);
+                });
+                break;
+            default:
+                cb({
+                    message: 'Status code: ' + res.statusCode
+                });
+        }
+    }).on('error', function(err) {
+        logger.error(err.message);
+        cb(err);
+    });
+    req.end();
+}
+
+module.exports.query = function(url, query, mime, cb) {
+
+    //var parsed = require('url').parse(url);
+
+    var opts = {
+        hostname: url,//parsed.hostname,
+        //port: parsed.port,
+        path: /*parsed.pathname +*/ '?query=' + encodeURIComponent(query),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': mime
+        }
+    };
+    httpQuery(opts, cb);
 };

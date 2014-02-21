@@ -8,11 +8,14 @@ html(lang='en')
         .row
           include includes/flash-banner
         .row
-            a.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
+            a.btn.btn-primary.btn-large(href='/add/'+type role='button')= 'Add a '+type
+            a.btn.btn-primary.btn-large(href='/stats' role='button') Statistics
           //else
             .hide.alert.alert-info
               = 'Please login to add and edit '+type+'s'
             a.disabled.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
+
+        .row
           div(style='height:30px') 
         .row
           table#display.table.table-striped.table-hover
