@@ -8,21 +8,30 @@ html(lang='en')
           include includes/flash-banner
         .row
           table#display.table.table-striped.table-bordered.table-hover
-            if result
-              thead
-                tr
-                  each v in result.head.vars
-                    th=v
-              tbody
-                each binding in result.results.bindings
-                  tr
-                    each v in result.head.vars
-                      td=binding[v].value
+                thead
+                tbody
       #push
   include includes/footer
+  script(src='/js/jquery-1.10.2.min.js')
+  script(src='/js/jquery.csv-0.71.min.js')
   script.
-    $(document).ready(
-    function(){
-      $('#display').dataTable();
+    var result = !{JSON.stringify(result)};
+    $(document).ready(function() {
+      result = $.csv.toArrays(result);//TODO try/catch
+      var headers = result[0];
+      var rows = result.slice(1);
+      var hline = '<tr>';
+      for(i=0;i<headers.length;i++)
+        hline = hline + '<th>' + headers[i] + '</th>';
+      hline = hline + '</tr>';
+      $('#display thead').append(hline);
+
+      for(i=0;i<rows.length;i++){
+        var r = rows[i];
+        var rline = '<tr>';
+        for(j=0;j<r.length;j++){
+          rline = rline + '<td>' + r[j] + '</td>';
+        }
+        $('#display tbody').append(rline);
+      }
     });
-  script(src='/js/jquery.dataTables.js')

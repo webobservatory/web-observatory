@@ -1,9 +1,9 @@
-var http = require('http');
-var domain = "web-001.ecs.soton.ac.uk";
-var selectURL = '/openrdf-workbench/repositories/wo/query';
-var updateURL = '/openrdf-workbench/repositories/wo/update';
-var async = require('async');
-var logger = require('../../app/util/logger');
+var http = require('http'),
+    domain = "web-001.ecs.soton.ac.uk",
+    selectURL = '/openrdf-workbench/repositories/wo/query',
+    updateURL = '/openrdf-workbench/repositories/wo/update',
+    async = require('async'),
+    logger = require('../../app/util/logger');
 
 var queryBuilders = {
     datasets: buildSELECTDataset,
@@ -375,13 +375,6 @@ module.exports.getDataset = function(cb) {
 
 module.exports.query = function(url, query, mime, cb) {
 
-    var content_types = {
-        xml: 'application/sparql-results+xml',
-        json: 'application/sparql-results+json',
-        csv: 'application/sparql-results+json', //some endpoints don't correctly response to /text/csv, use json then convert to csv
-        tsv: 'text/tab-separated-values'
-    };
-
     var parsed = require('url').parse(url);
 
     var opts = {
@@ -390,12 +383,11 @@ module.exports.query = function(url, query, mime, cb) {
         path: parsed.pathname + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': content_types[mime] || 'application/sparql-results+json'
+            'Accept': mime
         }
     };
     httpQuery(opts, cb);
 };
-
 
 module.exports.removeByIds = function(urls, cb) {
     var del = '',

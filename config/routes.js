@@ -299,7 +299,19 @@ module.exports = function(app, passport) {
 
     //execute user queries
     app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
-        res.render('query/' + req.params.format.toLowerCase(), {
+        var qtype = '';
+        switch (req.params.format.toLowerCase()) {
+            case 'mysql':
+                qtype = 'sql';
+                break;
+            case 'postgressql':
+                qtype = 'sql';
+                break;
+            default:
+                qtype = req.params.format.toLowerCase();
+        }
+
+        res.render('query/' + qtype, {
             info: req.flash('info'),
             error: req.flash('error'),
             user: req.user,
@@ -311,6 +323,7 @@ module.exports = function(app, passport) {
         var query = req.query.query,
             mime = req.query.format,
             _id = req.params.dsId;
+
         logger.info('User: ' + req.user.email + '; query: ' + query);
 
         async.waterfall([
@@ -319,7 +332,7 @@ module.exports = function(app, passport) {
             },
             function(ds, cb) {
                 var queryDriver = qryDrv.drivers[ds.querytype.toLowerCase()];
-                queryDriver(query, mime, ds, cb);
+                queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
             }
         ], function(err, result) {
             if (err) {
@@ -328,58 +341,25 @@ module.exports = function(app, passport) {
             }
 
             switch (mime) {
-                case 'json':
+                case 'application/sparql-results+json':
                     res.attachment('result.json');
                     res.end(result, 'UTF-8');
                     break;
-                case 'csv':
-                    result = JSON.parse(result);
-                    var data = [];
-                    var bindings = result.results.bindings;
-                    for (i = 0; i < bindings.length; i++) {
-                        var binding = bindings[i];
-                        var tem = {};
-                        for (var key in binding) {
-                            tem[key] = binding[key].value;
-                        }
-                        data.push(tem);
-                    }
-
-                    var csvstr = '';
-                    for (i = 0; i < data.length; i++) {
-                        var datum = data[i];
-                        if (i === 0) {
-                            for (var thead in datum) {
-                                csvstr += thead + ',';
-                            }
-                            csvstr += '\n';
-                        }
-                        for (var k in datum) {
-                            csvstr += datum[k] + ',';
-                        }
-                        csvstr += '\n';
-                    }
-
+                case 'text/csv':
                     res.attachment('result.csv');
-                    res.end(csvstr, 'UTF-8');
+                    res.end(result, 'UTF-8');
                     break;
-                case 'tsv':
+                case 'text/tsv':
                     res.attachment('result.tsv');
                     res.end(result, 'UTF-8');
                     break;
-                case 'xml':
+                case 'application/sparql-results+xml':
                     res.attachment('result.xml');
                     res.end(result, 'UTF-8');
                     break;
                 default:
                     logger.info('Result: ' + result);
-                    try {
-                        result = JSON.parse(result);
-                    } catch (e) {
-                        result = null;
-                        req.flash('error', [e.message]);
-                        logger.error(e);
-                    }
+
                     res.render('dsp', {
                         'result': result,
                         'info': req.flash('info'),

@@ -3,6 +3,7 @@ var crypto = require('crypto'),
     mysql = require('mysql'),
     pq = require('pq'),
     mongoose = require('mongoose');
+var logger = require('../../app/util/logger');
 
 var enc_alg = 'aes256';
 
@@ -56,13 +57,19 @@ function mgdbDriver(query, mime, ds, cb) {
         user: ds.user,
         pass: pwd
     };
-    query = JSON.parse(query);
-    var modname = query.modname;
-    var connection = mongoose.createConnection(url, opts);
-    var model = connection.model(modname);
-    model.find(query.query, function(err, results) {
-        cb(err, results);
-    });
+
+    try {
+        query = JSON.parse(query);
+        var modname = query.modname;
+        var connection = mongoose.createConnection(url, opts);
+        var model = connection.model(modname);
+        model.find(query.query, function(err, results) {
+            cb(err, results);
+        });
+    } catch (err) {
+        cb(err);
+        logger.error(err);
+    }
 }
 
 function sparqlDriver(query, mime, ds, cb) {

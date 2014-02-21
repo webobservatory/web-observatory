@@ -20,10 +20,11 @@ html(lang='en')
                 | Results:
               .col-sm-3
                 select.form-control#selectoutput(name='format')
-                  option(value='browse') Browse
-                  option(value='json') JSON
-                  option(value='csv') CSV
-                  option(value='xml') XML
+                  option(value='display') Browse
+                  option(value='application/sparql-results+json') JSON
+                  option(value='text/csv') CSV
+                  option(value='text/tab-separated-values') TSV
+                  option(value='application/sparql-results+xml') XML
             .form-group
               .btn-group
                 button#send.btn.btn-primary Submit
