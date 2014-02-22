@@ -16,7 +16,7 @@ body
           input.form-control.hide(name='tk' value=(tk?tk:undefined))
           input.form-control.input-large(placeholder='New password' type='password', name='password' required='')
           input.form-control.input-large(placeholder='Confirm passowrd' type='password' data-validation-matches-match="password" , name='confirm' required='')
-          button.btn.btn-primary(type='submit') Continue
+          button.btn.btn-primary.btn-block(type='submit') Continue
       #push
   include includes/footer
   script(src='/js/jqBootstrapValidation.js')

@@ -10,9 +10,9 @@ body
           h1 Southampton
           h1 Web Observatory
       .row
-        form.form-signin(action='/profile/forgot-pass', method='post')
+        form.form-signin(action='/profile/forgot-pass', method='POST')
           label.form-signin-heading Reset your password
-          input.form-control.input-large(placeholder='Email' type='text', name='email' required='')
+          input.form-control.input-large.reset(placeholder='Email' type='email' name='email' required='')
           button.btn.btn-primary.btn-lg.btn-block(type='submit') Continue
       #push
   include includes/footer

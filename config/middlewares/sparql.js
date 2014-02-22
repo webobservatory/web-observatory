@@ -143,7 +143,6 @@ function buildUpdate(type, data) {
 /**
  *bindings: results from sparql query
  *readable: list of urls of datasets that are readable to the current user
- */
 
 function tableEntries(bindings) {
     var rows = [];

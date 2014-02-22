@@ -27,7 +27,7 @@ module.exports.forgotPass = function(email, reset_path, cb) {
                 if (err)
                     return cb(err);
                 var mailOptions = {
-                    from: "Soton Web Observatory <wo_noreply@ecs.soton.ac.uk>", // sender address
+                    from: "Soton Web Observatory <wo_passreset@ecs.soton.ac.uk>", // sender address
                     to: (email === 'xgfd@admin.com' ? 'xinxinbird@gmail.com' : email),
                     subject: "Password reset", // Subject line
                     //text: "Hello world ✔", // plaintext body

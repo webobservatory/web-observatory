@@ -556,7 +556,13 @@ module.exports = function(app, passport) {
 
     app.post('/profile/reset-pass', function(req, res) {
         var tk = req.body.tk,
+            confpass = req.body.confirm,
             newpass = req.body.password;
+
+        if (newpass !== confpass) {
+            req.flash('error', ['Passwords do not match']);
+            return res.redirect(req.get('referer'));
+        }
 
         pass.resetPass(tk, newpass, function(err, user) {
             if (err || !user) {
@@ -579,12 +585,11 @@ module.exports = function(app, passport) {
     });
 
     app.post('/profile/forgot-pass', function(req, res) {
-        pass.forgotPass(req.body.email, 'http://' + req.host + ':3000/profile/reset-pass', function(err, response) {
+        pass.forgotPass(req.body.email, 'http://' + req.host + ':' + req.port + '/profile/reset-pass', function(err, response) {
             if (err) {
                 req.flash('error', [err.message]);
                 return req.redirect('/profile/forgot-pass');
             }
-
             req.flash('info', ['Please check your email to reset your password.']);
             res.redirect('/login');
         });
