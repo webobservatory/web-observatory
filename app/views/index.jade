@@ -9,15 +9,18 @@ html(lang='en')
           #hero_unit.jumbotron
             h1 Southampton Web Observatory
             p This is the data portal for the Southampton and SOCIAM Web Observatory 
-          .col-md-6
+        .row
+          .col-md-1
+          .col-md-5
             h2 Datasets
             p  A page containing information regarding various datasets gathered
             p
-              a.btn.click(href='catlg/dataset') View details &raquo;
-          .col-md-6
+              a.btn.btn-primary.click(href='catlg/dataset') View details &raquo;
+          .col-md-5
             h2 Visualisations
             p  A page containing various data visualistions
             p
-              a.btn.click(href='catlg/visualisation') View details &raquo;
+              a.btn.btn-primary.click(href='catlg/visualisation') View details &raquo;
+          .col-md-1
       #push
     include includes/footer

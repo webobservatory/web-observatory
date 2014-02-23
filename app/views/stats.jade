@@ -9,22 +9,25 @@ html(lang='en')
           include includes/flash-banner
           div(style='height:30px') 
         .row
-          #main
-            .row
-              #sequence
-            .row
-                #chart
-                  #explanation(style="visibility: hidden;")
-                    span#percentage
-                    br
-                    | of entries as the selected type
-                #sidebar
-                  .row
-                    .checkbox
-                      input#togglelegend(type='checkbox')
-                      | Legend
-                  .row
-                    #legend(style="visibility: hidden;")
+          .col-md-4
+          .col-md-4
+            #main
+              .row
+                #sequence
+              .row
+                  #chart
+                    #explanation(style="visibility: hidden;")
+                      span#percentage
+                      br
+                      | of entries as the selected type
+                  #sidebar
+                    .row
+                      .checkbox
+                        input#togglelegend(type='checkbox')
+                        | Legend
+                    .row
+                      #legend(style="visibility: hidden;")
+          .col-md-4
       #push
     include includes/footer
     script.
