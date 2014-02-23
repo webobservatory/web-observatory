@@ -78,10 +78,10 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/autocomplete', function(req, res) {
+    app.get('/nametags/:typ(dataset|visualisation)', function(req, res) {
         var term = req.query.term;
         Entry.find({
-            type: 'dataset',
+            type: req.params.typ,
             name: {
                 $regex: term,
                 $options: 'i'
@@ -318,13 +318,28 @@ module.exports = function(app, passport) {
             dsID: req.params.dsId,
         });
     });
-
+/*
+    app.get('/mgtest', function(req,res){
+    
+                res.render('query/jsonview', {
+                    'result': {a:'text1', b:{aa:'inner'}},
+                    'info': req.flash('info'),
+                    'error': req.flash('error')
+                });
+    
+    });
+*/
     app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
         var query = req.query.query,
             mime = req.query.format,
-            _id = req.params.dsId;
+            _id = req.params.dsId,
+            qtyp = req.params.typ;
 
-        logger.info('User: ' + req.user.email + '; query: ' + query);
+        var qlog = {};
+        qlog.time = new Date();
+        qlog.ip = req.connection.remoteAddress;
+        qlog.query = query;
+        qlog.usrmail = req.user.email;
 
         async.waterfall([
             function(cb) {
@@ -332,39 +347,33 @@ module.exports = function(app, passport) {
             },
             function(ds, cb) {
                 var queryDriver = qryDrv.drivers[ds.querytype.toLowerCase()];
-                queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
+                if (!queryDriver)
+                    cb({
+                        message: 'Query type not supported'
+                    });
+                else
+                    queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
             }
         ], function(err, result) {
+            qlog.result = result;
+            logger.info(qlog);
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
 
-            switch (mime) {
-                case 'application/sparql-results+json':
-                    res.attachment('result.json');
-                    res.end(result, 'UTF-8');
-                    break;
-                case 'text/csv':
-                    res.attachment('result.csv');
-                    res.end(result, 'UTF-8');
-                    break;
-                case 'text/tsv':
-                    res.attachment('result.tsv');
-                    res.end(result, 'UTF-8');
-                    break;
-                case 'application/sparql-results+xml':
-                    res.attachment('result.xml');
-                    res.end(result, 'UTF-8');
-                    break;
-                default:
-                    logger.info('Result: ' + result);
-
-                    res.render('dsp', {
-                        'result': result,
-                        'info': req.flash('info'),
-                        'error': req.flash('error')
-                    });
+            if (mime === 'display') {
+                var viewer = 'csvview';
+                if (qtype === 'mongodb')
+                    viewer = 'jsonview';
+                res.render('query/' + viewer, {
+                    'result': result,
+                    'info': req.flash('info'),
+                    'error': req.flash('error')
+                });
+            } else {
+                res.attachment('result.txt');
+                res.end(result, 'UTF-8');
             }
         });
     });

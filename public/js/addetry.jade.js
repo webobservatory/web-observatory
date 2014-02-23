@@ -18,6 +18,6 @@ $(document).ready(function() {
     });
 
     $('#dsTils').autocomplete({
-        source: '/autocomplete'
+        source: '/nametags/dataset'
     });
 });
