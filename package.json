@@ -17,7 +17,6 @@
         "mongoose": "*",
         "mysql": "*",
         "nodemon": "*",
-        "nodemailer": "*",
         "recaptcha": "*",
         "sendmail": "*",
         "passport": "*",
