@@ -1,15 +1,7 @@
-var User = require('../../app/models/user');
-var nodemailer = require("nodemailer");
-var crypto = require('crypto');
-var hash = require('./hash');
-
-var smtpTransport = nodemailer.createTransport("SMTP", {
-    service: "Gmail",
-    auth: {
-        user: "soton.wo@gmail.com",
-        pass: "webobservatory"
-    }
-});
+var User = require('../../app/models/user'),
+	sendmail = require('sendmail'),
+	crypto = require('crypto'),
+	hash = require('./hash');
 
 module.exports.forgotPass = function(email, reset_path, cb) {
     User.findOne({
@@ -30,10 +22,9 @@ module.exports.forgotPass = function(email, reset_path, cb) {
                     from: "Soton Web Observatory <wo_passreset@ecs.soton.ac.uk>", // sender address
                     to: (email === 'xgfd@admin.com' ? 'xinxinbird@gmail.com' : email),
                     subject: "Password reset", // Subject line
-                    //text: "Hello world ✔", // plaintext body
-                    html: 'Click here to <a href="' + reset_path + '?tk=' + tk + '">reset your password</a>.' // html body
+                    content: 'Click here to <a href="' + reset_path + '?tk=' + tk + '">reset your password</a>. <br>You cannot reply to this mail address.' // html body
                 };
-                smtpTransport.sendMail(mailOptions, cb);
+                sendmail(mailOptions, cb);
             });
         });
     });

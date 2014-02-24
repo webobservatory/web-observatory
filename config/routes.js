@@ -590,14 +590,17 @@ module.exports = function(app, passport) {
     });
 
     app.get('/profile/forgot-pass', function(req, res) {
-        res.render('forgot-pass');
+        res.render('forgot-pass', {
+            'info': req.flash('info'),
+            'error': req.flash('error')
+		});
     });
 
     app.post('/profile/forgot-pass', function(req, res) {
         pass.forgotPass(req.body.email, 'http://' + req.host + ':' + req.port + '/profile/reset-pass', function(err, response) {
             if (err) {
                 req.flash('error', [err.message]);
-                return req.redirect('/profile/forgot-pass');
+                return res.redirect('/profile/forgot-pass');
             }
             req.flash('info', ['Please check your email to reset your password.']);
             res.redirect('/login');
