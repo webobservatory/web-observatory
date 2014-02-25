@@ -4,11 +4,7 @@ var User = require('../../app/models/user'),
 	hash = require('./hash');
 
 	var smtpTransport = nodemailer.createTransport("SMTP", {
-	    service: "Gmail",
-	    auth: {
-	        user: "soton.wo@gmail.com",
-	        pass: "webobservatory"
-	    }
+	    host: 'smtp.ecs.soton.ac.uk'
 	});
 
 module.exports.forgotPass = function(email, reset_path, cb) {
