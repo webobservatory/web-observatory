@@ -391,7 +391,7 @@ module.exports.removeByIds = function(urls, cb) {
 
 function httpQuery(opts, cb) {
     var req = http.request(opts, function(res) {
-        logger.info("Response: " + res.statusCode);
+        console.log("Response: " + res.statusCode);
 
         switch (res.statusCode) {
             case 404:
@@ -432,15 +432,15 @@ function httpQuery(opts, cb) {
 
 module.exports.query = function(url, query, mime, cb) {
 
-    //var parsed = require('url').parse(url);
+    var parsed = require('url').parse(url);
 
     var opts = {
-        hostname: url,//parsed.hostname,
-        //port: parsed.port,
-        path: /*parsed.pathname +*/ '?query=' + encodeURIComponent(query),
+        hostname: parsed.hostname,
+        port: parsed.port,
+        path: parsed.pathname + '?query=' + encodeURIComponent(query),
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': mime
+            'Accept': mime ? mime : 'application/sparql-results+json'
         }
     };
     httpQuery(opts, cb);

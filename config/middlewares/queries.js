@@ -75,6 +75,7 @@ function mgdbDriver(query, mime, ds, cb) {
 function sparqlDriver(query, mime, ds, cb) {
     sparql.query(ds.url, query, mime, cb);
 }
+
 var drivers = {
     sparql: sparqlDriver,
     mysql: mysqlDriver,
@@ -82,4 +83,24 @@ var drivers = {
     mongodb: mgdbDriver
 };
 
+function sparqlTest(url, cb) {
+    var query = 'ASK {?s ?p ?o}';
+    sparql.query(url, query, null, function(err) {
+        if (err) {
+            cb(err);
+        } else {
+            cb(null);
+        }
+    });
+
+}
+
+var tests = {
+    sparql: sparqlTest,
+    //mysql: mysqltest,
+    //postgressql: pqtest,
+    //mongodb: mgdbtest
+};
+
 module.exports.drivers = drivers;
+module.exports.tests = tests;

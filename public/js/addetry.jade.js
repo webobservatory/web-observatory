@@ -20,4 +20,24 @@ $(document).ready(function() {
     $('#dsTils').autocomplete({
         source: '/nametags/dataset'
     });
+
+    $('#dbtest').bind('click', function(event) {
+        event.preventDefault();
+        var data = {};
+        $('#conted').removeClass('glyphicon-remove glyphicon-ok');
+        data.url = $('#adddata input[name=url]').val();
+        data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
+        if (data.typ !== 'sparql') return alert('Dataset not yet supported');
+        $.get('/contest?url=' + data.url + '&typ=' + data.typ, function(data, textStatus) {
+
+            if (data) {
+                //alert('Connection failed');
+                $('#conted').addClass('glyphicon-remove');
+            } else {
+                //alert('Connection succeeded');
+                $('#conted').addClass('glyphicon-ok');
+            }
+        });
+    });
+
 });

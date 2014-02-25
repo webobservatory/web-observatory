@@ -3,7 +3,7 @@ var Entry = require('../app/models/entry');
 var Auth = require('./middlewares/authorization.js');
 var async = require('async');
 var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
-var qryDrv = require('./middlewares/queries.js');
+var queries = require('./middlewares/queries.js');
 var Recaptcha = require('recaptcha').Recaptcha;
 var pbk = '6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H';
 var prk = '6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D';
@@ -318,7 +318,7 @@ module.exports = function(app, passport) {
             dsID: req.params.dsId,
         });
     });
-/*
+    /*
     app.get('/mgtest', function(req,res){
     
                 res.render('query/jsonview', {
@@ -329,6 +329,7 @@ module.exports = function(app, passport) {
     
     });
 */
+
     app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
         var query = req.query.query,
             mime = req.query.format,
@@ -346,7 +347,8 @@ module.exports = function(app, passport) {
                 Auth.hasAccToDB(req.user.email, _id, cb);
             },
             function(ds, cb) {
-                var queryDriver = qryDrv.drivers[ds.querytype.toLowerCase()];
+                qlog.ds = ds.url;
+                var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
                 if (!queryDriver)
                     cb({
                         message: 'Query type not supported'
@@ -364,7 +366,7 @@ module.exports = function(app, passport) {
 
             if (mime === 'display') {
                 var viewer = 'csvview';
-                if (qtype === 'mongodb')
+                if (qtyp === 'mongodb')
                     viewer = 'jsonview';
                 res.render('query/' + viewer, {
                     'result': result,
@@ -378,6 +380,15 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
+        var test = queries.tests[req.query.typ];
+        if (!test) return res.json({
+                message: 'Dataset type not yet supported'
+            });
+        test(req.query.url, function(msg) {
+            res.json(msg);
+        });
+    });
     //authentication
 
     app.get("/login", function(req, res) {
