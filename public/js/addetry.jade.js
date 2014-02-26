@@ -1,3 +1,4 @@
+var con_succeed = false;
 $(document).ready(function() {
     $('#private').bind('click', function() {
         var $this = $(this);
@@ -21,23 +22,40 @@ $(document).ready(function() {
         source: '/nametags/dataset'
     });
 
+    $('#submit').bind('click', function(event) {
+        event.preventDefault();
+        if (con_succeed)
+            $(this).trigger('click');
+        else
+            alert('Please validate the connection to your entry before submission');
+    });
+
     $('#dbtest').bind('click', function(event) {
+        var protocol = {
+            mongodb: 'mongodb',
+            sparql: 'http',
+            mysql: 'mysql',
+            postgres: 'postgres'
+        };
         event.preventDefault();
         var data = {};
         $('#conted').removeClass('glyphicon-remove glyphicon-ok');
         data.url = $('#adddata input[name=url]').val();
         data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
-        if (data.typ !== 'sparql') return alert('Dataset not yet supported');
+        if (url.split('://')[0] !== protocol[typ])
+            return alert("Dataset type doesn't mathch URL protocol");
+        if (data.typ.indexOf('sql') !== -1) return alert('Dataset not yet supported');
         $.get('/contest?url=' + data.url + '&typ=' + data.typ, function(data, textStatus) {
-
+            //console.log(data);
             if (data) {
                 //alert('Connection failed');
                 $('#conted').addClass('glyphicon-remove');
+                con_succeed = false;
             } else {
                 //alert('Connection succeeded');
                 $('#conted').addClass('glyphicon-ok');
+                con_succeed = true;
             }
         });
     });
-
 });

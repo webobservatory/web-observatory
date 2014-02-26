@@ -1,3 +1,4 @@
+//TODO implement this as a middleware
 var crypto = require('crypto'),
     sparql = require('./sparql.js'),
     mysql = require('mysql'),
@@ -61,10 +62,18 @@ function mgdbDriver(query, mime, ds, cb) {
     try {
         query = JSON.parse(query);
         var modname = query.modname;
-        var connection = mongoose.createConnection(url, opts);
-        var model = connection.model(modname);
-        model.find(query.query, function(err, results) {
-            cb(err, results);
+        var connection = mongoose.createConnection(url, opts)
+            .on('error', function(err) {
+            logger.error(err);
+            cb({
+                message: 'Cannot connect to ' + url
+            });
+        })
+            .once('connected', function() {
+            var model = connection.model(modname);
+            model.find(query.query, function(err, results) {
+                cb(err, results);
+            });
         });
     } catch (err) {
         cb(err);
@@ -83,24 +92,65 @@ var drivers = {
     mongodb: mgdbDriver
 };
 
-function sparqlTest(url, cb) {
+function sparqlTest(ds, cb) {
     var query = 'ASK {?s ?p ?o}';
-    sparql.query(url, query, null, function(err) {
+    sparql.query(ds.url, query, null, function(err, data) {
         if (err) {
             cb(err);
         } else {
             cb(null);
         }
     });
+}
 
+function mgdbTest(ds, cb) {
+    var url = ds.url;
+    var opts = {
+        user: ds.user,
+        pass: ds.pwd
+    };
+    try {
+        var connection = mongoose.createConnection(url, opts)
+            .on('error', function(err) {
+            console.log(err);
+            cb(err);
+        })
+            .once('connected', function() {
+            console.log('connected');
+            cb(null);
+        });
+    } catch (err) {
+        cb(err);
+    }
 }
 
 var tests = {
     sparql: sparqlTest,
     //mysql: mysqltest,
     //postgressql: pqtest,
-    //mongodb: mgdbtest
+    mongodb: mgdbTest
 };
 
 module.exports.drivers = drivers;
 module.exports.tests = tests;
+//get all schema names of a mongodb
+module.exports.mongodbschema = function(ds, cb) {
+    var url = ds.url,
+        pwd = decryptPwd(ds);
+    var opts = {
+        user: ds.user,
+        pass: pwd
+    };
+
+    var connection = mongoose.createConnection(url, opts)
+        .on('error', function(err) {
+        logger.error(err);
+        cb({
+            message: 'Cannot connect to ' + url
+        });
+    })
+        .once('connected', function() {
+        var names = connection.modelNames();
+        cb(null, names);
+    });
+};

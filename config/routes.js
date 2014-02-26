@@ -28,7 +28,7 @@ module.exports = function(app, passport) {
         }
     });
 
-    //list entries
+    //listing entries
     app.get('/catlg/:typ(dataset|visualisation)', function(req, res) {
         var email = req.user ? req.user.email : null;
         modctrl.visibleEtry(email, req.params.typ, function(err, entries) {
@@ -78,6 +78,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //dataset names autocompletion
     app.get('/nametags/:typ(dataset|visualisation)', function(req, res) {
         var term = req.query.term;
         Entry.find({
@@ -93,7 +94,8 @@ module.exports = function(app, passport) {
             res.json(names);
         });
     });
-    //add entry
+
+    //adding an entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function(req, res) {
         var email = req.user.email;
         var etry = {
@@ -297,6 +299,16 @@ module.exports = function(app, passport) {
         });
     });
 
+    //mongodb schema names autocompletion
+    app.get('/schematags/:dsId', ensureLoggedIn('/login'), function(req, res) {
+        var term = req.query.term;
+        Entry.findById(dsId, function(err, ds) {
+            queries.mongodbschema(ds, function(err, names) {
+                res.json(names);
+            });
+        });
+    });
+
     //execute user queries
     app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
         var qtype = '';
@@ -385,7 +397,11 @@ module.exports = function(app, passport) {
         if (!test) return res.json({
                 message: 'Dataset type not yet supported'
             });
-        test(req.query.url, function(msg) {
+        test({
+            url: req.query.url,
+            user: req.query.user,
+            pwd: req.query.pwd
+        }, function(msg) {
             res.json(msg);
         });
     });

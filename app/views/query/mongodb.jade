@@ -5,8 +5,25 @@ html(lang='en')
     include ../includes/nav
     #wrap
       .container
-        div
-          Mongodb query is under development...
+        .row
+          include ../includes/flash-banner
+        .row
+          form.form-horizontal.col-sm-5#queryform(action='/endpoint/'+dsID+'/mongodb', method='get')
+            .form-group
+              h2 MongoDB
+            .form-group
+                textarea.form-control#querytext(rows='5' placeholder='Input your query')
+            .form-group
+              label.control-label.col-sm-2
+                | Results:
+              .col-sm-3
+                select.form-control#selectoutput(name='format')
+                  option(value='display') Browse
+                  option(value='application/sparql-results+json') JSON
+            .form-group
+              .btn-group
+                button#send.btn.btn-primary Submit
+                button#reset.btn.btn-warning Reset
       #push
     include ../includes/footer
-    script
+    script(src='/js/jquery-ui-1.10.3.min.js')
