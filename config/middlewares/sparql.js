@@ -390,44 +390,49 @@ module.exports.removeByIds = function(urls, cb) {
 */
 
 function httpQuery(opts, cb) {
-    var req = http.request(opts, function(res) {
-        console.log("Response: " + res.statusCode);
+    try {
+        var req = http.request(opts, function(res) {
+            console.log("Response: " + res.statusCode);
 
-        switch (res.statusCode) {
-            case 404:
-                cb({
-                    message: 'Service not available'
-                });
-                break;
-            case 502:
-                cb({
-                    message: 'Service not available'
-                });
-                break;
-            case 500:
-                cb({
-                    message: 'Service timeout'
-                });
-                break;
-            case 200:
-                var data = "";
-                res.on('data', function(chunk) {
-                    data += chunk;
-                });
-                res.on('end', function() {
-                    cb(false, data);
-                });
-                break;
-            default:
-                cb({
-                    message: 'Status code: ' + res.statusCode
-                });
-        }
-    }).on('error', function(err) {
-        logger.error(err.message);
+            switch (res.statusCode) {
+                case 404:
+                    cb({
+                        message: 'Service not available'
+                    });
+                    break;
+                case 502:
+                    cb({
+                        message: 'Service not available'
+                    });
+                    break;
+                case 500:
+                    cb({
+                        message: 'Service timeout'
+                    });
+                    break;
+                case 200:
+                    var data = "";
+                    res.on('data', function(chunk) {
+                        data += chunk;
+                    });
+                    res.on('end', function() {
+                        cb(false, data);
+                    });
+                    break;
+                default:
+                    cb({
+                        message: 'Status code: ' + res.statusCode
+                    });
+            }
+        }).on('error', function(err) {
+            logger.error(err);
+            cb(err);
+        });
+        req.end();
+    } catch (err) {
+        logger.error(err);
         cb(err);
-    });
-    req.end();
+    }
 }
 
 module.exports.query = function(url, query, mime, cb) {
@@ -435,6 +440,7 @@ module.exports.query = function(url, query, mime, cb) {
     var parsed = require('url').parse(url);
 
     var opts = {
+        protocol: parsed.protocol,
         hostname: parsed.hostname,
         port: parsed.port,
         path: parsed.pathname + '?query=' + encodeURIComponent(query),
