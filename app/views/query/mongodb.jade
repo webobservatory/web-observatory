@@ -12,6 +12,11 @@ html(lang='en')
             .form-group
               h2 MongoDB
             .form-group
+              label.col-md-4.control-label(for='basedOn') Related dataset
+              .col-md-3
+                .ui-widget
+                  input#modname.form-control.input-xlarge(name='modname' type='text' required='')
+            .form-group
                 textarea.form-control#querytext(rows='5' placeholder='Input your query')
             .form-group
               label.control-label.col-sm-2
@@ -27,3 +32,4 @@ html(lang='en')
       #push
     include ../includes/footer
     script(src='/js/jquery-ui-1.10.3.min.js')
+    script(src='/js/mongodb.jade.js')

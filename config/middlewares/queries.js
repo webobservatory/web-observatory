@@ -62,20 +62,19 @@ function mgdbDriver(query, mime, ds, cb) {
     try {
         query = JSON.parse(query);
         var modname = query.modname;
-        var connection = mongoose.createConnection(url, opts)
-            .on('error', function(err) {
+        var connection = mongoose.createConnection(url, opts).on('error', function(err) {
             logger.error(err);
             cb({
                 message: 'Cannot connect to ' + url
             });
-        })
-            .once('connected', function() {
+        }).once('connected', function() {
             var model = connection.model(modname);
             model.find(query.query, function(err, results) {
                 cb(err, results);
             });
         });
-    } catch (err) {
+    }
+    catch (err) {
         cb(err);
         logger.error(err);
     }
@@ -97,7 +96,8 @@ function sparqlTest(ds, cb) {
     sparql.query(ds.url, query, null, function(err, data) {
         if (err) {
             cb(err);
-        } else {
+        }
+        else {
             cb(null);
         }
     });
@@ -110,16 +110,15 @@ function mgdbTest(ds, cb) {
         pass: ds.pwd
     };
     try {
-        var connection = mongoose.createConnection(url, opts)
-            .on('error', function(err) {
+        var connection = mongoose.createConnection(url, opts).on('error', function(err) {
             console.log(err);
             cb(err);
-        })
-            .once('connected', function() {
+        }).once('connected', function() {
             console.log('connected');
             cb(null);
         });
-    } catch (err) {
+    }
+    catch (err) {
         cb(err);
     }
 }
@@ -142,14 +141,12 @@ module.exports.mongodbschema = function(ds, cb) {
         pass: pwd
     };
 
-    var connection = mongoose.createConnection(url, opts)
-        .on('error', function(err) {
+    var connection = mongoose.createConnection(url, opts).on('error', function(err) {
         logger.error(err);
         cb({
             message: 'Cannot connect to ' + url
         });
-    })
-        .once('connected', function() {
+    }).once('connected', function() {
         var names = connection.modelNames();
         cb(null, names);
     });

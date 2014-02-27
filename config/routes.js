@@ -20,7 +20,8 @@ module.exports = function(app, passport) {
                 error: req.flash('error'),
                 user: req.user
             });
-        } else {
+        }
+        else {
             res.render("index", {
                 info: req.flash('info'),
                 error: req.flash('error')
@@ -32,7 +33,9 @@ module.exports = function(app, passport) {
     app.get('/catlg/:typ(dataset|visualisation)', function(req, res) {
         var email = req.user ? req.user.email : null;
         modctrl.visibleEtry(email, req.params.typ, function(err, entries) {
-            if (err) req.flash('error', [err.message]);
+            if (err) {
+                req.flash('error', [err.message]);
+            }
             res.render('catlg', {
                 info: req.flash('info'),
                 error: req.flash('error'),
@@ -47,16 +50,16 @@ module.exports = function(app, passport) {
         var sequence = {};
 
         Entry.find({}, function(err, entries) {
-            for (i = 0; i < entries.length; i++) {
+            for (var i = 0; i < entries.length; i++) {
                 var etry = entries[i];
                 var type = etry.type;
                 var additional = etry.querytype;
                 var key = type;
-                if (type === 'dataset')
-                    key = key + '-' + additional;
+                if (type === 'dataset') key = key + '-' + additional;
                 if (!sequence[key]) {
                     sequence[key] = 1;
-                } else {
+                }
+                else {
                     sequence[key] = sequence[key] + 1;
                 }
             }
@@ -122,7 +125,8 @@ module.exports = function(app, passport) {
             if (err) {
                 req.flash('error', [err.message]);
                 res.redirect('/add/' + req.params.typ);
-            } else {
+            }
+            else {
                 req.flash('info', ['New entry added']);
                 res.redirect('/catlg/' + req.params.typ);
             }
@@ -155,18 +159,8 @@ module.exports = function(app, passport) {
     });
 
     app.post('/edit/:eid', ensureLoggedIn('/login'), function(req, res) {
-        var email = req.user.email;
         var etry_id = req.params.eid;
-        var etry = {
-            /*
-            url: req.body.url,
-            name: req.body.name,
-            //community: req.body.community,
-            lice: req.body.lice,
-            kw: req.body.kw.split(','),
-            des: req.body.des
-            */
-        };
+        var etry = {};
 
         //Auth
         User.findOne({
@@ -194,7 +188,8 @@ module.exports = function(app, passport) {
                 if (err) {
                     req.flash('error', [err.message]);
                     res.redirect(req.get('referer'));
-                } else {
+                }
+                else {
                     req.flash('info', ['Entry edited']);
                     res.redirect('profile');
                 }
@@ -212,8 +207,7 @@ module.exports = function(app, passport) {
             return res.redirect(req.get('referer'));
         }
 
-        if (typeof ids === 'string')
-            ids = [ids];
+        if (typeof ids === 'string') ids = [ids];
 
         User.findOne({
             email: umail
@@ -235,10 +229,8 @@ module.exports = function(app, passport) {
                     return res.redirect(req.get('referer'));
                 }
                 user.save(function(err) {
-                    if (err)
-                        req.flash('error', [err.message]);
-                    else
-                        req.flash('info', ['Entry deleted successfully']);
+                    if (err) req.flash('error', [err.message]);
+                    else req.flash('info', ['Entry deleted successfully']);
                     return res.redirect(req.get('referer'));
                 });
             });
@@ -253,7 +245,8 @@ module.exports = function(app, passport) {
         modctrl.reqAccToEtry(etryIds, issuer, function(err) {
             if (err) {
                 req.flash('error', [err.message]);
-            } else {
+            }
+            else {
                 req.flash('info', ['Request sent']);
             }
             res.redirect(req.get('referer'));
@@ -267,13 +260,13 @@ module.exports = function(app, passport) {
             req.flash('info', ['No entry selected']);
             res.redirect(req.get('referer'));
         }
-        if (typeof etryIds === 'string')
-            etryIds = [etryIds];
+        if (typeof etryIds === 'string') etryIds = [etryIds];
 
         modctrl.reqAccToEtry(etryIds, issuer, function(err) {
             if (err) {
                 req.flash('error', [err.message]);
-            } else {
+            }
+            else {
                 req.flash('info', ['Request sent']);
             }
             res.redirect(req.get('referer'));
@@ -285,14 +278,14 @@ module.exports = function(app, passport) {
         var deny = req.body.deny === 'true',
             owner = req.user.email,
             reqids = req.body.reqids;
-        if (typeof reqids === 'string')
-            reqids = [reqids];
+        if (typeof reqids === 'string') reqids = [reqids];
 
         modctrl.aprvAccToEtry(deny, reqids, owner, function(err) {
 
             if (err) {
                 req.flash('error', [err.message]);
-            } else {
+            }
+            else {
                 req.flash('info', [deny ? 'Request denied' : 'Request approved']);
             }
             res.redirect(req.get('referer'));
@@ -300,53 +293,60 @@ module.exports = function(app, passport) {
     });
 
     //mongodb schema names autocompletion
-    app.get('/schematags/:dsId', ensureLoggedIn('/login'), function(req, res) {
-        var term = req.query.term;
-        Entry.findById(dsId, function(err, ds) {
+    app.get('/schematags', ensureLoggedIn('/login'), function(req, res) {
+        Entry.findById(req.query.dsId, function(err, ds) {
             queries.mongodbschema(ds, function(err, names) {
                 res.json(names);
             });
         });
     });
-
     //execute user queries
     app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
-            case 'mysql':
-                qtype = 'sql';
-                break;
-            case 'postgressql':
-                qtype = 'sql';
-                break;
-            default:
-                qtype = req.params.format.toLowerCase();
+        case 'mysql':
+            qtype = 'sql';
+            break;
+        case 'postgressql':
+            qtype = 'sql';
+            break;
+        default:
+            qtype = req.params.format.toLowerCase();
         }
 
-        res.render('query/' + qtype, {
-            info: req.flash('info'),
-            error: req.flash('error'),
-            user: req.user,
-            dsID: req.params.dsId,
+        async.waterfall([function(cb) {
+            if (qtype === 'mongodb') {
+                Entry.findById(req.params.dsId, function(err, ds) {
+                    queries.mongodbschema(ds, function(err, names) {
+                        cb(null, names);
+                    });
+                });
+            }
+            else cb(null, null);
+        }], function(err, result) {
+            res.render('query/' + qtype, {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user,
+                dsID: req.params.dsId,
+                tags: result
+            });
         });
     });
-    /*
-    app.get('/mgtest', function(req,res){
-    
-                res.render('query/jsonview', {
-                    'result': {a:'text1', b:{aa:'inner'}},
-                    'info': req.flash('info'),
-                    'error': req.flash('error')
-                });
-    
-    });
-*/
 
     app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
         var query = req.query.query,
             mime = req.query.format,
+            modname = req.query.modname, //for mongodb
             _id = req.params.dsId,
             qtyp = req.params.typ;
+
+        if (modname) {
+            query = {
+                modname: modname,
+                query: query
+            };
+        }
 
         var qlog = {};
         qlog.time = new Date();
@@ -355,20 +355,19 @@ module.exports = function(app, passport) {
         qlog.usrmail = req.user.email;
 
         async.waterfall([
-            function(cb) {
-                Auth.hasAccToDB(req.user.email, _id, cb);
-            },
-            function(ds, cb) {
-                qlog.ds = ds.url;
-                var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
-                if (!queryDriver)
-                    cb({
-                        message: 'Query type not supported'
-                    });
-                else
-                    queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
-            }
-        ], function(err, result) {
+
+        function(cb) {
+            Auth.hasAccToDB(req.user.email, _id, cb);
+        },
+
+        function(ds, cb) {
+            qlog.ds = ds.url;
+            var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+            if (!queryDriver) cb({
+                message: 'Query type not supported'
+            });
+            else queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
+        }], function(err, result) {
             qlog.result = result;
             logger.info(qlog);
             if (err) {
@@ -378,14 +377,14 @@ module.exports = function(app, passport) {
 
             if (mime === 'display') {
                 var viewer = 'csvview';
-                if (qtyp === 'mongodb')
-                    viewer = 'jsonview';
+                if (qtyp === 'mongodb') viewer = 'jsonview';
                 res.render('query/' + viewer, {
                     'result': result,
                     'info': req.flash('info'),
                     'error': req.flash('error')
                 });
-            } else {
+            }
+            else {
                 res.attachment('result.txt');
                 res.end(result, 'UTF-8');
             }
@@ -395,8 +394,8 @@ module.exports = function(app, passport) {
     app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
         var test = queries.tests[req.query.typ];
         if (!test) return res.json({
-                message: 'Dataset type not yet supported'
-            });
+            message: 'Dataset type not yet supported'
+        });
         test({
             url: req.query.url,
             user: req.query.user,
@@ -445,7 +444,8 @@ module.exports = function(app, passport) {
                         return res.redirect("/profile");
                     });
                 });
-            } else {
+            }
+            else {
                 req.flash('error', ['Recaptcha not valid.']);
                 res.render('signup', {
                     locals: {
@@ -483,7 +483,8 @@ module.exports = function(app, passport) {
             var errmsg = req.flash('error');
             if (err) {
                 errmsg.push(err.message);
-            } else {
+            }
+            else {
                 parameter.msg = user.msg;
                 parameter.owned = user.own;
                 parameter.requested = user.accreq;
@@ -520,13 +521,15 @@ module.exports = function(app, passport) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
-                    } else {
+                    }
+                    else {
                         req.flash('info', ['Profile updated']);
                         return res.redirect(req.get('referer'));
                     }
                 });
             });
-        } else {
+        }
+        else {
             User.findOne({
                 'email': email
             }, function(err, user) {
@@ -539,7 +542,8 @@ module.exports = function(app, passport) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
-                    } else {
+                    }
+                    else {
                         req.flash('info', ['Profile updated']);
                         return res.redirect(req.get('referer'));
                     }
@@ -552,8 +556,7 @@ module.exports = function(app, passport) {
     //remove messages
     app.post('/profile/message', ensureLoggedIn('/login'), function(req, res) {
         var msgid = req.body.msgid;
-        if (typeof msgid === 'string')
-            msgid = [msgid];
+        if (typeof msgid === 'string') msgid = [msgid];
 
         User.findOne({
             email: req.user.email

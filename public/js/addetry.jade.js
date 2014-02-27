@@ -42,7 +42,7 @@ $(document).ready(function() {
         $('#conted').removeClass('glyphicon-remove glyphicon-ok');
         data.url = $('#adddata input[name=url]').val();
         data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
-        if (url.split('://')[0] !== protocol[typ])
+        if (data.url.split('://')[0] !== protocol[data.typ])
             return alert("Dataset type doesn't mathch URL protocol");
         if (data.typ.indexOf('sql') !== -1) return alert('Dataset not yet supported');
         $.get('/contest?url=' + data.url + '&typ=' + data.typ, function(data, textStatus) {
