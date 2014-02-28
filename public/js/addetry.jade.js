@@ -1,4 +1,4 @@
-var con_succeed = false;
+var con_succeed = -1;
 $(document).ready(function() {
     $('#private').bind('click', function() {
         var $this = $(this);
@@ -23,14 +23,20 @@ $(document).ready(function() {
     });
 
     $('#submit').bind('click', function(event) {
-        event.preventDefault();
+        if (con_succeed === -1)
+            contest();
         if (con_succeed)
-            $(this).trigger('click');
+            $('#adddata').submit();
         else
-            alert('Please validate the connection to your entry before submission');
+            alert('Please check the url of your entry');
+        event.preventDefault();
     });
 
     $('#dbtest').bind('click', function(event) {
+        contest();
+    });
+
+    function contest() {
         var protocol = {
             mongodb: 'mongodb',
             sparql: 'http',
@@ -57,5 +63,5 @@ $(document).ready(function() {
                 con_succeed = true;
             }
         });
-    });
+    }
 });

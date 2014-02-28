@@ -8,28 +8,35 @@ html(lang='en')
         .row
           include ../includes/flash-banner
         .row
-          form.form-horizontal.col-sm-5#queryform(action='/endpoint/'+dsID+'/mongodb', method='get')
+          form.form-horizontal.col-sm-10#queryform(action='/endpoint/'+dsID+'/mongodb', method='get')
             .form-group
-              h2 MongoDB
+              .col-sm-offset-5
+                h2 MongoDB
             .form-group
-              label.col-md-4.control-label(for='basedOn') Related dataset
-              .col-md-3
-                .ui-widget
-                  input#modname.form-control.input-xlarge(name='modname' type='text' required='')
+              label.col-sm-5.control-label(for='modname') Select a model name
+              .col-sm-2
+                select.form-control(name='modname')
+                  for val in tags
+                    if val.indexOf('system.indexes') === -1
+                      option(value=val)= val
             .form-group
-                textarea.form-control#querytext(rows='5' placeholder='Input your query')
+              .col-sm-offset-5.col-sm-5
+                textarea.form-control#querytext(name='query' rows='5' placeholder='Double-quote your key/value pairs, e.g. {"key":"value"}')
             .form-group
-              label.control-label.col-sm-2
+              label.control-label.col-sm-5
                 | Results:
-              .col-sm-3
+              .col-sm-2
                 select.form-control#selectoutput(name='format')
                   option(value='display') Browse
                   option(value='application/sparql-results+json') JSON
             .form-group
-              .btn-group
-                button#send.btn.btn-primary Submit
-                button#reset.btn.btn-warning Reset
+              .col-sm-offset-5.col-sm-5
+                .btn-group
+                  button#send.btn.btn-primary Submit
+                  button#reset.btn.btn-warning Reset
       #push
     include ../includes/footer
     script(src='/js/jquery-ui-1.10.3.min.js')
-    script(src='/js/mongodb.jade.js')
+    script.
+      tags = !{JSON.stringify(tags)};
+    //script(src='/js/mongodb.jade.js')

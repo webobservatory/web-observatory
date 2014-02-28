@@ -358,5 +358,5 @@ function buildHierarchy(json) {
 $(document).ready(function() {
     var json = buildHierarchy(data);
     createVisualization(json);
-    console.log('process sucess');
+    //console.log('process sucess');
 });

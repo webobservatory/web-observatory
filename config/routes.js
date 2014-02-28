@@ -20,8 +20,7 @@ module.exports = function(app, passport) {
                 error: req.flash('error'),
                 user: req.user
             });
-        }
-        else {
+        } else {
             res.render("index", {
                 info: req.flash('info'),
                 error: req.flash('error')
@@ -58,8 +57,7 @@ module.exports = function(app, passport) {
                 if (type === 'dataset') key = key + '-' + additional;
                 if (!sequence[key]) {
                     sequence[key] = 1;
-                }
-                else {
+                } else {
                     sequence[key] = sequence[key] + 1;
                 }
             }
@@ -125,8 +123,7 @@ module.exports = function(app, passport) {
             if (err) {
                 req.flash('error', [err.message]);
                 res.redirect('/add/' + req.params.typ);
-            }
-            else {
+            } else {
                 req.flash('info', ['New entry added']);
                 res.redirect('/catlg/' + req.params.typ);
             }
@@ -188,8 +185,7 @@ module.exports = function(app, passport) {
                 if (err) {
                     req.flash('error', [err.message]);
                     res.redirect(req.get('referer'));
-                }
-                else {
+                } else {
                     req.flash('info', ['Entry edited']);
                     res.redirect('profile');
                 }
@@ -245,8 +241,7 @@ module.exports = function(app, passport) {
         modctrl.reqAccToEtry(etryIds, issuer, function(err) {
             if (err) {
                 req.flash('error', [err.message]);
-            }
-            else {
+            } else {
                 req.flash('info', ['Request sent']);
             }
             res.redirect(req.get('referer'));
@@ -265,8 +260,7 @@ module.exports = function(app, passport) {
         modctrl.reqAccToEtry(etryIds, issuer, function(err) {
             if (err) {
                 req.flash('error', [err.message]);
-            }
-            else {
+            } else {
                 req.flash('info', ['Request sent']);
             }
             res.redirect(req.get('referer'));
@@ -284,8 +278,7 @@ module.exports = function(app, passport) {
 
             if (err) {
                 req.flash('error', [err.message]);
-            }
-            else {
+            } else {
                 req.flash('info', [deny ? 'Request denied' : 'Request approved']);
             }
             res.redirect(req.get('referer'));
@@ -304,40 +297,39 @@ module.exports = function(app, passport) {
     app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
-        case 'mysql':
-            qtype = 'sql';
-            break;
-        case 'postgressql':
-            qtype = 'sql';
-            break;
-        default:
-            qtype = req.params.format.toLowerCase();
+            case 'mysql':
+                qtype = 'sql';
+                break;
+            case 'postgressql':
+                qtype = 'sql';
+                break;
+            default:
+                qtype = req.params.format.toLowerCase();
         }
 
-        async.waterfall([function(cb) {
-            if (qtype === 'mongodb') {
-                Entry.findById(req.params.dsId, function(err, ds) {
-                    queries.mongodbschema(ds, function(err, names) {
-                        cb(null, names);
+        async.waterfall([
+            function(cb) {
+                if (qtype === 'mongodb') {
+                    Entry.findById(req.params.dsId, function(err, ds) {
+                        queries.mongodbschema(ds, cb);
                     });
-                });
+                } else cb(null, null);
             }
-            else cb(null, null);
-        }], function(err, result) {
+        ], function(err, result) {
             res.render('query/' + qtype, {
                 info: req.flash('info'),
                 error: req.flash('error'),
                 user: req.user,
                 dsID: req.params.dsId,
-                tags: result
+                tags: result ? result : []
             });
         });
     });
 
     app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
-        var query = req.query.query,
-            mime = req.query.format,
-            modname = req.query.modname, //for mongodb
+        var query = req.query.query || req.body.query,
+            mime = req.query.format || req.body.format,
+            modname = req.query.modname || req.body.modname, //for mongodb
             _id = req.params.dsId,
             qtyp = req.params.typ;
 
@@ -356,19 +348,20 @@ module.exports = function(app, passport) {
 
         async.waterfall([
 
-        function(cb) {
-            Auth.hasAccToDB(req.user.email, _id, cb);
-        },
+            function(cb) {
+                Auth.hasAccToDB(req.user.email, _id, cb);
+            },
 
-        function(ds, cb) {
-            qlog.ds = ds.url;
-            var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
-            if (!queryDriver) cb({
-                message: 'Query type not supported'
-            });
-            else queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
-        }], function(err, result) {
-            qlog.result = result;
+            function(ds, cb) {
+                qlog.ds = ds.url;
+                var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+                if (!queryDriver) cb({
+                        message: 'Query type not supported'
+                    });
+                else queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
+            }
+        ], function(err, result) {
+            qlog.result = JSON.stringify(result);
             logger.info(qlog);
             if (err) {
                 req.flash('error', [err.message]);
@@ -383,8 +376,7 @@ module.exports = function(app, passport) {
                     'info': req.flash('info'),
                     'error': req.flash('error')
                 });
-            }
-            else {
+            } else {
                 res.attachment('result.txt');
                 res.end(result, 'UTF-8');
             }
@@ -394,8 +386,8 @@ module.exports = function(app, passport) {
     app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
         var test = queries.tests[req.query.typ];
         if (!test) return res.json({
-            message: 'Dataset type not yet supported'
-        });
+                message: 'Dataset type not yet supported'
+            });
         test({
             url: req.query.url,
             user: req.query.user,
@@ -444,8 +436,7 @@ module.exports = function(app, passport) {
                         return res.redirect("/profile");
                     });
                 });
-            }
-            else {
+            } else {
                 req.flash('error', ['Recaptcha not valid.']);
                 res.render('signup', {
                     locals: {
@@ -483,8 +474,7 @@ module.exports = function(app, passport) {
             var errmsg = req.flash('error');
             if (err) {
                 errmsg.push(err.message);
-            }
-            else {
+            } else {
                 parameter.msg = user.msg;
                 parameter.owned = user.own;
                 parameter.requested = user.accreq;
@@ -521,15 +511,13 @@ module.exports = function(app, passport) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
-                    }
-                    else {
+                    } else {
                         req.flash('info', ['Profile updated']);
                         return res.redirect(req.get('referer'));
                     }
                 });
             });
-        }
-        else {
+        } else {
             User.findOne({
                 'email': email
             }, function(err, user) {
@@ -542,8 +530,7 @@ module.exports = function(app, passport) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
-                    }
-                    else {
+                    } else {
                         req.flash('info', ['Profile updated']);
                         return res.redirect(req.get('referer'));
                     }

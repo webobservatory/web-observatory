@@ -3,6 +3,7 @@ var crypto = require('crypto'),
     sparql = require('./sparql.js'),
     mysql = require('mysql'),
     pq = require('pq'),
+    mgclient = require('mongodb').MongoClient,
     mongoose = require('mongoose');
 var logger = require('../../app/util/logger');
 
@@ -54,29 +55,36 @@ function mysqlDriver(query, mime, ds, cb) {
 function mgdbDriver(query, mime, ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds);
-    var opts = {
-        user: ds.user,
-        pass: pwd
-    };
+
+    var modname = query.modname;
 
     try {
-        query = JSON.parse(query);
-        var modname = query.modname;
-        var connection = mongoose.createConnection(url, opts).on('error', function(err) {
-            logger.error(err);
-            cb({
-                message: 'Cannot connect to ' + url
-            });
-        }).once('connected', function() {
-            var model = connection.model(modname);
-            model.find(query.query, function(err, results) {
-                cb(err, results);
-            });
+        query.query = JSON.parse(query.query);
+        mgclient.connect(url, function(err, db) {
+            if (err) return cb(err);
+            if (ds.user) {
+                db.authenticate(ds.user, pwd, function(err, result) {
+                    if (err || !result) return cb(err || {
+                            message: 'Authentication failed'
+                        });
+                    db.collection(modname, function(err, collection) {
+                        collection.find(query.query, function(err, result) {
+                            cb(err, result);
+                            db.close();
+                        });
+                    });
+                });
+            } else {
+                db.collection(modname, function(err, collection) {
+                    collection.find(query.query).toArray(function(err, result) {
+                        cb(err, result);
+                        db.close();
+                    });
+                });
+            }
         });
-    }
-    catch (err) {
-        cb(err);
-        logger.error(err);
+    } catch (err) {
+        cb({message:'Query syntax error'});
     }
 }
 
@@ -96,8 +104,7 @@ function sparqlTest(ds, cb) {
     sparql.query(ds.url, query, null, function(err, data) {
         if (err) {
             cb(err);
-        }
-        else {
+        } else {
             cb(null);
         }
     });
@@ -111,14 +118,11 @@ function mgdbTest(ds, cb) {
     };
     try {
         var connection = mongoose.createConnection(url, opts).on('error', function(err) {
-            console.log(err);
             cb(err);
         }).once('connected', function() {
-            console.log('connected');
             cb(null);
         });
-    }
-    catch (err) {
+    } catch (err) {
         cb(err);
     }
 }
@@ -136,18 +140,32 @@ module.exports.tests = tests;
 module.exports.mongodbschema = function(ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds);
-    var opts = {
-        user: ds.user,
-        pass: pwd
-    };
 
-    var connection = mongoose.createConnection(url, opts).on('error', function(err) {
-        logger.error(err);
-        cb({
-            message: 'Cannot connect to ' + url
-        });
-    }).once('connected', function() {
-        var names = connection.modelNames();
-        cb(null, names);
+    mgclient.connect(url, function(err, db) {
+        if (err) return cb(err);
+        if (ds.user) {
+            db.authenticate(ds.user, pwd, function(err, result) {
+                if (err || !result) return cb(err || {
+                        message: 'Authentication failed'
+                    });
+                db.collectionNames({
+                    namesOnly: true
+                }, function(err, names) {
+                    cb(err, names);
+                    db.close();
+                });
+            });
+        } else {
+            db.collectionNames({
+                namesOnly: true
+            }, function(err, names) {
+                names = names.map(function(name) {
+                    return name.substring(name.indexOf('.') + 1);
+                });
+                console.log(names);
+                cb(err, names);
+                db.close();
+            });
+        }
     });
 };
