@@ -1,7 +1,8 @@
 //TODO implement this as a middleware
 var crypto = require('crypto'),
-    sparql = require('./sparql.js'),
     mysql = require('mysql'),
+    sparql = require('./sparql'),
+    hive = require('./hive'),
     pq = require('pq'),
     mgclient = require('mongodb').MongoClient,
     mongoose = require('mongoose');
@@ -84,7 +85,9 @@ function mgdbDriver(query, mime, ds, cb) {
             }
         });
     } catch (err) {
-        cb({message:'Query syntax error'});
+        cb({
+            message: 'Query syntax error'
+        });
     }
 }
 
@@ -92,11 +95,16 @@ function sparqlDriver(query, mime, ds, cb) {
     sparql.query(ds.url, query, mime, cb);
 }
 
+function hiveDriver(query, mime, ds, cb) {
+    hive.query(ds.url, query, ds.user, cb);
+}
+
 var drivers = {
     sparql: sparqlDriver,
     mysql: mysqlDriver,
     postgressql: pqDriver,
-    mongodb: mgdbDriver
+    mongodb: mgdbDriver,
+    hive: hiveDriver
 };
 
 function sparqlTest(ds, cb) {
@@ -127,10 +135,15 @@ function mgdbTest(ds, cb) {
     }
 }
 
+function hiveTest(ds, cb) {
+    hive.test(ds.url, cb);
+}
+
 var tests = {
     sparql: sparqlTest,
     //mysql: mysqltest,
     //postgressql: pqtest,
+    hive: hiveTest,
     mongodb: mgdbTest
 };
 

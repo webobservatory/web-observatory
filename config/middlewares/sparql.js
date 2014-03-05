@@ -1,7 +1,7 @@
 var http = require('http'),
-    domain = "web-001.ecs.soton.ac.uk",
-    selectURL = '/openrdf-workbench/repositories/wo/query',
-    updateURL = '/openrdf-workbench/repositories/wo/update',
+    //domain = "web-001.ecs.soton.ac.uk",
+    //selectURL = '/openrdf-workbench/repositories/wo/query',
+    //updateURL = '/openrdf-workbench/repositories/wo/update',
     async = require('async'),
     logger = require('../../app/util/logger');
 /*

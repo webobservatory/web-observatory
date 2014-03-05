@@ -38,8 +38,9 @@ $(document).ready(function() {
 
     function contest() {
         var protocol = {
-            mongodb: 'mongodb',
             sparql: 'http',
+            hive: 'http',
+            mongodb: 'mongodb',
             mysql: 'mysql',
             postgres: 'postgres'
         };

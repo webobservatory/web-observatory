@@ -294,7 +294,7 @@ module.exports = function(app, passport) {
         });
     });
     //execute user queries
-    app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/query/:format/:dsId/:name', ensureLoggedIn('/login'), function(req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
             case 'mysql':
@@ -321,6 +321,7 @@ module.exports = function(app, passport) {
                 error: req.flash('error'),
                 user: req.user,
                 dsID: req.params.dsId,
+                name: req.params.name,
                 tags: result ? result : []
             });
         });
@@ -370,7 +371,7 @@ module.exports = function(app, passport) {
 
             if (mime === 'display') {
                 var viewer = 'csvview';
-                if (qtyp === 'mongodb') viewer = 'jsonview';
+                if (qtyp === 'mongodb' || qtyp === 'hive') viewer = 'jsonview';
                 res.render('query/' + viewer, {
                     'result': result,
                     'info': req.flash('info'),

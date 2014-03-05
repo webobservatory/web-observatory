@@ -8,14 +8,12 @@ html(lang='en')
         .row
           include ../includes/flash-banner
         .row
-          form.form-horizontal.col-sm-5#queryform(action='/endpoint/'+dsID+'/sparql', method='get')
+          form.form-horizontal.col-sm-5#queryform(action='/endpoint/'+dsID+'/hive', method='get')
             .form-group
-              h2 SPARQL
+              h2 Hive
               = 'Dataset: ' + name
-              pre#prefixestext.pre-scrollable
             .form-group
-                input.form-control.hide(name='query')
-                textarea.form-control#querytext(rows='5')
+                textarea.form-control#querytext(name='query' rows='5' placeholder='Input your query')
             .form-group
               label.control-label.col-sm-2
                 | Results:
@@ -23,9 +21,6 @@ html(lang='en')
                 select.form-control#selectoutput(name='format')
                   option(value='display') Browse
                   option(value='application/sparql-results+json') JSON
-                  option(value='text/csv') CSV
-                  option(value='text/tab-separated-values') TSV
-                  option(value='application/sparql-results+xml') XML
             .form-group
               .btn-group
                 button#send.btn.btn-primary Submit
@@ -33,5 +28,4 @@ html(lang='en')
           #result
       #push
     include ../includes/footer
-    script(src='/js/sparql.jade.js')
-    script(src='/js/sparql.js')
+    //script(src='/js/sparql.jade.js')
