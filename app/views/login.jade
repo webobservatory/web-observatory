@@ -11,6 +11,7 @@ body
           h1 Web Observatory
       .row
         form.form-signin(action='/login', method='post')
+          label.form-signin-heading WO account login 
           input.form-control(placeholder='Email' type='email' name='email' required='')
           input.form-control(placeholder='Password' type='password', name='password' required='')
           button.btn.btn-primary.btn-lg.btn-block(type='submit') Login

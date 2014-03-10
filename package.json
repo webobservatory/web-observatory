@@ -9,7 +9,6 @@
         "async": "*",
         "connect-flash": "*",
         "connect-ensure-login": "*",
-        "crypto": "*",
         "express": "*",
         "jade": "*",
         "mongodb": "*",

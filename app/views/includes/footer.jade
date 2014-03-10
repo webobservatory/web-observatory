@@ -1,5 +1,13 @@
-.container
-  p.muted.credit &copy; #{moment().format('YYYY')}
+link(href='/css/docs.min.css', rel='stylesheet')
+footer
+  .container.text-center
+    ul.bs-docs-footer-links.muted
+      li
+        a(href='mailto:soton.wo@gmail.com') Contact
+      li ·
+      li
+        a(href='https://github.com/xgfd/web-observatory/issues') Issues
+    .text-muted &copy; #{moment().format('YYYY')}
 script(src='/js/jquery-1.10.2.min.js')
 script(src='/js/bootstrap.min.js')
 script(src='/js/flashmsg.js')
