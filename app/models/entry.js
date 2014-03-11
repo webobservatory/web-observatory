@@ -8,6 +8,7 @@ var EntrySchema = mongoose.Schema({
     querytype: String, //query interface tyep. e.g. sparql, mysql, mongodb
     creator: String, //creator of this entry
     publisher: String, //email of the publisher
+    publisher_name: String, //name of the publisher
     pubdate: {
         type: Date,
         default: Date.now

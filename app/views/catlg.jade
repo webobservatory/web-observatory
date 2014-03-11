@@ -72,7 +72,7 @@ html(lang='en')
                         td
                           = val.related
                       td
-                        = val.publisher
+                        = val.publisher_name?val.publisher_name:'N/A'
                       //display no more than 50 characters of description
                       - var des=val.des?val.des:''
                       - if(des.length>47) {

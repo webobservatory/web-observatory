@@ -1,0 +1,56 @@
+doctype html
+html(lang='en')
+  include includes/head
+  body
+    include includes/nav
+    #wrap
+      .container
+        .row
+          include includes/flash-banner
+        .row
+          table.table.table-bordered.table-striped
+            tbody
+              tr
+                td Name
+                td
+                  a.editable.editable-click#name(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit name')
+              tr
+                td URL
+                td
+                  a.editable.editable-pre-wrapped.editable-click#url(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit URL')
+              tr
+                td Creator
+                td
+                  a.editable.editable-pre-wrapped.editable-click#creator(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')
+              //tr
+                td Publisher
+                td
+                  a.editable.editable-pre-wrapped.editable-click#publisher(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')
+              if etry.type === 'visualisation'
+                tr
+                  td Related dataset
+                  td
+                    a.editable.editable-pre-wrapped.editable-click#related(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')
+                tr
+                  td Source code
+                  td
+                    a.editable.editable-pre-wrapped.editable-click#git(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')
+              if etry.type === 'dataset'
+                tr
+                  td Query
+                  td
+                    a.editable.editable-pre-wrapped.editable-click#querytype(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')
+              tr
+                td Keywords
+                td
+                  a.editable.editable-pre-wrapped.editable-click#kw(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')
+              tr
+                td Description
+                td
+                  a.editable.editable-pre-wrapped.editable-click#des(data-type='' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')
+      #push
+    include includes/footer
+    link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
+    script(src='/js/jqBootstrapValidation.js')
+    script(src='/js/addetry.jade.js')
+    script(src='/js/jquery-ui-1.10.3.min.js')

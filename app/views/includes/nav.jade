@@ -10,17 +10,17 @@ nav.navbar.navbar-inverse.navbar-fixed-top
       ul.navbar-nav.nav
         li.active
           a(href='/') Home
-        li.disabled
+        //li.disabled
           a(href='#about') About
-        li.dropdown
+        //li.dropdown
           a.dropdown-toggle(href='#', data-toggle='dropdown')
             | Quick Menu
             b.caret
           ul.dropdown-menu(role='menu')
-            li
-              a(href='/catlg/dataset') Datasets
-            li
-              a(href='/catlg/visualisation') Visualisations
+        li
+          a(href='/catlg/dataset') Datasets
+        li
+          a(href='/catlg/visualisation') Visualisations
       ul.navbar-right.nav.navbar-nav
         if user == null                  
           li.active

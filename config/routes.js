@@ -111,6 +111,7 @@ module.exports = function(app, passport) {
             querytype: req.body.querytype,
             desc: req.body.desc,
             publisher: email,
+            publisher_name: req.user.username || (req.user.firstName?req.user.firstName + ' ':'') + req.user.lastName?req.user.lastName:'',
             git: req.body.git,
             lice: req.body.lice,
             kw: req.body.kw ? req.body.kw.split(',') : [],
