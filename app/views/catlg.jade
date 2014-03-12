@@ -50,7 +50,7 @@ html(lang='en')
                               a(href='#') Details
                             if user
                               li
-                                a.edit(href='#' eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString()) Edit
+                                a.edit(href='/detail/' + val._id eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString()) Edit
                               li
                                 a.edit(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id) eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString())= type==='visualisation'?'Show':'Query'
                             else

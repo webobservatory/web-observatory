@@ -4,6 +4,6 @@ $(document).ready(function() {
     });
     $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
     $('#dsTils').autocomplete({
-        source: '/autocomplete'
+        source: '/nametags/dataset'
     });
 });

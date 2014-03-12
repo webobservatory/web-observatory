@@ -111,7 +111,7 @@ module.exports = function(app, passport) {
             querytype: req.body.querytype,
             desc: req.body.desc,
             publisher: email,
-            publisher_name: req.user.username || (req.user.firstName?req.user.firstName + ' ':'') + req.user.lastName?req.user.lastName:'',
+            publisher_name: req.user.username || (req.user.firstName ? req.user.firstName + ' ' : '') + req.user.lastName ? req.user.lastName : '',
             git: req.body.git,
             lice: req.body.lice,
             kw: req.body.kw ? req.body.kw.split(',') : [],
@@ -128,6 +128,87 @@ module.exports = function(app, passport) {
                 req.flash('info', ['New entry added']);
                 res.redirect('/catlg/' + req.params.typ);
             }
+        });
+    });
+
+    app.get('/detail/:eid', ensureLoggedIn('/login'), function(req, res) {
+        Entry.findOne({
+            _id: req.params.eid,
+            publisher: req.user.email
+        }, function(err, entry) {
+            if (err || !entry) {
+                logger.error(err || {
+                    message: 'Entry not found under the current user'
+                });
+                req.flash('error', ["Entry not found under the current user"]);
+                return res.redirect(req.get('referer'));
+            }
+
+            res.render('detail', {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user,
+                etry: entry
+            });
+        });
+    });
+
+    app.post('/detail/:eid', ensureLoggedIn('/login'), function(req, res) {
+        var etry_id = req.params.eid;
+        var etry = {};
+
+        //Auth
+        User.findOne({
+            email: req.user.email,
+            own: etry_id
+        }, function(err, user) {
+            if (err || !user) {
+                logger.error(err || {
+                    message: 'Entry not found under the current user'
+                });
+                //req.flash('error', [err ? err.message : 'Entry not found under the current user']);
+                return res.send(400, err ? err.message : 'Entry not found under the current user');
+            }
+
+            switch (req.body.name) {
+                case 'url':
+                    etry.url = req.body.value;
+                    break;
+                case 'name':
+                    etry.name = req.body.value;
+                    break;
+                case 'des':
+                    etry.des = req.body.value;
+                    break;
+                case 'lice':
+                    etry.lice = req.body.value;
+                    break;
+                case 'creator':
+                    etry.creator = req.body.value;
+                    break;
+                case 'git':
+                    etry.git = req.body.value;
+                    break;
+                case 'related':
+                    etry.related = req.body.value;
+                    break;
+                case 'kw':
+                    etry.kw = req.body.value.split(',');
+                    break;
+                case 'acc':
+                    etry.acc = req.body.value.indexOf('private') === -1;
+                    etry.vis = req.body.value.indexOf('novis') === -1;
+                    break;
+            }
+            modctrl.editEtry(etry_id, etry, function(err) {
+                if (err) {
+                    //req.flash('error', [err.message]);
+                    res.send(400, err.message);
+                } else {
+                    //req.flash('info', ['Entry edited']);
+                    res.send(200);
+                }
+            });
         });
     });
 
@@ -177,10 +258,12 @@ module.exports = function(app, passport) {
             if (req.body.name) etry.name = req.body.name;
             if (req.body.des) etry.des = req.body.des;
             if (req.body.lice) etry.lice = req.body.lice;
+            if (req.body.creator) etry.creator = req.body.creator;
+            if (req.body.git) etry.git = req.body.git;
             if (req.body.related) etry.related = req.body.related;
             if (req.body.kw) etry.kw = req.body.kw.split(',');
-            if (req.body.vis) etry.vis = req.body.vis === 'true';
-            if (req.body.acc) etry.acc = req.body.acc === 'true';
+            if (req.body.vis) etry.vis = req.body.vis !== 'false';
+            if (req.body.acc) etry.acc = req.body.acc !== 'false';
 
             modctrl.editEtry(etry_id, etry, function(err) {
                 if (err) {

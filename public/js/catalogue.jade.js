@@ -12,6 +12,7 @@ $(document).ready(function() {
         "sPaginationType": "bs_normal"
     });
 
+/*
     $('.edit').bind('click', function(e) {
         editEtry($(this).attr('eid'), $(this).attr('acc'), $(this).attr('vis'));
         e.preventDefault();
@@ -20,12 +21,12 @@ $(document).ready(function() {
     $('#submit').bind('click', function() {
         $('#editForm').submit();
     });
-
     $('.disabled').bind('click', function(event) {
         $('.alert.alert-info').show();
         $('.alert.alert-info').fadeIn('fast');
         event.preventDefault();
     });
+    */
     //datatable bt3
     var search_input = $('.dataTables_filter input[type=text]');
     search_input.attr('placeholder', 'Search').addClass('form-control input-small');
