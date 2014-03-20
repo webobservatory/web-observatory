@@ -2,7 +2,7 @@ $(document).ready(function() {
     $('#edittog').bind('click', function() {
         $('a.editable').editable('toggleDisabled');
     });
-    //$.fn.editable.defaults.mode = 'inline';
+    $.fn.editable.defaults.mode = 'inline';
     $('a.editable').filter('[data-type=textarea], [data-type=text], [data-type=url]').editable();
     var querytype = $('#querytype');
     if (querytype) {
