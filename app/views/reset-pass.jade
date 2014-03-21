@@ -4,11 +4,9 @@ body
   #wrap
     .container.text-center
       .row
-        .jumbotron
-          h1 Southampton
-          h1 Web Observatory
-      .row
         include includes/flash-banner
+      .row
+        include includes/site-banner
       .row
         .hide.alert.alert-warning Password not match
         form.form-signin(action='/profile/reset-pass', method='post')

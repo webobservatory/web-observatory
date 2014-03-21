@@ -1,11 +1,12 @@
 var User = require('../../app/models/user'),
-	nodemailer = require('nodemailer'),
-	crypto = require('crypto'),
-	hash = require('./hash');
+    config = require('../../config/config').development,
+    nodemailer = require('nodemailer'),
+    crypto = require('crypto'),
+    hash = require('./hash');
 
-	var smtpTransport = nodemailer.createTransport("SMTP", {
-	    host: 'smtp.ecs.soton.ac.uk'
-	});
+var smtpTransport = nodemailer.createTransport("SMTP", {
+    host: config.smtp//'smtp.ecs.soton.ac.uk'
+});
 
 module.exports.forgotPass = function(email, reset_path, cb) {
     User.findOne({

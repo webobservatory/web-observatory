@@ -6,9 +6,7 @@ body
       .row
         include includes/flash-banner
       .row
-        .jumbotron
-          h1 Southampton
-          h1 Web Observatory
+        include includes/site-banner
       .row
         form.form-signin(action='/login', method='post')
           label.form-signin-heading WO account login 
@@ -18,8 +16,6 @@ body
       .row
         //a(href="/auth/facebook") Log In With Facebook
         a(href='/profile/forgot-pass') Forgot password?
-        br
-        a(href='/auth/soton') Log In With Soton Account
         br
         | or 
         a(href='/signup') Sign Up 

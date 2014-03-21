@@ -1,15 +1,16 @@
-var User = require('../app/models/user');
-var Entry = require('../app/models/entry');
-var Auth = require('./middlewares/authorization.js');
-var async = require('async');
-var ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
-var queries = require('./middlewares/queries.js');
-var Recaptcha = require('recaptcha').Recaptcha;
-var pbk = '6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H';
-var prk = '6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D';
-var pass = require('../app/util/pass');
-var logger = require('../app/util/logger');
-var modctrl = require('../app/controllers/modctrl');
+var User = require('../app/models/user'),
+    Entry = require('../app/models/entry'),
+    Auth = require('./middlewares/authorization.js'),
+    async = require('async'),
+    ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
+    queries = require('./middlewares/queries.js'),
+    config = require('./config').development;
+    Recaptcha = require('recaptcha').Recaptcha,
+    pbk = config.recap_pbk,//'6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H'
+    prk = config.recap_prk,//'6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D'
+    pass = require('../app/util/pass'),
+    logger = require('../app/util/logger'),
+    modctrl = require('../app/controllers/modctrl');
 
 module.exports = function(app, passport) {
 
@@ -536,18 +537,6 @@ module.exports = function(app, passport) {
         scope: "email"
     }));
 
-    app.get('/auth/soton', function(req, res) {
-        res.render('soton', {
-            'info': req.flash('info'),
-            'error': req.flash('error')
-        });
-    });
-
-    app.post('/auth/soton', passport.authenticate('ldapauth', {
-        failureRedirect: '/auth/soton',
-        failureFlash: true,
-        successReturnToOrRedirect: '/'
-    }));
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
         User.findOne({

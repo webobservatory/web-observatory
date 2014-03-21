@@ -2,23 +2,15 @@ module.exports = {
     development: {
         db: 'mongodb://localhost/wo',
         app: {
-            name: 'SUWO Portal'
+            name: 'WO Portal'
         },
+        smtp: "",//smtp server used for pass reset/newsletter
+        recap_pbk:"",//recaptcha public key
+        recap_prk:"",//recaptcha private key
         facebook: {
-            clientID: "clientID",
-            clientSecret: "clientSecret",
-            callbackURL: "http://localhost:3000/auth/facebook/callback"
-        }
-    },
-    production: {
-        db: process.env.MONGOLAB_URI || 'mongodb://web-001.ecs.soton.ac.uk',
-        app: {
-            name: 'SUWO Portal'
-        },
-        facebook: {
-            clientID: "clientID",
-            clientSecret: "clientSecret",
-            callbackURL: "{{production callbackURL}}"
+            clientID: "",//clientID
+            clientSecret: "",//clientSecret
+            callbackURL: ""//http://localhost:3000/auth/facebook/callback
         }
     }
 };
