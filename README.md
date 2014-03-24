@@ -22,6 +22,8 @@ Then go to the web-observatory directory and install dependencies using npm
 
 It should be noted that a C/C++ complier is required. You should be fine on Linux/Unix/Mac. For Windows, please install any version (including the express version) of Visual Studio 2012/2013.
 
+After the installation you need to edit the configuration file at **web-observatory/config/config.js**. Each field in **config.js** is explained by comments.
+
 #### Starting the Web Observatory
 
 Assuming you're in the web-observatory directory, the Web Observatory can be started by typing
@@ -56,3 +58,5 @@ or more permanently:
     node app.js
 
 Now WO should be available at http://localhost:8000. Note that you can only bind a port>1024 unless node is run as root.
+
+
