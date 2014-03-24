@@ -44,7 +44,7 @@ module.exports = function(passport, config) {
     passport.use(new LDAPStrategy(ldapOpts, function(user, done) {
         User.findOrCreateSotonUser(user, done);
     }));
-
+/*
     passport.use(new FacebookStrategy({
         clientID: config.facebook.clientID,
         clientSecret: config.facebook.clientSecret,
@@ -52,4 +52,5 @@ module.exports = function(passport, config) {
     }, function(accessToken, refreshToken, profile, done) {
         User.findOrCreateFaceBookUser(profile, done);
     }));
+    */
 };
