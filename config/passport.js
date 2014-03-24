@@ -52,4 +52,5 @@ module.exports = function(passport, config) {
     }, function(accessToken, refreshToken, profile, done) {
         User.findOrCreateFaceBookUser(profile, done);
     }));
+    
 };
