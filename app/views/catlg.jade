@@ -61,11 +61,11 @@ html(lang='en')
                       -   name = name.substring(0,27);
                       -   name = name + '...';}
                       td.col-md-3
-                        span(itemprop='http://schema.org/name')
-                          if(val.opAcc)
-                            a.tp(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id+'/'+val.name) data-toogle='tooltip' title='Click to access')= name
-                          else
-                            a.tp(href=(type==='visualisation'?val.url:'/reqacc/'+val._id) data-toogle='tooltip' title='Private entry. Click to request access')= name
+                        if(val.opAcc)
+                          a.tp(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id+'/'+val.name) data-toogle='tooltip' title='Click to access')= name
+                        else
+                          a.tp(href=(type==='visualisation'?val.url:'/reqacc/'+val._id) data-toogle='tooltip' title='Private entry. Click to request access')= name
+                        meta(itemprop='http://schema.org/name' content=val.name)
                         if type === 'visualisation'
                           meta(itemprop='http://schema.org/url' content=val.url)
                       if type == 'dataset'
