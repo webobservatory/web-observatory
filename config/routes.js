@@ -717,4 +717,11 @@ module.exports = function(app, passport) {
         res.redirect('/');
     });
 
+    app.get('/version', function(req, res) {
+            res.render("version", {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user
+            });
+    });
 };
