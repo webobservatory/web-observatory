@@ -39,9 +39,11 @@ html(lang='en')
                     p.form-control-static(name='querytype')= data.querytype
               .form-group
                 .col-md-3.col-md-offset-4
-                  button#dbtest.btn.disabled
+                  button#dbtest.btn
                     span.glyphicon.glyphicon-globe
-                    = ' Test connection'
+                    |  Test connection
+                  |  
+                  span#conted.glyphicon
             if data.type === 'visualisation'
               .form-group
                 label.col-md-4.control-label(for='basedOn') Related dataset
@@ -85,13 +87,13 @@ html(lang='en')
               if data.type === 'dataset'
                 .col-md-3
                   label.checkbox(for='read')
-                    input#private(checked=data.opAcc!=='true'?undefined:true type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
+                    input#private(checked=data.opAcc==='true'?undefined:true type='checkbox', name='acc', value='false')
                     | Private dataset
                   p.help-block= 'Private '+data.type+'; I wish to authorise individual users to access this '+data.type
-                  #visible.collapse(class=data.opAcc==='true'?'in':undefined)
+                  #visible(class=data.opAcc==='true'?'in':undefined)
                     div
                       label.checkbox(for='visible')
-                        input(checked=data.opVis!=='true'?undefined:true type='checkbox', name='vis', value='false')
+                        input(checked=data.opVis==='true'?undefined:true type='checkbox', name='vis', value='false')
                         = 'Do not list my private '+ data.type +' in the catalogue'
               if data.type === 'visualisation'
                 .col-md-3
