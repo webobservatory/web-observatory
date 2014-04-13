@@ -4,13 +4,13 @@ var User = require('../app/models/user'),
     async = require('async'),
     ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
     queries = require('./middlewares/queries.js'),
-    config = require('./config').development;
-Recaptcha = require('recaptcha').Recaptcha,
-pbk = config.recap_pbk, //'6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H'
-prk = config.recap_prk, //'6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D'
-pass = require('../app/util/pass'),
-logger = require('../app/util/logger'),
-modctrl = require('../app/controllers/modctrl');
+    config = require('./config').development,
+    Recaptcha = require('recaptcha').Recaptcha,
+    pbk = config.recap_pbk, //'6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H'
+    prk = config.recap_prk, //'6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D'
+    pass = require('../app/util/pass'),
+    logger = require('../app/util/logger'),
+    modctrl = require('../app/controllers/modctrl');
 
 module.exports = function(app, passport) {
 
@@ -457,7 +457,7 @@ module.exports = function(app, passport) {
 
             if (mime === 'display') {
                 var viewer = 'csvview';
-                if (qtyp === 'mongodb' || qtyp === 'hive') viewer = 'jsonview';
+                if (qtyp === 'mongodb' || qtyp === 'hive' || qtyp === 'sql') viewer = 'jsonview';
                 res.render('query/' + viewer, {
                     'result': result,
                     'info': req.flash('info'),
@@ -718,10 +718,10 @@ module.exports = function(app, passport) {
     });
 
     app.get('/version', function(req, res) {
-            res.render("version", {
-                info: req.flash('info'),
-                error: req.flash('error'),
-                user: req.user
-            });
+        res.render("version", {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user
+        });
     });
 };

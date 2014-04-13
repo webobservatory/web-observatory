@@ -48,11 +48,13 @@ $(document).ready(function() {
         var data = {};
         $('#conted').removeClass('glyphicon-remove glyphicon-ok');
         data.url = $('#adddata input[name=url]').val();
+        data.user = $('#adddata input[name=user]').val();
+        data.pwd = $('#adddata input[name=pwd]').val();
         data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
         if (data.url.split('://')[0] !== protocol[data.typ])
             return alert("Dataset type doesn't mathch URL protocol");
-        if (data.typ.indexOf('sql') !== -1) return alert('Dataset not yet supported');
-        $.get('/contest?url=' + data.url + '&typ=' + data.typ, function(data, textStatus) {
+        if (data.typ.indexOf('postgresql') !== -1) return alert('Dataset not yet supported');
+        $.get('/contest?url=' + data.url + '&typ=' + data.typ + '&user='+data.user+'&pwd='+data.pwd, function(data, textStatus) {
             //console.log(data);
             if (data) {
                 //alert('Connection failed');
