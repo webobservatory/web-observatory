@@ -20,18 +20,14 @@ function decryptPwd(ds) {
 }
 
 function pqDriver(query, mime, ds, cb) {
-    var client = new pg.Client({
-        user: ds.user,
-        password: decryptPwd(ds),
-        host: ds.url
-    });
+    var url = 'postgres://' + (ds.auth.user ? ds.auth.user + ':' + pwd : '') + '@' + ds.url.split('postgres://')[1];
+    var client = new pg.Client(url);
     client.connect(function(err) {
         if (err) {
             return console.error('could not connect to postgres', err);
         }
         client.query(query, function(err, result) {
             cb(err, result);
-            console.log(result.rows[0].theTime);
             client.end();
         });
     });
@@ -130,6 +126,15 @@ function mgdbTest(ds, cb) {
     }
 }
 
+function pqTest(query, mime, ds, cb) {
+    var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.pwd : '') + '@' + ds.url.split('postgres://')[1];
+    var client = new pg.Client(url);
+    client.connect(function(err) {
+        cb(err);
+        client.end();
+    });
+}
+
 function hiveTest(ds, cb) {
     hive.test(ds.url, cb);
 }
@@ -146,7 +151,7 @@ function mysqlTest(ds, cb) {
 var tests = {
     sparql: sparqlTest,
     mysql: mysqlTest,
-    //postgressql: pqTest,
+    postgressql: pqTest,
     hive: hiveTest,
     mongodb: mgdbTest
 };
