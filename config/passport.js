@@ -1,7 +1,9 @@
 var mongoose = require('mongoose'),
     LocalStrategy = require('passport-local').Strategy,
     LDAPStrategy = require('passport-ldapauth').Strategy,
+    RememberMeStrategy = require('passport-remember-me').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
+    crypto = require('crypto'),
     User = mongoose.model('User');
 
 
@@ -44,7 +46,12 @@ module.exports = function(passport, config) {
     passport.use(new LDAPStrategy(ldapOpts, function(user, done) {
         User.findOrCreateSotonUser(user, done);
     }));
-/*
+
+    passport.use(new RememberMeStrategy(
+        consumeRemMeToken,
+        issueToken));
+
+    /*
     passport.use(new FacebookStrategy({
         clientID: config.facebook.clientID,
         clientSecret: config.facebook.clientSecret,
@@ -54,3 +61,28 @@ module.exports = function(passport, config) {
     }));
     */
 };
+
+function consumeRemMeToken(token, done) {
+    User.findOne({
+        rememberme: token
+    }, function(err, user) {
+        if (err) return done(err, null);
+        if (!user) return done({
+            message: 'No remembered user found'
+        }, null);
+
+        user.rememberme = null;
+        user.save(done);
+    });
+}
+
+function issueToken(user, done) {
+    crypto.randomBytes(32, function(ex, buf) {
+        var token = buf.toString('hex');
+        user.rememberme = token;
+        user.save(function(err, user) {
+            if (err) return done(err);
+            done(null, token);
+        });
+    });
+}

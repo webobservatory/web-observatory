@@ -13,6 +13,9 @@ body
           input.form-control(placeholder='Email' type='email' name='email' required='')
           input.form-control(placeholder='Password' type='password', name='password' required='')
           button.btn.btn-primary.btn-lg.btn-block(type='submit') Login
+          .checkbox
+            label Remember Me
+              input(name='remember_me' type='checkbox')
       .row
         //a(href="/auth/facebook") Log In With Facebook
         a(href='/profile/forgot-pass') Forgot password?

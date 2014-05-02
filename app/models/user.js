@@ -32,6 +32,7 @@ UserSchema = mongoose.Schema({
         token: String,
         time_stamp: Date
     },
+    rememberme: String,
     //datasets relevant
     visible: [ //list of datasets that are visible to this user
         {
@@ -52,25 +53,22 @@ UserSchema = mongoose.Schema({
         }
     ],
     accreq: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Entry'
+    }], //access requests sent to these datasets
+    pendingreq: [{ //received requests
+        sender: String,
+        entry: {
             type: Schema.Types.ObjectId,
             ref: 'Entry'
-        }
-    ], //access requests sent to these datasets
-    pendingreq: [{ //received requests
-            sender: String,
-            entry: {
-                type: Schema.Types.ObjectId,
-                ref: 'Entry'
-            },
-            read: Boolean
-        }
-    ],
+        },
+        read: Boolean
+    }],
     msg: [{ //general messages
-            sender: String,
-            content: String,
-            read: Boolean
-        }
-    ]
+        sender: String,
+        content: String,
+        read: Boolean
+    }]
 });
 
 //user control
@@ -124,8 +122,8 @@ UserSchema.statics.isValidUserPassword = function(email, password, done) {
     }, function(err, user) {
         if (err) return done(err);
         if (!user) return done(null, false, {
-                message: 'Incorrect email.'
-            });
+            message: 'Incorrect email.'
+        });
 
         if (!user.salt || !user.hash)
             return done(null, false, {
@@ -249,8 +247,8 @@ UserSchema.statics.hasAccessTo = function(email, ds_id, done) {
         if (err) return done(err);
 
         if (!user) return done(null, false, {
-                message: 'Access denied'
-            });
+            message: 'Access denied'
+        });
         done(null, user);
     });
 };

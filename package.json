@@ -18,6 +18,7 @@
         "nodemon": "*",
         "nodemailer": "*",
         "recaptcha": "*",
+        "passport-remember-me": "*",
         "passport": "*",
         "passport-http-bearer": "*",
         "passport-local": "*",

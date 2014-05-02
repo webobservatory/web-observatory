@@ -43,6 +43,7 @@ app.configure(function() {
     }));
     app.use(passport.initialize());
     app.use(passport.session());
+    app.use(passport.authenticate('remember-me'));
     app.use(express.methodOverride());
     app.use(flash());
     app.use(app.router);
@@ -83,4 +84,4 @@ http.createServer(app).listen(app.get('port'), function() {
     console.log("Express server listening on port " + app.get('port'));
 });
 
-exports.app = app;//for vhost
+exports.app = app; //for vhost

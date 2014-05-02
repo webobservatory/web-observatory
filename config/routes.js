@@ -10,6 +10,7 @@ var User = require('../app/models/user'),
     prk = config.recap_prk, //'6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D'
     pass = require('../app/util/pass'),
     logger = require('../app/util/logger'),
+    crypto = require('crypto'),
     modctrl = require('../app/controllers/modctrl');
 
 module.exports = function(app, passport) {
@@ -394,6 +395,7 @@ module.exports = function(app, passport) {
         }
 
         async.waterfall([
+
             function(cb) {
                 if (qtype === 'mongodb') {
                     Entry.findById(req.params.dsId, function(err, ds) {
@@ -443,8 +445,8 @@ module.exports = function(app, passport) {
                 qlog.ds = ds.url;
                 var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
                 if (!queryDriver) cb({
-                        message: 'Query type not supported'
-                    });
+                    message: 'Query type not supported'
+                });
                 else queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
             }
         ], function(err, result) {
@@ -473,8 +475,8 @@ module.exports = function(app, passport) {
     app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
         var test = queries.tests[req.query.typ];
         if (!test) return res.json({
-                message: 'Dataset type not yet supported'
-            });
+            message: 'Dataset type not yet supported'
+        });
         test({
             url: req.query.url,
             user: req.query.user,
@@ -486,17 +488,27 @@ module.exports = function(app, passport) {
     //authentication
 
     app.get("/login", function(req, res) {
+    console.log(req.cookies);
         res.render("login", {
             info: req.flash('info'),
-            error: req.flash('error')
+            error: req.flash('error'),
+            remember_me: req.cookies.remember_me ? true : false
         });
     });
 
     app.post("/login", passport.authenticate('local', {
-        successReturnToOrRedirect: '/',
+        //successReturnToOrRedirect: '/',
         failureRedirect: "/login",
         failureFlash: true
-    }));
+    }), rememberMe, function(req, res) {
+        var url = '/';
+        console.log(req.session);
+        if (req.session && req.session.returnTo) {
+            url = req.session.returnTo;
+            delete req.session.returnTo;
+        }
+        return res.redirect(url);
+    });
 
     app.get("/signup", function(req, res) {
         var recaptcha = new Recaptcha(pbk, prk);
@@ -540,8 +552,9 @@ module.exports = function(app, passport) {
 
     app.get('/auth/soton', function(req, res) {
         res.render('soton', {
-            'info': req.flash('info'),
-            'error': req.flash('error')
+            info: req.flash('info'),
+            error: req.flash('error'),
+            remember_me: req.cookies.remember_me ? true : false
         });
     });
 
@@ -549,7 +562,7 @@ module.exports = function(app, passport) {
         failureRedirect: '/auth/soton',
         failureFlash: true,
         successReturnToOrRedirect: '/'
-    }));
+    }), rememberMe);
 
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
@@ -713,6 +726,7 @@ module.exports = function(app, passport) {
     });
 
     app.get('/logout', function(req, res) {
+        res.clearCookie('remember_me');
         req.logout();
         res.redirect('/');
     });
@@ -725,3 +739,25 @@ module.exports = function(app, passport) {
         });
     });
 };
+
+function rememberMe(req, res, next) {
+    // Issue a remember me cookie if the option was checked
+    console.log(req.body);
+    if (!req.body.remember_me) {
+        return next();
+    }
+
+    crypto.randomBytes(32, function(ex, buf) {
+        var token = buf.toString('hex');
+        req.user.rememberme = token;
+        req.user.save(function(err, user) {
+            if (err) return next(err);
+            res.cookie('remember_me', token, {
+                path: '/',
+                httpOnly: true,
+                maxAge: 604800000
+            });
+            return next();
+        });
+    });
+}
