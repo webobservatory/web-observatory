@@ -8,6 +8,7 @@ var express = require('express'),
     path = require('path'),
     mongoose = require('mongoose'),
     passport = require("passport"),
+    logger = require('./app/util/logger'),
     flash = require("connect-flash");
 
 var env = process.env.NODE_ENV || 'development',
@@ -28,12 +29,19 @@ fs.readdirSync(models_dir).forEach(function(file) {
 require('./config/passport')(passport, config);
 
 var app = express();
+
+var logging = function(req, res, next) {
+    logger.info(req);
+    next();
+};
+
 app.locals.moment = require('moment');
 app.configure(function() {
     app.set('port', process.env.PORT || 3000);
     app.set('views', __dirname + '/app/views');
     app.engine('jade', require('jade').__express);
     app.set('view engine', 'jade');
+    app.use(logging);
     app.use(express.favicon());
     app.use(express.logger('dev'));
     app.use(express.cookieParser());

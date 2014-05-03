@@ -1,6 +1,7 @@
 var User = require('../../app/models/user'),
     Entry = require('../../app/models/entry'),
     async = require('async');
+
 exports.isAuthenticated = function(req, res, next) {
     if (req.isAuthenticated()) {
         next();
@@ -24,7 +25,6 @@ exports.userExist = function(req, res, next) {
 };
 
 exports.hasAccToDB = function(mail, _id, next) {
-
     async.waterfall([
         function(cb) {
             Entry.findOne({
