@@ -488,7 +488,7 @@ module.exports = function(app, passport) {
     //authentication
 
     app.get("/login", function(req, res) {
-    console.log(req.cookies);
+        console.log(req.cookies);
         res.render("login", {
             info: req.flash('info'),
             error: req.flash('error'),
