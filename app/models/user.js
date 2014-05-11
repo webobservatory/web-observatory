@@ -7,7 +7,11 @@ var EntrySchema = mongoose.model('Entry').schema;
 UserSchema = mongoose.Schema({
     firstName: String,
     lastName: String,
-    username: String,
+    username: {
+        type: String,
+        unique: true,
+        required: true
+    },
     email: String,
     org: String,
     salt: String,

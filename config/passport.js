@@ -3,8 +3,15 @@ var mongoose = require('mongoose'),
     LDAPStrategy = require('passport-ldapauth').Strategy,
     RememberMeStrategy = require('passport-remember-me').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
+    BasicStrategy = require('passport-http').BasicStrategy,
+    ClientPasswordStrategy = require('passport-oauth2-client-password').Strategy,
+    BearerStrategy = require('passport-http-bearer').Strategy,
     crypto = require('crypto'),
-    User = mongoose.model('User');
+    User = mongoose.model('User'),
+    AccessToken = mongoose.model('AccessToken'),
+    RefreshToken = mongoose.model('RefreshToken'),
+    Client = mongoose.model('Client'),
+    config = require('./config.js');
 
 
 module.exports = function(passport, config) {
@@ -48,8 +55,8 @@ module.exports = function(passport, config) {
     }));
 
     passport.use(new RememberMeStrategy(
-        consumeRemMeToken,
-        issueToken));
+        consumeRememberMeToken,
+        issueRememberMeToken));
 
     /*
     passport.use(new FacebookStrategy({
@@ -60,9 +67,94 @@ module.exports = function(passport, config) {
         User.findOrCreateFaceBookUser(profile, done);
     }));
     */
+
+
+    //OAuth2
+    passport.use(new BasicStrategy(
+        function(username, password, done) {
+            Client.findOne({
+                _id: username
+            }, function(err, client) {
+                if (err) {
+                    return done(err);
+                }
+                if (!client) {
+                    return done(null, false);
+                }
+                if (client.clientSecret != password) {
+                    return done(null, false);
+                }
+
+                return done(null, client);
+            });
+        }
+    ));
+
+    passport.use(new ClientPasswordStrategy(
+        function(clientId, clientSecret, done) {
+            Client.findOne({
+                _id: clientId
+            }, function(err, client) {
+                if (err) {
+                    return done(err);
+                }
+                if (!client) {
+                    return done(null, false);
+                }
+                if (client.clientSecret != clientSecret) {
+                    return done(null, false);
+                }
+
+                return done(null, client);
+            });
+        }
+    ));
+
+    passport.use(new BearerStrategy(
+        function(accessToken, done) {
+            AccessToken.findOne({
+                token: accessToken
+            }, function(err, token) {
+                if (err) {
+                    return done(err);
+                }
+                if (!token) {
+                    return done(null, false);
+                }
+
+                if (Math.round((Date.now() - token.created) / 1000) > config.oauth.tokenLife) {
+                    AccessToken.remove({
+                        token: accessToken
+                    }, function(err) {
+                        if (err) return done(err);
+                    });
+                    return done(null, false, {
+                        message: 'Token expired'
+                    });
+                }
+
+                User.findById(token.userId, function(err, user) {
+                    if (err) {
+                        return done(err);
+                    }
+                    if (!user) {
+                        return done(null, false, {
+                            message: 'Unknown user'
+                        });
+                    }
+
+                    var info = {
+                        scope: '*'
+                    };
+                    done(null, user, info);
+                });
+            });
+        }
+    ));
+
 };
 
-function consumeRemMeToken(token, done) {
+function consumeRememberMeToken(token, done) {
     User.findOne({
         rememberme: token
     }, function(err, user) {
@@ -76,7 +168,7 @@ function consumeRemMeToken(token, done) {
     });
 }
 
-function issueToken(user, done) {
+function issueRememberMeToken(user, done) {
     crypto.randomBytes(32, function(ex, buf) {
         var token = buf.toString('hex');
         user.rememberme = token;

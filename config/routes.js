@@ -11,7 +11,8 @@ var User = require('../app/models/user'),
     pass = require('../app/util/pass'),
     logger = require('../app/util/logger'),
     crypto = require('crypto'),
-    modctrl = require('../app/controllers/modctrl');
+    modctrl = require('../app/controllers/modctrl'),
+    oauth2 = require('../oauth/oauth2server');
 
 module.exports = function(app, passport) {
 
@@ -739,6 +740,30 @@ module.exports = function(app, passport) {
         });
     });
 };
+
+//API
+app.get('/api/:typ(dataset|visualisation)', function(req, res) {
+    res.send('This is not implemented now');
+});
+
+//Oauth
+app.post('/oauth/token', oauth2.token);
+
+app.get('/api/userInfo',
+    passport.authenticate('bearer', {
+        session: false
+    }),
+    function(req, res) {
+        // req.authInfo is set using the `info` argument supplied by
+        // `BearerStrategy`.  It is typically used to indicate scope of the token,
+        // and used in access control checks.  For illustrative purposes, this
+        // example simply returns the scope in the response.
+        res.json({
+            user_id: req.user.userId,
+            name: req.user.username,
+            scope: req.authInfo.scope
+        })
+    });
 
 function rememberMe(req, res, next) {
     // Issue a remember me cookie if the option was checked
