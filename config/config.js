@@ -11,7 +11,7 @@ module.exports = {
             clientID: "", //clientID
             clientSecret: "", //clientSecret
             callbackURL: "" //http://localhost:3000/auth/facebook/callback
-        }
+        },
         oauth: {
             tokenLife: 3600
         }

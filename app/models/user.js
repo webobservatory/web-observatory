@@ -1,8 +1,8 @@
-var mongoose = require('mongoose');
-var hash = require('../util/hash');
-var logger = require('../util/logger');
-var Schema = mongoose.Schema;
-var EntrySchema = mongoose.model('Entry').schema;
+var mongoose = require('mongoose'),
+    hash = require('../util/hash'),
+    logger = require('../util/logger'),
+    Schema = mongoose.Schema,
+    EntrySchema = require('./entry').schema;
 
 UserSchema = mongoose.Schema({
     firstName: String,
@@ -10,7 +10,6 @@ UserSchema = mongoose.Schema({
     username: {
         type: String,
         unique: true,
-        required: true
     },
     email: String,
     org: String,

@@ -10,8 +10,7 @@ var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     AccessToken = mongoose.model('AccessToken'),
     RefreshToken = mongoose.model('RefreshToken'),
-    Client = mongoose.model('Client'),
-    config = require('./config.js');
+    Client = mongoose.model('Client');
 
 
 module.exports = function(passport, config) {
@@ -151,7 +150,6 @@ module.exports = function(passport, config) {
             });
         }
     ));
-
 };
 
 function consumeRememberMeToken(token, done) {

@@ -489,7 +489,6 @@ module.exports = function(app, passport) {
     //authentication
 
     app.get("/login", function(req, res) {
-        console.log(req.cookies);
         res.render("login", {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -739,35 +738,32 @@ module.exports = function(app, passport) {
             user: req.user
         });
     });
-};
+    //API
+    app.get('/api/:typ(dataset|visualisation)', function(req, res) {
+        res.send('This is not implemented now');
+    });
 
-//API
-app.get('/api/:typ(dataset|visualisation)', function(req, res) {
-    res.send('This is not implemented now');
-});
+    //Oauth
+    app.post('/oauth/token', oauth2.token);
 
-//Oauth
-app.post('/oauth/token', oauth2.token);
-
-app.get('/api/userInfo',
-    passport.authenticate('bearer', {
+    app.get('/api/userInfo', passport.authenticate('bearer', {
         session: false
-    }),
-    function(req, res) {
+    }), function(req, res) {
         // req.authInfo is set using the `info` argument supplied by
         // `BearerStrategy`.  It is typically used to indicate scope of the token,
         // and used in access control checks.  For illustrative purposes, this
         // example simply returns the scope in the response.
         res.json({
-            user_id: req.user.userId,
-            name: req.user.username,
+            user_id: req.user._id,
+            email: req.user.email,
             scope: req.authInfo.scope
-        })
+        });
     });
+};
+
 
 function rememberMe(req, res, next) {
     // Issue a remember me cookie if the option was checked
-    console.log(req.body);
     if (!req.body.remember_me) {
         return next();
     }

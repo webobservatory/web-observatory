@@ -2,6 +2,7 @@ var oauth2orize = require('oauth2orize'),
     passport = require('passport'),
     crypto = require('crypto'),
     config = require('../config/config'),
+    mongoose = require('mongoose'),
     UserModel = mongoose.model('User'),
     AccessTokenModel = mongoose.model('AccessToken'),
     RefreshTokenModel = mongoose.model('RefreshToken'),
@@ -11,20 +12,14 @@ var oauth2orize = require('oauth2orize'),
 var server = oauth2orize.createServer();
 
 // Exchange username & password for access token.
-server.exchange(oauth2orize.exchange.password(function(client, username, password, scope, done) {
-    UserModel.findOne({
-        username: username
-    }, function(err, user) {
+server.exchange(oauth2orize.exchange.password(function(client, email, password, scope, done) {
+    UserModel.isValidUserPassword(email, password, function(err, user) {
         if (err) {
             return done(err);
         }
         if (!user) {
             return done(null, false);
         }
-        if (!user.checkPassword(password)) {
-            return done(null, false);
-        }
-
         RefreshTokenModel.remove({
             userId: user._id,
             clientId: client._id
@@ -57,13 +52,13 @@ server.exchange(oauth2orize.exchange.password(function(client, username, passwor
         });
         var info = {
             scope: '*'
-        }
+        };
         token.save(function(err, token) {
             if (err) {
                 return done(err);
             }
             done(null, tokenValue, refreshTokenValue, {
-                'expires_in': config.oauth.tokenLife
+                'expires_in': config.development.oauth.tokenLife
             });
         });
     });
@@ -124,13 +119,13 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
             });
             var info = {
                 scope: '*'
-            }
+            };
             token.save(function(err, token) {
                 if (err) {
                     return done(err);
                 }
                 done(null, tokenValue, refreshTokenValue, {
-                    'expires_in': config.get('security:tokenLife')
+                    'expires_in': config.development.oauth.tokenLife
                 });
             });
         });
@@ -144,4 +139,4 @@ exports.token = [
     }),
     server.token(),
     server.errorHandler()
-]
+];
