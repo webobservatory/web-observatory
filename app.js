@@ -31,7 +31,7 @@ require('./config/passport')(passport, config);
 var app = express();
 
 var logging = function(req, res, next) {
-    if (0 === req.path.indexOf('/css') * req.path.indexOf('/js')) return next();
+    if (0 === req.path.indexOf('/css') * req.path.indexOf('/js') * req.path.indexOf('/fonts')) return next();
 
     var _req = {};
 
