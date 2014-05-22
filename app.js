@@ -31,6 +31,8 @@ require('./config/passport')(passport, config);
 var app = express();
 
 var logging = function(req, res, next) {
+    if (0 === req.path.indexOf('/css') * req.path.indexOf('/js')) return next();
+
     var _req = {};
 
     _req.port = req.port;
@@ -54,7 +56,6 @@ app.configure(function() {
     app.set('views', __dirname + '/app/views');
     app.engine('jade', require('jade').__express);
     app.set('view engine', 'jade');
-    app.use(logging);
     app.use(express.favicon());
     app.use(express.logger('dev'));
     app.use(express.cookieParser());
@@ -67,6 +68,7 @@ app.configure(function() {
     app.use(passport.authenticate('remember-me'));
     app.use(express.methodOverride());
     app.use(flash());
+    app.use(logging);
     app.use(app.router);
     app.use(express.static(path.join(__dirname, 'public')));
 });
