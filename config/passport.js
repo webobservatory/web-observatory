@@ -157,9 +157,9 @@ function consumeRememberMeToken(token, done) {
         rememberme: token
     }, function(err, user) {
         if (err) return done(err, null);
-        if (!user) return done({
+        if (!user) return done(null, false, {
             message: 'No remembered user found'
-        }, null);
+        });
 
         user.rememberme = null;
         user.save(done);
