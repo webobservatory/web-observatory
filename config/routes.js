@@ -744,6 +744,16 @@ module.exports = function(app, passport) {
     });
 
     //Oauth
+    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
+        res.render('oauth-authorise', {
+            transactionID: req.oauth2.transactionID,
+            user: req.user,
+            client: req.oauth2.client
+        });
+    });
+
+    app.post('/oauth/decision', ensureLoggedIn('/login'), oauth2.decision);
+
     app.post('/oauth/token', oauth2.token);
 
     app.get('/api/userInfo', passport.authenticate('bearer', {

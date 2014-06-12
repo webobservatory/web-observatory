@@ -131,7 +131,19 @@ server.exchange(oauth2orize.exchange.refreshToken(function(client, refreshToken,
         });
     });
 }));
-
+//authorise endpoint
+exports.authorise = server.authorization(function(clientID, redirectURI, done) {
+    ClientModel.findById(clientID, function(err, client) {
+        if (err) return done(err);
+        // It's recomended by the OAuth2 spec to check that
+        // redirectURI provided by the client matches one registered with
+        // the server.
+        // if(!client || redirectURI !== client.redirectURI) return done(null, false, null);
+        done(null, client, redirectURI);
+    });
+});
+// authorisation decision
+exports.decision = server.decision();
 // token endpoint
 exports.token = [
     passport.authenticate(['basic', 'oauth2-client-password'], {
