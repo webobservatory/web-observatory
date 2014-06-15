@@ -138,7 +138,7 @@ exports.authorise = server.authorization(function(clientID, redirectURI, done) {
         // It's recomended by the OAuth2 spec to check that
         // redirectURI provided by the client matches one registered with
         // the server.
-        // if(!client || redirectURI !== client.redirectURI) return done(null, false, null);
+        if (!client || redirectURI !== client.redirectURI) return done(null, false, null);
         done(null, client, redirectURI);
     });
 });

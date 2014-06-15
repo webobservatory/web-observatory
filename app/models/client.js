@@ -10,7 +10,8 @@ var ClientSchema = Schema({
     clientSecret: {
         type: String,
         required: true
-    }
+    },
+    redirectURI: String
 });
 
 module.exports = mongoose.model("Client", ClientSchema);
