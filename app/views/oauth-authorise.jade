@@ -16,6 +16,6 @@ body
         form.form-signin(method="POST", action="/oauth/decision")
           input(type='hidden', name='transaction_id', value=transactionID)
           button.btn.btn-primary.btn-lg.btn-block(type="submit") Allow
-          button.btn.btn-primary.btn-lg.btn-block(type="submit" name='cancel') Deny
+          button.btn.btn-primary.btn-lg.btn-block(type="submit" name='cancel' value='Deny') Deny
       #push
   include includes/footer
