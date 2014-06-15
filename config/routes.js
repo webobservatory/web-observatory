@@ -742,18 +742,27 @@ module.exports = function(app, passport) {
         res.send('This is not implemented now');
     });
 
-    //Oauth
-    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
-        res.render('oauth-authorise', {
-            transactionID: req.oauth2.transactionID,
-            user: req.user,
-            client: req.oauth2.client
+    app.get('/api/stats', passport.authenticate('bearer', {
+        session: false
+    }), function(req, res) {
+        var sequence = {};
+
+        Entry.find({}, function(err, entries) {
+            for (var i = 0; i < entries.length; i++) {
+                var etry = entries[i];
+                var type = etry.type;
+                var additional = etry.querytype;
+                var key = type;
+                if (type === 'dataset') key = key + '-' + additional;
+                if (!sequence[key]) {
+                    sequence[key] = 1;
+                } else {
+                    sequence[key] = sequence[key] + 1;
+                }
+            }
+            res.send(sequence);
         });
     });
-
-    app.post('/oauth/decision', ensureLoggedIn('/login'), oauth2.decision);
-
-    app.post('/oauth/token', oauth2.token);
 
     app.get('/api/userInfo', passport.authenticate('bearer', {
         session: false
@@ -768,6 +777,18 @@ module.exports = function(app, passport) {
             scope: req.authInfo.scope
         });
     });
+    //Oauth
+    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
+        res.render('oauth-authorise', {
+            transactionID: req.oauth2.transactionID,
+            user: req.user,
+            client: req.oauth2.client
+        });
+    });
+
+    app.post('/oauth/decision', ensureLoggedIn('/login'), oauth2.decision);
+
+    app.post('/oauth/token', oauth2.token);
 };
 
 
