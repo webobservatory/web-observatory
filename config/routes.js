@@ -502,7 +502,6 @@ module.exports = function(app, passport) {
         failureFlash: true
     }), rememberMe, function(req, res) {
         var url = '/';
-        console.log(req.session);
         if (req.session && req.session.returnTo) {
             url = req.session.returnTo;
             delete req.session.returnTo;
