@@ -8,11 +8,19 @@ var express = require('express'),
     path = require('path'),
     mongoose = require('mongoose'),
     passport = require("passport"),
-    flash = require("connect-flash");
+    flash = require("connect-flash"),
+    //express 4.0 middlewares
+    morganLogger = require('morgan'),
+    bodyParser = require('body-parser'),
+    cookieParser = require('cookie-parser'),
+    session = require('express-session'),
+    favicon = require('static-favicon'),
+    errorHandler = require('errorhandler'),
+    methodOverride = require('method-override'),
+    logging = require('./app/controllers/middleware/logging');
 
 var env = process.env.NODE_ENV || 'development',
     config = require('./config/config')[env];
-
 
 mongoose.connect(config.db);
 
@@ -28,30 +36,31 @@ fs.readdirSync(models_dir).forEach(function(file) {
 require('./config/passport')(passport, config);
 
 var app = express();
-app.locals.moment = require('moment');
-app.configure(function() {
-    app.set('port', process.env.PORT || 3000);
-    app.set('views', __dirname + '/app/views');
-    app.engine('jade', require('jade').__express);
-    app.set('view engine', 'jade');
-    app.use(express.favicon());
-    app.use(express.logger('dev'));
-    app.use(express.cookieParser());
-    app.use(express.bodyParser());
-    app.use(express.session({
-        secret: 'keyboard cat'
-    }));
-    app.use(passport.initialize());
-    app.use(passport.session());
-    app.use(express.methodOverride());
-    app.use(flash());
-    app.use(app.router);
-    app.use(express.static(path.join(__dirname, 'public')));
-});
 
-app.configure('development', function() {
-    app.use(express.errorHandler());
-});
+app.locals.moment = require('moment');
+app.set('port', process.env.PORT || 3000);
+app.set('views', __dirname + '/app/views');
+app.engine('jade', require('jade').__express);
+app.set('view engine', 'jade');
+//app.use(favicon);
+app.use(morganLogger('dev'));
+app.use(cookieParser());
+app.use(bodyParser());
+app.use(session({
+    secret: 'keyboard cat'
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(passport.authenticate('remember-me'));
+app.use(methodOverride());
+app.use(flash());
+app.use(logging);
+app.use(express.static(path.join(__dirname, 'public')));
+
+require('./config/routes')(app, passport);
+
+var env = process.env.NODE_ENV || 'development';
+if ('development' === env) app.use(errorHandler());
 
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
@@ -77,10 +86,9 @@ app.use(function(req, res, next) {
     res.type('txt').send('Not found');
 });
 
-require('./config/routes')(app, passport);
 
-http.createServer(app).listen(app.get('port'), function() {
+app.listen(app.get('port'), function() {
     console.log("Express server listening on port " + app.get('port'));
 });
 
-exports.app = app;//for vhost
+exports.app = app; //for vhost

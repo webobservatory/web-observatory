@@ -31,17 +31,17 @@ html(lang='en')
                 th
                 th Name
                 if type === 'dataset'
-                  th Type
+                  th.col-md-2 Type
                 if type == 'visualisation'
-                  th Source
-                th Publisher
+                  th.col-md-2 Source
+                th.col-md-2 Publisher
                 th Description
-                th Access
+                th.col-md-1 Access
             tbody
               if table
                 each val in table
                   if val
-                    tr
+                    tr(itemscope itemtype=(type==='dataset'?'http://schema.org/Dataset':'http://schema.org/WebPage'))
                       td
                         .btn-group
                           span.glyphicon.glyphicon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
@@ -60,18 +60,19 @@ html(lang='en')
                       - if(name.length>30) {
                       -   name = name.substring(0,27);
                       -   name = name + '...';}
-                      td.col-md-3
+                      td
                         if(val.opAcc)
                           a.tp(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id+'/'+val.name) data-toogle='tooltip' title='Click to access')= name
                         else
                           a.tp(href=(type==='visualisation'?val.url:'/reqacc/'+val._id) data-toogle='tooltip' title='Private entry. Click to request access')= name
+                        meta(itemprop='http://schema.org/name' content=val.name)
+                        if type === 'visualisation'
+                          meta(itemprop='http://schema.org/url' content=val.url)
                       if type == 'dataset'
-                        td
-                          = val.querytype
+                        td= val.querytype
                       if type == 'visualisation'
-                        td
-                          = val.related
-                      td
+                        td(itemprop='http://schema.org/isBasedOnUrl')= val.related
+                      td(itemprop='http://schema.org/provider')
                         = val.publisher_name?val.publisher_name:'N/A'
                       //display no more than 50 characters of description
                       - var des=val.des?val.des:''
@@ -81,6 +82,7 @@ html(lang='en')
                       td
                         .tp(data-toogle='tooltip' title=val.des)
                           = des
+                        meta(itemprop='http://schema.org/description' content=val.des)
                       td
                         if val.opAcc
                           span.glyphicon.glyphicon-ok

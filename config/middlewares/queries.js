@@ -5,8 +5,8 @@ var crypto = require('crypto'),
     hive = require('./hive'),
     pq = require('pq'),
     mgclient = require('mongodb').MongoClient,
-    mongoose = require('mongoose');
-var logger = require('../../app/util/logger');
+    mongoose = require('mongoose'),
+    logger = require('../../app/util/logger');
 
 var enc_alg = 'aes256';
 
@@ -20,37 +20,28 @@ function decryptPwd(ds) {
 }
 
 function pqDriver(query, mime, ds, cb) {
-    var client = new pg.Client({
-        user: ds.user,
-        password: decryptPwd(ds),
-        host: ds.url
-    });
+    var url = 'postgres://' + (ds.auth.user ? ds.auth.user + ':' + pwd : '') + '@' + ds.url.split('postgres://')[1];
+    var client = new pg.Client(url);
     client.connect(function(err) {
         if (err) {
             return console.error('could not connect to postgres', err);
         }
         client.query(query, function(err, result) {
             cb(err, result);
-            console.log(result.rows[0].theTime);
             client.end();
         });
     });
 }
 
 function mysqlDriver(query, mime, ds, cb) {
-    var url = ds.url,
-        pwd = decryptPwd(ds);
-
-    var connection = mysql.createConnection({
-        host: url,
-        user: ds.user,
-        password: pwd
-    });
+    var pwd = decryptPwd(ds);
+    var url = 'mysql://' + (ds.auth.user ? ds.auth.user + ':' + pwd : '') + '@' + ds.url.split('mysql://')[1];
+    var connection = mysql.createConnection(url);
     connection.connect();
     connection.query(query, function(err, rows, fields) {
         cb(err, rows);
+        connection.end();
     });
-    connection.end();
 }
 
 function mgdbDriver(query, mime, ds, cb) {
@@ -135,14 +126,32 @@ function mgdbTest(ds, cb) {
     }
 }
 
+function pqTest(query, mime, ds, cb) {
+    var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.pwd : '') + '@' + ds.url.split('postgres://')[1];
+    var client = new pg.Client(url);
+    client.connect(function(err) {
+        cb(err);
+        client.end();
+    });
+}
+
 function hiveTest(ds, cb) {
     hive.test(ds.url, cb);
 }
 
+function mysqlTest(ds, cb) {
+    var url = 'mysql://' + (ds.user ? ds.user + ':' + ds.pwd : '') + '@' + ds.url.split('mysql://')[1];
+    var connection = mysql.createConnection(url);
+    connection.connect(function(err) {
+        cb(err);
+        connection.end();
+    });
+}
+
 var tests = {
     sparql: sparqlTest,
-    //mysql: mysqltest,
-    //postgressql: pqtest,
+    mysql: mysqlTest,
+    postgressql: pqTest,
     hive: hiveTest,
     mongodb: mgdbTest
 };

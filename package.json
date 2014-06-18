@@ -1,6 +1,6 @@
 {
     "name": "WO",
-    "version": "0.5.0",
+    "version": "0.6.0",
     "private": true,
     "scripts": {
         "start": "nodemon app.js"
@@ -10,6 +10,16 @@
         "connect-flash": "*",
         "connect-ensure-login": "*",
         "express": "*",
+
+        "body-parser": "*",
+        "morgan": "*",
+        "cookie-parser": "*",
+        "express-session": "*",
+        "static-favicon": "*",
+        "errorhandler": "*",
+        "method-override": "*",
+
+        "Faker": "",
         "jade": "*",
         "mongodb": "*",
         "moment": "*",
@@ -18,8 +28,12 @@
         "nodemon": "*",
         "nodemailer": "*",
         "recaptcha": "*",
+        "oauth2orize": "*",
+        "passport-remember-me": "*",
         "passport": "*",
         "passport-http-bearer": "*",
+        "passport-oauth2-client-password": "*",
+        "passport-http": "*",
         "passport-local": "*",
         "passport-facebook": "*",
         "passport-ldapauth": "*",

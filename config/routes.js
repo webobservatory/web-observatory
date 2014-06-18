@@ -4,13 +4,15 @@ var User = require('../app/models/user'),
     async = require('async'),
     ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
     queries = require('./middlewares/queries.js'),
-    config = require('./config').development;
+    config = require('./config').development,
     Recaptcha = require('recaptcha').Recaptcha,
-    pbk = config.recap_pbk,//'6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H'
-    prk = config.recap_prk,//'6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D'
+    pbk = config.recap_pbk, //'6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H'
+    prk = config.recap_prk, //'6LfwcOoSAAAAAGFI7h_SJoCBwUkvpDRf7_r8ZA_D'
     pass = require('../app/util/pass'),
     logger = require('../app/util/logger'),
-    modctrl = require('../app/controllers/modctrl');
+    crypto = require('crypto'),
+    modctrl = require('../app/controllers/modctrl'),
+    oauth2 = require('../oauth/oauth2server');
 
 module.exports = function(app, passport) {
 
@@ -112,7 +114,8 @@ module.exports = function(app, passport) {
             querytype: req.body.querytype,
             desc: req.body.desc,
             publisher: email,
-            publisher_name: req.user.username || (req.user.firstName ? req.user.firstName + ' ' : '') + req.user.lastName ? req.user.lastName : '',
+            publisher_name: req.user.username || ((req.user.firstName ? req.user.firstName + ' ' : '') + (req.user.lastName || '')),
+            related: req.body.basedOn,
             git: req.body.git,
             lice: req.body.lice,
             kw: req.body.kw ? req.body.kw.split(',') : [],
@@ -197,8 +200,8 @@ module.exports = function(app, passport) {
                     etry.kw = req.body.value.split(',');
                     break;
                 case 'acc':
-                    etry.acc = req.body.value.indexOf('private') === -1;
-                    etry.vis = req.body.value.indexOf('novis') === -1;
+                    etry.opAcc = req.body.value.indexOf('private') === -1;
+                    etry.opVis = req.body.value.indexOf('novis') === -1;
                     break;
             }
             modctrl.editEtry(etry_id, etry, function(err) {
@@ -263,8 +266,8 @@ module.exports = function(app, passport) {
             if (req.body.git) etry.git = req.body.git;
             if (req.body.related) etry.related = req.body.related;
             if (req.body.kw) etry.kw = req.body.kw.split(',');
-            if (req.body.vis) etry.vis = req.body.vis !== 'false';
-            if (req.body.acc) etry.acc = req.body.acc !== 'false';
+            if (req.body.vis !== undefined) etry.opVis = false;
+            if (req.body.acc !== undefined) etry.opAcc = false;
 
             modctrl.editEtry(etry_id, etry, function(err) {
                 if (err) {
@@ -393,6 +396,7 @@ module.exports = function(app, passport) {
         }
 
         async.waterfall([
+
             function(cb) {
                 if (qtype === 'mongodb') {
                     Entry.findById(req.params.dsId, function(err, ds) {
@@ -442,8 +446,8 @@ module.exports = function(app, passport) {
                 qlog.ds = ds.url;
                 var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
                 if (!queryDriver) cb({
-                        message: 'Query type not supported'
-                    });
+                    message: 'Query type not supported'
+                });
                 else queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
             }
         ], function(err, result) {
@@ -456,7 +460,7 @@ module.exports = function(app, passport) {
 
             if (mime === 'display') {
                 var viewer = 'csvview';
-                if (qtyp === 'mongodb' || qtyp === 'hive') viewer = 'jsonview';
+                if (qtyp === 'mongodb' || qtyp === 'hive' || qtyp === 'sql') viewer = 'jsonview';
                 res.render('query/' + viewer, {
                     'result': result,
                     'info': req.flash('info'),
@@ -472,8 +476,8 @@ module.exports = function(app, passport) {
     app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
         var test = queries.tests[req.query.typ];
         if (!test) return res.json({
-                message: 'Dataset type not yet supported'
-            });
+            message: 'Dataset type not yet supported'
+        });
         test({
             url: req.query.url,
             user: req.query.user,
@@ -487,15 +491,23 @@ module.exports = function(app, passport) {
     app.get("/login", function(req, res) {
         res.render("login", {
             info: req.flash('info'),
-            error: req.flash('error')
+            error: req.flash('error'),
+            remember_me: req.cookies.remember_me ? true : false
         });
     });
 
     app.post("/login", passport.authenticate('local', {
-        successReturnToOrRedirect: '/',
+        //successReturnToOrRedirect: '/',
         failureRedirect: "/login",
         failureFlash: true
-    }));
+    }), rememberMe, function(req, res) {
+        var url = '/';
+        if (req.session && req.session.returnTo) {
+            url = req.session.returnTo;
+            delete req.session.returnTo;
+        }
+        return res.redirect(url);
+    });
 
     app.get("/signup", function(req, res) {
         var recaptcha = new Recaptcha(pbk, prk);
@@ -536,6 +548,20 @@ module.exports = function(app, passport) {
     app.get("/auth/facebook", passport.authenticate("facebook", {
         scope: "email"
     }));
+
+    app.get('/auth/soton', function(req, res) {
+        res.render('soton', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            remember_me: req.cookies.remember_me ? true : false
+        });
+    });
+
+    app.post('/auth/soton', passport.authenticate('ldapauth', {
+        failureRedirect: '/auth/soton',
+        failureFlash: true,
+        successReturnToOrRedirect: '/'
+    }), rememberMe);
 
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
@@ -699,8 +725,90 @@ module.exports = function(app, passport) {
     });
 
     app.get('/logout', function(req, res) {
+        res.clearCookie('remember_me');
         req.logout();
         res.redirect('/');
     });
 
+    app.get('/version', function(req, res) {
+        res.render("version", {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user
+        });
+    });
+    //API
+    app.get('/api/:typ(dataset|visualisation)', function(req, res) {
+        res.send('This is not implemented now');
+    });
+
+    app.get('/api/stats', passport.authenticate('bearer', {
+        session: false
+    }), function(req, res) {
+        var sequence = {};
+
+        Entry.find({}, function(err, entries) {
+            for (var i = 0; i < entries.length; i++) {
+                var etry = entries[i];
+                var type = etry.type;
+                var additional = etry.querytype;
+                var key = type;
+                if (type === 'dataset') key = key + '-' + additional;
+                if (!sequence[key]) {
+                    sequence[key] = 1;
+                } else {
+                    sequence[key] = sequence[key] + 1;
+                }
+            }
+            res.send(sequence);
+        });
+    });
+
+    app.get('/api/userInfo', passport.authenticate('bearer', {
+        session: false
+    }), function(req, res) {
+        // req.authInfo is set using the `info` argument supplied by
+        // `BearerStrategy`.  It is typically used to indicate scope of the token,
+        // and used in access control checks.  For illustrative purposes, this
+        // example simply returns the scope in the response.
+        res.json({
+            user_id: req.user._id,
+            email: req.user.email,
+            scope: req.authInfo.scope
+        });
+    });
+    //Oauth
+    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
+        res.render('oauth-authorise', {
+            transactionID: req.oauth2.transactionID,
+            user: req.user,
+            client: req.oauth2.client
+        });
+    });
+
+    app.post('/oauth/decision', ensureLoggedIn('/login'), oauth2.decision);
+
+    app.post('/oauth/token', oauth2.token);
 };
+
+
+function rememberMe(req, res, next) {
+    // Issue a remember me cookie if the option was checked
+    if (!req.body.remember_me) {
+        return next();
+    }
+
+    crypto.randomBytes(32, function(ex, buf) {
+        var token = buf.toString('hex');
+        req.user.rememberme = token;
+        req.user.save(function(err, user) {
+            if (err) return next(err);
+            res.cookie('remember_me', token, {
+                path: '/',
+                httpOnly: true,
+                maxAge: 604800000
+            });
+            return next();
+        });
+    });
+}
