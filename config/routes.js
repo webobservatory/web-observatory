@@ -200,8 +200,8 @@ module.exports = function(app, passport) {
                     etry.kw = req.body.value.split(',');
                     break;
                 case 'acc':
-                    etry.acc = req.body.value.indexOf('private') === -1;
-                    etry.vis = req.body.value.indexOf('novis') === -1;
+                    etry.opAcc = req.body.value.indexOf('private') === -1;
+                    etry.opVis = req.body.value.indexOf('novis') === -1;
                     break;
             }
             modctrl.editEtry(etry_id, etry, function(err) {
@@ -266,8 +266,8 @@ module.exports = function(app, passport) {
             if (req.body.git) etry.git = req.body.git;
             if (req.body.related) etry.related = req.body.related;
             if (req.body.kw) etry.kw = req.body.kw.split(',');
-            if (req.body.vis) etry.vis = req.body.vis !== 'false';
-            if (req.body.acc) etry.acc = req.body.acc !== 'false';
+            if (req.body.vis !== undefined) etry.opVis = false;
+            if (req.body.acc !== undefined) etry.opAcc = false;
 
             modctrl.editEtry(etry_id, etry, function(err) {
                 if (err) {

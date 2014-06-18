@@ -87,13 +87,13 @@ html(lang='en')
               if data.type === 'dataset'
                 .col-md-3
                   label.checkbox(for='read')
-                    input#private(checked=data.opAcc==='true'?undefined:true type='checkbox', name='acc', value='false')
+                    input#private(checked=data.opAcc!=='true'?undefined:true type='checkbox', name='acc', value='false')
                     | Private dataset
-                  p.help-block= 'Private '+data.type+'; I wish to authorise individual users to access this '+data.type
-                  #visible(class=data.opAcc==='true'?'in':undefined)
+                  p.help-block= 'Private ' + data.type+'; I wish to authorise individual users to access this ' + data.type
+                  #visible(class=data.opAcc!=='true'?'in':undefined)
                     div
                       label.checkbox(for='visible')
-                        input(checked=data.opVis==='true'?undefined:true type='checkbox', name='vis', value='false')
+                        input(checked=data.opVis!=='true'?undefined:true type='checkbox', name='vis', value='false')
                         = 'Do not list my private '+ data.type +' in the catalogue'
               if data.type === 'visualisation'
                 .col-md-3
