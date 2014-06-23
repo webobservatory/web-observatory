@@ -82,6 +82,34 @@ module.exports = function(app, passport) {
         });
     });
 
+    //searching
+    app.get('/search', function(req, res) {
+        var term = req.query.keyword;
+
+        if (!term) return res.render('search', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user
+        });
+
+        Entry.find({
+            type: 'dataset',
+            name: {
+                $regex: term,
+                $options: 'i'
+            }
+        }, function(err, entries) {
+            if (err) req.flash('error', [err.message]);
+            if (!entries || 0 === entries.length) req.flash('error', 'No records found');
+            res.render('search', {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user,
+                entries: entries
+            });
+        });
+    });
+
     //dataset names autocompletion
     app.get('/nametags/:typ(dataset|visualisation)', function(req, res) {
         var term = req.query.term;
