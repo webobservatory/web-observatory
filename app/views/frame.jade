@@ -1,0 +1,17 @@
+doctype html
+html
+  include includes/head
+  block head
+body
+  block nav
+  #wrap
+    .container
+      .row
+        include includes/flash-banner
+      .row
+        block jumbotron
+      .row
+        block content
+      #push
+  include includes/footer
+  block footer

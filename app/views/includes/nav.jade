@@ -8,7 +8,7 @@ nav.navbar.navbar-inverse.navbar-fixed-top
       a.navbar-brand(href='/') Web Observatory Α
     .navbar-collapse.collapse
       ul.navbar-nav.nav
-        li.active
+        li
           a(href='/') Home
         //li.disabled
           a(href='#about') About
@@ -21,6 +21,8 @@ nav.navbar.navbar-inverse.navbar-fixed-top
           a(href='/catlg/dataset') Datasets
         li
           a(href='/catlg/visualisation') Visualisations
+        li
+          a(href='/search') Search
       ul.navbar-right.nav.navbar-nav
         if user == null                  
           li.active
