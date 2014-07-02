@@ -507,7 +507,7 @@ module.exports = function(app, passport) {
             message: 'Dataset type not yet supported'
         });
         test({
-            host: req.query.url,
+            url: req.query.url,
             user: req.query.user,
             password: req.query.pwd
         }, function(msg) {
