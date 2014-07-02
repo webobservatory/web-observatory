@@ -35,8 +35,13 @@ function pqDriver(query, mime, ds, cb) {
 
 function mysqlDriver(query, mime, ds, cb) {
     var pwd = decryptPwd(ds);
-    var url = 'mysql://' + (ds.auth.user ? ds.auth.user + ':' + pwd : '') + '@' + ds.url.split('mysql://')[1];
-    var connection = mysql.createConnection(url);
+    var options = {};
+    options.host = ds.url;
+    if (ds.user) {
+        options.user = ds.user;
+        options.password = pwd;
+    }
+    var connection = mysql.createConnection(options);
     connection.connect();
     connection.query(query, function(err, rows, fields) {
         cb(err, rows);
@@ -57,8 +62,8 @@ function mgdbDriver(query, mime, ds, cb) {
             if (ds.user) {
                 db.authenticate(ds.user, pwd, function(err, result) {
                     if (err || !result) return cb(err || {
-                            message: 'Authentication failed'
-                        });
+                        message: 'Authentication failed'
+                    });
                     db.collection(modname, function(err, collection) {
                         collection.find(query.query, function(err, result) {
                             cb(err, result);
@@ -113,7 +118,7 @@ function mgdbTest(ds, cb) {
     var url = ds.url;
     var opts = {
         user: ds.user,
-        pass: ds.pwd
+        pass: ds.password
     };
     try {
         var connection = mongoose.createConnection(url, opts).on('error', function(err) {
@@ -127,7 +132,7 @@ function mgdbTest(ds, cb) {
 }
 
 function pqTest(query, mime, ds, cb) {
-    var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.pwd : '') + '@' + ds.url.split('postgres://')[1];
+    var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.password : '') + '@' + ds.url.split('postgres://')[1];
     var client = new pg.Client(url);
     client.connect(function(err) {
         cb(err);
@@ -136,12 +141,16 @@ function pqTest(query, mime, ds, cb) {
 }
 
 function hiveTest(ds, cb) {
-    hive.test(ds.url, cb);
+    hive.test(ds.host, cb);
 }
 
 function mysqlTest(ds, cb) {
-    var url = 'mysql://' + (ds.user ? ds.user + ':' + ds.pwd : '') + '@' + ds.url.split('mysql://')[1];
-    var connection = mysql.createConnection(url);
+    var options = {
+        host: ds.url,
+        user: ds.user,
+        password: ds.password
+    };
+    var connection = mysql.createConnection(options);
     connection.connect(function(err) {
         cb(err);
         connection.end();
@@ -152,7 +161,7 @@ var tests = {
     sparql: sparqlTest,
     mysql: mysqlTest,
     postgressql: pqTest,
-    hive: hiveTest,
+    //hive: hiveTest,
     mongodb: mgdbTest
 };
 
@@ -168,8 +177,8 @@ module.exports.mongodbschema = function(ds, cb) {
         if (ds.user) {
             db.authenticate(ds.user, pwd, function(err, result) {
                 if (err || !result) return cb(err || {
-                        message: 'Authentication failed'
-                    });
+                    message: 'Authentication failed'
+                });
                 db.collectionNames({
                     namesOnly: true
                 }, function(err, names) {
