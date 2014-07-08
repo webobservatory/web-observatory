@@ -1,10 +1,3 @@
-function editEtry(etryId, acc, vis) {
-    $('#eid').val(etryId);
-    $('#private').prop('checked', acc === 'false');
-    $('#visible').prop('checked', vis === 'false');
-    $('#editModal').modal('show');
-}
-
 $(document).ready(function() {
 
     $('.tp').tooltip();
@@ -40,14 +33,31 @@ $(document).ready(function() {
     //deep linking
     $.address.strict(false);
     $.address.change(function(event) {
-        console.log(event);
         var id = event.value;
         if (id) {
             $('#details').load('/wo/' + id);
+            var isOwner = $('#owner').attr('value'),
+                opAcc = $('#opAcc').attr('value'),
+                querytype = $('#querytype') ? $('#querytype').text() : null;
+
+            if (isOwner) {
+                $('#edit').removeClass('hidden'); //TODO bind x-editable handler
+            }
+
+            if (opAcc) {
+                $('#explore').removeClass('hidden');
+                if (querytype)
+                    $('#explore').attr('href', '/query/' + querytype + '/' + id + '/' + $('#name').text());
+                else
+                    $('#explore').attr('href', $('#url').text());
+            }
+
             $('#display').addClass('col-md-6');
         } else {
             $('#details').html('');
             $('#display').removeClass('col-md-6');
+            $('#edit').addClass('hidden'); //TODO remove x-editable handler
+            $('#explore').addClass('hidden').attr('href', '#');
         }
     });
 });

@@ -8,8 +8,15 @@ block content
           span.glyphicon.glyphicon-plus 
           |  Add
       .btn-group
+        a#edit.btn.btn-default.hidden(href='' role='button')
+          span.glyphicon.glyphicon-edit 
+          |  Edit
+        a#explore.btn.btn-default.hidden(href='' role='button')
+          span.glyphicon.glyphicon-expand 
+          |  Explore
+      .btn-group
         a.btn.btn-default(href='/stats' role='button') 
-          span.glyphicon.glyphicon-info-sign
+          span.glyphicon.glyphicon-stats
           |  Statistics
     //else
       .hide.alert.alert-info
@@ -20,14 +27,14 @@ block content
     div(style='height:30px') 
   .row
     #display
-      table.table.table-hover
-        thead
-          tr
-            th Name
-            th Description
-            th.col-md-1 Access
-        tbody
-          if table
+      if table
+        table.table.table-hover
+          thead
+            tr
+              th Name
+              th Description
+              th.col-md-1 Access
+          tbody
             each val in table
               if val
                 - val.url = '/wo/'+val.type+'#'+val._id
@@ -66,7 +73,6 @@ block content
             th Name
             th Description
             th Access
-
     #details.col-md-6
 
 

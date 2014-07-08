@@ -27,7 +27,7 @@ table.table.table-bordered.table-striped
       tr
         td Query protocol
         td
-          a.editable.editable-pre-wrapped.editable-click#querytype(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query interface of the entry' data-title='Edit query protocol')
+          a.editable.editable-pre-wrapped.editable-click#querytype(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query interface of the entry' data-title='Edit query protocol')=etry.querytype
 
     tr
       td Keywords
@@ -38,6 +38,10 @@ table.table.table-bordered.table-striped
       td Description
       td
         a.editable.editable-pre-wrapped.editable-click#des(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
+
+span#owner.hidden(value=etry.publisher)
+span#acc.hidden(value=etry.opAcc)
+span#type.hidden(value=etry.type)
 
 script(src='/js/bootstrap-editable.min.js')
 link(href='/css/typeahead.js-bootstrap.css', rel='stylesheet')
