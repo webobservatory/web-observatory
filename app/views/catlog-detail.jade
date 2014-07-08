@@ -1,4 +1,6 @@
 table.table.table-bordered.table-striped
+  thead
+    tr
   tbody
     tr
       td Name
@@ -25,7 +27,7 @@ table.table.table-bordered.table-striped
 
     if etry.type === 'dataset'
       tr
-        td Query protocol
+        td Query
         td
           a.editable.editable-pre-wrapped.editable-click#querytype(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query interface of the entry' data-title='Edit query protocol')=etry.querytype
 

@@ -37,7 +37,7 @@ $(document).ready(function() {
         if (id) {
             $('#details').load('/wo/' + id);
             var isOwner = $('#owner').attr('value'),
-                opAcc = $('#opAcc').attr('value'),
+                opAcc = $('#acc').attr('value'),
                 querytype = $('#querytype') ? $('#querytype').text() : null;
 
             if (isOwner) {

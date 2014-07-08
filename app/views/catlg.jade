@@ -1,34 +1,30 @@
 extends main
 block jumbotron
 block content
-  .row
-    .btn-toolbar
-      .btn-group
-        a.btn.btn-default(href='/add/'+type role='button')
-          span.glyphicon.glyphicon-plus 
-          |  Add
-      .btn-group
-        a#edit.btn.btn-default.hidden(href='' role='button')
-          span.glyphicon.glyphicon-edit 
-          |  Edit
-        a#explore.btn.btn-default.hidden(href='' role='button')
-          span.glyphicon.glyphicon-expand 
-          |  Explore
-      .btn-group
-        a.btn.btn-default(href='/stats' role='button') 
-          span.glyphicon.glyphicon-stats
-          |  Statistics
-    //else
-      .hide.alert.alert-info
-        = 'Please login to add and edit '+type+'s'
-      a.disabled.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
-
-  .row
-    div(style='height:30px') 
+  nav.navbar(style='top:51px; position:fixed; z-index:1030; background-color:#ffffff')
+    .container
+      .collapse.navbar-collapse
+        .btn-toolbar
+          .btn-group
+            a.btn.btn-default.navbar-btn(href='/add/'+type role='button')
+              span.glyphicon.glyphicon-plus 
+              |  Add
+          .btn-group
+            a#edit.btn.btn-default.navbar-btn.hidden(href='' role='button')
+              span.glyphicon.glyphicon-edit 
+              |  Edit
+            a#explore.btn.btn-default.navbar-btn.hidden(href='' role='button')
+              span.glyphicon.glyphicon-expand
+              |  Explore
+          .btn-group
+            a.btn.btn-default.navbar-btn(href='/stats' role='button') 
+              span.glyphicon.glyphicon-stats
+              |  Statistics
+  .row(style='height:50px')
   .row
     #display
       if table
-        table.table.table-hover
+        table.table.table-hover.header-fixed
           thead
             tr
               th Name
@@ -51,7 +47,7 @@ block content
                   -   name = name.substring(0,27);
                   -   name = name + '...';}
                   td
-                    a.tp(data-toogle='tooltip' title=val.url href=val.url address='true')
+                    a(data-toogle='tooltip' title=val.url href=val.url address='true')
                       = name
 
                   //display no more than 50 characters of description
@@ -68,14 +64,7 @@ block content
                       span.glyphicon.glyphicon-ok
                     else 
                       span.glyphicon.glyphicon-remove
-        tfoot
-          tr
-            th Name
-            th Description
-            th Access
     #details.col-md-6
-
-
 block footer
   link(href='/css/datatables.css', rel='stylesheet')
   script(src='/js/jquery.datatables.min.js')
