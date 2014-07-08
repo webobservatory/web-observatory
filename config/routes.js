@@ -58,6 +58,7 @@ module.exports = function(app, passport) {
                     error: req.flash('error')
                 });
             } else {
+                if (email && email === entry.publisher) entry.isOwner = true;
                 res.render('catlog-detail', {
                     info: req.flash('info'),
                     error: req.flash('error'),

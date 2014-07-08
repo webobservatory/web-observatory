@@ -1,6 +1,7 @@
 $(document).ready(function() {
 
     $('.tp').tooltip();
+
     /*
     $('#display').dataTable({
         "sPaginationType": "bs_normal"
@@ -17,46 +18,91 @@ $(document).ready(function() {
         $('#editForm').submit();
     });
 
-    $('.disabled').bind('click', function(event) {
-        $('.alert.alert-info').show();
-        $('.alert.alert-info').fadeIn('fast');
-        event.preventDefault();
-    });
     */
 
+    /*
     //datatable bt3
     var search_input = $('.dataTables_filter input[type=text]');
     search_input.attr('placeholder', 'Search').addClass('form-control input-small');
     $('.dataTables_length select').addClass('form-control input-small');
     //$('.dataTables_length label').addClass('control-label');
+*/
+    //x editable
+    function xeditable() {
+        $.fn.editable.defaults.mode = 'inline';
+        $('#edit').bind('click', function() {
+            $('a.editable').editable('toggleDisabled');
+        });
+        $('a.editable').filter('[data-type=textarea], [data-type=text], [data-type=url]').editable();
+        var querytype = $('#querytype');
+        if (querytype) {
+            querytype.editable({
+                value: 'SPARQL',
+                source: [{
+                    value: 'SPARQL',
+                    text: 'SPARQL'
+                }, {
+                    value: 'MySQL',
+                    text: 'MySQL'
+                }, {
+                    value: 'PostgreSQL',
+                    text: 'PostgreSQL'
+                }, {
+                    value: 'Hive',
+                    text: 'Hadoop Hive'
+                }, {
+                    value: 'MongoDB',
+                    text: 'MongoDB'
+                }]
+            });
+        }
+
+        var related = $('#related');
+        if (related) {
+            related.editable({
+                typeahead: {
+                    remote: '/nametags/dataset/?term=%QUERY'
+                }
+            });
+        }
+
+        $('a.editable').editable('toggleDisabled');
+
+    }
 
     //deep linking
     $.address.strict(false);
     $.address.change(function(event) {
         var id = event.value;
         if (id) {
-            $('#details').load('/wo/' + id);
-            var isOwner = $('#owner').attr('value'),
-                opAcc = $('#acc').attr('value'),
-                querytype = $('#querytype') ? $('#querytype').text() : null;
+            $('#details').load('/wo/' + id, function() {
 
-            if (isOwner) {
-                $('#edit').removeClass('hidden'); //TODO bind x-editable handler
-            }
+                var isOwner = $('#owner').attr('value'),
+                    opAcc = $('#acc').attr('value'),
+                    querytype = $('#querytype') ? $('#querytype').text() : null;
+                $('#edit').addClass('hidden'); //TODO remove x-editable handler
+                $('#explore').addClass('hidden').attr('href', '#');
 
-            if (opAcc) {
-                $('#explore').removeClass('hidden');
-                if (querytype)
-                    $('#explore').attr('href', '/query/' + querytype + '/' + id + '/' + $('#name').text());
-                else
-                    $('#explore').attr('href', $('#url').text());
-            }
+                if (isOwner) {
+                    xeditable();
+                    $('#edit').removeClass('hidden');
 
-            $('#display').addClass('col-md-6');
+                }
+
+                if (opAcc) {
+                    $('#explore').removeClass('hidden');
+                    if (querytype)
+                        $('#explore').attr('href', '/query/' + querytype + '/' + id + '/' + $('#name').text());
+                    else
+                        $('#explore').attr('href', $('#url').text());
+                }
+                $('#display').addClass('col-md-6');
+            });
+
         } else {
             $('#details').html('');
             $('#display').removeClass('col-md-6');
-            $('#edit').addClass('hidden'); //TODO remove x-editable handler
+            $('#edit').addClass('hidden');
             $('#explore').addClass('hidden').attr('href', '#');
         }
     });

@@ -10,7 +10,7 @@ block content
               span.glyphicon.glyphicon-plus 
               |  Add
           .btn-group
-            a#edit.btn.btn-default.navbar-btn.hidden(href='' role='button')
+            button#edit.btn.btn-default.navbar-btn.hidden
               span.glyphicon.glyphicon-edit 
               |  Edit
             a#explore.btn.btn-default.navbar-btn.hidden(href='' role='button')
@@ -66,8 +66,13 @@ block content
                       span.glyphicon.glyphicon-remove
     #details.col-md-6
 block footer
-  link(href='/css/datatables.css', rel='stylesheet')
-  script(src='/js/jquery.datatables.min.js')
+  //link(href='/css/datatables.css', rel='stylesheet')
+  //script(src='/js/jquery.datatables.min.js')
   script(src='/js/jquery.address-1.6.js')
-  script(src='/js/bt3datatables.js')
+  //script(src='/js/bt3datatables.js')
+  script(src='/js/bootstrap-editable.min.js')
+  link(href='/css/typeahead.js-bootstrap.css', rel='stylesheet')
+  link(href='/css/bootstrap-editable.css', rel='stylesheet')
+  script(src='/js/inputs-ext/typeaheadjs/lib/typeahead.js')
+  script(src='/js/inputs-ext/typeaheadjs/typeaheadjs.js')
   script(src='/js/catalogue.jade.js')
