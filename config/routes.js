@@ -32,8 +32,41 @@ module.exports = function(app, passport) {
     });
 
     //listing entries
-    app.get('/catlg/:typ(dataset|visualisation)', function(req, res) {
+    app.get('/wo/:typ(dataset|visualisation)', function(req, res) {
         var email = req.user ? req.user.email : null;
+        modctrl.visibleEtry(email, req.params.typ, function(err, entries) {
+            if (err) {
+                req.flash('error', [err.message]);
+            }
+            res.render('catlg', {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user,
+                table: entries,
+                type: req.params.typ
+            });
+        });
+    });
+
+    app.get('/wo/:eid', function(req, res) { //TODO
+        var email = req.user ? req.user.email : null;
+        Entry.findById(req.params.eid, function(err, entry) {
+            if (err || !entry) {
+                req.flash('error', [err.message || 'No record found']);
+                res.render('catlog-detail', {
+                    info: req.flash('info'),
+                    error: req.flash('error')
+                });
+            } else {
+                if (email && email === entry.publisher) entry.isOwner = true;
+                res.render('catlog-detail', {
+                    info: req.flash('info'),
+                    error: req.flash('error'),
+                    etry: entry
+                });
+            }
+        });
+
         modctrl.visibleEtry(email, req.params.typ, function(err, entries) {
             if (err) {
                 req.flash('error', [err.message]);

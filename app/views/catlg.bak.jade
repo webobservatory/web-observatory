@@ -1,0 +1,135 @@
+extends main
+block jumbotron
+block content
+  .row
+    .btn-toolbar
+      .btn-group
+        a.btn.btn-default(href='/add/'+type role='button')
+          span.glyphicon.glyphicon-plus 
+          |  Add
+      .btn-group
+        a.btn.btn-default(href='/stats' role='button') 
+          span.glyphicon.glyphicon-info-sign
+          |  Statistics
+    //else
+      .hide.alert.alert-info
+        = 'Please login to add and edit '+type+'s'
+      a.disabled.btn.btn-primary.btn-large(href='/add/'+type)= 'Add a '+type
+
+  .row
+    div(style='height:30px') 
+  .row
+    table#display.table.table-striped.table-hover
+      thead
+        tr
+          th
+          th Name
+          if type === 'dataset'
+            th.col-md-2 Type
+          if type == 'visualisation'
+            th.col-md-2 Source
+          th.col-md-2 Publisher
+          th Description
+          th.col-md-1 Access
+      tbody
+        if table
+          each val in table
+            if val
+              tr(itemscope itemtype=(type==='dataset'?'http://schema.org/Dataset':'http://schema.org/WebPage'))
+                td
+                  .btn-group
+                    span.glyphicon.glyphicon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
+                    ul.dropdown-menu
+                      //li
+                        a(href='#') Details
+                      if user
+                        li
+                          a.edit(href='/detail/' + val._id eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString()) Edit
+                        li
+                          a.edit(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id) eid=val._id vis=val.opVis.toString() acc=val.opAcc.toString())= type==='visualisation'?'Show':'Query'
+                      else
+                        li.disabled
+                          a(href='#') Edit
+                - var name=val.name || '';
+                - if(name.length>30) {
+                -   name = name.substring(0,27);
+                -   name = name + '...';}
+                td
+                  if(val.opAcc)
+                    a.tp(href=(type==='visualisation'?val.url:'/query/'+val.querytype+'/'+val._id+'/'+val.name) data-toogle='tooltip' title='Click to access')= name
+                  else
+                    a.tp(href=(type==='visualisation'?val.url:'/reqacc/'+val._id) data-toogle='tooltip' title='Private entry. Click to request access')= name
+                  meta(itemprop='http://schema.org/name' content=val.name)
+                  if type === 'visualisation'
+                    meta(itemprop='http://schema.org/url' content=val.url)
+                if type == 'dataset'
+                  td= val.querytype
+                if type == 'visualisation'
+                  td(itemprop='http://schema.org/isBasedOnUrl')= val.related
+                td(itemprop='http://schema.org/provider')
+                  = val.publisher_name?val.publisher_name:'N/A'
+                //display no more than 50 characters of description
+                - var des=val.des?val.des:''
+                - if(des.length>47) {
+                -   des = val.des.substring(0,50);
+                -   des = des + '...';}
+                td
+                  .tp(data-toogle='tooltip' title=val.des)
+                    = des
+                  meta(itemprop='http://schema.org/description' content=val.des)
+                td
+                  if val.opAcc
+                    span.glyphicon.glyphicon-ok
+                  else 
+                    span.glyphicon.glyphicon-remove
+      tfoot
+        tr
+          th
+          th Name
+          if type === 'dataset'
+            th Type
+          if type == 'visualisation'
+            th Source
+          th Publisher
+          th Description
+          th Access
+
+    #editModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='myModalLabel', aria-hidden='true')
+      .modal-dialog
+        .modal-content
+          .modal-header
+            button.close(type='button', data-dismiss='modal', aria-hidden='true') &times;
+            h3#myModalLabel= 'Edit the selected '+type
+            p.help-block Blank field will remain unchanged
+          .modal-body
+            form#editForm.form-horizontal(action='/edit', method='post')
+              fieldset
+                // Text input
+                .form-group
+                  label.control-label.col-md-4(for='name') Name
+                  .col-md-6
+                    input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the '+type, required='')
+                    p.help-block= 'Edit the name of your '+type
+                    input#eid.hide.input-xlarge(name='eid' required='')
+                // Text input
+                .form-group
+                  label.control-label.col-md-4(for='url') Location
+                  .col-md-6
+                    input.form-control.input-xlarge(name='url' type='text', placeholder='http://address-of-your-entry')
+                    p.help-block= 'Edit the URL of your '+type
+                // Textarea
+                .form-group
+                  label.control-label.col-md-4(for='desc') Description
+                  .col-md-6
+                    textarea.form-control(name='des')
+                    p.help-block= 'Change the description of your '+type
+          .modal-footer
+            button#cancel.btn(data-dismiss='modal', aria-hidden='true') Cancel
+            button#submit.btn.btn-primary Save
+    div(style='height:30px') 
+
+block footer
+  link(href='/css/datatables.css', rel='stylesheet')
+  script(src='/js/jquery.datatables.min.js')
+  script(src='/js/bt3datatables.js')
+  script(src='/js/catalogue.jade.js')
