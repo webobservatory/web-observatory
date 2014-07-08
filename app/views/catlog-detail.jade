@@ -1,45 +1,45 @@
-table.table.table-bordered.table-striped
+table.xedit.table.table-bordered.table-striped
   thead
     tr
   tbody
     tr
       td Name
       td
-        a.editable.editable-click.editable-disabled#name(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Name of the entry' data-title='Edit name')=etry.name
+        span#name(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Name of the entry' data-title='Edit name')=etry.name
     tr
       td Creator
       td
-        a.editable.editable-pre-wrapped.editable-click.editable-disabled#creator(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Creator of the entry' data-title='Edit creator')=etry.creator
+        span#creator(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Creator of the entry' data-title='Edit creator')=etry.creator
     tr
       td Publisher
       td
-        a.editable.editable-pre-wrapped.editable-click.editable-disabled#publisher(data-type='text' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.publisher_name
+        span#publisher(data-type='text' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.publisher_name
 
     if etry.type === 'visualisation'
       tr
         td Related dataset
         td
-          a.editable.editable-open.editable-click.editable-disabled#related(data-type='typeaheadjs' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Based on which dataset this visualisation is produced' data-title='Edit related dataset')=etry.related
+          span#related(data-type='typeaheadjs' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Based on which dataset this visualisation is produced' data-title='Edit related dataset')=etry.related
       tr
         td Github address
         td
-          a.editable.editable-pre-wrapped.editable-click.editable-disabled#git(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Git address of the entry' data-title='Edit git address')=etry.git
+          span#git(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Git address of the entry' data-title='Edit git address')=etry.git
 
     if etry.type === 'dataset'
       tr
         td Query
         td
-          a.editable.editable-pre-wrapped.editable-click.editable-disabled#querytype(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query interface of the entry' data-title='Edit query protocol')=etry.querytype
+          span#querytype(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query interface of the entry' data-title='Edit query protocol')=etry.querytype
 
     tr
       td Keywords
       td
-        a.editable.editable-pre-wrapped.editable-click.editable-disabled#kw(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Keywords of the entry, separated by ","' data-title='Edit keywords')=etry.kw
+        span#kw(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Keywords of the entry, separated by ","' data-title='Edit keywords')=etry.kw
 
     tr
       td Description
       td
-        a.editable.editable-pre-wrapped.editable-click.editable-disabled#des(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
+        span#des(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
 
 span#owner.hidden(value=etry.isOwner)
 span#acc.hidden(value=etry.opAcc)

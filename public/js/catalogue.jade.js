@@ -30,13 +30,16 @@ $(document).ready(function() {
     //x editable
     function xeditable() {
         $.fn.editable.defaults.mode = 'inline';
-        $('#edit').bind('click', function() {
-            $('a.editable').editable('toggleDisabled');
+        $('#edit').click(function() {
+            $('span.editable').editable('toggleDisabled');
         });
-        $('a.editable').filter('[data-type=textarea], [data-type=text], [data-type=url]').editable();
+        $('.xedit span').filter('[data-type=textarea], [data-type=text], [data-type=url]').editable({
+            disabled: true
+        });
         var querytype = $('#querytype');
         if (querytype) {
             querytype.editable({
+                disabled: true,
                 value: 'SPARQL',
                 source: [{
                     value: 'SPARQL',
@@ -60,13 +63,14 @@ $(document).ready(function() {
         var related = $('#related');
         if (related) {
             related.editable({
+                disabled: true,
                 typeahead: {
                     remote: '/nametags/dataset/?term=%QUERY'
                 }
             });
         }
 
-        $('a.editable').editable('toggleDisabled');
+        //$('span.editable').editable('toggleDisabled');
 
     }
 
@@ -80,13 +84,12 @@ $(document).ready(function() {
                 var isOwner = $('#owner').attr('value'),
                     opAcc = $('#acc').attr('value'),
                     querytype = $('#querytype') ? $('#querytype').text() : null;
-                $('#edit').addClass('hidden'); //TODO remove x-editable handler
+                $('#edit').addClass('hidden').off('click'); //TODO remove x-editable handler
                 $('#explore').addClass('hidden').attr('href', '#');
 
                 if (isOwner) {
                     xeditable();
                     $('#edit').removeClass('hidden');
-
                 }
 
                 if (opAcc) {
