@@ -42,5 +42,5 @@ table.xedit.table.table-bordered.table-striped
         span#des(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
 
 span#owner.hidden(value=etry.isOwner)
-span#acc.hidden(value=etry.opAcc)
+span#acc.hidden(value=etry.opAcc || etry.isOwner)
 span#type.hidden(value=etry.type)
