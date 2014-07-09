@@ -24,41 +24,54 @@ exports.userExist = function(req, res, next) {
     });
 };
 
-exports.hasAccToDB = function(mail, _id, next) {
-    async.waterfall([
-        function(cb) {
-            Entry.findOne({
-                '_id': _id,
-            }, cb);
-        },
-        function(dataset, cb) {
-            if (!dataset)
-                return cb({
-                    message: 'Dataset not available'
-                });
-            var readable = dataset.opAcc;
-            if (readable) {
-                cb(false, true, dataset);
-            } else {
-                User.findOne({
-                    email: req.user.email,
-                    $or: [{
+exports.hasAccToDB = function(req, res, next) {
+    var mail = req.user.email,
+        _id = req.params.dsId || req.query.dsId; //TODO use req.query
+
+    async.parallel([
+
+            function(cb) {
+                var own = user.own,
+                    readable = user.readable;
+                if (readable.indexOf(_id) !== -1 || own.indexOf(_id) !== -1)
+                    cb(null, true);
+                else
+                    cb(null, false);
+            },
+
+            function(cb) {
+                Entry.findById(_id, cb);
+            },
+
+            function(dataset, cb) {
+                if (!dataset)
+                    return cb({
+                        message: 'Dataset not available'
+                    });
+                if (dataset.opAcc) {
+                    cb(false, true, dataset);
+                } else {
+                    User.findOne({
+                        email: req.user.email,
+                        $or: [{
                             'own._id': _id
                         }, {
                             'readable._id': _id
-                        }
-                    ]
-                }, function(err, user) {
-                    cb(err, user, dataset);
-                });
+                        }]
+                    }, function(err, user) {
+                        cb(err, user, dataset);
+                    });
+                }
             }
-        },
-        function(user, dataset, cb) {
-            if (!user)
-                return cb({
-                    message: "You don't have access to this dataset"
-                });
-            cb(false, dataset);
-        },
-    ], next);
+        ],
+        function(err, results) {
+            if (err) {
+                req.flash('error', [err.message]);
+            } else if (!results[0] && !results[1].opAcc) { //user with no permision & dataset is private
+                req.flash('error', ['Access denied']);
+            } else {
+                req.attach.dataset = results[1]; //attach dataset
+            }
+            next();
+        });
 };

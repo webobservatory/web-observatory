@@ -458,12 +458,15 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), Auth.hasAccToDB, function(req, res) {
+
+        if (!req.attach.dataset) return res.redirect(req.get('referer'));
+
         var query = req.query.query || req.body.query,
             mime = req.query.format || req.body.format,
             modname = req.query.modname || req.body.modname, //for mongodb
-            _id = req.params.dsId,
-            qtyp = req.params.typ;
+            qtyp = req.params.typ,
+            ds = req.attach.dataset;
 
         if (modname) {
             query = {
@@ -478,47 +481,42 @@ module.exports = function(app, passport) {
         qlog.query = query;
         qlog.usrmail = req.user.email;
 
-        async.waterfall([
+        qlog.ds = ds.url;
+        var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+        if (!queryDriver) {
+            req.flash('error', ['Dataset type not supported']);
+            return res.redirect(req.get('referer'));
+        } else
+        //TODO implement queryDriver as middlelayer
+            queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds,
+                function(err, result) {
+                    //qlog.result = JSON.stringify(result);
+                    logger.info(qlog);
+                    if (err) {
+                        req.flash('error', [err.message]);
+                        return res.redirect(req.get('referer'));
+                    }
 
-            function(cb) {
-                Auth.hasAccToDB(req.user.email, _id, cb);
-            },
-
-            function(ds, cb) {
-                qlog.ds = ds.url;
-                var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
-                if (!queryDriver) cb({
-                    message: 'Query type not supported'
-                });
-                else queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, cb);
-            }
-        ], function(err, result) {
-            qlog.result = JSON.stringify(result);
-            logger.info(qlog);
-            if (err) {
-                req.flash('error', [err.message]);
-                return res.redirect(req.get('referer'));
-            }
-
-            if (mime === 'display') {
-                var viewer = 'csvview';
-                if (qtyp === 'mongodb' || qtyp === 'hive' || qtyp === 'sql') viewer = 'jsonview';
-                res.render('query/' + viewer, {
-                    'result': result,
-                    'info': req.flash('info'),
-                    'error': req.flash('error')
-                });
-            } else {
-                res.attachment('result.txt');
-                res.end(result, 'UTF-8');
-            }
-        });
+                    if (mime === 'display') {
+                        var viewer = 'csvview';
+                        if (qtyp === 'mongodb' || qtyp === 'hive' || qtyp === 'sql') viewer = 'jsonview';
+                        res.render('query/' + viewer, {
+                            'result': result,
+                            'info': req.flash('info'),
+                            'error': req.flash('error')
+                        });
+                    } else {
+                        res.attachment('result.txt');
+                        res.end(result, 'UTF-8');
+                    }
+                }
+            );
     });
 
     app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
         var test = queries.tests[req.query.typ];
         if (!test) return res.json({
-            message: 'Dataset type not yet supported'
+            message: 'Dataset type not supported'
         });
         test({
             url: req.query.url,
@@ -780,8 +778,50 @@ module.exports = function(app, passport) {
         });
     });
     //API
-    app.get('/api/:typ(dataset|visualisation)', function(req, res) {
-        res.send('This is not implemented now');
+    app.get('/api/info', function(req, res) {
+        res.send('This is not implemented yet');
+    });
+
+    app.get('/api/query', passport.authenticate('bearer', {
+        session: false
+    }), Auth.hasAccToDB, function(req, res) {
+
+        var ds = req.attach.dataset;
+
+        if (!ds)
+            return res.send({
+                error: req.flash('error')
+            });
+
+        var query = req.query.query;
+
+        var qlog = {};
+        qlog.time = new Date();
+        qlog.ip = req.connection.remoteAddress;
+        qlog.query = query;
+        qlog.usrmail = req.user.email;
+
+        qlog.ds = ds.url;
+        var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+        if (!queryDriver) {
+            return res.send({
+                error: ['Dataset type not supported']
+            });
+        } else {
+            //TODO implement queryDriver as middlelayer
+            queryDriver(query, 'json', ds,
+                function(err, result) {
+                    //qlog.result = JSON.stringify(result);
+                    logger.info(qlog);
+                    if (err) {
+                        return req.send(error: [err.message]);
+                    }
+                    res.send({
+                        result: result
+                    });
+                }
+            );
+        }
     });
 
     app.get('/api/stats', passport.authenticate('bearer', {
@@ -819,6 +859,7 @@ module.exports = function(app, passport) {
             scope: req.authInfo.scope
         });
     });
+
     //Oauth
     app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
         res.render('oauth-authorise', {
