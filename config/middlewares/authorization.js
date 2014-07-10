@@ -25,7 +25,8 @@ exports.userExist = function(req, res, next) {
 };
 
 exports.hasAccToDB = function(req, res, next) {
-    var mail = req.user.email,
+    var user = req.user, //user should not be null
+        mail = user.email,
         _id = req.params.dsId || req.query.dsId; //TODO use req.query
 
     async.parallel([
@@ -41,27 +42,6 @@ exports.hasAccToDB = function(req, res, next) {
 
             function(cb) {
                 Entry.findById(_id, cb);
-            },
-
-            function(dataset, cb) {
-                if (!dataset)
-                    return cb({
-                        message: 'Dataset not available'
-                    });
-                if (dataset.opAcc) {
-                    cb(false, true, dataset);
-                } else {
-                    User.findOne({
-                        email: req.user.email,
-                        $or: [{
-                            'own._id': _id
-                        }, {
-                            'readable._id': _id
-                        }]
-                    }, function(err, user) {
-                        cb(err, user, dataset);
-                    });
-                }
             }
         ],
         function(err, results) {
@@ -70,6 +50,7 @@ exports.hasAccToDB = function(req, res, next) {
             } else if (!results[0] && !results[1].opAcc) { //user with no permision & dataset is private
                 req.flash('error', ['Access denied']);
             } else {
+                req.attach = {};
                 req.attach.dataset = results[1]; //attach dataset
             }
             next();

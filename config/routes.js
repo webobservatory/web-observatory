@@ -814,7 +814,7 @@ module.exports = function(app, passport) {
                     //qlog.result = JSON.stringify(result);
                     logger.info(qlog);
                     if (err) {
-                        return req.send(error: [err.message]);
+                        return req.send({error: [err.message]});
                     }
                     res.send({
                         result: result
