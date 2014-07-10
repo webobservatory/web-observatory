@@ -49,13 +49,18 @@ module.exports = function(app, passport) {
     });
 
     app.get('/wo/:eid', function(req, res) {
-        var email = req.user ? req.user.email : null;
-        Entry.findById(req.params.eid, function(err, entry) {
+        var email = req.user ? req.user.email : null,
+            eid = req.params.eid;
+        Entry.findById(eid, function(err, entry) {
+
             if (err || !entry) return res.send(err.message || 'No record found');
 
             if (!entry.opVis && email !== entry.publisher) return res.send('Record not visible to public');
 
             if (email && email === entry.publisher) entry.isOwner = true;
+
+            if (req.user && req.user.readable && req.user.readable.indexOf(eid) !== -1) entry.isOwner = true;
+
             res.render('catlog-detail', {
                 etry: entry
             });
@@ -814,7 +819,9 @@ module.exports = function(app, passport) {
                     //qlog.result = JSON.stringify(result);
                     logger.info(qlog);
                     if (err) {
-                        return req.send({error: [err.message]});
+                        return req.send({
+                            error: [err.message]
+                        });
                     }
                     res.send({
                         result: result

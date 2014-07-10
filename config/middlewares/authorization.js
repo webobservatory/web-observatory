@@ -28,7 +28,6 @@ exports.hasAccToDB = function(req, res, next) {
     var user = req.user, //user should not be null
         mail = user.email,
         _id = req.params.dsId || req.query.dsId; //TODO use req.query
-        console.log(req.query);
 
     async.parallel([
 
