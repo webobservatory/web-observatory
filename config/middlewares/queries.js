@@ -37,11 +37,13 @@ function mysqlDriver(query, mime, ds, cb) {
     var pwd = decryptPwd(ds);
     var options = {};
     options.host = ds.url;
-    if (ds.user) {
-        options.user = ds.user;
+    if (ds.auth.user) {
+        options.user = ds.auth.user;
         options.password = pwd;
     }
     var connection = mysql.createConnection(options);
+    console.log('query: ');
+    console.log(options);
     connection.connect();
     connection.query(query, function(err, rows, fields) {
         cb(err, rows);

@@ -28,6 +28,7 @@ exports.hasAccToDB = function(req, res, next) {
     var user = req.user, //user should not be null
         mail = user.email,
         _id = req.params.dsId || req.query.dsId; //TODO use req.query
+        console.log(req.query);
 
     async.parallel([
 
@@ -45,12 +46,15 @@ exports.hasAccToDB = function(req, res, next) {
             }
         ],
         function(err, results) {
-            if (err || !results[1]) {
-                req.flash('error', [err.message || 'No entry found']);
+            if (!req.attach) req.attach = {};
+
+            if (err) {
+                req.flash('error', [err.message]);
+            } else if (!results[1]) {
+                req.flash('error', ['No entry found']);
             } else if (!results[0] && !results[1].opAcc) { //user with no permision & dataset is private
                 req.flash('error', ['Access denied']);
             } else {
-                req.attach = {};
                 req.attach.dataset = results[1]; //attach dataset
             }
             next();
