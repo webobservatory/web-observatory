@@ -45,8 +45,8 @@ exports.hasAccToDB = function(req, res, next) {
             }
         ],
         function(err, results) {
-            if (err) {
-                req.flash('error', [err.message]);
+            if (err || !results[1]) {
+                req.flash('error', [err.message || 'No entry found']);
             } else if (!results[0] && !results[1].opAcc) { //user with no permision & dataset is private
                 req.flash('error', ['Access denied']);
             } else {
