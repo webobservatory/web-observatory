@@ -435,7 +435,7 @@ module.exports = function(app, passport) {
     });
 
     //execute user queries
-    app.get('/query/:format/:dsId/:name', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
             case 'mysql':
@@ -449,7 +449,6 @@ module.exports = function(app, passport) {
         }
 
         async.waterfall([
-
             function(cb) {
                 if (qtype === 'mongodb') {
                     Entry.findById(req.params.dsId, function(err, ds) {
@@ -459,11 +458,7 @@ module.exports = function(app, passport) {
             }
         ], function(err, result) {
             res.render('query/' + qtype, {
-                info: req.flash('info'),
-                error: req.flash('error'),
-                user: req.user,
                 dsID: req.params.dsId,
-                name: req.params.name,
                 tags: result ? result : []
             });
         });

@@ -55,18 +55,21 @@ $(document).ready(function() {
 
     function resetView() {
         $('#details').html('');
+        $('#querypan').html('');
         $('#display').removeClass('col-md-5');
     }
 
     //deep linking
     $.address.strict(false);
     $.address.change(function(event) {
+        resetToolBar();
+        resetView();
         var id = event.value;
         if (id) {
             $('#details').load('/wo/' + id, function() {
                 var isOwner = $('#owner').attr('value'),
                     opAcc = $('#acc').attr('value'),
-                    querytype = $('#querytype') ? $('#querytype').text() : null;
+                    querytype = $('#querytype') ? $('#querytype').text().toLowerCase() : null;
 
                 resetToolBar();
 
@@ -78,12 +81,9 @@ $(document).ready(function() {
                 if (opAcc) {
                     $('#explore').removeClass('hidden');
                     if (querytype) {
-                        $('#explore').attr('href', '/query/' + querytype + '/' + id + '/' + $('#name').text()).click(function(event) {
+                        $('#explore').attr('href', '/query/' + querytype + '/' + id).click(function(event) {
                             event.preventDefault();
-                            $.get($(this).attr('href'), function(data) {
-                                $('#querypan').html(data);
-                                //TODO display flash messages
-                            });
+                            $('#querypan').load('/query/' + querytype + '/' + id);
                         });
                     } else
                         $('#explore').attr('href', $('#url').text());
@@ -98,9 +98,6 @@ $(document).ready(function() {
 
                 $('#display').addClass('col-md-5');
             });
-        } else {
-            resetView();
-            resetToolBar();
         }
     });
 });
