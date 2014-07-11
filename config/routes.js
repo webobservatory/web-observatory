@@ -380,7 +380,11 @@ module.exports = function(app, passport) {
             } else {
                 req.flash('info', ['Request sent']);
             }
-            res.redirect(req.get('referer'));
+
+            res.render('includes/flash-banner', {
+                info: req.flash('info'),
+                error: req.flash('error')
+            });
         });
     });
 
@@ -429,6 +433,7 @@ module.exports = function(app, passport) {
             });
         });
     });
+
     //execute user queries
     app.get('/query/:format/:dsId/:name', ensureLoggedIn('/login'), function(req, res) {
         var qtype = '';

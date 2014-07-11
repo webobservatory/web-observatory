@@ -2,31 +2,6 @@ $(document).ready(function() {
 
     $('.tp').tooltip();
 
-    /*
-    $('#display').dataTable({
-        "sPaginationType": "bs_normal"
-    });
-    */
-
-    /*
-    $('.edit').bind('click', function(e) {
-        editEtry($(this).attr('eid'), $(this).attr('acc'), $(this).attr('vis'));
-        e.preventDefault();
-    });
-
-    $('#submit').bind('click', function() {
-        $('#editForm').submit();
-    });
-
-    */
-
-    /*
-    //datatable bt3
-    var search_input = $('.dataTables_filter input[type=text]');
-    search_input.attr('placeholder', 'Search').addClass('form-control input-small');
-    $('.dataTables_length select').addClass('form-control input-small');
-    //$('.dataTables_length label').addClass('control-label');
-*/
     //x editable
     function xeditable() {
         $.fn.editable.defaults.mode = 'inline';
@@ -69,9 +44,18 @@ $(document).ready(function() {
                 }
             });
         }
+    }
 
-        //$('span.editable').editable('toggleDisabled');
+    //reset helper functions
+    function resetToolBar() {
+        $('#edit').addClass('hidden').off('click');
+        $('#explore').addClass('hidden').attr('href', '#').off('click');
+        $('#request').addClass('hidden').attr('href', '#').off('click');
+    };
 
+    function resetView() {
+        $('#details').html('');
+        $('#display').removeClass('col-md-5');
     }
 
     //deep linking
@@ -80,12 +64,11 @@ $(document).ready(function() {
         var id = event.value;
         if (id) {
             $('#details').load('/wo/' + id, function() {
-
                 var isOwner = $('#owner').attr('value'),
                     opAcc = $('#acc').attr('value'),
                     querytype = $('#querytype') ? $('#querytype').text() : null;
-                $('#edit').addClass('hidden').off('click'); //TODO remove x-editable handler
-                $('#explore').addClass('hidden').attr('href', '#');
+
+                resetToolBar();
 
                 if (isOwner) {
                     xeditable();
@@ -94,19 +77,30 @@ $(document).ready(function() {
 
                 if (opAcc) {
                     $('#explore').removeClass('hidden');
-                    if (querytype)
-                        $('#explore').attr('href', '/query/' + querytype + '/' + id + '/' + $('#name').text());
-                    else
+                    if (querytype) {
+                        $('#explore').attr('href', '/query/' + querytype + '/' + id + '/' + $('#name').text()).click(function(event) {
+                            event.preventDefault();
+                            $.get($(this).attr('href'), function(data) {
+                                $('#querypan').html(data);
+                                //TODO display flash messages
+                            });
+                        });
+                    } else
                         $('#explore').attr('href', $('#url').text());
+                } else {
+                    $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
+                        event.preventDefault();
+                        $.get($(this).attr('href'), function(data) {
+                            $('#flash-banner').html(data);
+                        });
+                    });
                 }
-                $('#display').addClass('col-md-6');
-            });
 
+                $('#display').addClass('col-md-5');
+            });
         } else {
-            $('#details').html('');
-            $('#display').removeClass('col-md-6');
-            $('#edit').addClass('hidden');
-            $('#explore').addClass('hidden').attr('href', '#');
+            resetView();
+            resetToolBar();
         }
     });
 });

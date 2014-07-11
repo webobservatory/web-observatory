@@ -1,28 +1,10 @@
 extends main
+block append nav
+  include includes/toolbar-top
 block jumbotron
 block content
-  nav.navbar(style='top:51px; position:fixed; z-index:1030; background-color:#ffffff')
-    .container
-      .collapse.navbar-collapse
-        .btn-toolbar
-          .btn-group
-            a.btn.btn-default.navbar-btn(href='/add/'+type role='button')
-              span.glyphicon.glyphicon-plus 
-              |  Add
-          .btn-group
-            button#edit.btn.btn-default.navbar-btn.hidden
-              span.glyphicon.glyphicon-edit 
-              |  Edit
-            a#explore.btn.btn-default.navbar-btn.hidden(href='' role='button')
-              span.glyphicon.glyphicon-expand
-              |  Explore
-          .btn-group
-            a.btn.btn-default.navbar-btn(href='/stats' role='button') 
-              span.glyphicon.glyphicon-stats
-              |  Statistics
-  .row(style='height:50px')
   .row
-    #display
+    #display(style='overflow:auto; float:left; height:500px')
       if table
         table.table.table-hover.header-fixed
           thead
@@ -64,7 +46,10 @@ block content
                       span.glyphicon.glyphicon-ok
                     else 
                       span.glyphicon.glyphicon-remove
-    #details.col-md-6
+    .clo-md-1
+    .col-md-6(style='overflow:auto; float:right; height:500px')
+      .row#details
+      .row#querypan
 block footer
   //link(href='/css/datatables.css', rel='stylesheet')
   //script(src='/js/jquery.datatables.min.js')
