@@ -19,7 +19,9 @@
         "errorhandler": "*",
         "method-override": "*",
 
-        "Faker": "",
+
+        "cors": "*",
+        "Faker": "*",
         "jade": "*",
         "mongodb": "*",
         "moment": "*",

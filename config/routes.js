@@ -12,6 +12,7 @@ var User = require('../app/models/user'),
     logger = require('../app/util/logger'),
     crypto = require('crypto'),
     modctrl = require('../app/controllers/modctrl'),
+    cors = require('cors'),
     oauth2 = require('../oauth/oauth2server');
 
 module.exports = function(app, passport) {
@@ -783,11 +784,11 @@ module.exports = function(app, passport) {
         });
     });
     //API
-    app.get('/api/info', function(req, res) {
+    app.get('/api/info', cors(), function(req, res) {
         res.send('This is not implemented yet');
     });
 
-    app.get('/api/query', passport.authenticate('bearer', {
+    app.get('/api/query', cors(), passport.authenticate('bearer', {
         session: false
     }), Auth.hasAccToDB, function(req, res) {
 
@@ -831,7 +832,7 @@ module.exports = function(app, passport) {
         }
     });
 
-    app.get('/api/stats', passport.authenticate('bearer', {
+    app.get('/api/stats', cors(), passport.authenticate('bearer', {
         session: false
     }), function(req, res) {
         var sequence = {};
@@ -853,7 +854,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/api/userInfo', passport.authenticate('bearer', {
+    app.get('/api/userInfo', cors(), passport.authenticate('bearer', {
         session: false
     }), function(req, res) {
         // req.authInfo is set using the `info` argument supplied by
@@ -868,7 +869,7 @@ module.exports = function(app, passport) {
     });
 
     //Oauth
-    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
+    app.get('/oauth/authorise', cors(), ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,
