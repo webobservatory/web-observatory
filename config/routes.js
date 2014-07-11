@@ -879,7 +879,7 @@ module.exports = function(app, passport) {
 
     app.post('/oauth/decision', ensureLoggedIn('/login'), oauth2.decision);
 
-    app.post('/oauth/token', oauth2.token);
+    app.post('/oauth/token', cors(), oauth2.token);
 };
 
 
