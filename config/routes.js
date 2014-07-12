@@ -437,7 +437,7 @@ module.exports = function(app, passport) {
     });
 
     //execute user queries
-    app.get('/query/:format/:dsId', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/query/:format/:dsId', function(req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
             case 'mysql':

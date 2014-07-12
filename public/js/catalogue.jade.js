@@ -65,6 +65,7 @@ $(document).ready(function() {
         var id = event.value;
         if (id) {
             resetToolBar();
+            $('#querypan').html('');
             $('#details').load('/wo/' + id, function() {
                 var isOwner = $('#owner').attr('value'),
                     opAcc = $('#acc').attr('value'),
