@@ -4,7 +4,7 @@ block append nav
 block jumbotron
 block content
   .row
-    #display(style='overflow:auto; float:left; height:500px')
+    #display(style='overflow:auto; height:500px')
       if table
         table.table.table-hover.header-fixed
           thead
@@ -46,7 +46,6 @@ block content
                       span.glyphicon.glyphicon-ok
                     else 
                       span.glyphicon.glyphicon-remove
-    .clo-md-1
     .col-md-6(style='overflow:auto; float:right; height:500px')
       .row#details
       .row#querypan

@@ -51,27 +51,24 @@ $(document).ready(function() {
         $('#edit').addClass('hidden').off('click');
         $('#explore').addClass('hidden').attr('href', '#').off('click');
         $('#request').addClass('hidden').attr('href', '#').off('click');
-    };
+    }
 
     function resetView() {
         $('#details').html('');
         $('#querypan').html('');
-        $('#display').removeClass('col-md-5');
     }
 
     //deep linking
     $.address.strict(false);
     $.address.change(function(event) {
-        resetToolBar();
-        resetView();
         var id = event.value;
         if (id) {
+            resetToolBar();
+            resetView();
             $('#details').load('/wo/' + id, function() {
                 var isOwner = $('#owner').attr('value'),
                     opAcc = $('#acc').attr('value'),
                     querytype = $('#querytype') ? $('#querytype').text().toLowerCase() : null;
-
-                resetToolBar();
 
                 if (isOwner) {
                     xeditable();
@@ -95,9 +92,10 @@ $(document).ready(function() {
                         });
                     });
                 }
-
                 $('#display').addClass('col-md-5');
             });
+        } else {
+            $('#display').removeClass('col-md-5');
         }
     });
 });
