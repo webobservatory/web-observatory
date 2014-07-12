@@ -17,6 +17,8 @@ var User = require('../app/models/user'),
 
 module.exports = function(app, passport) {
 
+    app.options('*', cors());//for pre-flight cors
+
     app.get("/", function(req, res) {
         if (req.isAuthenticated()) {
             res.render("index", {
@@ -449,6 +451,7 @@ module.exports = function(app, passport) {
         }
 
         async.waterfall([
+
             function(cb) {
                 if (qtype === 'mongodb') {
                     Entry.findById(req.params.dsId, function(err, ds) {
