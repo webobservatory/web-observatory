@@ -44,3 +44,5 @@ table.xedit.table.table-bordered.table-striped
 span#owner.hidden(value=etry.isOwner)
 span#acc.hidden(value=etry.opAcc || etry.isOwner)
 span#type.hidden(value=etry.type)
+if etry.type === 'visualisation'
+  span#url.hidden(value=etry.url)

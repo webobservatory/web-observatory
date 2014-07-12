@@ -86,7 +86,7 @@ $(document).ready(function() {
                             $('#querypan').load('/query/' + querytype + '/' + id);
                         });
                     } else
-                        $('#explore').attr('href', $('#url').text());
+                        $('#explore').attr('href', $('#url').attr('value'));
                 } else {
                     $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
                         event.preventDefault();
