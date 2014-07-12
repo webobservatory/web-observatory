@@ -56,6 +56,7 @@ $(document).ready(function() {
     function resetView() {
         $('#details').html('');
         $('#querypan').html('');
+        $('#display').removeClass('col-md-5');
     }
 
     //deep linking
@@ -64,7 +65,6 @@ $(document).ready(function() {
         var id = event.value;
         if (id) {
             resetToolBar();
-            resetView();
             $('#details').load('/wo/' + id, function() {
                 var isOwner = $('#owner').attr('value'),
                     opAcc = $('#acc').attr('value'),
@@ -95,7 +95,8 @@ $(document).ready(function() {
                 $('#display').addClass('col-md-5');
             });
         } else {
-            $('#display').removeClass('col-md-5');
+            resetToolBar();
+            resetView();
         }
     });
 });
