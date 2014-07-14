@@ -59,3 +59,18 @@ exports.hasAccToDB = function(req, res, next) {
             next();
         });
 };
+
+exports.isOwner = function(req, res, next) {
+    if (!req.user) return res.send(401, 'Unauthorised');
+
+    var eid = req.params.eid || req.query.eid || req.body.eid;
+
+    User.findOne({
+        email: req.user.email,
+        own: eid
+    }, function(err, user) {
+        if (err) return next(err);
+        if (!user) return res.send(401, 'Unauthorised');
+        next();
+    });
+};

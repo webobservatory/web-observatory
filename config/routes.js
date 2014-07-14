@@ -17,7 +17,7 @@ var User = require('../app/models/user'),
 
 module.exports = function(app, passport) {
 
-    app.options('*', cors());//for pre-flight cors
+    app.options('*', cors()); //for pre-flight cors
 
     app.get("/", function(req, res) {
         if (req.isAuthenticated()) {
@@ -207,62 +207,46 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/detail/:eid', ensureLoggedIn('/login'), function(req, res) {
-        var etry_id = req.params.eid;
+    app.post('/detail/:eid', Auth.isOwner, function(req, res) {
+        var eid = req.params.eid;
         var etry = {};
 
-        //Auth
-        User.findOne({
-            email: req.user.email,
-            own: etry_id
-        }, function(err, user) {
-            if (err || !user) {
-                logger.error(err || {
-                    message: 'Entry not found under the current user'
-                });
-                //req.flash('error', [err ? err.message : 'Entry not found under the current user']);
-                return res.send(400, err ? err.message : 'Entry not found under the current user');
+        switch (req.body.name) {
+            case 'url':
+                etry.url = req.body.value;
+                break;
+            case 'name':
+                etry.name = req.body.value;
+                break;
+            case 'des':
+                etry.des = req.body.value;
+                break;
+            case 'lice':
+                etry.lice = req.body.value;
+                break;
+            case 'creator':
+                etry.creator = req.body.value;
+                break;
+            case 'git':
+                etry.git = req.body.value;
+                break;
+            case 'related':
+                etry.related = req.body.value;
+                break;
+            case 'kw':
+                etry.kw = req.body.value.split(',');
+                break;
+            case 'acc':
+                etry.opAcc = req.body.value.indexOf('private') === -1;
+                etry.opVis = req.body.value.indexOf('novis') === -1;
+                break;
+        }
+        modctrl.editEtry(eid, etry, function(err) {
+            if (err) {
+                res.send(400, err.message);
+            } else {
+                res.send(200);
             }
-
-            switch (req.body.name) {
-                case 'url':
-                    etry.url = req.body.value;
-                    break;
-                case 'name':
-                    etry.name = req.body.value;
-                    break;
-                case 'des':
-                    etry.des = req.body.value;
-                    break;
-                case 'lice':
-                    etry.lice = req.body.value;
-                    break;
-                case 'creator':
-                    etry.creator = req.body.value;
-                    break;
-                case 'git':
-                    etry.git = req.body.value;
-                    break;
-                case 'related':
-                    etry.related = req.body.value;
-                    break;
-                case 'kw':
-                    etry.kw = req.body.value.split(',');
-                    break;
-                case 'acc':
-                    etry.opAcc = req.body.value.indexOf('private') === -1;
-                    etry.opVis = req.body.value.indexOf('novis') === -1;
-                    break;
-            }
-            modctrl.editEtry(etry_id, etry, function(err) {
-                if (err) {
-                    //req.flash('error', [err.message]);
-                    res.send(400, err.message);
-                } else {
-                    //req.flash('info', ['Entry edited']);
-                    res.send(200);
-                }
-            });
         });
     });
 
@@ -291,82 +275,58 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/edit/:eid', ensureLoggedIn('/login'), function(req, res) {
-        var etry_id = req.params.eid;
+    app.post('/edit/:eid', Auth.isOwner, function(req, res) {
+        var eid = req.params.eid;
         var etry = {};
 
-        //Auth
-        User.findOne({
-            email: req.user.email,
-            own: etry_id
-        }, function(err, user) {
+        if (req.body.url) etry.url = req.body.url;
+        if (req.body.name) etry.name = req.body.name;
+        if (req.body.des) etry.des = req.body.des;
+        if (req.body.lice) etry.lice = req.body.lice;
+        if (req.body.creator) etry.creator = req.body.creator;
+        if (req.body.git) etry.git = req.body.git;
+        if (req.body.related) etry.related = req.body.related;
+        if (req.body.kw) etry.kw = req.body.kw.split(',');
+        if (req.body.vis !== undefined) etry.opVis = false;
+        if (req.body.acc !== undefined) etry.opAcc = false;
 
-            if (err || !user) {
-                logger.error(err || {
-                    message: 'Entry not found under the current user'
-                });
-                req.flash('error', [err ? err.message : 'Entry not found under the current user']);
-                return res.redirect(req.get('referer'));
+        modctrl.editEtry(eid, etry, function(err) {
+            if (err) {
+                req.flash('error', [err.message]);
+                res.redirect(req.get('referer'));
+            } else {
+                req.flash('info', ['Entry edited']);
+                res.redirect('profile');
             }
-            if (req.body.url) etry.url = req.body.url;
-            if (req.body.name) etry.name = req.body.name;
-            if (req.body.des) etry.des = req.body.des;
-            if (req.body.lice) etry.lice = req.body.lice;
-            if (req.body.creator) etry.creator = req.body.creator;
-            if (req.body.git) etry.git = req.body.git;
-            if (req.body.related) etry.related = req.body.related;
-            if (req.body.kw) etry.kw = req.body.kw.split(',');
-            if (req.body.vis !== undefined) etry.opVis = false;
-            if (req.body.acc !== undefined) etry.opAcc = false;
-
-            modctrl.editEtry(etry_id, etry, function(err) {
-                if (err) {
-                    req.flash('error', [err.message]);
-                    res.redirect(req.get('referer'));
-                } else {
-                    req.flash('info', ['Entry edited']);
-                    res.redirect('profile');
-                }
-            });
         });
     });
 
     //remove entries
     app.get('/remove/:eid', ensureLoggedIn('/login'), function(req, res) {
-        var umail = req.user.email;
-        var ids = req.params.eid.split(',');
+        var ids = req.params.eid.split(','),
+            user = req.user;
 
         if (!ids) {
             req.flash('error', ['No entry selected']);
             return res.redirect(req.get('referer'));
         }
 
-        if (typeof ids === 'string') ids = [ids];
+        if ('string' === typeof ids) ids = [ids];
 
-        User.findOne({
-            email: umail
-        }, function(err, user) {
-            if (err || !user) {
-                err = err || {
-                    message: 'User not logged in'
-                };
+        async.map(ids, function(eid, cb) {
+            if (-1 !== user.own.indexOf(eid)) {
+                Entry.findByIdAndRemove(eid, cb);
+                user.own.pull(eid);
+            }
+        }, function(err) {
+            if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
-
-            async.map(ids, function(eid, cb) {
-                Entry.findByIdAndRemove(eid, cb);
-                user.own.pull(eid);
-            }, function(err) {
-                if (err) {
-                    req.flash('error', [err.message]);
-                    return res.redirect(req.get('referer'));
-                }
-                user.save(function(err) {
-                    if (err) req.flash('error', [err.message]);
-                    else req.flash('info', ['Entry deleted successfully']);
-                    return res.redirect(req.get('referer'));
-                });
+            user.save(function(err) {
+                if (err) req.flash('error', [err.message]);
+                else req.flash('info', ['Entry deleted successfully']);
+                return res.redirect(req.get('referer'));
             });
         });
     });
@@ -614,9 +574,8 @@ module.exports = function(app, passport) {
 
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
-        User.findOne({
-            email: req.user.email
-        }).populate('own').populate('accreq').populate('pendingreq.entry').exec(function(err, user) {
+
+        req.user.populate('own').populate('accreq').populate('pendingreq.entry', function(err, user) {
             var parameter = {
                 'user': user
             };
@@ -643,7 +602,9 @@ module.exports = function(app, passport) {
             fn = req.body.fn,
             ln = req.body.ln,
             org = req.body.org,
-            email = req.user.email;
+            user = req.user,
+            email = user.email;
+
         if (newpw) {
             User.isValidUserPassword(email, oldpw, function(err, user, msg) {
                 if (err) {
@@ -651,12 +612,12 @@ module.exports = function(app, passport) {
                     return res.redirect(req.get('referer'));
                 }
 
-                if (!user) {
+                if (!user) { //should not happen
                     req.flash('error', [msg.message]);
                     return res.redirect(req.get('referer'));
                 }
 
-                User.updateProfile(user, newpw, fn, ln, org, function(err, user) {
+                User.updateProfile(user, newpw, fn, ln, org, function(err) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
@@ -667,52 +628,36 @@ module.exports = function(app, passport) {
                 });
             });
         } else {
-            User.findOne({
-                'email': email
-            }, function(err, user) {
+            User.updateProfile(user, null, fn, ln, org, function(err) {
                 if (err) {
                     req.flash('error', [err.message]);
                     return res.redirect(req.get('referer'));
+                } else {
+                    req.flash('info', ['Profile updated']);
+                    return res.redirect(req.get('referer'));
                 }
-
-                User.updateProfile(user, null, fn, ln, org, function(err, user) {
-                    if (err) {
-                        req.flash('error', [err.message]);
-                        return res.redirect(req.get('referer'));
-                    } else {
-                        req.flash('info', ['Profile updated']);
-                        return res.redirect(req.get('referer'));
-                    }
-                });
-
             });
         }
     });
 
     //remove messages
     app.post('/profile/message', ensureLoggedIn('/login'), function(req, res) {
-        var msgid = req.body.msgid;
-        if (typeof msgid === 'string') msgid = [msgid];
+        var msgid = req.body.msgid,
+            user = req.user;
 
-        User.findOne({
-            email: req.user.email
-        }, function(err, user) {
+        if ('string' === typeof msgid) msgid = [msgid];
+
+        msgid.forEach(function(id) {
+            user.msg.remove(msgid[mid]);
+        });
+
+        user.save(function(err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
-            for (var mid in msgid) {
-                user.msg.remove(msgid[mid]);
-            }
-
-            user.save(function(err) {
-                if (err) {
-                    req.flash('error', [err.message]);
-                    return res.redirect(req.get('referer'));
-                }
-                req.flash('info', ['Messages cleared']);
-                res.redirect(req.get('referer'));
-            });
+            req.flash('info', ['Messages cleared']);
+            res.redirect(req.get('referer'));
         });
     });
 

@@ -30,6 +30,11 @@ UserSchema = mongoose.Schema({
         email: String,
         name: String
     },
+    //oauth clients
+    clients: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Client'
+    }],
     //password reset
     reset: {
         token: String,
