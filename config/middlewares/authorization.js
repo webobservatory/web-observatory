@@ -27,7 +27,7 @@ exports.userExist = function(req, res, next) {
 exports.hasAccToDB = function(req, res, next) {
     var user = req.user, //user should not be null
         mail = user.email,
-        _id = req.params.dsId || req.query.dsId; //TODO use req.query
+        _id = req.params.dsId || req.query.dsId;
 
     async.parallel([
 
@@ -67,7 +67,11 @@ exports.isOwner = function(req, res, next) {
 
     User.findOne({
         email: req.user.email,
-        own: eid
+        $or: [{
+            own: eid
+        }, {
+            clients: eid
+        }]
     }, function(err, user) {
         if (err) return next(err);
         if (!user) return res.send(401, 'Unauthorised');

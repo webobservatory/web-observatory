@@ -1,5 +1,6 @@
 var User = require('../app/models/user'),
     Entry = require('../app/models/entry'),
+    Client = require('../app/models/client'),
     Auth = require('./middlewares/authorization.js'),
     async = require('async'),
     ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
@@ -828,8 +829,50 @@ module.exports = function(app, passport) {
     app.post('/oauth/decision', ensureLoggedIn('/login'), oauth2.decision);
 
     app.post('/oauth/token', cors(), oauth2.token);
-};
 
+    //application management
+
+    app.get('/client/create', ensureLoggedIn('/login'), function(req, res, next) {
+        var user = req.user;
+
+        var secret = crypto.randomBytes(8).toString('hex');
+
+        var client = new Client({
+            name: req.query.name,
+            clientSecret: secret,
+            redirectURI: req.query.callback
+        });
+
+        client.save(function(err) {
+            if (err) return next(err);
+
+            res.redirect(req.get('referer'));
+
+            user.clients.push(client._id);
+            user.save(function(err) {
+                if (err) return next(err);
+            });
+        });
+    });
+
+    app.get('/client/:cid/delete', Auth.isOwner, function(req, res, next) {
+        var user = req.user,
+            cid = req.params.cid;
+
+        Client.findByIdAndRemove(cid, function(err) {
+            if (err) next(err);
+        });
+
+        user.clients.pull(cid);
+        user.save(function(err) {
+            if (err) next(err);
+        });
+    });
+
+    app.get('/client/:cid/edit', Auth.isOwner, function(req, res) {
+
+    });
+};
 
 function rememberMe(req, res, next) {
     // Issue a remember me cookie if the option was checked
