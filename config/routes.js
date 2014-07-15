@@ -840,6 +840,7 @@ module.exports = function(app, passport) {
         var client = new Client({
             name: req.query.name,
             clientSecret: secret,
+            owner: user.email,
             redirectURI: req.query.callback
         });
 
