@@ -575,7 +575,7 @@ module.exports = function(app, passport) {
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
 
-        req.user.populate('own').populate('accreq').populate('pendingreq.entry', function(err, user) {
+        req.user.populate('own').populate('accreq').populate('clients').populate('pendingreq.entry', function(err, user) {
             var parameter = {
                 'user': user
             };

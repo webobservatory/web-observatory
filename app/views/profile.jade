@@ -22,6 +22,9 @@ html(lang='en')
                 a(href='#requests')
                   | Requests received
               li
+                a(href='#clients')
+                  | Applications
+              li
                 a(href='#msgbox')
                   | Inbox
                    
@@ -161,9 +164,27 @@ html(lang='en')
                     .col-md-3.btn-toolbar
                       button.btn.btn-primary#approve Approve
                       button.btn.btn-danger#clear Deny
+            .row#clients
+              .page-header
+                h1 Applications (#{user.clients?user.clients.length:0})
+              table.table.table-striped
+                thead
+                  tr
+                    th Name
+                    th Id
+                    th Secret
+                    th Callback URI
+                tbody
+                  each val in user.clients
+                    tr
+                      td= val.name
+                      td= val._id
+                      td= val.clientSecret
+                      td= val.redirectURI
+              //button#newapp.btn.btn-default New app
             .row#msgbox
               .page-header
-                h1 Inbox (#{ msg?msg.length:0})
+                h1 Inbox (#{msg?msg.length:0})
               form.form-horizontal(method='post' action='/profile/message')
                 if msg && msg.length != 0
                   each m in msg

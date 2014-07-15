@@ -11,7 +11,8 @@ var ClientSchema = Schema({
         type: String,
         required: true
     },
-    redirectURI: String
+    redirectURI: String,
+    owner: String//owner's email
 });
 
 module.exports = mongoose.model("Client", ClientSchema);
