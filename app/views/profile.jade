@@ -126,7 +126,7 @@ html(lang='en')
                       .modal-header
                       .modal-body
                       .modal-footer
-                        button.btn(data-dismiss='modal', aria-hidden='true') Cancel
+                        button.btn.btn-warning(data-dismiss='modal', aria-hidden='true') Cancel
                         a#del.btn.btn-danger(href='') Confirm
             .row#requesteddataset
               .page-header
@@ -172,7 +172,7 @@ html(lang='en')
                   tr
                     th
                     th Name
-                    th Id
+                    th ID
                     th Secret
                     th Callback URI
                 tbody
@@ -183,16 +183,34 @@ html(lang='en')
                           .glyphicon.glyphicon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
                           ul.dropdown-menu
                             li
-                              button.btn.app-create(href='#' name=val._id) Create
+                              a(data-toggle='modal' data-target='#app-create-modal') Create
                             li
-                              button.btn.app-edit(href='#' name=val._id) Edit
+                              a.app-edit.disabled(href='#' name=val._id) Edit
                             li.divider
                             li.btn-danger
-                              button.btn.app-del(href='#' name=val._id) Delete
+                              a.app-del.disabled(href='#' name=val._id) Delete
                       td= val.name
                       td= val._id
                       td= val.clientSecret
                       td= val.redirectURI
+              #app-create-modal.modal.fade
+                .modal-dialog.modal-md
+                  .modal-content
+                    .modal-header Create a new application
+                    .modal-body
+                      form#newapp(method='get' action='/client/create')
+                        .form-group
+                          label Name
+                          input.form-control(name='name' placeholder='Name of your new app')
+                        .form-group
+                          label Callback URI
+                          input.form-control(name='callback' placeholder='Callback URI of your new app')
+
+                        .form-group
+                          .btn-group
+                            button#app-create.btn.btn-success(type='submit') Create
+                            button.btn.btn-warning(data-dismiss='modal', aria-hidden='true') Cancel
+
               //button#newapp.btn.btn-default New app
             .row#msgbox
               .page-header
