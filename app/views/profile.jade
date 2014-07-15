@@ -170,6 +170,7 @@ html(lang='en')
               table.table.table-striped
                 thead
                   tr
+                    th
                     th Name
                     th Id
                     th Secret
@@ -177,6 +178,17 @@ html(lang='en')
                 tbody
                   each val in user.clients
                     tr
+                      td
+                        .btn-group
+                          .glyphicon.glyphicon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
+                          ul.dropdown-menu
+                            li
+                              button.btn.app-create(href='#' name=val._id) Create
+                            li
+                              button.btn.app-edit(href='#' name=val._id) Edit
+                            li.divider
+                            li.btn-danger
+                              button.btn.app-del(href='#' name=val._id) Delete
                       td= val.name
                       td= val._id
                       td= val.clientSecret
