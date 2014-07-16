@@ -389,6 +389,7 @@ module.exports = function(app, passport) {
     });
 
     //mongodb schema names autocompletion
+    //TODO deprecated route?
     app.get('/schematags', ensureLoggedIn('/login'), function(req, res) {
         Entry.findById(req.query.dsId, function(err, ds) {
             queries.mongodbschema(ds, function(err, names) {
@@ -398,7 +399,7 @@ module.exports = function(app, passport) {
     });
 
     //execute user queries
-    app.get('/query/:format/:dsId', function(req, res) {
+    app.get('/query/:format/:eid', function(req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
             case 'mysql':
@@ -415,20 +416,20 @@ module.exports = function(app, passport) {
 
             function(cb) {
                 if (qtype === 'mongodb') {
-                    Entry.findById(req.params.dsId, function(err, ds) {
+                    Entry.findById(req.params.eid, function(err, ds) {
                         queries.mongodbschema(ds, cb);
                     });
                 } else cb(null, null);
             }
         ], function(err, result) {
             res.render('query/' + qtype, {
-                dsID: req.params.dsId,
+                dsID: req.params.eid,
                 tags: result ? result : []
             });
         });
     });
 
-    app.get('/endpoint/:dsId/:typ', ensureLoggedIn('/login'), Auth.hasAccToDB, function(req, res) {
+    app.get('/endpoint/:eid/:typ', ensureLoggedIn('/login'), Auth.hasAccToDB, function(req, res) {
 
         if (!req.attach.dataset) return res.redirect(req.get('referer'));
 
@@ -510,7 +511,7 @@ module.exports = function(app, passport) {
         //successReturnToOrRedirect: '/',
         failureRedirect: "/login",
         failureFlash: true
-    }), rememberMe, function(req, res) {
+    }), Auth.rememberMe, function(req, res) {
         var url = '/';
         if (req.session && req.session.returnTo) {
             url = req.session.returnTo;
@@ -571,7 +572,7 @@ module.exports = function(app, passport) {
         failureRedirect: '/auth/soton',
         failureFlash: true,
         successReturnToOrRedirect: '/'
-    }), rememberMe);
+    }), Auth.rememberMe);
 
     //profile
     app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
@@ -847,18 +848,18 @@ module.exports = function(app, passport) {
         client.save(function(err) {
             if (err) return next(err);
 
-            res.redirect(req.get('referer'));
-
             user.clients.push(client._id);
             user.save(function(err) {
                 if (err) return next(err);
+
+                res.redirect(req.get('referer')); //use ajax
             });
         });
     });
 
-    app.get('/client/:cid/delete', Auth.isOwner, function(req, res, next) {
+    app.get('/client/:eid/delete', Auth.isOwner, function(req, res, next) {
         var user = req.user,
-            cid = req.params.cid;
+            cid = req.params.eid;
 
         Client.findByIdAndRemove(cid, function(err) {
             if (err) next(err);
@@ -867,31 +868,13 @@ module.exports = function(app, passport) {
         user.clients.pull(cid);
         user.save(function(err) {
             if (err) next(err);
+
+            res.redirect(req.get('referer')); //use ajax
         });
     });
 
-    app.get('/client/:cid/edit', Auth.isOwner, function(req, res) {
+    app.get('/client/:eid/edit', Auth.isOwner, function(req, res) {
 
     });
 };
 
-function rememberMe(req, res, next) {
-    // Issue a remember me cookie if the option was checked
-    if (!req.body.remember_me) {
-        return next();
-    }
-
-    crypto.randomBytes(32, function(ex, buf) {
-        var token = buf.toString('hex');
-        req.user.rememberme = token;
-        req.user.save(function(err, user) {
-            if (err) return next(err);
-            res.cookie('remember_me', token, {
-                path: '/',
-                httpOnly: true,
-                maxAge: 604800000
-            });
-            return next();
-        });
-    });
-}

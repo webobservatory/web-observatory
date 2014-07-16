@@ -82,10 +82,10 @@ html(lang='en')
                                 //li
                                   a(href='#') Details
                                 li
-                                  a.edit(href='edit/'+val._id) Edit
+                                  a.edit(href='/edit/'+val._id) Edit
                                 li.divider
                                 li.btn-danger
-                                  a.del(href='#' eid=val._id name=val.name) Delete
+                                  a.del(href='/remove/' + val.Id name=val.name) Delete
                           - var name=val.name || '';
                           - if(name.length>30) {
                           -   name = name.substring(0,27);
@@ -127,7 +127,7 @@ html(lang='en')
                       .modal-body
                       .modal-footer
                         button.btn.btn-warning(data-dismiss='modal', aria-hidden='true') Cancel
-                        a#del.btn.btn-danger(href='') Confirm
+                        a#del.btn.btn-danger(href='#') Confirm
             .row#requesteddataset
               .page-header
                 h1 Reuests sent (#{requested?requested.length:0})
@@ -184,11 +184,11 @@ html(lang='en')
                           ul.dropdown-menu
                             li
                               a(data-toggle='modal' data-target='#app-create-modal') Create
-                            li
-                              a.app-edit.disabled(href='#' name=val._id) Edit
+                            //li
+                              a.app-edit.disabled(href='#' name=val.name) Edit
                             li.divider
                             li.btn-danger
-                              a.app-del.disabled(href='#' name=val._id) Delete
+                              a.del(href='/client/' + val._id + '/delete' name=val.name) Delete
                       td= val.name
                       td= val._id
                       td= val.clientSecret

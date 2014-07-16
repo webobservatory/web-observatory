@@ -1,5 +1,6 @@
 var User = require('../../app/models/user'),
     Entry = require('../../app/models/entry'),
+    crypto = require('crypto'),
     async = require('async');
 
 exports.isAuthenticated = function(req, res, next) {
@@ -27,7 +28,7 @@ exports.userExist = function(req, res, next) {
 exports.hasAccToDB = function(req, res, next) {
     var user = req.user, //user should not be null
         mail = user.email,
-        _id = req.params.dsId || req.query.dsId;
+        _id = req.params.eid || req.query.eid;
 
     async.parallel([
 
@@ -76,5 +77,26 @@ exports.isOwner = function(req, res, next) {
         if (err) return next(err);
         if (!user) return res.send(401, 'Unauthorised');
         next();
+    });
+};
+
+exports.rememberMe = function(req, res, next) {
+    // Issue a remember me cookie if the option was checked
+    if (!req.body.remember_me) {
+        return next();
+    }
+
+    crypto.randomBytes(32, function(ex, buf) {
+        var token = buf.toString('hex');
+        req.user.rememberme = token;
+        req.user.save(function(err, user) {
+            if (err) return next(err);
+            res.cookie('remember_me', token, {
+                path: '/',
+                httpOnly: true,
+                maxAge: 604800000
+            });
+            return next();
+        });
     });
 };
