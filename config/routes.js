@@ -288,8 +288,8 @@ module.exports = function(app, passport) {
         if (req.body.git) etry.git = req.body.git;
         if (req.body.related) etry.related = req.body.related;
         if (req.body.kw) etry.kw = req.body.kw.split(',');
-        if (req.body.vis !== undefined) etry.opVis = false;
-        if (req.body.acc !== undefined) etry.opAcc = false;
+        etry.opVis = !req.body.vis;
+        etry.opAcc = !req.body.acc;
 
         modctrl.editEtry(eid, etry, function(err) {
             if (err) {
@@ -297,7 +297,7 @@ module.exports = function(app, passport) {
                 res.redirect(req.get('referer'));
             } else {
                 req.flash('info', ['Entry edited']);
-                res.redirect('profile');
+                res.redirect('/profile');
             }
         });
     });
@@ -470,7 +470,7 @@ module.exports = function(app, passport) {
 
                     if (mime === 'display') {
                         var viewer = 'csvview';
-                        if (qtyp === 'mongodb' || qtyp === 'hive' || qtyp === 'sql') viewer = 'jsonview';
+                        if (qtyp === 'mongodb' || qtyp === 'sql') viewer = 'jsonview';
                         res.render('query/' + viewer, {
                             'result': result,
                             'info': req.flash('info'),
