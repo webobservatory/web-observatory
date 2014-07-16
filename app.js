@@ -17,7 +17,7 @@ var express = require('express'),
     favicon = require('static-favicon'),
     errorHandler = require('errorhandler'),
     methodOverride = require('method-override'),
-    logging = require('./app/controllers/middleware/logging');
+    logging = require('./config/middlewares/logging');
 
 var env = process.env.NODE_ENV || 'development',
     config = require('./config/config')[env];
