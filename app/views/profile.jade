@@ -176,6 +176,14 @@ html(lang='en')
                     th Secret
                     th Callback URI
                 tbody
+                  if(0 === user.clients.length)
+                    tr
+                      td
+                        .btn-group
+                          .glyphicon.glyphicon-cog.dropdown-toggle(data-toggle='dropdown' href='#')
+                          ul.dropdown-menu
+                            li
+                              a(data-toggle='modal' data-target='#app-create-modal') Create
                   each val in user.clients
                     tr
                       td
