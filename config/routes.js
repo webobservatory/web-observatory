@@ -52,6 +52,7 @@ module.exports = function(app, passport) {
         });
     });
 
+    //catalogue right panel
     app.get('/wo/:eid', function(req, res) {
         var email = req.user ? req.user.email : null,
             eid = req.params.eid;
@@ -67,6 +68,22 @@ module.exports = function(app, passport) {
 
             res.render('catlog-detail', {
                 etry: entry
+            });
+        });
+    });
+
+    //display vis
+    app.get('/wo/show/:eid', function(req, res, next) {
+        Entry.findById(req.params.eid, function(err, entry) {
+            if (err) return next(err);
+            if (!entry) {
+                req.flash('error', ['No entry found']);
+                return res.redirect(req.get('referer'));
+            }
+
+            res.render('vis-panel', {
+                user: req.user,
+                entry: entry
             });
         });
     });
@@ -500,6 +517,7 @@ module.exports = function(app, passport) {
     //authentication
 
     app.get("/login", function(req, res) {
+        req.session.returnTo = req.get('referer');
         res.render("login", {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -877,4 +895,3 @@ module.exports = function(app, passport) {
 
     });
 };
-

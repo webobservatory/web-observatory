@@ -60,9 +60,7 @@ $(document).ready(function() {
     }
 
     //deep linking
-    $.address.strict(false);
-    $.address.change(function(event) {
-        var id = event.value;
+    function rightPan(id) {
         if (id) {
             resetToolBar();
             $('#querypan').html('');
@@ -84,7 +82,7 @@ $(document).ready(function() {
                             $('#querypan').load('/query/' + querytype + '/' + id);
                         });
                     } else
-                        $('#explore').attr('href', $('#url').attr('value'));
+                        $('#explore').attr('href', '/wo/show/' + id);
                 } else {
                     $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
                         event.preventDefault();
@@ -99,5 +97,11 @@ $(document).ready(function() {
             resetToolBar();
             resetView();
         }
+    };
+
+    $.address.strict(false);
+    $.address.change(function(event) {
+        var id = event.value;
+        rightPan(id);
     });
 });

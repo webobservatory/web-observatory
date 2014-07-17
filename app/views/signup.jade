@@ -1,28 +1,9 @@
-extends login-layout
-block append head
-  script.
-    var RecaptchaOptions = {
-         theme : 'white',
-         lang  : 'en'
-      };
-block append content
-  .text-center
-    .row
-      .collapse.alert.alert-warning Password not match
-    .row
-      form.form-signin#singup(method="POST", action="/signup")
-        label.form-signin-heading Please fill your details
-        input.form-control(placeholder='First name' type='text', name='fn' required='')
-        input.form-control(placeholder='Last name' type='text', name='ln' required='')
-        input.form-control(placeholder='Organisation' type='text', name='org' )
-        input.form-control(placeholder='Email' type='email', name='email' required='')
-        input.form-control(placeholder='Password' type='password', name='password' required='')
-        input.form-control(placeholder='Confirm password' type='password' data-validation-matches-match='password' data-validation-matches-message=
-  "Must match password entered above" name='confirm' required='')
-        label 
-          and verify you're human
-        != recaptcha_form
-        button.btn.btn-primary.btn-lg.btn-block(type="submit") Sign Up
+extends base
+
+block content
+  include includes/signupbox
+
 block footer
-script(src='/js/jqBootstrapValidation.js')
-script(src='/js/reset-pass.jade.js')
+  script(src='/js/jqBootstrapValidation.js')
+  script(src='/js/reset-pass.jade.js')
+  

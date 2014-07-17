@@ -1,0 +1,35 @@
+#sotonbox.mainbox.col-md-6.col-md-offset-3.col-sm-8.col-sm-offset-2(style='display: none; margin-top: 50px;')
+  .panel.panel-info
+    .panel-heading
+      .panel-title Sign In with Soton Account
+      div(style='float: right; font-size: 80%; position: relative; top: -10px;')
+        a#signinlink(href='#', onclick='$(\'#sotonbox\').hide(); $(\'#loginbox\').show()') Back to Sign In
+
+    .panel-body(style='padding-top: 30px;')
+      #login-alert.alert.alert-danger.col-sm-12(style='display: none;')
+      form#loginform.form-horizontal(action='/auth/soton' method='post' role='form')
+        .input-group(style='margin-bottom: 25px;')
+          span.input-group-addon
+            i.glyphicon.glyphicon-user
+          input#login-username.form-control(type='text', name='username', value='', placeholder='soton username')
+        .input-group(style='margin-bottom: 25px;')
+          span.input-group-addon
+            i.glyphicon.glyphicon-lock
+          input#login-password.form-control(type='password', name='password', placeholder='soton password')
+        .input-group
+          .checkbox
+            label
+              input(type='checkbox', name='remember_me')
+              | Remember me
+        .form-group(style='margin-top: 10px;')
+          //
+             Button 
+          .col-sm-12.controls
+            button.btn.btn-success(type='submit') Soton Login
+        .form-group
+          .col-md-12.control
+            div(style='border-top: 1px solid#888; padding-top: 15px; font-size: 85%;')
+              | Don't have an account! 
+              a(href='#', onclick='$(\'#sotonbox\').hide(); $(\'#signupbox\').show()')
+                | Sign Up Here
+
