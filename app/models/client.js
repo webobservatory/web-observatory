@@ -12,7 +12,11 @@ var ClientSchema = Schema({
         required: true
     },
     redirectURI: String,
-    owner: String//owner's email
+    owner: String,//owner's email
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 module.exports = mongoose.model("Client", ClientSchema);

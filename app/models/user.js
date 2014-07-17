@@ -76,7 +76,12 @@ UserSchema = mongoose.Schema({
         sender: String,
         content: String,
         read: Boolean
-    }]
+    }],
+
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 //user control

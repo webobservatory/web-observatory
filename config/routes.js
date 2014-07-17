@@ -12,7 +12,7 @@ var User = require('../app/models/user'),
     pass = require('../app/util/pass'),
     logger = require('../app/util/logger'),
     crypto = require('crypto'),
-    modctrl = require('middlewares/modctrl'),
+    modctrl = require('./middlewares/modctrl'),
     cors = require('cors'),
     oauth2 = require('../oauth/oauth2server');
 
