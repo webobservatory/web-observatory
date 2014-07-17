@@ -20,7 +20,7 @@ function decryptPwd(ds) {
 }
 
 function pqDriver(query, mime, ds, cb) {
-    var url = 'postgres://' + (ds.auth.user ? ds.auth.user + ':' + pwd : '') + '@' + ds.url.split('postgres://')[1];
+    var url = 'postgres://' + (ds.auth.user ? ds.auth.user + ':' + pwd : '') + '@' + ds.url;
     var client = new pg.Client(url);
     client.connect(function(err) {
         if (err) {
@@ -122,6 +122,11 @@ function mgdbTest(ds, cb) {
         user: ds.user,
         pass: ds.password
     };
+
+    mgclient.connect(url, function(err, db) {
+
+    });
+
     try {
         var connection = mongoose.createConnection(url, opts).on('error', function(err) {
             cb(err);
@@ -134,7 +139,7 @@ function mgdbTest(ds, cb) {
 }
 
 function pqTest(query, mime, ds, cb) {
-    var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.password : '') + '@' + ds.url.split('postgres://')[1];
+    var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.password : '') + '@' + ds.url;
     var client = new pg.Client(url);
     client.connect(function(err) {
         cb(err);

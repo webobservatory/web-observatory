@@ -517,7 +517,9 @@ module.exports = function(app, passport) {
     //authentication
 
     app.get("/login", function(req, res) {
-        req.session.returnTo = req.get('referer');
+        if (!req.session.returnTo)
+            req.session.returnTo = req.get('referer');
+
         res.render("login", {
             info: req.flash('info'),
             error: req.flash('error'),

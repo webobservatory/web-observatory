@@ -47,19 +47,19 @@ $(document).ready(function() {
         event.preventDefault();
         var data = {};
         $('#conted').removeClass('glyphicon-remove glyphicon-ok');
+        data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
         data.url = $('#adddata input[name=url]').val();
+        if (-1 === data.url.indexOf('//') && 'sparql' === data.typ)
+            data.url = 'http://' + data.url;
         data.user = $('#adddata input[name=user]').val();
         data.pwd = $('#adddata input[name=pwd]').val();
-        data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
-        if (data.typ.indexOf('postgresql') !== -1) return alert('Dataset not yet supported');
+        //if (data.typ.indexOf('postgresql') !== -1) return alert('Dataset not yet supported');
         $.get('/contest?url=' + data.url + '&typ=' + data.typ + '&user=' + data.user + '&pwd=' + data.pwd, function(data, textStatus) {
             console.log(data);
             if (data) {
-                //alert('Connection failed');
                 $('#conted').addClass('glyphicon-remove');
                 con_succeed = false;
             } else {
-                //alert('Connection succeeded');
                 $('#conted').addClass('glyphicon-ok');
                 con_succeed = true;
             }
