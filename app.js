@@ -45,9 +45,14 @@ app.set('view engine', 'jade');
 //app.use(favicon);
 app.use(morganLogger('dev'));
 app.use(cookieParser());
-app.use(bodyParser());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+app.use(bodyParser.json());
 app.use(session({
-    secret: 'keyboard cat'
+    secret: 'ekd5ia#skd',
+    saveUninitialized: true,
+    resave: true
 }));
 app.use(passport.initialize());
 app.use(passport.session());

@@ -124,18 +124,20 @@ function mgdbTest(ds, cb) {
     };
 
     mgclient.connect(url, function(err, db) {
-
-    });
-
-    try {
-        var connection = mongoose.createConnection(url, opts).on('error', function(err) {
-            cb(err);
-        }).once('connected', function() {
+        if (err) return cb(err);
+        if (ds.user) {
+            db.authenticate(ds.user, ds.password, function(err, result) {
+                if (err || !result) return cb(err || {
+                    message: 'Authentication failed'
+                });
+                cb(null);
+                db.close();
+            });
+        } else {
             cb(null);
-        });
-    } catch (err) {
-        cb(err);
-    }
+            db.close();
+        }
+    });
 }
 
 function pqTest(query, mime, ds, cb) {
@@ -145,10 +147,6 @@ function pqTest(query, mime, ds, cb) {
         cb(err);
         client.end();
     });
-}
-
-function hiveTest(ds, cb) {
-    hive.test(ds.host, cb);
 }
 
 function mysqlTest(ds, cb) {

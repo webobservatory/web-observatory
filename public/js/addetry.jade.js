@@ -49,8 +49,10 @@ $(document).ready(function() {
         $('#conted').removeClass('glyphicon-remove glyphicon-ok');
         data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
         data.url = $('#adddata input[name=url]').val();
-        if (-1 === data.url.indexOf('//') && 'sparql' === data.typ)
-            data.url = 'http://' + data.url;
+        if (-1 === data.url.indexOf('://') && 'mysql' !== data.typ) {
+            data.url = protocol[data.typ] + '://' + data.url;
+            $('#adddata input[name=url]').val(data.url);
+        }
         data.user = $('#adddata input[name=user]').val();
         data.pwd = $('#adddata input[name=pwd]').val();
         //if (data.typ.indexOf('postgresql') !== -1) return alert('Dataset not yet supported');
