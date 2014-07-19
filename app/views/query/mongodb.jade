@@ -1,18 +1,22 @@
 form#queryform(action='/endpoint/'+dsID+'/mongodb', method='get')
   .form-group
-    label.control-label(for='modname') Select a model name
-    select.form-control(name='modname')
-      for val in tags
-        if val.indexOf('system.indexes') === -1
-          option(value=val)= val
+    if result
+        label.control-label(for='modname') Select a model name
+        select.form-control(name='modname')
+          for val in tags
+            if val.indexOf('system.indexes') === -1
+              option(value=val)= val
+    else
+        label.control-label(for='modname') Collection names not available, type a model name
+        input.form-control(name='modname')
   .form-group
     textarea.form-control#querytext(name='query' rows='5' placeholder='Double-quote your key/value pairs, e.g. {"key":"value"}')
   .form-group
-  label.control-label
-    | Results:
-  select.form-control#selectoutput(name='format')
-    option(value='display') Browse
-    option(value='application/sparql-results+json') JSON
+      label.control-label
+        | Results:
+      select.form-control#selectoutput(name='format')
+        option(value='display') Browse
+        option(value='application/sparql-results+json') JSON
   .btn-group
       button#send.btn.btn-primary Submit
       button#reset.btn.btn-warning Reset

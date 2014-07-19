@@ -16,11 +16,11 @@ var User = require('../app/models/user'),
     cors = require('cors'),
     oauth2 = require('../oauth/oauth2server');
 
-module.exports = function(app, passport) {
+module.exports = function (app, passport) {
 
     app.options('*', cors()); //for pre-flight cors
 
-    app.get("/", function(req, res) {
+    app.get("/", function (req, res) {
         if (req.isAuthenticated()) {
             res.render("index", {
                 info: req.flash('info'),
@@ -36,9 +36,9 @@ module.exports = function(app, passport) {
     });
 
     //listing entries
-    app.get('/wo/:typ(dataset|visualisation)', function(req, res) {
+    app.get('/wo/:typ(dataset|visualisation)', function (req, res) {
         var email = req.user ? req.user.email : null;
-        modctrl.visibleEtry(email, req.params.typ, function(err, entries) {
+        modctrl.visibleEtry(email, req.params.typ, function (err, entries) {
             if (err) {
                 req.flash('error', [err.message]);
             }
@@ -53,10 +53,10 @@ module.exports = function(app, passport) {
     });
 
     //catalogue right panel
-    app.get('/wo/:eid', function(req, res) {
+    app.get('/wo/:eid', function (req, res) {
         var email = req.user ? req.user.email : null,
             eid = req.params.eid;
-        Entry.findById(eid, function(err, entry) {
+        Entry.findById(eid, function (err, entry) {
 
             if (err || !entry) return res.send(err.message || 'No record found');
 
@@ -73,8 +73,8 @@ module.exports = function(app, passport) {
     });
 
     //display vis
-    app.get('/wo/show/:eid', function(req, res, next) {
-        Entry.findById(req.params.eid, function(err, entry) {
+    app.get('/wo/show/:eid', function (req, res, next) {
+        Entry.findById(req.params.eid, function (err, entry) {
             if (err) return next(err);
             if (!entry) {
                 req.flash('error', ['No entry found']);
@@ -88,10 +88,10 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/stats', function(req, res) {
+    app.get('/stats', function (req, res) {
         var sequence = {};
 
-        Entry.find({}, function(err, entries) {
+        Entry.find({}, function (err, entries) {
             for (var i = 0; i < entries.length; i++) {
                 var etry = entries[i];
                 var type = etry.type;
@@ -113,7 +113,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
         res.render('addetry', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -123,7 +123,7 @@ module.exports = function(app, passport) {
     });
 
     //searching
-    app.get('/search', function(req, res) {
+    app.get('/search', function (req, res) {
         var term = req.query.keyword;
 
         if (!term) return res.render('search', {
@@ -138,7 +138,7 @@ module.exports = function(app, passport) {
                 $regex: term,
                 $options: 'i'
             }
-        }, function(err, entries) {
+        }, function (err, entries) {
             if (err) req.flash('error', [err.message]);
             if (!entries || 0 === entries.length) req.flash('error', 'No records found');
             res.render('search', {
@@ -151,7 +151,7 @@ module.exports = function(app, passport) {
     });
 
     //dataset names autocompletion
-    app.get('/nametags/:typ(dataset|visualisation)', function(req, res) {
+    app.get('/nametags/:typ(dataset|visualisation)', function (req, res) {
         var term = req.query.term;
         Entry.find({
             type: req.params.typ,
@@ -159,8 +159,8 @@ module.exports = function(app, passport) {
                 $regex: term,
                 $options: 'i'
             }
-        }, 'name', function(err, etries) {
-            var names = etries.map(function(etry) {
+        }, 'name', function (err, etries) {
+            var names = etries.map(function (etry) {
                 return etry.name;
             });
             res.json(names);
@@ -168,7 +168,7 @@ module.exports = function(app, passport) {
     });
 
     //adding an entry
-    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
         var email = req.user.email;
         var etry = {
             url: req.body.url,
@@ -192,7 +192,7 @@ module.exports = function(app, passport) {
             opVis: req.body.vis !== 'false'
         };
 
-        modctrl.addEtry(email, etry, function(err) {
+        modctrl.addEtry(email, etry, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 res.redirect('/add/' + req.params.typ);
@@ -203,11 +203,11 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/detail/:eid', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/detail/:eid', ensureLoggedIn('/login'), function (req, res) {
         Entry.findOne({
             _id: req.params.eid,
             publisher: req.user.email
-        }, function(err, entry) {
+        }, function (err, entry) {
             if (err || !entry) {
                 logger.error(err || {
                     message: 'Entry not found under the current user'
@@ -225,7 +225,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/detail/:eid', Auth.isOwner, function(req, res) {
+    app.post('/detail/:eid', Auth.isOwner, function (req, res) {
         var eid = req.params.eid;
         var etry = {};
 
@@ -259,7 +259,7 @@ module.exports = function(app, passport) {
                 etry.opVis = req.body.value.indexOf('novis') === -1;
                 break;
         }
-        modctrl.editEtry(eid, etry, function(err) {
+        modctrl.editEtry(eid, etry, function (err) {
             if (err) {
                 res.send(400, err.message);
             } else {
@@ -268,14 +268,14 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/edit/:eid', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/edit/:eid', ensureLoggedIn('/login'), function (req, res) {
 
         var eid = req.params.eid;
 
         Entry.findOne({
             _id: eid,
             publisher: req.user.email
-        }, function(err, entry) {
+        }, function (err, entry) {
             if (err || !entry) {
                 logger.error(err || {
                     message: 'Entry not found under the current user'
@@ -293,7 +293,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/edit/:eid', Auth.isOwner, function(req, res) {
+    app.post('/edit/:eid', Auth.isOwner, function (req, res) {
         var eid = req.params.eid;
         var etry = {};
 
@@ -308,7 +308,7 @@ module.exports = function(app, passport) {
         etry.opVis = !req.body.vis;
         etry.opAcc = !req.body.acc;
 
-        modctrl.editEtry(eid, etry, function(err) {
+        modctrl.editEtry(eid, etry, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 res.redirect(req.get('referer'));
@@ -320,7 +320,7 @@ module.exports = function(app, passport) {
     });
 
     //remove entries
-    app.get('/remove/:eid', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/remove/:eid', ensureLoggedIn('/login'), function (req, res) {
         var ids = req.params.eid.split(','),
             user = req.user;
 
@@ -331,17 +331,17 @@ module.exports = function(app, passport) {
 
         if ('string' === typeof ids) ids = [ids];
 
-        async.map(ids, function(eid, cb) {
+        async.map(ids, function (eid, cb) {
             if (-1 !== user.own.indexOf(eid)) {
                 Entry.findByIdAndRemove(eid, cb);
                 user.own.pull(eid);
             }
-        }, function(err) {
+        }, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
-            user.save(function(err) {
+            user.save(function (err) {
                 if (err) req.flash('error', [err.message]);
                 else req.flash('info', ['Entry deleted successfully']);
                 return res.redirect(req.get('referer'));
@@ -350,11 +350,11 @@ module.exports = function(app, passport) {
     });
 
     //request access of datasets
-    app.get('/reqacc/:eid', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/reqacc/:eid', ensureLoggedIn('/login'), function (req, res) {
         var issuer = req.user.email,
             etryIds = [req.params.eid];
 
-        modctrl.reqAccToEtry(etryIds, issuer, function(err) {
+        modctrl.reqAccToEtry(etryIds, issuer, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
             } else {
@@ -368,7 +368,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/reqacc', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/reqacc', ensureLoggedIn('/login'), function (req, res) {
         var issuer = req.user.email,
             etryIds = req.body.ids;
         if (!etryIds) {
@@ -377,7 +377,7 @@ module.exports = function(app, passport) {
         }
         if (typeof etryIds === 'string') etryIds = [etryIds];
 
-        modctrl.reqAccToEtry(etryIds, issuer, function(err) {
+        modctrl.reqAccToEtry(etryIds, issuer, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
             } else {
@@ -388,13 +388,13 @@ module.exports = function(app, passport) {
     });
 
     //approve access to datasets
-    app.post('/aprvacc', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/aprvacc', ensureLoggedIn('/login'), function (req, res) {
         var deny = req.body.deny === 'true',
             owner = req.user.email,
             reqids = req.body.reqids;
         if (typeof reqids === 'string') reqids = [reqids];
 
-        modctrl.aprvAccToEtry(deny, reqids, owner, function(err) {
+        modctrl.aprvAccToEtry(deny, reqids, owner, function (err) {
 
             if (err) {
                 req.flash('error', [err.message]);
@@ -407,16 +407,16 @@ module.exports = function(app, passport) {
 
     //mongodb schema names autocompletion
     //TODO deprecated route?
-    app.get('/schematags', ensureLoggedIn('/login'), function(req, res) {
-        Entry.findById(req.query.dsId, function(err, ds) {
-            queries.mongodbschema(ds, function(err, names) {
+    app.get('/schematags', ensureLoggedIn('/login'), function (req, res) {
+        Entry.findById(req.query.dsId, function (err, ds) {
+            queries.mongodbschema(ds, function (err, names) {
                 res.json(names);
             });
         });
     });
 
     //execute user queries
-    app.get('/query/:format/:eid', function(req, res) {
+    app.get('/query/:format/:eid', function (req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
             case 'mysql':
@@ -431,22 +431,23 @@ module.exports = function(app, passport) {
 
         async.waterfall([
 
-            function(cb) {
+            function (cb) {
                 if (qtype === 'mongodb') {
-                    Entry.findById(req.params.eid, function(err, ds) {
+                    Entry.findById(req.params.eid, function (err, ds) {
                         queries.mongodbschema(ds, cb);
                     });
                 } else cb(null, null);
             }
-        ], function(err, result) {
+        ], function (err, result) {
+
             res.render('query/' + qtype, {
                 dsID: req.params.eid,
-                tags: result ? result : []
+                tags: err ? null : result
             });
         });
     });
 
-    app.get('/endpoint/:eid/:typ', ensureLoggedIn('/login'), Auth.hasAccToDB, function(req, res) {
+    app.get('/endpoint/:eid/:typ', ensureLoggedIn('/login'), Auth.hasAccToDB, function (req, res) {
 
         if (!req.attach.dataset) return res.redirect(req.get('referer'));
 
@@ -477,7 +478,7 @@ module.exports = function(app, passport) {
         } else
         //TODO implement queryDriver as middlelayer
             queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds,
-                function(err, result) {
+                function (err, result) {
                     //qlog.result = JSON.stringify(result);
                     logger.info(qlog);
                     if (err) {
@@ -501,7 +502,7 @@ module.exports = function(app, passport) {
             );
     });
 
-    app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/contest', ensureLoggedIn('/login'), function (req, res) {
         var test = queries.tests[req.query.typ];
         if (!test) return res.json({
             message: 'Dataset type not supported'
@@ -510,13 +511,13 @@ module.exports = function(app, passport) {
             url: req.query.url,
             user: req.query.user,
             password: req.query.pwd
-        }, function(msg) {
+        }, function (msg) {
             res.json(msg);
         });
     });
     //authentication
 
-    app.get("/login", function(req, res) {
+    app.get("/login", function (req, res) {
         if (!req.session.returnTo)
             req.session.returnTo = req.get('referer');
 
@@ -531,7 +532,7 @@ module.exports = function(app, passport) {
         //successReturnToOrRedirect: '/',
         failureRedirect: "/login",
         failureFlash: true
-    }), Auth.rememberMe, function(req, res) {
+    }), Auth.rememberMe, function (req, res) {
         var url = '/';
         if (req.session && req.session.returnTo) {
             url = req.session.returnTo;
@@ -540,7 +541,7 @@ module.exports = function(app, passport) {
         return res.redirect(url);
     });
 
-    app.get("/signup", function(req, res) {
+    app.get("/signup", function (req, res) {
         var recaptcha = new Recaptcha(pbk, prk);
         res.render('signup', {
             layout: false,
@@ -548,7 +549,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post("/signup", Auth.userExist, function(req, res, next) {
+    app.post("/signup", Auth.userExist, function (req, res, next) {
         var data = {
             remoteip: req.connection.remoteAddress,
             challenge: req.body.recaptcha_challenge_field,
@@ -556,11 +557,11 @@ module.exports = function(app, passport) {
         };
 
         var recaptcha = new Recaptcha(pbk, prk, data);
-        recaptcha.verify(function(success, error_code) {
+        recaptcha.verify(function (success, error_code) {
             if (success) {
-                User.signup(req.body.fn, req.body.ln, req.body.org, req.body.email, req.body.password, function(err, user) {
+                User.signup(req.body.fn, req.body.ln, req.body.org, req.body.email, req.body.password, function (err, user) {
                     if (err) throw err;
-                    req.login(user, function(err) {
+                    req.login(user, function (err) {
                         if (err) return next(err);
                         return res.redirect("/profile");
                     });
@@ -581,7 +582,6 @@ module.exports = function(app, passport) {
     }));
 
 
-
     app.post('/login/soton', passport.authenticate('ldapauth', {
         failureRedirect: '/login',
         failureFlash: true,
@@ -589,9 +589,9 @@ module.exports = function(app, passport) {
     }), Auth.rememberMe);
 
     //profile
-    app.get("/profile", ensureLoggedIn('/login'), function(req, res) {
+    app.get("/profile", ensureLoggedIn('/login'), function (req, res) {
 
-        req.user.populate('own').populate('accreq').populate('clients').populate('pendingreq.entry', function(err, user) {
+        req.user.populate('own').populate('accreq').populate('clients').populate('pendingreq.entry', function (err, user) {
             var parameter = {
                 'user': user
             };
@@ -612,7 +612,7 @@ module.exports = function(app, passport) {
     });
 
     //update user profile
-    app.post("/profile", ensureLoggedIn('/login'), function(req, res) {
+    app.post("/profile", ensureLoggedIn('/login'), function (req, res) {
         var oldpw = req.body.oldpw,
             newpw = req.body.newpw,
             fn = req.body.fn,
@@ -622,7 +622,7 @@ module.exports = function(app, passport) {
             email = user.email;
 
         if (newpw) {
-            User.isValidUserPassword(email, oldpw, function(err, user, msg) {
+            User.isValidUserPassword(email, oldpw, function (err, user, msg) {
                 if (err) {
                     req.flash('error', [err.message]);
                     return res.redirect(req.get('referer'));
@@ -633,7 +633,7 @@ module.exports = function(app, passport) {
                     return res.redirect(req.get('referer'));
                 }
 
-                User.updateProfile(user, newpw, fn, ln, org, function(err) {
+                User.updateProfile(user, newpw, fn, ln, org, function (err) {
                     if (err) {
                         req.flash('error', [err.message]);
                         return res.redirect(req.get('referer'));
@@ -644,7 +644,7 @@ module.exports = function(app, passport) {
                 });
             });
         } else {
-            User.updateProfile(user, null, fn, ln, org, function(err) {
+            User.updateProfile(user, null, fn, ln, org, function (err) {
                 if (err) {
                     req.flash('error', [err.message]);
                     return res.redirect(req.get('referer'));
@@ -657,17 +657,17 @@ module.exports = function(app, passport) {
     });
 
     //remove messages
-    app.post('/profile/message', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/profile/message', ensureLoggedIn('/login'), function (req, res) {
         var msgid = req.body.msgid,
             user = req.user;
 
         if ('string' === typeof msgid) msgid = [msgid];
 
-        msgid.forEach(function(mid) {
+        msgid.forEach(function (mid) {
             user.msg.remove(msgid[mid]);
         });
 
-        user.save(function(err) {
+        user.save(function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
@@ -678,7 +678,7 @@ module.exports = function(app, passport) {
     });
 
     //reseting password
-    app.get('/profile/reset-pass', function(req, res) {
+    app.get('/profile/reset-pass', function (req, res) {
         var tk = req.query.tk;
         if (!tk) {
             req.flash('error', ['Password reset token is missing, please request again.']);
@@ -690,7 +690,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/profile/reset-pass', function(req, res) {
+    app.post('/profile/reset-pass', function (req, res) {
         var tk = req.body.tk,
             confpass = req.body.confirm,
             newpass = req.body.password;
@@ -700,12 +700,12 @@ module.exports = function(app, passport) {
             return res.redirect(req.get('referer'));
         }
 
-        pass.resetPass(tk, newpass, function(err, user) {
+        pass.resetPass(tk, newpass, function (err, user) {
             if (err || !user) {
                 req.flash('error', [err.message || 'User not found']);
                 return res.redirect('/login');
             }
-            req.login(user, function(err) {
+            req.login(user, function (err) {
                 if (err) {
                     req.flash('error', [err.message]);
                     req.flash('error', ['An error occured, please login manually.']);
@@ -716,15 +716,15 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/profile/forgot-pass', function(req, res) {
+    app.get('/profile/forgot-pass', function (req, res) {
         res.render('forgot-pass', {
             'info': req.flash('info'),
             'error': req.flash('error')
         });
     });
 
-    app.post('/profile/forgot-pass', function(req, res) {
-        pass.forgotPass(req.body.email, 'http://' + req.host + ':' + app.get('port') + '/profile/reset-pass', function(err) {
+    app.post('/profile/forgot-pass', function (req, res) {
+        pass.forgotPass(req.body.email, 'http://' + req.host + ':' + app.get('port') + '/profile/reset-pass', function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect('/profile/forgot-pass');
@@ -734,13 +734,13 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/logout', function(req, res) {
+    app.get('/logout', function (req, res) {
         res.clearCookie('remember_me');
         req.logout();
         res.redirect('/');
     });
 
-    app.get('/version', function(req, res) {
+    app.get('/version', function (req, res) {
         res.render("version", {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -748,13 +748,13 @@ module.exports = function(app, passport) {
         });
     });
     //API
-    app.get('/api/info', cors(), function(req, res) {
+    app.get('/api/info', cors(), function (req, res) {
         res.send('This is not implemented yet');
     });
 
     app.get('/api/query', cors(), passport.authenticate('bearer', {
         session: false
-    }), Auth.hasAccToDB, function(req, res) {
+    }), Auth.hasAccToDB, function (req, res) {
 
         var ds = req.attach.dataset;
 
@@ -780,7 +780,7 @@ module.exports = function(app, passport) {
         } else {
             //TODO implement queryDriver as middlelayer
             queryDriver(query, 'json', ds,
-                function(err, result) {
+                function (err, result) {
                     //qlog.result = JSON.stringify(result);
                     logger.info(qlog);
                     if (err) {
@@ -798,10 +798,10 @@ module.exports = function(app, passport) {
 
     app.get('/api/stats', cors(), passport.authenticate('bearer', {
         session: false
-    }), function(req, res) {
+    }), function (req, res) {
         var sequence = {};
 
-        Entry.find({}, function(err, entries) {
+        Entry.find({}, function (err, entries) {
             for (var i = 0; i < entries.length; i++) {
                 var etry = entries[i];
                 var type = etry.type;
@@ -820,7 +820,7 @@ module.exports = function(app, passport) {
 
     app.get('/api/userInfo', cors(), passport.authenticate('bearer', {
         session: false
-    }), function(req, res) {
+    }), function (req, res) {
         // req.authInfo is set using the `info` argument supplied by
         // `BearerStrategy`.  It is typically used to indicate scope of the token,
         // and used in access control checks.  For illustrative purposes, this
@@ -833,7 +833,7 @@ module.exports = function(app, passport) {
     });
 
     //Oauth
-    app.get('/oauth/authorise', cors(), ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
+    app.get('/oauth/authorise', cors(), ensureLoggedIn('/login'), oauth2.authorise, function (req, res) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,
@@ -847,7 +847,7 @@ module.exports = function(app, passport) {
 
     //application management
 
-    app.get('/client/create', ensureLoggedIn('/login'), function(req, res, next) {
+    app.get('/client/create', ensureLoggedIn('/login'), function (req, res, next) {
         var user = req.user;
 
         var secret = crypto.randomBytes(8).toString('hex');
@@ -859,11 +859,11 @@ module.exports = function(app, passport) {
             redirectURI: req.query.callback
         });
 
-        client.save(function(err) {
+        client.save(function (err) {
             if (err) return next(err);
 
             user.clients.push(client._id);
-            user.save(function(err) {
+            user.save(function (err) {
                 if (err) return next(err);
 
                 res.redirect(req.get('referer')); //use ajax
@@ -871,23 +871,23 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/client/:eid/delete', Auth.isOwner, function(req, res, next) {
+    app.get('/client/:eid/delete', Auth.isOwner, function (req, res, next) {
         var user = req.user,
             cid = req.params.eid;
 
-        Client.findByIdAndRemove(cid, function(err) {
+        Client.findByIdAndRemove(cid, function (err) {
             if (err) next(err);
         });
 
         user.clients.pull(cid);
-        user.save(function(err) {
+        user.save(function (err) {
             if (err) next(err);
 
             res.redirect(req.get('referer')); //use ajax
         });
     });
 
-    app.get('/client/:eid/edit', Auth.isOwner, function(req, res) {
+    app.get('/client/:eid/edit', Auth.isOwner, function (req, res) {
 
     });
 };

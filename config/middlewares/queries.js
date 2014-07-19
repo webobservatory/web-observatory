@@ -22,11 +22,11 @@ function decryptPwd(ds) {
 function pqDriver(query, mime, ds, cb) {
     var url = 'postgres://' + (ds.auth.user ? ds.auth.user + ':' + pwd : '') + '@' + ds.url;
     var client = new pg.Client(url);
-    client.connect(function(err) {
+    client.connect(function (err) {
         if (err) {
             return console.error('could not connect to postgres', err);
         }
-        client.query(query, function(err, result) {
+        client.query(query, function (err, result) {
             cb(err, result);
             client.end();
         });
@@ -45,7 +45,7 @@ function mysqlDriver(query, mime, ds, cb) {
     console.log('query: ');
     console.log(options);
     connection.connect();
-    connection.query(query, function(err, rows, fields) {
+    connection.query(query, function (err, rows, fields) {
         cb(err, rows);
         connection.end();
     });
@@ -59,23 +59,23 @@ function mgdbDriver(query, mime, ds, cb) {
 
     try {
         query.query = JSON.parse(query.query);
-        mgclient.connect(url, function(err, db) {
+        mgclient.connect(url, function (err, db) {
             if (err) return cb(err);
             if (ds.user) {
-                db.authenticate(ds.user, pwd, function(err, result) {
+                db.authenticate(ds.user, pwd, function (err, result) {
                     if (err || !result) return cb(err || {
                         message: 'Authentication failed'
                     });
-                    db.collection(modname, function(err, collection) {
-                        collection.find(query.query, function(err, result) {
+                    db.collection(modname, function (err, collection) {
+                        collection.find(query.query, function (err, result) {
                             cb(err, result);
                             db.close();
                         });
                     });
                 });
             } else {
-                db.collection(modname, function(err, collection) {
-                    collection.find(query.query).toArray(function(err, result) {
+                db.collection(modname, function (err, collection) {
+                    collection.find(query.query).toArray(function (err, result) {
                         cb(err, result);
                         db.close();
                     });
@@ -107,7 +107,7 @@ var drivers = {
 
 function sparqlTest(ds, cb) {
     var query = 'ASK {?s ?p ?o}';
-    sparql.query(ds.url, query, null, function(err, data) {
+    sparql.query(ds.url, query, null, function (err, data) {
         if (err) {
             cb(err);
         } else {
@@ -123,10 +123,10 @@ function mgdbTest(ds, cb) {
         pass: ds.password
     };
 
-    mgclient.connect(url, function(err, db) {
+    mgclient.connect(url, function (err, db) {
         if (err) return cb(err);
         if (ds.user) {
-            db.authenticate(ds.user, ds.password, function(err, result) {
+            db.authenticate(ds.user, ds.password, function (err, result) {
                 if (err || !result) return cb(err || {
                     message: 'Authentication failed'
                 });
@@ -143,7 +143,7 @@ function mgdbTest(ds, cb) {
 function pqTest(query, mime, ds, cb) {
     var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.password : '') + '@' + ds.url;
     var client = new pg.Client(url);
-    client.connect(function(err) {
+    client.connect(function (err) {
         cb(err);
         client.end();
     });
@@ -156,7 +156,7 @@ function mysqlTest(ds, cb) {
         password: ds.password
     };
     var connection = mysql.createConnection(options);
-    connection.connect(function(err) {
+    connection.connect(function (err) {
         cb(err);
         connection.end();
     });
@@ -173,33 +173,45 @@ var tests = {
 module.exports.drivers = drivers;
 module.exports.tests = tests;
 //get all schema names of a mongodb
-module.exports.mongodbschema = function(ds, cb) {
+module.exports.mongodbschema = function (ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds);
 
-    mgclient.connect(url, function(err, db) {
+    mgclient.connect(url, function (err, db) {
         if (err) return cb(err);
         if (ds.user) {
-            db.authenticate(ds.user, pwd, function(err, result) {
+            db.authenticate(ds.user, pwd, function (err, result) {
                 if (err || !result) return cb(err || {
                     message: 'Authentication failed'
                 });
                 db.collectionNames({
                     namesOnly: true
-                }, function(err, names) {
-                    cb(err, names);
+                }, function (err, names) {
+                    if (err) cb(err);
+                    else {
+                        names = names.map(function (name) {
+                            return name.substring(name.indexOf('.') + 1);
+                        });
+                        console.log(names);
+                        cb(err, names);
+                    }
                     db.close();
                 });
             });
         } else {
             db.collectionNames({
                 namesOnly: true
-            }, function(err, names) {
-                names = names.map(function(name) {
-                    return name.substring(name.indexOf('.') + 1);
-                });
-                console.log(names);
-                cb(err, names);
+            }, function (err, names) {
+                console.log(err);
+                if (err) cb(err);
+                else {
+                    names = names.map(function (name) {
+                        return name.substring(name.indexOf('.') + 1);
+                    });
+                    console.log(names);
+                    cb(err, names);
+                }
+
                 db.close();
             });
         }
