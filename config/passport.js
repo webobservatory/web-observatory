@@ -28,8 +28,8 @@ module.exports = function(passport, config) {
     });
 
     passport.use(new LocalStrategy({
-        usernameField: 'email',
-        passwordField: 'password',
+        usernameField: 'username',
+        passwordField: 'password'
     }, function(email, password, done) {
         User.isValidUserPassword(email, password, done);
     }));
@@ -43,7 +43,7 @@ module.exports = function(passport, config) {
             verbose: true,
             searchFilter: '(cn={{username}})',
             searchAttributes: ['displayName', 'mail', 'sn', 'givenName', 'cn']
-        },
+        }
         //usernameField: Field name where the username is found, defaults to username
         //passwordField: Field name where the password is found, defaults to password
     };
@@ -171,7 +171,7 @@ function issueRememberMeToken(user, done) {
     crypto.randomBytes(32, function(ex, buf) {
         var token = buf.toString('hex');
         user.rememberme = token;
-        user.save(function(err, user) {
+        user.save(function(err) {
             if (err) return done(err);
             done(null, token);
         });

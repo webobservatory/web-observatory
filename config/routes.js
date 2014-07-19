@@ -580,16 +580,10 @@ module.exports = function(app, passport) {
         scope: "email"
     }));
 
-    app.get('/auth/soton', function(req, res) {
-        res.render('soton', {
-            info: req.flash('info'),
-            error: req.flash('error'),
-            remember_me: req.cookies.remember_me ? true : false
-        });
-    });
 
-    app.post('/auth/soton', passport.authenticate('ldapauth', {
-        failureRedirect: '/auth/soton',
+
+    app.post('/login/soton', passport.authenticate('ldapauth', {
+        failureRedirect: '/login',
         failureFlash: true,
         successReturnToOrRedirect: '/'
     }), Auth.rememberMe);
@@ -669,7 +663,7 @@ module.exports = function(app, passport) {
 
         if ('string' === typeof msgid) msgid = [msgid];
 
-        msgid.forEach(function(id) {
+        msgid.forEach(function(mid) {
             user.msg.remove(msgid[mid]);
         });
 
@@ -730,7 +724,7 @@ module.exports = function(app, passport) {
     });
 
     app.post('/profile/forgot-pass', function(req, res) {
-        pass.forgotPass(req.body.email, 'http://' + req.host + ':' + app.get('port') + '/profile/reset-pass', function(err, response) {
+        pass.forgotPass(req.body.email, 'http://' + req.host + ':' + app.get('port') + '/profile/reset-pass', function(err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect('/profile/forgot-pass');

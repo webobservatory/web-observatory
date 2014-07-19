@@ -4,3 +4,9 @@ block content
   include includes/loginbox
   include includes/sotonbox
 
+block footer
+  script.
+    $('button.signin').bind('click',function(event){
+        event.preventDefault();
+        $('#loginform').attr('action',$(this).attr('target')).submit();
+    })
