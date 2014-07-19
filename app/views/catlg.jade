@@ -3,6 +3,11 @@ block append nav
   include includes/toolbar-top
 block jumbotron
 block content
+  if !user
+    .row
+      .alert.alert-success
+        button.close(type='button' data-dismiss='alert') &times;
+        | Login to reveal more functionalities
   .row
     #display(style='overflow:auto; height:500px')
       if table
@@ -10,6 +15,7 @@ block content
           thead
             tr
               th Name
+              th
               th Description
               th.col-md-1 Access
           tbody
@@ -31,7 +37,7 @@ block content
                   td
                     a(data-toogle='tooltip' title=val.url href=val.url address='true')
                       = name
-
+                  td= val.querytype
                   //display no more than 50 characters of description
                   - var des=val.des?val.des:''
                   - if(des.length>47) {
@@ -40,7 +46,10 @@ block content
                   td
                     .tp(data-toogle='tooltip' title=val.des)
                       = des
-
+                  if querytype
+                    td
+                      .tp(data-toogle='tooltip' title=val.des)
+                        = querytype
                   td
                     if val.opAcc
                       span.glyphicon.glyphicon-ok
