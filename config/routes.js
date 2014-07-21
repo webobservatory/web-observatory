@@ -198,7 +198,7 @@ module.exports = function (app, passport) {
                 res.redirect('/add/' + req.params.typ);
             } else {
                 req.flash('info', ['New entry added']);
-                res.redirect('/catlg/' + req.params.typ);
+                res.redirect('/wo/' + req.params.typ);
             }
         });
     });
