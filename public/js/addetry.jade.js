@@ -1,5 +1,6 @@
 var con_succeed = -1;
 $(document).ready(function() {
+    if (window.location.pathname.indexOf('/visualisation') !== -1) con_succeed = 1;
     $('#private').bind('click', function() {
         var $this = $(this);
         // $this will contain a reference to the checkbox   
