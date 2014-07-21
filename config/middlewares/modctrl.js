@@ -144,78 +144,65 @@ module.exports.editEtry = function(etry_id, update, cb) {
 };
 
 //register access requests
-module.exports.reqAccToEtry = function(etryIds, issuer, render) {
+module.exports.reqAccToEtry = function(eids, user, cb) {
+    var issuer = user.email;
 
-    async.map(etryIds, function(eid, cb) {
-        User.findOne({
-            'own': eid
-        }, function(err, user) {
-            if (err) {
-                logger.error(err);
-                return cb({
-                    message: 'Internal error'
-                });
-            }
-            if (!user)
-                return cb({
-                    message: 'No publisher found for requested dataset' + eid
-                });
+    async.map(eids, function(eid, next) {
+        if (-1 !== user.own.indexOf(eid)){
 
             user.pendingreq.push({
                 sender: issuer,
                 entry: eid
             });
-            user.save(function(err) {
-                cb(err, eid);
+            user.save(function (err) {
+                next(err, eid);
             });
-        });
-    }, function(err, sentEIds) {
+        }
+        else next({message:'Not authorised'});
+    }, function(err, eid) {
 
-        if (err) return render(err);
+        if (err) return cb(err);
 
         var update = {
             $addToSet: {
                 accreq: {
-                    $each: sentEIds
+                    $each: eid
                 }
             }
         };
 
         User.update({
             email: issuer
-        }, update, render);
+        }, update, cb);
     });
 };
 
 //aprove request access
-module.exports.aprvAccToEtry = function(deny, reqIds, owner, render) {
+module.exports.aprvAccToEtry = function(deny, reqIds, user, cb) {
 
-    User.findOne({
-        email: owner
-    }).populate('pendingreq.entry').exec(function(err, user) {
-        if (err) return render(err);
+    user.populate('pendingreq.entry', function(err) {
+        if (err) return cb(err);
 
-        async.map(reqIds, function(rid, cb) {
+        async.map(reqIds, function(rid, next) {
             var req = user.pendingreq.id(rid);
-            console.log(req);
-            if (!req) return cb({
+            if (!req) return next({
                     message: 'Unknown request'
                 });
             if (deny)
                 denyAccess(req, function(err) {
                     req.remove();
-                    cb(err, req);
+                    next(err, req);
                 });
             else
                 grantAccess(req, function(err) {
                     req.remove();
-                    cb(err, req);
+                    next(err, req);
                 });
         }, function(err, reqs) {
-            if (err) return render(err);
-            user.save(render);
+            if (err) return cb(err);
+            user.save(cb);
         });
-    });
+    } );
 };
 
 function grantAccess(request, done) {
@@ -229,8 +216,8 @@ function grantAccess(request, done) {
 
     var update = {
         $push: {
-            readable: entry,
-            'msg': {
+            readable: entry._id,
+            msg: {
                 content: 'Your request for accessing ' + entry.name + ' has been approved',
                 read: false
             }
@@ -241,7 +228,7 @@ function grantAccess(request, done) {
     };
 
     User.update(query, update, function(err, user) {
-        logger.info('Request approved; user: ' + user.email + '; entry: ' + entry.url + ';');
+        if(user) logger.info('Request approved; user: ' + user.email + '; entry: ' + entry.url + ';');
         done(err, request);
     });
 }
@@ -249,12 +236,12 @@ function grantAccess(request, done) {
 function denyAccess(request, done) {
     var entry = request.entry;
     var query = {
-        email: request.sender,
+        email: request.sender
     };
 
     var update = {
         $push: {
-            'msg': {
+            msg: {
                 content: 'Your request for accessing ' + entry.name + ' has been denied',
                 read: false
             }
@@ -262,7 +249,7 @@ function denyAccess(request, done) {
     };
 
     User.update(query, update, function(err, user) {
-        logger.info('Request denied; user: ' + user.email + '; entry: ' + entry.url + ';');
+        if(user) logger.info('Request denied; user: ' + user.email + '; entry: ' + entry.url + ';');
         done(err, request);
     });
 }

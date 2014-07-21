@@ -369,15 +369,15 @@ module.exports = function (app, passport) {
     });
 
     app.post('/reqacc', ensureLoggedIn('/login'), function (req, res) {
-        var issuer = req.user.email,
-            etryIds = req.body.ids;
-        if (!etryIds) {
+        var user = req.user,
+            eids = req.body.ids;
+        if (!eids) {
             req.flash('info', ['No entry selected']);
             res.redirect(req.get('referer'));
         }
-        if (typeof etryIds === 'string') etryIds = [etryIds];
+        if (typeof eids === 'string') eids = [eids];
 
-        modctrl.reqAccToEtry(etryIds, issuer, function (err) {
+        modctrl.reqAccToEtry(eids, user, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
             } else {
@@ -390,11 +390,11 @@ module.exports = function (app, passport) {
     //approve access to datasets
     app.post('/aprvacc', ensureLoggedIn('/login'), function (req, res) {
         var deny = req.body.deny === 'true',
-            owner = req.user.email,
+            user = req.user,
             reqids = req.body.reqids;
-        if (typeof reqids === 'string') reqids = [reqids];
+        if ('string' === typeof reqids) reqids = [reqids];
 
-        modctrl.aprvAccToEtry(deny, reqids, owner, function (err) {
+        modctrl.aprvAccToEtry(deny, reqids, user, function (err) {
 
             if (err) {
                 req.flash('error', [err.message]);
