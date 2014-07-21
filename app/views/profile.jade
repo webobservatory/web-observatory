@@ -85,7 +85,7 @@ html(lang='en')
                                   a.edit(href='/edit/'+val._id) Edit
                                 li.divider
                                 li.btn-danger
-                                  a.del(href='/remove/'+val.Id name=val.name) Delete
+                                  a.del(href='/remove/'+val._id name=val.name) Delete
                           - var name=val.name || '';
                           - if(name.length>30) {
                           -   name = name.substring(0,27);
