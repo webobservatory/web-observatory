@@ -1,0 +1,106 @@
+extends main
+
+block content
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#user') Create a new user
+        #user.panel-collapse.collapse.in
+            .panel-body
+
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#browse') Browse datasets and visualisations
+        #browse.panel-collapse.collapse.in
+            .panel-body
+
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#reg') Register datasets and visualisations
+        #reg.panel-collapse.collapse.in
+            .panel-body
+
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#query') Query datasets
+        #query.panel-collapse.collapse.in
+            .panel-body
+
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#api') Query API
+        #api.panel-collapse.collapse.in
+            .panel-body
+                | The query API allows users to create applications that access/query datasets on users' behalf. To enforce protection for (private) datasets on the portal, the query API is protected by OAuth2.0, the technique that enables you to login to various sites using your Facebook/Google account.
+                | To use the query API firstly you need to follow the following steps:
+                br
+                br
+                | 1. Create a new application at
+                a(href='/profile#clients') Applications
+                |  in your profile, where you can have an applicatoin ID and a secret. They're the credentials of your application which should be kept safe.
+                br
+                br
+                | 2. HTTP POST to
+                code http://web-001.ecs.soton.ac.uk/oauth/token
+                | with the following data fields
+                code grant_type:'password'
+                code client_id:APP_ID
+                code client_secret:APP_SECRET
+                code username:USER_NAME
+                code password:PASSWORD
+                br
+                br
+                | jQuery example :
+                br
+                br
+                pre
+                    | $.post('http://dev-001.ecs.soton.ac.uk/oauth/token',
+                    |        {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
+                    |        function(data){
+                    |            console.log(data);
+                    |        });
+                | The response from the server (contained in data) will contain an access token if the request went through.
+                br
+                br
+                | Example response:
+                br
+                br
+                pre
+                   | {access_token: "BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=",
+                   |  refresh_token: "woHiAGTspWnsYCJD0ACv9yOi4sMxZln0lWix99dd4hU=",
+                   |  expires_in: 3600,
+                   |  token_type: "Bearer"}
+                | 3. Use the access token to query a dataset. HTTP GET to
+                code http://web-001.ecs.soton.ac.uk/api/query
+                |  with the following data fields
+                code eid:DATASET_ID
+                code query:QUERY_STRING
+                | and the header
+                code Authorization:'Bearer ACCESS_TOKEN'
+                br
+                br
+                | jQuery example :
+                br
+                br
+                pre
+                   | $.ajax({
+                   | type: "get",
+                   | url: "http://web-001.ecs.soton.ac.uk/api/query",
+                   | data: { eid: '53bc04568a1ea0572f934663', query:'select 1+1 as solution' },
+                   | header: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
+                   | }).done(function(result) {
+                   |         console.log(result);
+                   |     });
+
+                | The response from the server (contained in result) will contain the solution of your query.
+                br
+                br
+                | Example response:
+                pre
+                    | {
+                    |   result: { solution:2 }
+                    | }

@@ -88,6 +88,7 @@ module.exports = function (app, passport) {
         });
     });
 
+    //statistics of listed entries
     app.get('/stats', function (req, res) {
         var sequence = {};
 
@@ -147,6 +148,15 @@ module.exports = function (app, passport) {
                 user: req.user,
                 entries: entries
             });
+        });
+    });
+
+    //howto guide of the portal
+    app.get('/howto', function (req, res) {
+        res.render('howto', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user
         });
     });
 
