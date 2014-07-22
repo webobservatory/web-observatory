@@ -361,10 +361,9 @@ module.exports = function (app, passport) {
 
     //request access of datasets
     app.get('/reqacc/:eid', ensureLoggedIn('/login'), function (req, res) {
-        var issuer = req.user.email,
-            etryIds = [req.params.eid];
+        var eids = [req.params.eid];
 
-        modctrl.reqAccToEtry(etryIds, issuer, function (err) {
+        modctrl.reqAccToEtry(eids, req.user, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
             } else {
