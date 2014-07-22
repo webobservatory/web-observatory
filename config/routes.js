@@ -570,10 +570,10 @@ module.exports = function (app, passport) {
         recaptcha.verify(function (success, error_code) {
             if (success) {
                 User.signup(req.body.fn, req.body.ln, req.body.org, req.body.email, req.body.password, function (err, user) {
-                    if (err) throw err;
+                    if (err) return next(err);
                     req.login(user, function (err) {
                         if (err) return next(err);
-                        return res.redirect("/profile");
+                        return res.redirect("/");
                     });
                 });
             } else {
