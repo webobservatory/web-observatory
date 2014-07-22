@@ -5,11 +5,11 @@ var mongoose = require('mongoose'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
 
-module.exports.visibleEtry = function(email, typ, cb) {
+module.exports.visibleEtry = function (email, typ, cb) {
     EntrySchema.find({
         opVis: true,
         type: typ
-    }, function(err, entries) {
+    }, function (err, entries) {
         if (err) {
             logger.error(err);
             return cb(err, []);
@@ -19,7 +19,7 @@ module.exports.visibleEtry = function(email, typ, cb) {
 
         User.findOne({
             'email': email
-        }).populate('own').populate('readable').exec(function(err, user) {
+        }).populate('own').populate('readable').exec(function (err, user) {
             if (err) {
                 logger.error(err);
                 return cb(err, entries);
@@ -29,7 +29,7 @@ module.exports.visibleEtry = function(email, typ, cb) {
                 return cb(err, entries);
             }
 
-            var etry_ids = entries.map(function(e) {
+            var etry_ids = entries.map(function (e) {
                 return e._id.toString();
             });
 
@@ -65,16 +65,18 @@ module.exports.visibleEtry = function(email, typ, cb) {
     });
 };
 
-module.exports.addEtry = function(email, etry, cb) {
+module.exports.addEtry = function (email, etry, cb) {
 
     EntrySchema.findOne({
-        $or: [{
+        $or: [
+            {
                 name: etry.name
-            }, {
+            },
+            {
                 url: etry.url
             }
         ]
-    }, function(err, entry) {
+    }, function (err, entry) {
         if (err) {
             logger.error(err);
             return cb(err);
@@ -96,14 +98,14 @@ module.exports.addEtry = function(email, etry, cb) {
             etry.auth.encpwd = encrypted;
         }
 
-        EntrySchema.create(etry, function(err, entry) {
+        EntrySchema.create(etry, function (err, entry) {
             if (err) {
                 logger.error(err);
                 return cb({
                     message: 'Failed to create entry ' + (etry.name || etry.url)
                 });
             }
-            User.addEtry(email, entry._id, function(err) {
+            User.addEtry(email, entry._id, function (err) {
                 if (err) {
                     logger.error(err);
                     err = {
@@ -116,9 +118,9 @@ module.exports.addEtry = function(email, etry, cb) {
     });
 };
 
-module.exports.editEtry = function(etry_id, update, cb) {
+module.exports.editEtry = function (etry_id, update, cb) {
 
-    EntrySchema.findById(etry_id, function(err, entry) {
+    EntrySchema.findById(etry_id, function (err, entry) {
         if (err) {
             logger.error(err);
             return cb(err);
@@ -133,7 +135,7 @@ module.exports.editEtry = function(etry_id, update, cb) {
         for (var key in update) {
             entry[key] = update[key];
         }
-        entry.save(function(err) {
+        entry.save(function (err) {
             if (err) {
                 logger.error(err);
                 return cb(err);
@@ -144,65 +146,63 @@ module.exports.editEtry = function(etry_id, update, cb) {
 };
 
 //register access requests
-module.exports.reqAccToEtry = function(eids, user, cb) {
-    var issuer = user.email;
+module.exports.reqAccToEtry = function (eids, user, cb) {
+    var requester = user.email;
 
-    async.map(eids, function(eid, next) {
-        if (-1 !== user.own.indexOf(eid)){
+    async.map(eids, function (eid, next) {
+        EntrySchema.findById(eid, function (err, entry) {
+            if (err)  return next(err);
+            if (!entry) return next({message: 'Entry not found'});
 
-            user.pendingreq.push({
-                sender: issuer,
-                entry: eid
+            User.findOne({email: entry.publisher}, function (err, owner) {
+                if (err || !owner) return next(err || {message: 'Owner not found'});
+
+                owner.pendingreq.push({
+                    sender: requester,
+                    entry: eid
+                });
+                owner.save(function (err) {
+                    next(err, eid);
+                });
             });
-            user.save(function (err) {
-                next(err, eid);
-            });
-        }
-        else next({message:'Not authorised'});
-    }, function(err, eid) {
-
+        });
+    }, function (err, eids) {
         if (err) return cb(err);
 
-        var update = {
-            $addToSet: {
-                accreq: {
-                    $each: eid
-                }
-            }
-        };
+        eids.forEach(function(eid){
+            user.accreq.push(eid);
+        });
 
-        User.update({
-            email: issuer
-        }, update, cb);
+        user.save(cb);
     });
 };
 
 //aprove request access
-module.exports.aprvAccToEtry = function(deny, reqIds, user, cb) {
+module.exports.aprvAccToEtry = function (deny, reqIds, user, cb) {
 
-    user.populate('pendingreq.entry', function(err) {
+    user.populate('pendingreq.entry', function (err) {
         if (err) return cb(err);
 
-        async.map(reqIds, function(rid, next) {
+        async.map(reqIds, function (rid, next) {
             var req = user.pendingreq.id(rid);
             if (!req) return next({
-                    message: 'Unknown request'
-                });
+                message: 'Unknown request'
+            });
             if (deny)
-                denyAccess(req, function(err) {
+                denyAccess(req, function (err) {
                     req.remove();
                     next(err, req);
                 });
             else
-                grantAccess(req, function(err) {
+                grantAccess(req, function (err) {
                     req.remove();
                     next(err, req);
                 });
-        }, function(err, reqs) {
+        }, function (err, reqs) {
             if (err) return cb(err);
             user.save(cb);
         });
-    } );
+    });
 };
 
 function grantAccess(request, done) {
@@ -227,8 +227,8 @@ function grantAccess(request, done) {
         }
     };
 
-    User.update(query, update, function(err, user) {
-        if(user) logger.info('Request approved; user: ' + user.email + '; entry: ' + entry.url + ';');
+    User.update(query, update, function (err, user) {
+        if (user) logger.info('Request approved; user: ' + user.email + '; entry: ' + entry.url + ';');
         done(err, request);
     });
 }
@@ -248,8 +248,8 @@ function denyAccess(request, done) {
         }
     };
 
-    User.update(query, update, function(err, user) {
-        if(user) logger.info('Request denied; user: ' + user.email + '; entry: ' + entry.url + ';');
+    User.update(query, update, function (err, user) {
+        if (user) logger.info('Request denied; user: ' + user.email + '; entry: ' + entry.url + ';');
         done(err, request);
     });
 }
