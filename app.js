@@ -5,11 +5,12 @@
 var express = require('express'),
     fs = require('fs'),
     http = require('http'),
+    https = require('https'),
     path = require('path'),
     mongoose = require('mongoose'),
     passport = require("passport"),
     flash = require("connect-flash"),
-    //express 4.0 middlewares
+//express 4.0 middlewares
     morganLogger = require('morgan'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
@@ -25,7 +26,7 @@ var env = process.env.NODE_ENV || 'development',
 mongoose.connect(config.db);
 
 var models_dir = __dirname + '/app/models';
-fs.readdirSync(models_dir).forEach(function(file) {
+fs.readdirSync(models_dir).forEach(function (file) {
     if (file[0] === '.') return;
     require(models_dir + '/' + file);
 });
@@ -39,6 +40,7 @@ var app = express();
 
 app.locals.moment = require('moment');
 app.set('port', process.env.PORT || 3000);
+app.set('sslport', process.env.SSLPORT || 443);
 app.set('views', __dirname + '/app/views');
 app.engine('jade', require('jade').__express);
 app.set('view engine', 'jade');
@@ -67,14 +69,14 @@ require('./config/routes')(app, passport);
 var env = process.env.NODE_ENV || 'development';
 if ('development' === env) app.use(errorHandler());
 
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('500', {
         error: err
     });
 });
 
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     res.status(404);
     if (req.accepts('html')) {
         res.render('404', {
@@ -91,8 +93,19 @@ app.use(function(req, res, next) {
     res.type('txt').send('Not found');
 });
 
+var options = {
+    key: fs.readFileSync('./ssl/key.pem'),
+    cert: fs.readFileSync('./ssl/cert.pem')
+};
 
-app.listen(app.get('port'), function() {
+var secureServer = https.createServer(options, app);
+var server = http.createServer(app);
+
+secureServer.listen(app.get('sslport'), function () {
+    console.log("Express ssl server listening on port " + app.get('sslport'))
+});
+
+server.listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
 });
 
