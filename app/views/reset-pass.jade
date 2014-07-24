@@ -1,21 +1,21 @@
 include includes/head
 link(href='/css/signin.css', rel='stylesheet')
 body
-  #wrap
-    .container.text-center
-      .row
-        include includes/flash-banner
-      .row
-        include includes/site-banner
-      .row
-        .hide.alert.alert-warning Password not match
-        form.form-signin(action='/profile/reset-pass', method='post')
-          label.form-signin-heading Input new password
-          input.form-control.hide(name='tk' value=(tk?tk:undefined))
-          input.form-control.input-large(placeholder='New password' type='password', name='password' required='')
-          input.form-control.input-large(placeholder='Confirm passowrd' type='password' data-validation-matches-match="password" , name='confirm' required='')
-          button.btn.btn-primary.btn-block(type='submit') Continue
-      #push
-  include includes/footer
-  script(src='/js/jqBootstrapValidation.js')
-  script(src='/js/reset-pass.jade.js')
+    #wrap
+        .container.text-center
+            .row
+                include includes/flash-banner
+            .row
+                include includes/site-banner
+            .row
+                .hide.alert.alert-warning Password not match
+                form.form-signin(action='/profile/reset-pass', method='post')
+                    label.form-signin-heading Input new password
+                    input.form-control.hide(name='tk' value=(tk?tk:undefined))
+                    input.form-control.input-large(placeholder='New password' type='password', name='password' required='')
+                    input.form-control.input-large(placeholder='Confirm passowrd' type='password' data-validation-matches-match="password" , name='confirm' required='')
+                    button.btn.btn-primary.btn-block(type='submit') Continue
+            #push
+    include includes/footer
+    script(src='/js/jqBootstrapValidation.js')
+    script(src='/js/reset-pass.jade.js')

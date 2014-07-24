@@ -1,18 +1,18 @@
 doctype html
 html
-  include includes/head
-  block head
+    include includes/head
+    block head
 body
-  block nav
-  #wrap
-    .container
-      block beforemain
-      .row#flash-banner
-        include includes/flash-banner
-      .row
-        block jumbotron
-      .row
-        block content
-      #push
-  include includes/footer
-  block footer
+    block nav
+    #wrap
+        .container
+            block beforemain
+            .row#flash-banner
+                include includes/flash-banner
+            .row
+                block jumbotron
+            .row
+                block content
+            #push
+    include includes/footer
+    block footer

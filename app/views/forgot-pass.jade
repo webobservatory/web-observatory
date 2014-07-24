@@ -1,16 +1,16 @@
 include includes/head
 link(href='/css/signin.css', rel='stylesheet')
 body
-  #wrap
-    .container.text-center
-      .row
-        include includes/flash-banner
-      .row
-        include includes/site-banner
-      .row
-        form.form-signin(action='/profile/forgot-pass', method='POST')
-          label.form-signin-heading Reset your password
-          input.form-control.input-large.reset(placeholder='Email' type='email' name='email' required='')
-          button.btn.btn-primary.btn-lg.btn-block(type='submit') Continue
-      #push
-  include includes/footer
+    #wrap
+        .container.text-center
+            .row
+                include includes/flash-banner
+            .row
+                include includes/site-banner
+            .row
+                form.form-signin(action='/profile/forgot-pass', method='POST')
+                    label.form-signin-heading Reset your password
+                    input.form-control.input-large.reset(placeholder='Email' type='email' name='email' required='')
+                    button.btn.btn-primary.btn-lg.btn-block(type='submit') Continue
+            #push
+    include includes/footer

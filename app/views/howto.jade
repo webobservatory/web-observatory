@@ -41,7 +41,7 @@ block content
                 br
                 | 1. Create a new application at
                 a(href='/profile#clients') Applications
-                |  in your profile, where you can have an applicatoin ID and a secret. They're the credentials of your application which should be kept safe.
+                | in your profile, where you can have an applicatoin ID and a secret. They're the credentials of your application which should be kept safe.
                 br
                 br
                 | 2. HTTP POST to
@@ -59,10 +59,10 @@ block content
                 br
                 pre
                     | $.post('http://dev-001.ecs.soton.ac.uk/oauth/token',
-                    |        {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
-                    |        function(data){
-                    |            console.log(data);
-                    |        });
+                    | {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
+                    | function(data){
+                    | console.log(data);
+                    | });
                 | The response from the server (contained in data) will contain an access token if the request went through.
                 br
                 br
@@ -70,13 +70,13 @@ block content
                 br
                 br
                 pre
-                   | {access_token: "BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=",
-                   |  refresh_token: "woHiAGTspWnsYCJD0ACv9yOi4sMxZln0lWix99dd4hU=",
-                   |  expires_in: 3600,
-                   |  token_type: "Bearer"}
+                    | {access_token: "BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=",
+                    | refresh_token: "woHiAGTspWnsYCJD0ACv9yOi4sMxZln0lWix99dd4hU=",
+                    | expires_in: 3600,
+                    | token_type: "Bearer"}
                 | 3. Use the access token to query a dataset. HTTP GET to
                 code http://web-001.ecs.soton.ac.uk/api/query
-                |  with the following data fields
+                | with the following data fields
                 code eid:DATASET_ID
                 code query:QUERY_STRING
                 | and the header
@@ -87,14 +87,14 @@ block content
                 br
                 br
                 pre
-                   | $.ajax({
-                   | type: "get",
-                   | url: "http://web-001.ecs.soton.ac.uk/api/query",
-                   | data: { eid: '53bc04568a1ea0572f934663', query:'select 1+1 as solution' },
-                   | header: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
-                   | }).done(function(result) {
-                   |         console.log(result);
-                   |     });
+                    | $.ajax({
+                    | type: "get",
+                    | url: "http://web-001.ecs.soton.ac.uk/api/query",
+                    | data: { eid: '53bc04568a1ea0572f934663', query:'select 1+1 as solution' },
+                    | header: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
+                    | }).done(function(result) {
+                    | console.log(result);
+                    | });
 
                 | The response from the server (contained in result) will contain the solution of your query.
                 br
@@ -102,5 +102,5 @@ block content
                 | Example response:
                 pre
                     | {
-                    |   result: { solution:2 }
+                    | result: { solution:2 }
                     | }

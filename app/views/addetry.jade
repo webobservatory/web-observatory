@@ -2,109 +2,109 @@ extends main
 
 block jumbotron
 block content
-  form#adddata.form-horizontal(action='/add/'+type, method='post')
-    // Text input
-    .form-group
-      label.col-md-4.control-label(for='name') Title
-      .col-md-3
-        input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the dataset', required='')
-    // Text input
-    .form-group
-      label.col-md-4.control-label(for='url') URL
-      .col-md-3
-        input.form-control.input-xlarge(name='url' type='url', placeholder='Address of your entry', required='')
-        p.help-block= 'The URL of your '+type
-    if type==='dataset'
-      // Text input
-      .form-group
-        label.col-md-4.control-label(for='user') Username
-        .col-md-3
-          input.form-control.input-xlarge(name='user' type='text', placeholder='User name of your dataset')
-          p.help-block Username of your dataset
-      // Text input
-      .form-group
-        label.col-md-4.control-label(for='pwd') Password
-        .col-md-3
-          input.form-control.input-xlarge(name='pwd' type='password', placeholder='Password of your dataset')
-          p.help-block Your password will be encripted
-      .form-group
-        label.col-md-4.control-label(for='type') Dataset type
-        .col-md-2
-          select.form-control(name='querytype')
-            option SPARQL
-            option MySQL
-            option PostgreSQL
-            option(value='Hive') Hadoop Hive
-            option MongoDB
-      .form-group
-        .col-md-3.col-md-offset-4
-          button#dbtest.btn
-            span.glyphicon.glyphicon-globe
-            |  Test connection
-          |  
-          span#conted.glyphicon
-    if type === 'visualisation'
-      .form-group
-        label.col-md-4.control-label(for='basedOn') Related dataset
-        .col-md-3
-          .ui-widget
-            input#dsTils.form-control.input-xlarge(name='basedOn' type='text' required='')
-            p.help-block The dataset based on which this visualisation is produced. You should add the dataset first if it's not registered in this web site.
-    .form-group
-      .col-md-3.col-md-offset-4
-        a#optogl(data-toggle='collapse' data-target='#moreopt')
-          | Toggle additional fields
-          span.glyphicon.glyphicon-chevron-down 
-    // Text input
-    #moreopt.collapse
-      .form-group
-        label.col-md-4.control-label(for='creator') Creator
-        .col-md-3
-          input.form-control.input-xlarge(name='creator' type='text', placeholder='Creator name')
-          p.help-block= 'The person who created this '+type+'. This can be different from the one who publish this entry'
-      .form-group.hide
-        label.col-md-4.control-label(for='type') Entry type
-        .col-md-3
-          select(name='type')
-            option= type
-      // Select Basic
-      if type === 'visualisation'
+    form#adddata.form-horizontal(action='/add/'+type, method='post')
+        // Text input
         .form-group
-          label.col-md-4.control-label(for='git') Source code
-          .col-md-3
-            input.form-control.input-xlarge(name='git' type='text', placeholder='Github/Sourceforge etc.')
-            p.help-block The url of your online repository that hosts this visualisation
-      // Textarea
-      .form-group
-        label.col-md-4.control-label(for='des') Description
-        .col-md-3
-          textarea.form-control(name='des' placeholder='')
-          p.help-block A brief description of your entry
-    // Security 
-    .form-group
-      label.col-md-4.control-label(for='access') Security Settings
-      if type === 'dataset'
-        .col-md-3
-          label.checkbox(for='read')
-            input#private(type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
-            | Private dataset
-          p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
-          #visible.collapse
-            div
-              label.checkbox(for='visible')
-                input(type='checkbox', name='vis', value='false')
-                = 'Do not list my private '+ type +' in the catalogue'
-      if type === 'visualisation'
-        .col-md-3
-          label#visible.checkbox(for='visible')
-            input(type='checkbox', name='vis', value='false')
-            = 'Do not list my '+ type +' in the catalogue'
-    .form-group
-      .col-md-3.col-md-offset-4
-        a#submit.btn.btn-primary Submit
+            label.col-md-4.control-label(for='name') Title
+            .col-md-3
+                input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the dataset', required='')
+        // Text input
+        .form-group
+            label.col-md-4.control-label(for='url') URL
+            .col-md-3
+                input.form-control.input-xlarge(name='url' type='url', placeholder='Address of your entry', required='')
+                p.help-block= 'The URL of your '+type
+        if type==='dataset'
+            // Text input
+            .form-group
+                label.col-md-4.control-label(for='user') Username
+                .col-md-3
+                    input.form-control.input-xlarge(name='user' type='text', placeholder='User name of your dataset')
+                    p.help-block Username of your dataset
+            // Text input
+            .form-group
+                label.col-md-4.control-label(for='pwd') Password
+                .col-md-3
+                    input.form-control.input-xlarge(name='pwd' type='password', placeholder='Password of your dataset')
+                    p.help-block Your password will be encripted
+            .form-group
+                label.col-md-4.control-label(for='type') Dataset type
+                .col-md-2
+                    select.form-control(name='querytype')
+                        option SPARQL
+                        option MySQL
+                        option PostgreSQL
+                        option(value='Hive') Hadoop Hive
+                        option MongoDB
+            .form-group
+                .col-md-3.col-md-offset-4
+                    button#dbtest.btn
+                        span.glyphicon.glyphicon-globe
+                        | Test connection
+                    |
+                    span#conted.glyphicon
+        if type === 'visualisation'
+            .form-group
+                label.col-md-4.control-label(for='basedOn') Related dataset
+                .col-md-3
+                    .ui-widget
+                        input#dsTils.form-control.input-xlarge(name='basedOn' type='text' required='')
+                        p.help-block The dataset based on which this visualisation is produced. You should add the dataset first if it's not registered in this web site.
+        .form-group
+            .col-md-3.col-md-offset-4
+                a#optogl(data-toggle='collapse' data-target='#moreopt')
+                    | Toggle additional fields
+                    span.glyphicon.glyphicon-chevron-down
+        // Text input
+        #moreopt.collapse
+            .form-group
+                label.col-md-4.control-label(for='creator') Creator
+                .col-md-3
+                    input.form-control.input-xlarge(name='creator' type='text', placeholder='Creator name')
+                    p.help-block= 'The person who created this '+type+'. This can be different from the one who publish this entry'
+            .form-group.hide
+                label.col-md-4.control-label(for='type') Entry type
+                .col-md-3
+                    select(name='type')
+                        option= type
+            // Select Basic
+            if type === 'visualisation'
+                .form-group
+                    label.col-md-4.control-label(for='git') Source code
+                    .col-md-3
+                        input.form-control.input-xlarge(name='git' type='text', placeholder='Github/Sourceforge etc.')
+                        p.help-block The url of your online repository that hosts this visualisation
+            // Textarea
+            .form-group
+                label.col-md-4.control-label(for='des') Description
+                .col-md-3
+                    textarea.form-control(name='des' placeholder='')
+                    p.help-block A brief description of your entry
+        // Security
+        .form-group
+            label.col-md-4.control-label(for='access') Security Settings
+            if type === 'dataset'
+                .col-md-3
+                    label.checkbox(for='read')
+                        input#private(type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
+                        | Private dataset
+                    p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
+                    #visible.collapse
+                        div
+                            label.checkbox(for='visible')
+                                input(type='checkbox', name='vis', value='false')
+                                = 'Do not list my private '+ type +' in the catalogue'
+            if type === 'visualisation'
+                .col-md-3
+                    label#visible.checkbox(for='visible')
+                        input(type='checkbox', name='vis', value='false')
+                        = 'Do not list my '+ type +' in the catalogue'
+        .form-group
+            .col-md-3.col-md-offset-4
+                a#submit.btn.btn-primary Submit
 
 block footer
-  link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
-  script(src='/js/jqBootstrapValidation.js')
-  script(src='/js/addetry.jade.js')
-  script(src='/js/jquery-ui-1.10.3.min.js')
+    link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
+    script(src='/js/jqBootstrapValidation.js')
+    script(src='/js/addetry.jade.js')
+    script(src='/js/jquery-ui-1.10.3.min.js')

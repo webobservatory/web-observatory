@@ -1,27 +1,27 @@
 extends main
 block content
-  .col-md-4
-  .col-md-4
-    #main
-      .row
-        #sequence
-      .row
-          #chart
-            #explanation(style="visibility: hidden;")
-              span#percentage
-              br
-              | of entries as the selected type
-          #sidebar
+    .col-md-4
+    .col-md-4
+        #main
             .row
-              .checkbox
-                input#togglelegend(type='checkbox')
-                | Legend
+                #sequence
             .row
-              #legend(style="visibility: hidden;")
-  .col-md-4
+                #chart
+                    #explanation(style="visibility: hidden;")
+                        span#percentage
+                        br
+                        | of entries as the selected type
+                #sidebar
+                    .row
+                        .checkbox
+                            input#togglelegend(type='checkbox')
+                            | Legend
+                    .row
+                        #legend(style="visibility: hidden;")
+    .col-md-4
 block footer
-  script.
-    var data=!{JSON.stringify(seq)}
-  script(src='/js/d3.v3.min.js')
-  script(src='/js/stats.jade.js')
-  link(href='/css/stats.css', rel='stylesheet')
+    script.
+        var data=!{JSON.stringify(seq)}
+    script(src='/js/d3.v3.min.js')
+    script(src='/js/stats.jade.js')
+    link(href='/css/stats.css', rel='stylesheet')

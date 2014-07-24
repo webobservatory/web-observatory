@@ -1,71 +1,71 @@
 extends main
 block append nav
-  include includes/toolbar-top
+    include includes/toolbar-top
 block jumbotron
 block content
-  if !user
+    if !user
+        .row
+            .alert.alert-success
+                button.close(type='button' data-dismiss='alert') &times;
+                | Login to reveal more functionalities
     .row
-      .alert.alert-success
-        button.close(type='button' data-dismiss='alert') &times;
-        | Login to reveal more functionalities
-  .row
-    #display(style='overflow:auto; height:500px')
-      if table
-        table.table.table-hover.header-fixed
-          thead
-            tr
-              th Name
-              th
-              th Description
-              th.col-md-1 Access
-          tbody
-            each val in table
-              if val
-                - val.url = '/wo/'+val.type+'#'+val._id
-                tr.entry(itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset':'http://schema.org/WebPage'))
-                  //schema.org meta data
-                  meta(itemprop='http://schema.org/name' content=val.name)
-                  meta(itemprop='http://schema.org/url' content=val.url)
-                  meta(itemprop='http://schema.org/provider' content=val.publisher_name)
-                  meta(itemprop='http://schema.org/isBasedOnUrl' content=val.related)
-                  meta(itemprop='http://schema.org/description' content=val.des)
+        #display(style='overflow:auto; height:500px')
+            if table
+                table.table.table-hover.header-fixed
+                    thead
+                        tr
+                            th Name
+                            th
+                            th Description
+                            th.col-md-1 Access
+                    tbody
+                        each val in table
+                            if val
+                                - val.url = '/wo/'+val.type+'#'+val._id
+                                tr.entry(itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset':'http://schema.org/WebPage'))
+                                //schema.org meta data
+                                meta(itemprop='http://schema.org/name' content=val.name)
+                                    meta(itemprop='http://schema.org/url' content=val.url)
+                                    meta(itemprop='http://schema.org/provider' content=val.publisher_name)
+                                    meta(itemprop='http://schema.org/isBasedOnUrl' content=val.related)
+                                    meta(itemprop='http://schema.org/description' content=val.des)
 
-                  - var name=val.name || '';
-                  - if(name.length>30) {
-                  -   name = name.substring(0,27);
-                  -   name = name + '...';}
-                  td
-                    a(data-toogle='tooltip' title=val.url href=val.url address='true')
-                      = name
-                  td= val.querytype
-                  //display no more than 50 characters of description
-                  - var des=val.des?val.des:''
-                  - if(des.length>47) {
-                  -   des = val.des.substring(0,50);
-                  -   des = des + '...';}
-                  td
-                    .tp(data-toogle='tooltip' title=val.des)
-                      = des
-                  if querytype
-                    td
-                      .tp(data-toogle='tooltip' title=val.des)
-                        = querytype
-                  td
-                    if val.opAcc
-                      span.glyphicon.glyphicon-ok
-                    else 
-                      span.glyphicon.glyphicon-remove
-    .col-md-6(style='overflow:auto; float:right; height:500px')
-      .row#details
-      .row#querypan
+                                    - var name=val.name || '';
+                                    - if(name.length>30) {
+                                    -   name = name.substring(0,27);
+                                    -   name = name + '...';}
+                                    td
+                                        a(data-toogle='tooltip' title=val.url href=val.url address='true')
+                                            = name
+                                    td= val.querytype
+                                    //display no more than 50 characters of description
+                                    - var des=val.des?val.des:''
+                                    - if(des.length>47) {
+                                    -   des = val.des.substring(0,50);
+                                    -   des = des + '...';}
+                                    td
+                                        .tp(data-toogle='tooltip' title=val.des)
+                                            = des
+                                    if querytype
+                                        td
+                                            .tp(data-toogle='tooltip' title=val.des)
+                                                = querytype
+                                    td
+                                        if val.opAcc
+                                            span.glyphicon.glyphicon-ok
+                                        else
+                                            span.glyphicon.glyphicon-remove
+        .col-md-6(style='overflow:auto; float:right; height:500px')
+            .row#details
+            .row#querypan
 block footer
-  //link(href='/css/datatables.css', rel='stylesheet')
-  //script(src='/js/jquery.datatables.min.js')
-  script(src='/js/jquery.address-1.6.js')
-  //script(src='/js/bt3datatables.js')
-  script(src='/js/bootstrap-editable.min.js')
-  link(href='/css/typeahead.js-bootstrap.css', rel='stylesheet')
-  link(href='/css/bootstrap-editable.css', rel='stylesheet')
-  script(src='/js/inputs-ext/typeaheadjs/lib/typeahead.js')
-  script(src='/js/inputs-ext/typeaheadjs/typeaheadjs.js')
-  script(src='/js/catalogue.jade.js')
+    //link(href='/css/datatables.css', rel='stylesheet')
+    //script(src='/js/jquery.datatables.min.js')
+    script(src='/js/jquery.address-1.6.js')
+    //script(src='/js/bt3datatables.js')
+    script(src='/js/bootstrap-editable.min.js')
+    link(href='/css/typeahead.js-bootstrap.css', rel='stylesheet')
+    link(href='/css/bootstrap-editable.css', rel='stylesheet')
+    script(src='/js/inputs-ext/typeaheadjs/lib/typeahead.js')
+    script(src='/js/inputs-ext/typeaheadjs/typeaheadjs.js')
+    script(src='/js/catalogue.jade.js')
