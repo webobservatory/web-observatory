@@ -40,7 +40,7 @@ var app = express();
 
 app.locals.moment = require('moment');
 app.set('port', process.env.PORT || 3000);
-app.set('sslport', process.env.SSLPORT || 443);
+app.set('httpsPort', process.env.HTTPSPORT || 443);
 app.set('views', __dirname + '/app/views');
 app.engine('jade', require('jade').__express);
 app.set('view engine', 'jade');
@@ -101,12 +101,12 @@ var options = {
 var secureServer = https.createServer(options, app);
 var server = http.createServer(app);
 
-secureServer.listen(app.get('sslport'), function () {
-    console.log("Express ssl server listening on port " + app.get('sslport'))
+secureServer.listen(app.get('httpsPort'), function () {
+    console.log('Express ssl server listening on port ' + app.get('httpsPort'))
 });
 
 server.listen(app.get('port'), function () {
-    console.log("Express server listening on port " + app.get('port'));
+    console.log('Express server listening on port ' + app.get('port'));
 });
 
 exports.app = app; //for vhost

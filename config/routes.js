@@ -14,6 +14,7 @@ var User = require('../app/models/user'),
     crypto = require('crypto'),
     modctrl = require('./middlewares/modctrl'),
     cors = require('cors'),
+    forceSSL = require('express-force-ssl'),
     oauth2 = require('../oauth/oauth2server');
 
 module.exports = function (app, passport) {
@@ -526,7 +527,7 @@ module.exports = function (app, passport) {
     });
     //authentication
 
-    app.get("/login", function (req, res) {
+    app.get("/login", forceSSL, function (req, res) {
         if (!req.session.returnTo)
             req.session.returnTo = req.get('referer');
 
@@ -550,7 +551,7 @@ module.exports = function (app, passport) {
         return res.redirect(url);
     });
 
-    app.get("/signup", function (req, res) {
+    app.get("/signup", forceSSL, function (req, res) {
         var recaptcha = new Recaptcha(pbk, prk);
         res.render('signup', {
             layout: false,
@@ -598,7 +599,7 @@ module.exports = function (app, passport) {
     }), Auth.rememberMe);
 
     //profile
-    app.get("/profile", ensureLoggedIn('/login'), function (req, res) {
+    app.get("/profile", forceSSL, ensureLoggedIn('/login'), function (req, res) {
 
         req.user.populate('own').populate('accreq').populate('clients').populate('pendingreq.entry', function (err, user) {
             var parameter = {

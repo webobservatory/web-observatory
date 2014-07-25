@@ -21,6 +21,7 @@
 
 
         "cors": "*",
+        "express-force-ssl": "*",
         "Faker": "*",
         "jade": "*",
         "mongodb": "*",

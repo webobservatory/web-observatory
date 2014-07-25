@@ -401,6 +401,11 @@
       "from": "cors@2.4.1",
       "resolved": "https://registry.npmjs.org/cors/-/cors-2.4.1.tgz"
     },
+    "express-force-ssl": {
+      "version": "0.2.1",
+      "from": "express-force-ssl@",
+      "resolved": "https://registry.npmjs.org/express-force-ssl/-/express-force-ssl-0.2.1.tgz"
+    },
     "Faker": {
       "version": "0.7.2",
       "from": "https://registry.npmjs.org/Faker/-/Faker-0.7.2.tgz",

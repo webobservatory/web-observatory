@@ -5,6 +5,7 @@ module.exports = function(req, res, next) {
 
     var _req = {};
 
+    _req.protocol = req.protocol;
     _req.port = req.port;
     _req.host = req.hostname;
     _req.accept = req.accept;
@@ -13,7 +14,6 @@ module.exports = function(req, res, next) {
     _req['content-type'] = req['content-type'];
     _req.pathname = req.pathname;
     _req.path = req.path;
-    console.log(req.query.length);
     if (0 !== req.query.length)
         _req.query = JSON.stringify(req.query);
 
