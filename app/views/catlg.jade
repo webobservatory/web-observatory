@@ -15,9 +15,9 @@ block content
                     thead
                         tr
                             th Name
-                            th
+                            th Type
                             th Description
-                            th.col-md-1 Access
+                            th.col-sm-1 Access
                     tbody
                         each val in table
                             if val
@@ -47,14 +47,11 @@ block content
                                         .tp(data-toogle='tooltip' title=val.des)
                                             = des
                                     td
-                                        .tp(data-toogle='tooltip' title=val.des)
-                                            = querytype
-                                    td
                                         if val.opAcc
                                             span.glyphicon.glyphicon-ok
                                         else
                                             span.glyphicon.glyphicon-remove
-        .col-md-6(style='overflow:auto; float:right; height:500px')
+        .col-sm-6(style='overflow:auto; float:right; height:500px')
             .row#details
             .row#querypan
 block footer

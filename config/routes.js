@@ -37,19 +37,13 @@ module.exports = function (app, passport) {
     });
 
     //listing entries
-    app.get('/wo/:typ(dataset|visualisation)', function (req, res) {
-        var email = req.user ? req.user.email : null;
-        modctrl.visibleEtry(email, req.params.typ, function (err, entries) {
-            if (err) {
-                req.flash('error', [err.message]);
-            }
-            res.render('catlg', {
-                info: req.flash('info'),
-                error: req.flash('error'),
-                user: req.user,
-                table: entries,
-                type: req.params.typ
-            });
+    app.get('/wo/:typ(dataset|visualisation)', modctrl.visibleEtry, function (req, res) {
+        res.render('catlg', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user,
+            table: req.attach.visibleEntries,
+            type: req.params.typ
         });
     });
 

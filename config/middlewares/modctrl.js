@@ -5,63 +5,63 @@ var mongoose = require('mongoose'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
 
-module.exports.visibleEtry = function (email, typ, cb) {
-    EntrySchema.find({
-        opVis: true,
-        type: typ
-    }, function (err, entries) {
-        if (err) {
-            logger.error(err);
-            return cb(err, []);
-        }
+module.exports.visibleEtry = function (req, res, next) {
 
-        email = email || 'match_nothing';
+    var user = req.user,
+        typ = req.params.typ;
 
-        User.findOne({
-            'email': email
-        }).populate('own').populate('readable').exec(function (err, user) {
-            if (err) {
-                logger.error(err);
-                return cb(err, entries);
-            }
-
-            if (!user) {
-                return cb(err, entries);
-            }
-
-            var etry_ids = entries.map(function (e) {
-                return e._id.toString();
-            });
-
-            var own = user.own;
-
-            for (i = 0; i < own.length; i++) {
-                var index = etry_ids.indexOf(own[i]._id.toString());
-                if (index === -1 && own[i].type === typ) {
-                    own[i].opAcc = true;
-                    entries.push(own[i]);
-                }
-
-                if (index !== -1) {
-                    entries[index].opAcc = true;
-                }
-            }
-
-            var readable = user.readable;
-
-            for (i = 0; i < readable.length; i++) {
-                var index = etry_ids.indexOf(readable[i]._id.toString());
-                if (index === -1 && readable[i].type === typ) {
-                    readable[i].opAcc = true;
-                    entries.push(readable[i]);
-                }
-                if (index !== -1) {
-                    entries[index].opAcc = true;
-                }
-            }
-
-            cb(null, entries);
+    async.parallel([function (cb) {
+        var query = {opVis: true};
+        if (typ) query.type = typ;
+        EntrySchema.find(query, function (err, entries) {
+            cb(err, entries);
         });
+    }, function (cb) {
+        if (user) user.populate('own').populate('visible').populate('readable', cb);
+        else cb();
+    }], function (err, results) {
+        if (err) return next(err);
+
+        var entries = results[0];
+
+        if (!req.attach) req.attach = {};
+        req.attach.visibleEntries = entries;
+
+        if (!user) return next();
+
+        var etry_ids = entries.map(function (e) {
+            return e._id.toString();
+        });
+
+        user.own.forEach(function (entry) {
+            if (typ !== entry.type) return;
+            var index = etry_ids.indexOf(entry._id.toString());
+            if (-1 === index) {
+                entry = JSON.parse(JSON.stringify(entry));
+                entry.opAcc = true;
+                entries.push(entry);
+            }
+            else entries[index].opAcc = true;
+        });
+
+        user.readable.forEach(function (entry) {
+            if (typ !== entry.type) return;
+            var index = etry_ids.indexOf(entry._id.toString());
+            if (-1 === index) {
+                entry = JSON.parse(JSON.stringify(entry));
+                entry.opAcc = true;
+                entries.push(entry);
+            }
+            else entries[index].opAcc = true;
+        });
+
+        user.visible.forEach(function (entry) {
+            if (typ !== entry.type) return;
+            var index = etry_ids.indexOf(entry._id.toString());
+            if (-1 === index) entries.push(entry);
+        });
+
+        next();
     });
 };
 
@@ -169,7 +169,7 @@ module.exports.reqAccToEtry = function (eids, user, cb) {
     }, function (err, eids) {
         if (err) return cb(err);
 
-        eids.forEach(function(eid){
+        eids.forEach(function (eid) {
             user.accreq.push(eid);
         });
 
