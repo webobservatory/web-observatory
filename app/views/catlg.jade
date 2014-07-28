@@ -9,7 +9,7 @@ block content
                 button.close(type='button' data-dismiss='alert') &times;
                 | Login to reveal more functionalities
     .row
-        #display(style='overflow:auto; height:500px')
+        #display
             if table
                 table.table.table-hover.header-fixed
                     thead
@@ -49,19 +49,21 @@ block content
                                     td
                                         if val.opAcc
                                             span.glyphicon.glyphicon-ok
+                                            .hidden true
                                         else
                                             span.glyphicon.glyphicon-remove
+                                            .hidden false
         .col-sm-6(style='overflow:auto; float:right; height:500px')
             .row#details
             .row#querypan
 block footer
-    //link(href='/css/datatables.css', rel='stylesheet')
-    //script(src='/js/jquery.datatables.min.js')
-    script(src='/js/jquery.address-1.6.js')
-    //script(src='/js/bt3datatables.js')
-    script(src='/js/bootstrap-editable.min.js')
     link(href='/css/typeahead.js-bootstrap.css', rel='stylesheet')
     link(href='/css/bootstrap-editable.css', rel='stylesheet')
+    link(href='/css/dataTables.bootstrap.css', rel='stylesheet')
+    script(src='/js/jquery.datatables.min.js')
+    script(src='/js/dataTables.bootstrap.js')
+    script(src='/js/jquery.address-1.6.js')
+    script(src='/js/bootstrap-editable.min.js')
     script(src='/js/inputs-ext/typeaheadjs/lib/typeahead.js')
     script(src='/js/inputs-ext/typeaheadjs/typeaheadjs.js')
     script(src='/js/catalogue.jade.js')

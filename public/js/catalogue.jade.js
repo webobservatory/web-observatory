@@ -1,37 +1,50 @@
-$(document).ready(function() {
+$(document).ready(function () {
 
     $('.tp').tooltip();
 
+    //datatable bt3
+    $('#display table').dataTable();
+
     //x editable
     function xeditable() {
+
         $.fn.editable.defaults.mode = 'inline';
-        $('#edit').click(function() {
+        
+        $('#edit').click(function () {
             $('span.editable').editable('toggleDisabled');
         });
+        
         $('.xedit span').filter('[data-type=textarea], [data-type=text], [data-type=url]').editable({
             disabled: true
         });
+        
         var querytype = $('#querytype');
         if (querytype) {
             querytype.editable({
                 disabled: true,
                 value: 'SPARQL',
-                source: [{
-                    value: 'SPARQL',
-                    text: 'SPARQL'
-                }, {
-                    value: 'MySQL',
-                    text: 'MySQL'
-                }, {
-                    value: 'PostgreSQL',
-                    text: 'PostgreSQL'
-                }, {
-                    value: 'Hive',
-                    text: 'Hadoop Hive'
-                }, {
-                    value: 'MongoDB',
-                    text: 'MongoDB'
-                }]
+                source: [
+                    {
+                        value: 'SPARQL',
+                        text: 'SPARQL'
+                    },
+                    {
+                        value: 'MySQL',
+                        text: 'MySQL'
+                    },
+                    {
+                        value: 'PostgreSQL',
+                        text: 'PostgreSQL'
+                    },
+                    {
+                        value: 'Hive',
+                        text: 'Hadoop Hive'
+                    },
+                    {
+                        value: 'MongoDB',
+                        text: 'MongoDB'
+                    }
+                ]
             });
         }
 
@@ -56,7 +69,7 @@ $(document).ready(function() {
     function resetView() {
         $('#details').html('');
         $('#querypan').html('');
-        $('#display').removeClass('col-md-5');
+        $('#display').removeClass('col-sm-6');
     }
 
     //deep linking
@@ -64,7 +77,7 @@ $(document).ready(function() {
         if (id) {
             resetToolBar();
             $('#querypan').html('');
-            $('#details').load('/wo/' + id, function() {
+            $('#details').load('/wo/' + id, function () {
                 var isOwner = $('#owner').attr('value'),
                     opAcc = $('#acc').attr('value'),
                     querytype = $('#querytype') ? $('#querytype').text().toLowerCase() : null;
@@ -77,30 +90,30 @@ $(document).ready(function() {
                 if (opAcc) {
                     $('#explore').removeClass('hidden');
                     if (querytype) {
-                        $('#explore').attr('href', '/query/' + querytype + '/' + id).click(function(event) {
+                        $('#explore').attr('href', '/query/' + querytype + '/' + id).click(function (event) {
                             event.preventDefault();
                             $('#querypan').load('/query/' + querytype + '/' + id);
                         });
                     } else
                         $('#explore').attr('href', '/wo/show/' + id);
                 } else {
-                    $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
+                    $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function (event) {
                         event.preventDefault();
-                        $.get($(this).attr('href'), function(data) {
+                        $.get($(this).attr('href'), function (data) {
                             $('#flash-banner').html(data);
                         });
                     });
                 }
-                $('#display').addClass('col-md-5');
+                $('#display').addClass('col-sm-6');
             });
         } else {
             resetToolBar();
             resetView();
         }
-    };
+    }
 
     $.address.strict(false);
-    $.address.change(function(event) {
+    $.address.change(function (event) {
         var id = event.value;
         rightPan(id);
     });
