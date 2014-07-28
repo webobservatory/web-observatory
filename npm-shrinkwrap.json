@@ -610,6 +610,11 @@
         }
       }
     },
+    "marked": {
+      "version": "0.3.2",
+      "from": "marked@",
+      "resolved": "https://registry.npmjs.org/marked/-/marked-0.3.2.tgz"
+    },
     "mongodb": {
       "version": "1.4.7",
       "from": "mongodb@1.4.7",

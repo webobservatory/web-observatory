@@ -19,11 +19,11 @@
         "errorhandler": "*",
         "method-override": "*",
 
-
         "cors": "*",
         "express-force-ssl": "*",
         "Faker": "*",
         "jade": "*",
+        "marked": "*",
         "mongodb": "*",
         "moment": "*",
         "mongoose": "*",
