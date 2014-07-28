@@ -33,14 +33,15 @@ block content
                     select.form-control(name='querytype')
                         option SPARQL
                         option MySQL
-                        option PostgreSQL
-                        option(value='Hive') Hadoop Hive
+                        //option PostgreSQL
+                        //option(value='Hive') Hadoop Hive
                         option MongoDB
             .form-group
                 .col-md-3.col-md-offset-4
                     button#dbtest.btn
                         span.glyphicon.glyphicon-globe
                         | Test connection
+                    |
                     span#conted.glyphicon
         if type === 'visualisation'
             .form-group
