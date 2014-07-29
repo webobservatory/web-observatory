@@ -1,7 +1,7 @@
 /**
  * Module dependencies.
  */
-
+"use strict";
 var express = require('express'),
     fs = require('fs'),
     http = require('http'),
@@ -15,7 +15,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
-    favicon = require('static-favicon'),
+//favicon = require('static-favicon'),
     errorHandler = require('errorhandler'),
     methodOverride = require('method-override'),
     logging = require('./config/middlewares/logging');
@@ -25,11 +25,15 @@ var env = process.env.NODE_ENV || 'development',
 
 mongoose.connect(config.db);
 
-if(!fs.existsSync('./log')) fs.mkdir('./log');
+if (!fs.existsSync('./log')) {
+    fs.mkdir('./log');
+}
 
 var models_dir = __dirname + '/app/models';
 fs.readdirSync(models_dir).forEach(function (file) {
-    if (file[0] === '.') return;
+    if (file[0] === '.') {
+        return;
+    }
     require(models_dir + '/' + file);
 });
 //initialise mongoDB
@@ -68,17 +72,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 require('./config/routes')(app, passport);
 
-var env = process.env.NODE_ENV || 'development';
-if ('development' === env) app.use(errorHandler());
+if ('development' === env) {
+    app.use(errorHandler());
+}
 
-app.use(function (err, req, res, next) {
+app.use(function (err, req, res) {
     res.status(err.status || 500);
     res.render('500', {
         error: err
     });
 });
 
-app.use(function (req, res, next) {
+app.use(function (req, res) {
     res.status(404);
     if (req.accepts('html')) {
         res.render('404', {
@@ -104,7 +109,7 @@ var secureServer = https.createServer(options, app);
 var server = http.createServer(app);
 
 secureServer.listen(app.get('httpsPort'), function () {
-    console.log('Express ssl server listening on port ' + app.get('httpsPort'))
+    console.log('Express ssl server listening on port ' + app.get('httpsPort'));
 });
 
 server.listen(app.get('port'), function () {

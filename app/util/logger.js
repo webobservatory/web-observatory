@@ -1,7 +1,7 @@
 var winston = require('winston');
-var logger = new(winston.Logger)({
+var logger = new (winston.Logger)({
     transports: [
-        new(winston.transports.Console)({
+        new (winston.transports.Console)({
             //json: false,
             timestamp: true
         }),
@@ -12,7 +12,7 @@ var logger = new(winston.Logger)({
         })
     ],
     exceptionHandlers: [
-        new(winston.transports.Console)({
+        new (winston.transports.Console)({
             //json: false,
             timestamp: true
         }),

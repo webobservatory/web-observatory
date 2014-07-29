@@ -1,3 +1,4 @@
+"use strict";
 var User = require('../app/models/user'),
     Entry = require('../app/models/entry'),
     Client = require('../app/models/client'),
@@ -53,13 +54,21 @@ module.exports = function (app, passport) {
             eid = req.params.eid;
         Entry.findById(eid, function (err, entry) {
 
-            if (err || !entry) return res.send(err.message || 'No record found');
+            if (err || !entry) {
+                return res.send(err.message || 'No record found');
+            }
 
-            if (!entry.opVis && email !== entry.publisher) return res.send('Record not visible to public');
+            if (!entry.opVis && email !== entry.publisher) {
+                return res.send('Record not visible to public');
+            }
 
-            if (email && email === entry.publisher) entry.isOwner = true;
+            if (email && email === entry.publisher) {
+                entry.isOwner = true;
+            }
 
-            if (req.user && req.user.readable && req.user.readable.indexOf(eid) !== -1) entry.isOwner = true;
+            if (req.user && req.user.readable && req.user.readable.indexOf(eid) !== -1) {
+                entry.isOwner = true;
+            }
 
             res.render('catlog-detail', {
                 etry: entry
@@ -70,7 +79,10 @@ module.exports = function (app, passport) {
     //display vis
     app.get('/wo/show/:eid', function (req, res, next) {
         Entry.findById(req.params.eid, function (err, entry) {
-            if (err) return next(err);
+            if (err) {
+                return next(err);
+            }
+
             if (!entry) {
                 req.flash('error', ['No entry found']);
                 return res.redirect(req.get('referer'));
