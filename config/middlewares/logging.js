@@ -1,19 +1,19 @@
 var logger = require('../../app/util/logger');
 
 module.exports = function(req, res, next) {
-    if (0 === req.path.indexOf('/css') * req.path.indexOf('/js') * req.path.indexOf('/fonts') * req.path.indexOf('/images')) return next();
+    if (0 === req.path.indexOf('/css') * req.path.indexOf('/js') * req.path.indexOf('/fonts') * req.path.indexOf('/images')*req.path.indexOf('/img')) return next();
 
     var _req = {};
 
+    _req.userip = req.ip;
+    _req.method = req.method;
     _req.protocol = req.protocol;
-    _req.port = req.port;
-    _req.host = req.hostname;
-    _req.accept = req.accept;
-    _req.authorization = req.authorization;
-    _req['user-agent'] = req['user-agent'];
-    _req['content-type'] = req['content-type'];
-    _req.pathname = req.pathname;
+    _req.host = req.get('host');
     _req.path = req.path;
+    _req.originalUrl = req.originalUrl;
+
+    _req.refer = req.get('referer');
+    
     if (0 !== req.query.length)
         _req.query = JSON.stringify(req.query);
 
@@ -26,12 +26,14 @@ module.exports = function(req, res, next) {
             delete _req.body.password;
             _req.body = JSON.stringify(_req.body);
         }
-
-        _req.params = JSON.stringify(req.params);
-        _req.refer = req.get('referer');
     }
 
-    _req.method = req.method;
+    _req.params = JSON.stringify(req.params);
+
+    _req.accept = req.get('accept');
+    if('POST'===req.method) _req.content_type = req.get('content-type');
+    _req['user-agent'] = req.get('user-agent');
+    _req.authorization = req.get('authorization');
 
     logger.info(_req);
     next();

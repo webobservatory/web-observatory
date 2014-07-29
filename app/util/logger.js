@@ -17,7 +17,7 @@ var logger = new(winston.Logger)({
             timestamp: true
         }),
         new winston.transports.File({
-            filename: './log/debug.log',
+            filename: './log/exception.log',
             //json: false,
             maxsize: 20971520
         })

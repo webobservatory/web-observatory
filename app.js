@@ -25,6 +25,8 @@ var env = process.env.NODE_ENV || 'development',
 
 mongoose.connect(config.db);
 
+if(!fs.existsSync('./log')) fs.mkdir('./log');
+
 var models_dir = __dirname + '/app/models';
 fs.readdirSync(models_dir).forEach(function (file) {
     if (file[0] === '.') return;
