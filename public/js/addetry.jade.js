@@ -1,7 +1,9 @@
 var con_succeed = -1;
-$(document).ready(function() {
-    if (window.location.pathname.indexOf('/visualisation') !== -1) con_succeed = 1;
-    $('#private').bind('click', function() {
+$(document).ready(function () {
+
+    if (-1 !== window.location.pathname.indexOf('/visualisation')) con_succeed = 1;//no connection test for vis
+
+    $('#private').bind('click', function () {
         var $this = $(this);
         // $this will contain a reference to the checkbox   
         if ($this.prop('checked')) {
@@ -15,7 +17,7 @@ $(document).ready(function() {
         }
     });
     $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
-    $('#optogl').bind('click', function() {
+    $('#optogl').bind('click', function () {
         $('#optogl span').toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
     });
 
@@ -23,7 +25,7 @@ $(document).ready(function() {
         source: '/nametags/dataset'
     });
 
-    $('#submit').bind('click', function(event) {
+    $('#submit').bind('click', function (event) {
         if (con_succeed === -1)
             contest();
         if (con_succeed)
@@ -33,7 +35,7 @@ $(document).ready(function() {
         event.preventDefault();
     });
 
-    $('#dbtest').bind('click', function(event) {
+    $('#dbtest').bind('click', function (event) {
         contest();
     });
 
@@ -57,7 +59,7 @@ $(document).ready(function() {
         data.user = $('#adddata input[name=user]').val();
         data.pwd = $('#adddata input[name=pwd]').val();
         //if (data.typ.indexOf('postgresql') !== -1) return alert('Dataset not yet supported');
-        $.get('/contest?url=' + data.url + '&typ=' + data.typ + '&user=' + data.user + '&pwd=' + data.pwd, function(data, textStatus) {
+        $.get('/contest?url=' + data.url + '&typ=' + data.typ + '&user=' + data.user + '&pwd=' + data.pwd, function (data, textStatus) {
             console.log(data);
             if (data) {
                 $('#conted').addClass('glyphicon-remove');
@@ -67,5 +69,76 @@ $(document).ready(function() {
                 con_succeed = true;
             }
         });
+    }
+
+    //file uploading
+//    $(':file').change(function(){
+//        var file = this.files[0];
+//        var name = file.name;
+//        var size = file.size;
+//        var type = file.type;
+//    });
+
+    $('#adddata select[name=querytype]').change(function () {
+        var val = $(this).val();
+        if ('file' === val.toLowerCase()) {
+            $('#upload').fadeIn();
+            $('#contest').fadeOut();
+        }
+        else {
+            $('#contest').fadeIn();
+            $('#upload').fadeOut();
+        }
+    });
+
+    $('#upload button').click(function (event) {
+        event.preventDefault();
+        var formData = new FormData($('form')[0]);
+        $.ajax({
+            url: '/upload',  //Server script to process data
+            type: 'POST',
+            xhr: function () {  // Custom XMLHttpRequest
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) { // Check if upload property exists
+                    myXhr.upload.addEventListener('progress', progressHandlingFunction, false); // For handling the progress of the upload
+                }
+                return myXhr;
+            },
+            //Ajax events
+            beforeSend: beforeSendHandler,
+            success: completeHandler,
+            error: errorHandler,
+            // Form data
+            data: formData,
+            //Options to tell jQuery not to process data or worry about content-type.
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });
+
+    function beforeSendHandler() {
+        $('.progress').removeClass('hidden');
+    }
+
+    function progressHandlingFunction(e) {
+        if (e.lengthComputable) {
+            var ratio = Math.round(e.loaded * 10000 / e.total) / 100 + '%';
+            $('.progress-bar').css('width', ratio).attr({'aria-valuenow': e.loaded, 'aria-valuemax': e.total}).text(ratio);
+        }
+    }
+
+    function completeHandler(data, status) {
+        console.log(status);
+        console.log(data);
+        con_succeed = 1;
+        alert('File uploaded');
+        var path = data.path;
+        $("#adddata input[name='url']").val(path);
+    }
+
+    function errorHandler() {
+        con_succeed = -1;
+        alert('File uploading failed');
     }
 });

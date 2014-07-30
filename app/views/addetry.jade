@@ -13,7 +13,7 @@ block content
             label.col-md-4.control-label(for='url') URL
             .col-md-3
                 input.form-control.input-xlarge(name='url' type='url', placeholder='Address of your entry', required='')
-                p.help-block= 'The URL of your '+type
+                p.help-block= 'The URL of your '+type+'. Leave it blank if you want to upload a data file.'
         if type==='dataset'
             // Text input
             .form-group
@@ -29,14 +29,25 @@ block content
                     p.help-block Your password will be encripted
             .form-group
                 label.col-md-4.control-label(for='type') Dataset type
-                .col-md-2
+                .col-md-3
                     select.form-control(name='querytype')
                         option SPARQL
                         option MySQL
                         //option PostgreSQL
                         //option(value='Hive') Hadoop Hive
                         option MongoDB
-            .form-group
+                        option File
+            #upload(style='display:none')
+                .form-group
+                    label.col-md-4.control-label(for='file') Upload data
+                    .col-md-2
+                        input.form-control(name='file' type='file')
+                    .col-md-1
+                        button.btn.btn-default Upload
+                .col-md-3.col-md-offset-4
+                    .progress
+                        .progress-bar(aria-valuemin='0' role='progressbar') 0%
+            .form-group#contest
                 .col-md-3.col-md-offset-4
                     button#dbtest.btn
                         span.glyphicon.glyphicon-globe

@@ -1,6 +1,6 @@
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
-    EntrySchema = mongoose.model('Entry'),
+    Entry = mongoose.model('Entry'),
     async = require('async'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
@@ -12,8 +12,10 @@ module.exports.visibleEtry = function (req, res, next) {
 
     async.parallel([function (cb) {
         var query = {opVis: true};
-        if (typ) query.type = typ;
-        EntrySchema.find(query, function (err, entries) {
+        if (typ) {
+            query.type = typ;
+        }
+        Entry.find(query, function (err, entries) {
             cb(err, entries);
         });
     }, function (cb) {
@@ -67,7 +69,7 @@ module.exports.visibleEtry = function (req, res, next) {
 
 module.exports.addEtry = function (email, etry, cb) {
 
-    EntrySchema.findOne({
+    Entry.findOne({
         $or: [
             {
                 name: etry.name
@@ -98,7 +100,7 @@ module.exports.addEtry = function (email, etry, cb) {
             etry.auth.encpwd = encrypted;
         }
 
-        EntrySchema.create(etry, function (err, entry) {
+        Entry.create(etry, function (err, entry) {
             if (err) {
                 logger.error(err);
                 return cb({
@@ -120,7 +122,7 @@ module.exports.addEtry = function (email, etry, cb) {
 
 module.exports.editEtry = function (etry_id, update, cb) {
 
-    EntrySchema.findById(etry_id, function (err, entry) {
+    Entry.findById(etry_id, function (err, entry) {
         if (err) {
             logger.error(err);
             return cb(err);
@@ -150,7 +152,7 @@ module.exports.reqAccToEtry = function (eids, user, cb) {
     var requester = user.email;
 
     async.map(eids, function (eid, next) {
-        EntrySchema.findById(eid, function (err, entry) {
+        Entry.findById(eid, function (err, entry) {
             if (err)  return next(err);
             if (!entry) return next({message: 'Entry not found'});
 

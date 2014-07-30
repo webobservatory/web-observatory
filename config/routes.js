@@ -1,8 +1,10 @@
 "use strict";
-var User = require('../app/models/user'),
-    Entry = require('../app/models/entry'),
-    Client = require('../app/models/client'),
+var mongoose = require('mongoose'),
+    User = mongoose.model('User'),
+    Entry = mongoose.model('Entry'),
+    Client = mongoose.model('Client'),
     Auth = require('./middlewares/authorization.js'),
+    file = require('./middlewares/file.js'),
     async = require('async'),
     ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
     queries = require('./middlewares/queries.js'),
@@ -129,6 +131,13 @@ module.exports = function (app, passport) {
             type: req.params.typ
         });
     });
+
+    //data file uploading
+    app.post('/upload', ensureLoggedIn('/login'), file.fileUpload);
+    
+    //data file download
+    app.get('/download/:eid', ensureLoggedIn('/login'), Auth.hasAccToDB, file.fileDownload);
+    
 
     //searching
     app.get('/search', function (req, res) {
@@ -457,7 +466,7 @@ module.exports = function (app, passport) {
         ], function (err, result) {
 
             res.render('query/' + qtype, {
-                dsID: req.params.eid,
+                eid: req.params.eid,
                 tags: err ? null : result
             });
         });
@@ -740,7 +749,7 @@ module.exports = function (app, passport) {
     });
 
     app.post('/profile/forgot-pass', function (req, res) {
-        pass.forgotPass(req.body.email, 'http://' + req.host + ':' + app.get('port') + '/profile/reset-pass', function (err) {
+        pass.forgotPass(req.body.email, 'http://' + req.hostname + ':' + app.get('port') + '/profile/reset-pass', function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect('/profile/forgot-pass');

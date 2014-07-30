@@ -1,9 +1,10 @@
+'use strict';
 var User = require('../../app/models/user'),
     Entry = require('../../app/models/entry'),
     crypto = require('crypto'),
     async = require('async');
 
-exports.isAuthenticated = function(req, res, next) {
+exports.isAuthenticated = function (req, res, next) {
     if (req.isAuthenticated()) {
         next();
     } else {
@@ -12,10 +13,10 @@ exports.isAuthenticated = function(req, res, next) {
     }
 };
 
-exports.userExist = function(req, res, next) {
+exports.userExist = function (req, res, next) {
     User.count({
         email: req.body.email
-    }, function(err, count) {
+    }, function (err, count) {
         if (count === 0) {
             next();
         } else {
@@ -25,27 +26,29 @@ exports.userExist = function(req, res, next) {
     });
 };
 
-exports.hasAccToDB = function(req, res, next) {
+exports.hasAccToDB = function (req, res, next) {
     var user = req.user, //user should not be null
         mail = user.email,
         _id = req.params.eid || req.query.eid;
 
     async.parallel([
-
-            function(cb) {
+            function (cb) {
+               
                 var own = user.own,
                     readable = user.readable;
-                if (readable.indexOf(_id) !== -1 || own.indexOf(_id) !== -1)
+                if (readable.indexOf(_id) !== -1 || own.indexOf(_id) !== -1) {
                     cb(null, true);
-                else
+                }
+                else {
                     cb(null, false);
+                }
             },
 
-            function(cb) {
+            function (cb) {
                 Entry.findById(_id, cb);
             }
         ],
-        function(err, results) {
+        function (err, results) {
             if (!req.attach) req.attach = {};
 
             if (err) {
@@ -61,35 +64,38 @@ exports.hasAccToDB = function(req, res, next) {
         });
 };
 
-exports.isOwner = function(req, res, next) {
+exports.isOwner = function (req, res, next) {
     if (!req.user) return res.send(401, 'Unauthorised');
 
     var eid = req.params.eid || req.query.eid || req.body.eid;
 
     User.findOne({
         email: req.user.email,
-        $or: [{
-            own: eid
-        }, {
-            clients: eid
-        }]
-    }, function(err, user) {
+        $or: [
+            {
+                own: eid
+            },
+            {
+                clients: eid
+            }
+        ]
+    }, function (err, user) {
         if (err) return next(err);
         if (!user) return res.send(401, 'Unauthorised');
         next();
     });
 };
 
-exports.rememberMe = function(req, res, next) {
+exports.rememberMe = function (req, res, next) {
     // Issue a remember me cookie if the option was checked
     if (!req.body.remember_me) {
         return next();
     }
 
-    crypto.randomBytes(32, function(ex, buf) {
+    crypto.randomBytes(32, function (ex, buf) {
         var token = buf.toString('hex');
         req.user.rememberme = token;
-        req.user.save(function(err, user) {
+        req.user.save(function (err, user) {
             if (err) return next(err);
             res.cookie('remember_me', token, {
                 path: '/',

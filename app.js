@@ -25,8 +25,12 @@ var env = process.env.NODE_ENV || 'development',
 
 mongoose.connect(config.db);
 
-if (!fs.existsSync('./log')) {
-    fs.mkdir('./log');
+if (!fs.existsSync(__dirname + '/log')) {
+    fs.mkdir(__dirname + '/log');
+}
+
+if (!fs.existsSync(__dirname + '/files')) {
+    fs.mkdir(__dirname + '/files');
 }
 
 var models_dir = __dirname + '/app/models';
@@ -72,18 +76,18 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 require('./config/routes')(app, passport);
 
-if ('development' === env) {
-    app.use(errorHandler());
-}
+//if ('development' === env) {
+//    app.use(errorHandler());
+//}
 
-app.use(function (err, req, res) {
+app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('500', {
         error: err
     });
 });
 
-app.use(function (req, res) {
+app.use(function (req, res, next) {
     res.status(404);
     if (req.accepts('html')) {
         res.render('404', {
