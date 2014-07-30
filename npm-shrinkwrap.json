@@ -411,6 +411,11 @@
       "from": "https://registry.npmjs.org/Faker/-/Faker-0.7.2.tgz",
       "resolved": "https://registry.npmjs.org/Faker/-/Faker-0.7.2.tgz"
     },
+    "formidable": {
+      "version": "1.0.15",
+      "from": "formidable@",
+      "resolved": "https://registry.npmjs.org/formidable/-/formidable-1.0.15.tgz"
+    },
     "jade": {
       "version": "1.3.1",
       "from": "https://registry.npmjs.org/jade/-/jade-1.3.1.tgz",
