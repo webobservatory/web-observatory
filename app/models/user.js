@@ -1,15 +1,16 @@
+'use strict';
 var mongoose = require('mongoose'),
     hash = require('../util/hash'),
     logger = require('../util/logger'),
     Schema = mongoose.Schema,
     EntrySchema = require('./entry').schema;
 
-UserSchema = mongoose.Schema({
+var UserSchema = mongoose.Schema({
     firstName: String,
     lastName: String,
     username: {
         type: String,
-        unique: true,
+        unique: true
     },
     email: String,
     org: String,
@@ -31,10 +32,12 @@ UserSchema = mongoose.Schema({
         name: String
     },
     //oauth clients
-    clients: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Client'
-    }],
+    clients: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: 'Client'
+        }
+    ],
     //password reset
     reset: {
         token: String,
@@ -60,23 +63,29 @@ UserSchema = mongoose.Schema({
             ref: 'Entry'
         }
     ],
-    accreq: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Entry'
-    }], //access requests sent to these datasets
-    pendingreq: [{ //received requests
-        sender: String,
-        entry: {
+    accreq: [
+        {
             type: Schema.Types.ObjectId,
             ref: 'Entry'
-        },
-        read: Boolean
-    }],
-    msg: [{ //general messages
-        sender: String,
-        content: String,
-        read: Boolean
-    }],
+        }
+    ], //access requests sent to these datasets
+    pendingreq: [
+        { //received requests
+            sender: String,
+            entry: {
+                type: Schema.Types.ObjectId,
+                ref: 'Entry'
+            },
+            read: Boolean
+        }
+    ],
+    msg: [
+        { //general messages
+            sender: String,
+            content: String,
+            read: Boolean
+        }
+    ],
 
     timestamp: {
         type: Date,
@@ -85,12 +94,13 @@ UserSchema = mongoose.Schema({
 });
 
 //user control
-UserSchema.statics.signup = function(firstname, lastname, organisation, email, password, done) {
+UserSchema.statics.signup = function (firstname, lastname, organisation, email, password, done) {
     var User = this;
-    hash(password, function(err, salt, hash) {
+    hash(password, function (err, salt, hash) {
         //if (err) throw err;
-        if (err)
+        if (err) {
             return done(err);
+        }
         User.create({
             firstName: firstname,
             lastName: lastname,
@@ -98,54 +108,71 @@ UserSchema.statics.signup = function(firstname, lastname, organisation, email, p
             email: email,
             salt: salt,
             hash: hash
-        }, function(err, user) {
-            if (err) return done(err);
+        }, function (err, user) {
+            if (err) {
+                return done(err);
+            }
             done(null, user);
         });
     });
 };
 
-UserSchema.statics.updateProfile = function(user, nps, fn, ln, org, done) {
+UserSchema.statics.updateProfile = function (user, nps, fn, ln, org, done) {
     if (nps) {
-        hash(nps, function(err, salt, hash) {
-            if (fn)
+        hash(nps, function (err, salt, hash) {
+            if (fn) {
                 user.firstName = fn;
-            if (ln)
+            }
+            if (ln) {
                 user.lastName = ln;
-            if (org)
+            }
+            if (org) {
                 user.org = org;
+            }
             user.salt = salt;
             user.hash = hash;
             user.save(done);
         });
     } else {
-        if (fn)
+        if (fn) {
             user.firstName = fn;
-        if (ln)
+        }
+        if (ln) {
             user.lastName = ln;
-        if (org)
+        }
+        if (org) {
             user.org = org;
+        }
         user.save(done);
     }
 };
 
-UserSchema.statics.isValidUserPassword = function(email, password, done) {
+UserSchema.statics.isValidUserPassword = function (email, password, done) {
     this.findOne({
         email: email
-    }, function(err, user) {
-        if (err) return done(err);
-        if (!user) return done(null, false, {
-            message: 'Incorrect email.'
-        });
+    }, function (err, user) {
+        if (err) {
+            return done(err);
+        }
+        if (!user) {
+            return done(null, false, {
+                message: 'Incorrect email.'
+            });
+        }
 
-        if (!user.salt || !user.hash)
+        if (!user.salt || !user.hash) {
             return done(null, false, {
                 message: 'Password not set. Please reset your password first.'
             });
+        }
 
-        hash(password, user.salt, function(err, hash) {
-            if (err) return done(err);
-            if (hash == user.hash) return done(null, user);
+        hash(password, user.salt, function (err, hash) {
+            if (err) {
+                return done(err);
+            }
+            if (hash === user.hash) {
+                return done(null, user);
+            }
             done(null, false, {
                 message: 'Incorrect password'
             });
@@ -153,13 +180,14 @@ UserSchema.statics.isValidUserPassword = function(email, password, done) {
     });
 };
 
-UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
+UserSchema.statics.findOrCreateFaceBookUser = function (profile, done) {
     var User = this;
     User.findOne({
         'facebook.id': profile.id
-    }, function(err, user) {
-        if (err) throw err;
-        // if (err) return done(err);
+    }, function (err, user) {
+        if (err) {
+            return done(err);
+        }
         if (user) {
             done(null, user);
         } else {
@@ -170,22 +198,24 @@ UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
                     email: profile.emails[0].value,
                     name: profile.displayName
                 }
-            }, function(err, user) {
-                if (err) throw err;
-                // if (err) return done(err);
+            }, function (err, user) {
+                if (err) {
+                    return done(err);
+                }
                 done(null, user);
             });
         }
     });
 };
 
-UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
+UserSchema.statics.findOrCreateSotonUser = function (profile, done) {
     var User = this;
     User.findOne({
         'soton.id': profile.cn
-    }, function(err, user) {
-        if (err)
+    }, function (err, user) {
+        if (err) {
             return done(err);
+        }
         if (user) {
             done(null, user);
         } else {
@@ -199,9 +229,10 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
                     email: profile.mail,
                     name: profile.displayName
                 }
-            }, function(err, user) {
-                if (err)
+            }, function (err, user) {
+                if (err) {
                     return done(err);
+                }
                 done(null, user);
             });
         }
@@ -211,31 +242,31 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
 //dataset access control
 
 
-
-UserSchema.statics.addOwn = function(publisher, etry_id, done) {
-    var query = {
+UserSchema.statics.addOwn = function (publisher, etry_id, done) {
+    var query, update;
+    query = {
         email: publisher,
         'own': {
             $ne: etry_id
         }
     };
 
-    var update = {
+    update = {
         $push: {
             own: etry_id
         }
     };
 
-    this.update(query, update, function(err, count) {
+    this.update(query, update, function (err, count) {
         logger.info('Entry add; user: ' + publisher + '; dataset: ' + etry_id + ';');
         done(err, count);
     });
 };
 
-UserSchema.statics.addEtry = function(eml, entry_id, cb) {
+UserSchema.statics.addEtry = function (eml, entry_id, cb) {
     this.findOne({
         email: eml
-    }, function(err, user) {
+    }, function (err, user) {
         if (err || !user) {
             err = err || {
                 message: 'User ' + eml + ' does not exist.'
@@ -248,20 +279,25 @@ UserSchema.statics.addEtry = function(eml, entry_id, cb) {
     });
 };
 
-UserSchema.statics.hasAccessTo = function(email, ds_id, done) {
-    var User = this;
-    var query = {
+UserSchema.statics.hasAccessTo = function (email, ds_id, done) {
+    var query;
+   
+    query = {
         email: email,
         readable: ds_id
     };
 
-    this.findOne(query, function(err, user) {
+    this.findOne(query, function (err, user) {
 
-        if (err) return done(err);
+        if (err) {
+            return done(err);
+        }
 
-        if (!user) return done(null, false, {
-            message: 'Access denied'
-        });
+        if (!user) {
+            return done(null, false, {
+                message: 'Access denied'
+            });
+        }
         done(null, user);
     });
 };

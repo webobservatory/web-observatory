@@ -28,7 +28,10 @@ exports.fileDownload = function (req, res, next) {
 
 exports.fileUpload = function (req, res) {
 
-    var fileFolder = path.join(__dirname, '../../files/', req.user.email);
+    var fileFolder,
+        form;
+
+    fileFolder = path.join(__dirname, '../../files/', req.user.email);
 
     fs.exists(fileFolder, function (existing) {
         if (!existing) {
@@ -36,17 +39,19 @@ exports.fileUpload = function (req, res) {
         }
     });
 
-    var form = new formidable.IncomingForm();
+    form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
-        var old_path = files.file.path,
-            file_size = files.file.size,
-            file_name = files.file.name,
-            new_path = path.join(fileFolder, file_name);
+        var old_path, file_size, file_name, new_path, exist, extIndex, renameIndex;
+        
+        old_path = files.file.path;
+        file_size = files.file.size;
+        file_name = files.file.name;
+        new_path = path.join(fileFolder, file_name);
 
 
-        var exist = true,
-            extIndex = file_name.lastIndexOf('.'),
-            renameIndex = 0;
+        exist = true;
+        extIndex = file_name.lastIndexOf('.');
+        renameIndex = 0;
 
         while (exist) {
             if (fs.existsSync(new_path)) {

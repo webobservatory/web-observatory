@@ -28,7 +28,6 @@ exports.userExist = function (req, res, next) {
 
 exports.hasAccToDB = function (req, res, next) {
     var user = req.user, //user should not be null
-        mail = user.email,
         _id = req.params.eid || req.query.eid;
 
     async.parallel([
@@ -49,7 +48,9 @@ exports.hasAccToDB = function (req, res, next) {
             }
         ],
         function (err, results) {
-            if (!req.attach) req.attach = {};
+            if (!req.attach) {
+                req.attach = {};
+            }
 
             if (err) {
                 req.flash('error', [err.message]);
@@ -65,7 +66,9 @@ exports.hasAccToDB = function (req, res, next) {
 };
 
 exports.isOwner = function (req, res, next) {
-    if (!req.user) return res.send(401, 'Unauthorised');
+    if (!req.user) {
+        return res.send(401, 'Unauthorised');
+    }
 
     var eid = req.params.eid || req.query.eid || req.body.eid;
 
@@ -80,8 +83,12 @@ exports.isOwner = function (req, res, next) {
             }
         ]
     }, function (err, user) {
-        if (err) return next(err);
-        if (!user) return res.send(401, 'Unauthorised');
+        if (err) {
+            return next(err);
+        }
+        if (!user) {
+            return res.send(401, 'Unauthorised');
+        }
         next();
     });
 };
@@ -96,7 +103,9 @@ exports.rememberMe = function (req, res, next) {
         var token = buf.toString('hex');
         req.user.rememberme = token;
         req.user.save(function (err, user) {
-            if (err) return next(err);
+            if (err) {
+                return next(err);
+            }
             res.cookie('remember_me', token, {
                 path: '/',
                 httpOnly: true,

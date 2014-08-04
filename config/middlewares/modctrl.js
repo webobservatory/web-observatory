@@ -1,3 +1,4 @@
+'use strict';
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Entry = mongoose.model('Entry'),
@@ -19,48 +20,71 @@ module.exports.visibleEtry = function (req, res, next) {
             cb(err, entries);
         });
     }, function (cb) {
-        if (user) user.populate('own').populate('visible').populate('readable', cb);
-        else cb();
+        if (user) {
+            user.populate('own').populate('visible').populate('readable', cb);
+        }
+        else {
+            cb();
+        }
     }], function (err, results) {
-        if (err) return next(err);
+        var entries, etry_ids;
+        if (err) {
+            return next(err);
+        }
 
-        var entries = results[0];
+        entries = results[0];
 
-        if (!req.attach) req.attach = {};
+        if (!req.attach) {
+            req.attach = {};
+        }
         req.attach.visibleEntries = entries;
 
-        if (!user) return next();
+        if (!user) {
+            return next();
+        }
 
-        var etry_ids = entries.map(function (e) {
+        etry_ids = entries.map(function (e) {
             return e._id.toString();
         });
 
         user.own.forEach(function (entry) {
-            if (typ !== entry.type) return;
+            if (typ !== entry.type) {
+                return;
+            }
             var index = etry_ids.indexOf(entry._id.toString());
             if (-1 === index) {
                 entry = JSON.parse(JSON.stringify(entry));
                 entry.opAcc = true;
                 entries.push(entry);
             }
-            else entries[index].opAcc = true;
+            else {
+                entries[index].opAcc = true;
+            }
         });
 
         user.readable.forEach(function (entry) {
-            if (typ !== entry.type) return;
+            if (typ !== entry.type) {
+                return;
+            }
             var index = etry_ids.indexOf(entry._id.toString());
             if (-1 === index) {
                 entry = JSON.parse(JSON.stringify(entry));
                 entry.opAcc = true;
                 entries.push(entry);
             }
-            else entries[index].opAcc = true;
+            else {
+                entries[index].opAcc = true;
+            }
         });
 
         user.visible.forEach(function (entry) {
-            if (typ !== entry.type) return;
+            if (typ !== entry.type) {
+                return;
+            }
             var index = etry_ids.indexOf(entry._id.toString());
-            if (-1 === index) entries.push(entry);
+            if (-1 === index) {
+                entries.push(entry);
+            }
         });
 
         next();
@@ -79,6 +103,8 @@ module.exports.addEtry = function (email, etry, cb) {
             }
         ]
     }, function (err, entry) {
+        var key, enc_alg, pwd, encrypted, cipher;
+
         if (err) {
             logger.error(err);
             return cb(err);
@@ -91,12 +117,12 @@ module.exports.addEtry = function (email, etry, cb) {
         }
 
         if (etry.auth && etry.auth.encpwd) {
-            var key = etry.url,
-                enc_alg = 'aes256',
-                pwd = etry.auth.encpwd;
+            key = etry.url;
+            enc_alg = 'aes256';
+            pwd = etry.auth.encpwd;
 
-            var cipher = crypto.createCipher(enc_alg, key);
-            var encrypted = cipher.update(pwd, 'utf8', 'hex') + cipher.final('hex');
+            cipher = crypto.createCipher(enc_alg, key);
+            encrypted = cipher.update(pwd, 'utf8', 'hex') + cipher.final('hex');
             etry.auth.encpwd = encrypted;
         }
 
@@ -135,7 +161,9 @@ module.exports.editEtry = function (etry_id, update, cb) {
         }
 
         for (var key in update) {
-            entry[key] = update[key];
+            if (update.hasOwnProperty(key)) {
+                entry[key] = update[key];
+            }
         }
         entry.save(function (err) {
             if (err) {
@@ -153,11 +181,17 @@ module.exports.reqAccToEtry = function (eids, user, cb) {
 
     async.map(eids, function (eid, next) {
         Entry.findById(eid, function (err, entry) {
-            if (err)  return next(err);
-            if (!entry) return next({message: 'Entry not found'});
+            if (err) {
+                return next(err);
+            }
+            if (!entry) {
+                return next({message: 'Entry not found'});
+            }
 
             User.findOne({email: entry.publisher}, function (err, owner) {
-                if (err || !owner) return next(err || {message: 'Owner not found'});
+                if (err || !owner) {
+                    return next(err || {message: 'Owner not found'});
+                }
 
                 owner.pendingreq.push({
                     sender: requester,
@@ -169,7 +203,9 @@ module.exports.reqAccToEtry = function (eids, user, cb) {
             });
         });
     }, function (err, eids) {
-        if (err) return cb(err);
+        if (err) {
+            return cb(err);
+        }
 
         eids.forEach(function (eid) {
             user.accreq.push(eid);
@@ -183,13 +219,17 @@ module.exports.reqAccToEtry = function (eids, user, cb) {
 module.exports.aprvAccToEtry = function (deny, reqIds, user, cb) {
 
     user.populate('pendingreq.entry', function (err) {
-        if (err) return cb(err);
+        if (err) {
+            return cb(err);
+        }
 
         async.map(reqIds, function (rid, next) {
             var req = user.pendingreq.id(rid);
-            if (!req) return next({
-                message: 'Unknown request'
-            });
+            if (!req) {
+                return next({
+                    message: 'Unknown request'
+                });
+            }
             if (deny)
                 denyAccess(req, function (err) {
                     req.remove();
@@ -201,7 +241,9 @@ module.exports.aprvAccToEtry = function (deny, reqIds, user, cb) {
                     next(err, req);
                 });
         }, function (err, reqs) {
-            if (err) return cb(err);
+            if (err) {
+                return cb(err);
+            }
             user.save(cb);
         });
     });

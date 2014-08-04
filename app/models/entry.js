@@ -24,7 +24,7 @@ var EntrySchema = mongoose.Schema({
     auth: {
         apikey: String,
         user: String,
-        encpwd: String, //encrypted password
+        encpwd: String //encrypted password
     },
     related: String, //related sources
     git: String, //github url if applicable

@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var ClientSchema = Schema({
+var ClientSchema = new Schema({
     name: {
         type: String,
         unique: true,
