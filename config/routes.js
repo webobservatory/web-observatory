@@ -99,15 +99,18 @@ module.exports = function (app, passport) {
 
     //statistics of listed entries
     app.get('/stats', function (req, res) {
-        var sequence = {};
+        var sequence = {}, i;
 
         Entry.find({}, function (err, entries) {
-            for (var i = 0; i < entries.length; i++) {
-                var etry = entries[i];
-                var type = etry.type;
-                var additional = etry.querytype;
-                var key = type;
-                if (type === 'dataset') key = key + '-' + additional;
+            var key, additional, type, entry;
+            for (i = 0; i < entries.length; i+=1) {
+                entry = entries[i];
+                type = entry.type;
+                additional = entry.querytype;
+                key = type;
+                if (type === 'dataset') {
+                    key = key + '-' + additional;
+                }
                 if (!sequence[key]) {
                     sequence[key] = 1;
                 } else {
@@ -134,20 +137,22 @@ module.exports = function (app, passport) {
 
     //data file uploading
     app.post('/upload', ensureLoggedIn('/login'), file.fileUpload);
-    
+
     //data file download
     app.get('/download/:eid', ensureLoggedIn('/login'), Auth.hasAccToDB, file.fileDownload);
-    
+
 
     //searching
     app.get('/search', function (req, res) {
         var term = req.query.keyword;
 
-        if (!term) return res.render('search', {
-            info: req.flash('info'),
-            error: req.flash('error'),
-            user: req.user
-        });
+        if (!term) {
+            return res.render('search', {
+                info: req.flash('info'),
+                error: req.flash('error'),
+                user: req.user
+            });
+        }
 
         Entry.find({
             type: 'dataset',
@@ -156,8 +161,12 @@ module.exports = function (app, passport) {
                 $options: 'i'
             }
         }, function (err, entries) {
-            if (err) req.flash('error', [err.message]);
-            if (!entries || 0 === entries.length) req.flash('error', 'No records found');
+            if (err) {
+                req.flash('error', [err.message]);
+            }
+            if (!entries || 0 === entries.length) {
+                req.flash('error', 'No records found');
+            }
             res.render('search', {
                 info: req.flash('info'),
                 error: req.flash('error'),
@@ -195,8 +204,8 @@ module.exports = function (app, passport) {
 
     //adding an entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
-        var email = req.user.email;
-        var etry = {
+        var etry, email = req.user.email;
+        etry = {
             url: req.body.url,
             auth: {
                 user: req.body.user,
@@ -252,8 +261,7 @@ module.exports = function (app, passport) {
     });
 
     app.post('/detail/:eid', Auth.isOwner, function (req, res) {
-        var eid = req.params.eid;
-        var etry = {};
+        var eid = req.params.eid, etry = {};
 
         switch (req.body.name) {
             case 'url':
@@ -307,7 +315,8 @@ module.exports = function (app, passport) {
                     message: 'Entry not found under the current user'
                 });
                 req.flash('error', ["Entry not found under the current user"]);
-                return res.redirect('profile'); //TODO ajax rather than refreshing
+                //use ajax rather than refreshing
+                return res.redirect('profile');
             }
 
             res.render('editetry', {
@@ -320,19 +329,39 @@ module.exports = function (app, passport) {
     });
 
     app.post('/edit/:eid', Auth.isOwner, function (req, res) {
-        var eid = req.params.eid;
-        var etry = {};
+        var eid, etry;
+        eid = req.params.eid;
+        etry = {};
 
-        if (req.body.url) etry.url = req.body.url;
-        if (req.body.name) etry.name = req.body.name;
-        if (req.body.des) etry.des = req.body.des;
-        if (req.body.lice) etry.lice = req.body.lice;
-        if (req.body.creator) etry.creator = req.body.creator;
-        if (req.body.git) etry.git = req.body.git;
-        if (req.body.related) etry.related = req.body.related;
-        if (req.body.kw) etry.kw = req.body.kw.split(',');
-        etry.opVis = !req.body.vis;
-        etry.opAcc = !req.body.acc;
+        switch (true) {
+            case req.body.url:
+                etry.url = req.body.url;
+                break;
+            case req.body.name:
+                etry.name = req.body.name;
+                break;
+            case req.body.des:
+                etry.des = req.body.des;
+                break;
+            case req.body.lice:
+                etry.lice = req.body.lice;
+                break;
+            case req.body.creator:
+                etry.creator = req.body.creator;
+                break;
+            case req.body.git:
+                etry.git = req.body.git;
+                break;
+            case req.body.related:
+                etry.related = req.body.related;
+                break;
+            case req.body.kw:
+                etry.kw = req.body.kw.split(',');
+                break;
+            default:
+                etry.opVis = !req.body.vis;
+                etry.opAcc = !req.body.acc;
+        }
 
         modctrl.editEtry(eid, etry, function (err) {
             if (err) {
@@ -355,7 +384,9 @@ module.exports = function (app, passport) {
             return res.redirect(req.get('referer'));
         }
 
-        if ('string' === typeof ids) ids = [ids];
+        if ('string' === typeof ids) {
+            ids = [ids];
+        }
 
         async.map(ids, function (eid, cb) {
             if (-1 !== user.own.indexOf(eid)) {
@@ -368,8 +399,12 @@ module.exports = function (app, passport) {
                 return res.redirect(req.get('referer'));
             }
             user.save(function (err) {
-                if (err) req.flash('error', [err.message]);
-                else req.flash('info', ['Entry deleted successfully']);
+                if (err) {
+                    req.flash('error', [err.message]);
+                }
+                else {
+                    req.flash('info', ['Entry deleted successfully']);
+                }
                 return res.redirect(req.get('referer'));
             });
         });
@@ -400,7 +435,9 @@ module.exports = function (app, passport) {
             req.flash('info', ['No entry selected']);
             res.redirect(req.get('referer'));
         }
-        if (typeof eids === 'string') eids = [eids];
+        if (typeof eids === 'string') {
+            eids = [eids];
+        }
 
         modctrl.reqAccToEtry(eids, user, function (err) {
             if (err) {
@@ -417,7 +454,9 @@ module.exports = function (app, passport) {
         var deny = req.body.deny === 'true',
             user = req.user,
             reqids = req.body.reqids;
-        if ('string' === typeof reqids) reqids = [reqids];
+        if ('string' === typeof reqids) {
+            reqids = [reqids];
+        }
 
         modctrl.aprvAccToEtry(deny, reqids, user, function (err) {
 
@@ -461,7 +500,9 @@ module.exports = function (app, passport) {
                     Entry.findById(req.params.eid, function (err, ds) {
                         queries.mongodbschema(ds, cb);
                     });
-                } else cb(null, null);
+                } else {
+                    cb(null, null);
+                }
             }
         ], function (err, result) {
 
@@ -474,13 +515,16 @@ module.exports = function (app, passport) {
 
     app.get('/endpoint/:eid/:typ', ensureLoggedIn('/login'), Auth.hasAccToDB, function (req, res) {
 
-        if (!req.attach.dataset) return res.redirect(req.get('referer'));
+        var queryDriver, query, mime, modname, qtyp, ds, qlog;
+        if (!req.attach.dataset) {
+            return res.redirect(req.get('referer'));
+        }
 
-        var query = req.query.query || req.body.query,
-            mime = req.query.format || req.body.format,
-            modname = req.query.modname || req.body.modname, //for mongodb
-            qtyp = req.params.typ,
-            ds = req.attach.dataset;
+        query = req.query.query || req.body.query;
+        mime = req.query.format || req.body.format;
+        modname = req.query.modname || req.body.modname;
+        qtyp = req.params.typ;
+        ds = req.attach.dataset;
 
         if (modname) {
             query = {
@@ -489,19 +533,19 @@ module.exports = function (app, passport) {
             };
         }
 
-        var qlog = {};
+        qlog = {};
         qlog.time = new Date();
         qlog.ip = req.connection.remoteAddress;
         qlog.query = query;
         qlog.usrmail = req.user.email;
 
         qlog.ds = ds.url;
-        var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+        queryDriver = queries.drivers[ds.querytype.toLowerCase()];
         if (!queryDriver) {
             req.flash('error', ['Dataset type not supported']);
-            return res.redirect(req.get('referer'));
-        } else
-        //TODO implement queryDriver as middlelayer
+            res.redirect(req.get('referer'));
+        } else {
+            //TODO implement queryDriver as middlelayer
             queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds,
                 function (err, result) {
                     //qlog.result = JSON.stringify(result);
@@ -513,7 +557,9 @@ module.exports = function (app, passport) {
 
                     if (mime === 'display') {
                         var viewer = 'csvview';
-                        if (qtyp === 'mongodb' || qtyp === 'sql') viewer = 'jsonview';
+                        if (qtyp === 'mongodb' || qtyp === 'sql') {
+                            viewer = 'jsonview';
+                        }
                         res.render('query/' + viewer, {
                             'result': result,
                             'info': req.flash('info'),
@@ -525,13 +571,16 @@ module.exports = function (app, passport) {
                     }
                 }
             );
+        }
     });
 
     app.get('/contest', ensureLoggedIn('/login'), function (req, res) {
         var test = queries.tests[req.query.typ];
-        if (!test) return res.json({
-            message: 'Dataset type not supported'
-        });
+        if (!test) {
+            return res.json({
+                message: 'Dataset type not supported'
+            });
+        }
         test({
             url: req.query.url,
             user: req.query.user,
@@ -543,8 +592,9 @@ module.exports = function (app, passport) {
     //authentication
 
     app.get("/login", forceSSL, function (req, res) {
-        if (!req.session.returnTo)
+        if (!req.session.returnTo) {
             req.session.returnTo = req.get('referer');
+        }
 
         res.render("login", {
             info: req.flash('info'),
@@ -575,19 +625,24 @@ module.exports = function (app, passport) {
     });
 
     app.post("/signup", Auth.userExist, function (req, res, next) {
-        var data = {
+        var data, recaptcha;
+        data = {
             remoteip: req.connection.remoteAddress,
             challenge: req.body.recaptcha_challenge_field,
             response: req.body.recaptcha_response_field
         };
 
-        var recaptcha = new Recaptcha(pbk, prk, data);
-        recaptcha.verify(function (success, error_code) {
+        recaptcha = new Recaptcha(pbk, prk, data);
+        recaptcha.verify(function (success) {
             if (success) {
                 User.signup(req.body.fn, req.body.ln, req.body.org, req.body.email, req.body.password, function (err, user) {
-                    if (err) return next(err);
+                    if (err) {
+                        return next(err);
+                    }
                     req.login(user, function (err) {
-                        if (err) return next(err);
+                        if (err) {
+                            return next(err);
+                        }
                         return res.redirect("/");
                     });
                 });
@@ -617,10 +672,11 @@ module.exports = function (app, passport) {
     app.get("/profile", forceSSL, ensureLoggedIn('/login'), function (req, res) {
 
         req.user.populate('own').populate('accreq').populate('clients').populate('pendingreq.entry', function (err, user) {
-            var parameter = {
+            var parameter, errmsg;
+            parameter = {
                 'user': user
             };
-            var errmsg = req.flash('error');
+            errmsg = req.flash('error');
             if (err) {
                 errmsg.push(err.message);
             } else {
@@ -661,7 +717,7 @@ module.exports = function (app, passport) {
                 User.updateProfile(user, newpw, fn, ln, org, function (err) {
                     if (err) {
                         req.flash('error', [err.message]);
-                        return res.redirect(req.get('referer'));
+                        res.redirect(req.get('referer'));
                     } else {
                         req.flash('info', ['Profile updated']);
                         return res.redirect(req.get('referer'));
@@ -672,7 +728,7 @@ module.exports = function (app, passport) {
             User.updateProfile(user, null, fn, ln, org, function (err) {
                 if (err) {
                     req.flash('error', [err.message]);
-                    return res.redirect(req.get('referer'));
+                    res.redirect(req.get('referer'));
                 } else {
                     req.flash('info', ['Profile updated']);
                     return res.redirect(req.get('referer'));
@@ -686,7 +742,9 @@ module.exports = function (app, passport) {
         var msgid = req.body.msgid,
             user = req.user;
 
-        if ('string' === typeof msgid) msgid = [msgid];
+        if ('string' === typeof msgid) {
+            msgid = [msgid];
+        }
 
         msgid.forEach(function (mid) {
             user.msg.remove(msgid[mid]);
@@ -781,25 +839,27 @@ module.exports = function (app, passport) {
         session: false
     }), Auth.hasAccToDB, function (req, res) {
 
-        var ds = req.attach.dataset;
+        var queryDriver, qlog, ds, query;
+        ds = req.attach.dataset;
 
-        if (!ds)
+        if (!ds) {
             return res.send({
                 error: req.flash('error')
             });
+        }
 
-        var query = req.query.query;
+        query = req.query.query;
 
-        var qlog = {};
+        qlog = {};
         qlog.time = new Date();
         qlog.ip = req.connection.remoteAddress;
         qlog.query = query;
         qlog.usrmail = req.user.email;
 
         qlog.ds = ds.url;
-        var queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+        queryDriver = queries.drivers[ds.querytype.toLowerCase()];
         if (!queryDriver) {
-            return res.send({
+            res.send({
                 error: ['Dataset type not supported']
             });
         } else {
@@ -824,15 +884,19 @@ module.exports = function (app, passport) {
     app.get('/api/stats', cors(), passport.authenticate('bearer', {
         session: false
     }), function (req, res) {
-        var sequence = {};
+        var i, sequence = {};
 
         Entry.find({}, function (err, entries) {
-            for (var i = 0; i < entries.length; i++) {
-                var etry = entries[i];
-                var type = etry.type;
-                var additional = etry.querytype;
-                var key = type;
-                if (type === 'dataset') key = key + '-' + additional;
+            var etry, type, additional, key;
+
+            for (i = 0; i < entries.length; i+=1) {
+                etry = entries[i];
+                type = etry.type;
+                additional = etry.querytype;
+                key = type;
+                if (type === 'dataset') {
+                    key = key + '-' + additional;
+                }
                 if (!sequence[key]) {
                     sequence[key] = 1;
                 } else {
@@ -873,11 +937,13 @@ module.exports = function (app, passport) {
     //application management
 
     app.get('/client/create', ensureLoggedIn('/login'), function (req, res, next) {
-        var user = req.user;
+        var client, user, secret;
+      
+        user = req.user;
 
-        var secret = crypto.randomBytes(8).toString('hex');
+        secret = crypto.randomBytes(8).toString('hex');
 
-        var client = new Client({
+        client = new Client({
             name: req.query.name,
             clientSecret: secret,
             owner: user.email,
@@ -885,11 +951,15 @@ module.exports = function (app, passport) {
         });
 
         client.save(function (err) {
-            if (err) return next(err);
+            if (err) {
+                return next(err);
+            }
 
             user.clients.push(client._id);
             user.save(function (err) {
-                if (err) return next(err);
+                if (err) {
+                    return next(err);
+                }
 
                 res.redirect(req.get('referer')); //use ajax
             });
@@ -901,18 +971,20 @@ module.exports = function (app, passport) {
             cid = req.params.eid;
 
         Client.findByIdAndRemove(cid, function (err) {
-            if (err) next(err);
+            if (err) {
+                next(err);
+            }
         });
 
         user.clients.pull(cid);
         user.save(function (err) {
-            if (err) next(err);
+            if (err) {
+                next(err);
+            }
 
             res.redirect(req.get('referer')); //use ajax
         });
     });
 
-    app.get('/client/:eid/edit', Auth.isOwner, function (req, res) {
-
-    });
+    //app.get('/client/:eid/edit', Auth.isOwner, function (req, res) {  });
 };
