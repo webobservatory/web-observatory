@@ -103,7 +103,7 @@ module.exports = function (app, passport) {
 
         Entry.find({}, function (err, entries) {
             var key, additional, type, entry;
-            for (i = 0; i < entries.length; i+=1) {
+            for (i = 0; i < entries.length; i += 1) {
                 entry = entries[i];
                 type = entry.type;
                 additional = entry.querytype;
@@ -261,7 +261,8 @@ module.exports = function (app, passport) {
     });
 
     app.post('/detail/:eid', Auth.isOwner, function (req, res) {
-        var eid = req.params.eid, etry = {};
+        var eid = req.params.eid,
+            etry = {};
 
         switch (req.body.name) {
             case 'url':
@@ -401,8 +402,7 @@ module.exports = function (app, passport) {
             user.save(function (err) {
                 if (err) {
                     req.flash('error', [err.message]);
-                }
-                else {
+                } else {
                     req.flash('info', ['Entry deleted successfully']);
                 }
                 return res.redirect(req.get('referer'));
@@ -649,6 +649,7 @@ module.exports = function (app, passport) {
             } else {
                 req.flash('error', ['Recaptcha not valid.']);
                 res.render('signup', {
+                    error: req.flash('error'),
                     locals: {
                         recaptcha_form: recaptcha.toHTML()
                     }
@@ -889,7 +890,7 @@ module.exports = function (app, passport) {
         Entry.find({}, function (err, entries) {
             var etry, type, additional, key;
 
-            for (i = 0; i < entries.length; i+=1) {
+            for (i = 0; i < entries.length; i += 1) {
                 etry = entries[i];
                 type = etry.type;
                 additional = etry.querytype;
@@ -938,7 +939,7 @@ module.exports = function (app, passport) {
 
     app.get('/client/create', ensureLoggedIn('/login'), function (req, res, next) {
         var client, user, secret;
-      
+
         user = req.user;
 
         secret = crypto.randomBytes(8).toString('hex');
