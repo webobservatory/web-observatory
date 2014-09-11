@@ -7,7 +7,7 @@ block content
         .form-group
             label.col-md-4.control-label(for='name') Title
             .col-md-3
-                input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the dataset', required='')
+                input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the entry', required='')
         // Text input
         .form-group
             label.col-md-4.control-label(for='url') URL
@@ -94,22 +94,16 @@ block content
         // Security
         .form-group
             label.col-md-4.control-label(for='access') Security Settings
-            if type === 'dataset'
-                .col-md-3
-                    label.checkbox(for='read')
-                        input#private(type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
-                        | Private dataset
-                    p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
-                    #visible.collapse
-                        div
-                            label.checkbox(for='visible')
-                                input(type='checkbox', name='vis', value='false')
-                                = 'Do not list my private '+ type +' in the catalogue'
-            if type === 'visualisation'
-                .col-md-3
-                    label#visible.checkbox(for='visible')
-                        input(type='checkbox', name='vis', value='false')
-                        = 'Do not list my '+ type +' in the catalogue'
+            .col-md-3
+                label.checkbox(for='read')
+                    input#private(type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
+                    | Private entry
+                p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
+                #visible.collapse
+                    div
+                        label.checkbox(for='visible')
+                            input(type='checkbox', name='vis', value='false')
+                            = 'Do not list my private '+ type +' in the catalogue'
         .form-group
             .col-md-3.col-md-offset-4
                 a#submit.btn.btn-primary Submit

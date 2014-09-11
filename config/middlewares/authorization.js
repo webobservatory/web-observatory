@@ -27,12 +27,12 @@ exports.userExist = function (req, res, next) {
 };
 
 exports.hasAccToDB = function (req, res, next) {
-    var user = req.user, //user should not be null
+    var user = req.user || {own: [], readable: []}, //in case user is null (shouldn't happen)
         _id = req.params.eid || req.query.eid;
 
     async.parallel([
             function (cb) {
-               
+
                 var own = user.own,
                     readable = user.readable;
                 if (readable.indexOf(_id) !== -1 || own.indexOf(_id) !== -1) {
