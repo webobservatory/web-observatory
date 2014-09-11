@@ -41,9 +41,12 @@ module.exports = function (app, passport) {
 
     //listing entries
     app.get('/wo/:typ(dataset|visualisation)', modctrl.visibleEtry, function (req, res) {
+        var baseUrl = req.protocol + '://' + req.get('host');
+
         res.render('catlg', {
             info: req.flash('info'),
             error: req.flash('error'),
+            baseUrl: baseUrl,
             user: req.user,
             table: req.attach.visibleEntries,
             type: req.params.typ

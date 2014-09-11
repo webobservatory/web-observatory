@@ -22,7 +22,7 @@ block content
                         each val in table
                             if val
                                 - val.url = '/wo/'+val.type+'#'+val._id
-                                tr.entry(itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset':'http://schema.org/WebPage'))
+                                tr.entry(itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
                                     - var name=val.name || '';
                                     - if(name.length>30) {
                                     -   name = name.substring(0,27);
@@ -32,7 +32,7 @@ block content
                                             = name
                                         //schema.org meta data
                                         meta(itemprop='http://schema.org/name' content=val.name)
-                                        meta(itemprop='http://schema.org/url' content=val.url)
+                                        meta(itemprop='http://schema.org/url' content=baseUrl+val.url)
                                         meta(itemprop='http://schema.org/provider' content=val.publisher_name)
                                         meta(itemprop='http://schema.org/isBasedOnUrl' content=val.related)
                                         meta(itemprop='http://schema.org/description' content=val.des)
