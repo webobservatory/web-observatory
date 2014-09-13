@@ -516,7 +516,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get('/endpoint/:eid/:typ', ensureLoggedIn('/login'), Auth.hasAccToDB, function (req, res) {
+    app.get('/endpoint/:eid/:typ', Auth.hasAccToDB, function (req, res) {
 
         var queryDriver, query, mime, modname, qtyp, ds, qlog;
         if (!req.attach.dataset) {
@@ -540,7 +540,7 @@ module.exports = function (app, passport) {
         qlog.time = new Date();
         qlog.ip = req.connection.remoteAddress;
         qlog.query = query;
-        qlog.usrmail = req.user.email;
+        qlog.usrmail = req.user ? req.user.email : '';
 
         qlog.ds = ds.url;
         queryDriver = queries.drivers[ds.querytype.toLowerCase()];
@@ -810,16 +810,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post('/profile/forgot-pass', function (req, res) {
-        pass.forgotPass(req.body.email, 'http://' + req.hostname + ':' + app.get('port') + '/profile/reset-pass', function (err) {
-            if (err) {
-                req.flash('error', [err.message]);
-                return res.redirect('/profile/forgot-pass');
-            }
-            req.flash('info', ['Please check your email to reset your password.']);
-            res.redirect('/login');
-        });
-    });
+    app.post('/profile/forgot-pass', pass.forgotPass);
 
     app.get('/logout', function (req, res) {
         res.clearCookie('remember_me');

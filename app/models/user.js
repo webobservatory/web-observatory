@@ -95,7 +95,6 @@ var UserSchema = mongoose.Schema({
 
 //user control
 UserSchema.statics.signup = function (firstname, lastname, organisation, email, password, done) {
-    var User = this;
     hash(password, function (err, salt, hash) {
         //if (err) throw err;
         if (err) {
@@ -148,12 +147,13 @@ UserSchema.statics.updateProfile = function (user, nps, fn, ln, org, done) {
 };
 
 UserSchema.statics.isValidUserPassword = function (email, password, done) {
-    this.findOne({
+    User.findOne({
         email: email
     }, function (err, user) {
         if (err) {
             return done(err);
         }
+
         if (!user) {
             return done(null, false, {
                 message: 'Incorrect email.'
@@ -166,13 +166,15 @@ UserSchema.statics.isValidUserPassword = function (email, password, done) {
             });
         }
 
-        hash(password, user.salt, function (err, hash) {
+        hash(password, user.salt, function (err, hashBuf) {
             if (err) {
                 return done(err);
             }
-            if (hash === user.hash) {
+
+            if (hashBuf.toString() === user.hash) {
                 return done(null, user);
             }
+
             done(null, false, {
                 message: 'Incorrect password'
             });
@@ -181,7 +183,6 @@ UserSchema.statics.isValidUserPassword = function (email, password, done) {
 };
 
 UserSchema.statics.findOrCreateFaceBookUser = function (profile, done) {
-    var User = this;
     User.findOne({
         'facebook.id': profile.id
     }, function (err, user) {
@@ -209,7 +210,6 @@ UserSchema.statics.findOrCreateFaceBookUser = function (profile, done) {
 };
 
 UserSchema.statics.findOrCreateSotonUser = function (profile, done) {
-    var User = this;
     User.findOne({
         'soton.id': profile.cn
     }, function (err, user) {
@@ -281,7 +281,7 @@ UserSchema.statics.addEtry = function (eml, entry_id, cb) {
 
 UserSchema.statics.hasAccessTo = function (email, ds_id, done) {
     var query;
-   
+
     query = {
         email: email,
         readable: ds_id
