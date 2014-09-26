@@ -1,37 +1,45 @@
 doctype html
 html(lang='en')
-  include ../includes/head
-  body
-    #wrap
-      .container
-        .row
-          include ../includes/flash-banner
-        .row
-          table#display.table.table-striped.table-bordered.table-hover
-                thead
-                tbody
-      #push
-  include ../includes/footer
-  script(src='/js/jquery-1.10.2.min.js')
-  script(src='/js/jquery.csv-0.71.min.js')
-  script.
-    var result = !{JSON.stringify(result)};
-    $(document).ready(function() {
-      result = $.csv.toArrays(result);//TODO try/catch
-      var headers = result[0];
-      var rows = result.slice(1);
-      var hline = '<tr>';
-      for(i=0;i<headers.length;i++)
-        hline = hline + '<th>' + headers[i] + '</th>';
-      hline = hline + '</tr>';
-      $('#display thead').append(hline);
-
-      for(i=0;i<rows.length;i++){
-        var r = rows[i];
-        var rline = '<tr>';
-        for(j=0;j<r.length;j++){
-          rline = rline + '<td>' + r[j] + '</td>';
-        }
-        $('#display tbody').append(rline);
-      }
-    });
+    include ../includes/head
+    body
+        #wrap
+            .container
+                .row
+                    include ../includes/flash-banner
+                .row
+                    table#display.table.table-striped.table-bordered.table-hover
+                        thead
+                        tbody
+            #push
+    include ../includes/footer
+    script(src='/js/jquery-1.10.2.min.js')
+    script(src='/js/jquery.csv-0.71.min.js')
+    script.
+        var result = !{JSON.stringify(result)};
+        $(document).ready(function() {
+            try{
+              result = $.csv.toArrays(result);//TODO try/catch
+              var headers = result[0];
+              var rows = result.slice(1);
+              var hline = '<tr>';
+              for(i=0;i<headers.length;i++)
+                hline = hline + '<th>' + headers[i] + '</th>';
+              hline = hline + '</tr>';
+              $('#display thead').append(hline);
+        
+              for(i=0;i<rows.length;i++){
+                var r = rows[i];
+                var rline = '<tr>';
+                for(j=0;j<r.length;j++){
+                  rline = rline + '<td>' + r[j] + '</td>';
+                }
+                $('#display tbody').append(rline);
+              }
+            }
+            catch(e) {
+                //result = $.parseXML(result);
+                console.log(result);
+                var parent = $('#display').parent();
+                parent.append('<textarea class="container" rows="20">'+result+'</textarea>');
+            }
+        });
