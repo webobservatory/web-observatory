@@ -1,14 +1,15 @@
+'use strict';
 var mongoose = require('mongoose'),
     async = require('async');
 
 var EntrySchema = mongoose.Schema({
     url: String,
-    name: {type: String, index: true},
+    name: String,
     type: String, //dataset? visualisation? etc.
-    querytype: {type: String, index: true}, //query interface tyep. e.g. sparql, mysql, mongodb
-    creator: {type: String, index: true}, //creator of this entry
+    querytype: String, //query interface tyep. e.g. sparql, mysql, mongodb
+    creator: String, //creator of this entry
     publisher: String, //email of the publisher. use email in case user._id goes wrong it's easier to recover
-    publisher_name: {type: String, index: true}, //name of the publisher
+    publisher_name: String, //name of the publisher
     pubdate: {
         type: Date,
         default: Date.now
@@ -30,9 +31,11 @@ var EntrySchema = mongoose.Schema({
     },
     related: String, //related sources
     git: String, //github url if applicable
-    lice: {type: String, index: true}, //licence
-    kw: {type: [String], index: true}, //keywords
-    des: {type: String, index: true} //description
+    lice: String, //licence
+    kw: [String], //keywords
+    des: String //description
 });
+EntrySchema.index({ "$**": "text" });
 var Entry = mongoose.model('Entry', EntrySchema);
+Entry.ensureIndexes(function(err){console.log(err);});
 module.exports = Entry;
