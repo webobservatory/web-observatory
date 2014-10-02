@@ -833,8 +833,9 @@ module.exports = function (app, passport) {
     app.get('/api/query', cors(), passport.authenticate('bearer', {
         session: false
     }), Auth.hasAccToDB, function (req, res) {
-
+        
         var queryDriver, qlog, ds, query;
+        
         ds = req.attach.dataset;
 
         if (!ds) {
@@ -859,12 +860,12 @@ module.exports = function (app, passport) {
             });
         } else {
             //TODO implement queryDriver as middlelayer
-            queryDriver(query, 'json', ds,
+            queryDriver(query, '', ds,
                 function (err, result) {
                     //qlog.result = JSON.stringify(result);
                     logger.info(qlog);
                     if (err) {
-                        return req.send({
+                        return res.send({
                             error: [err.message]
                         });
                     }
