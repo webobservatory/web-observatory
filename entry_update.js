@@ -22,10 +22,14 @@ User.find({}).populate('own').populate('visible').populate('readable').exec(func
             user.visible = [];
         }
         user.visible.forEach(function (entry) {
-            entry.canView.push(user.email);
+            if(entry.canView.indexOf(user.email) === -1) {
+                entry.canView.push(user.email);
+            }
             entry.save(function (err) {
                 if (err) {
                     console.log('add view');
+                    console.log(entry.name);
+                    console.log(user.email);
                     console.log(err);
                 }
             });
@@ -36,10 +40,14 @@ User.find({}).populate('own').populate('visible').populate('readable').exec(func
             user.readable = [];
         }
         user.readable.forEach(function (entry) {
-            entry.canAccess.push(user.email);
+            if(entry.canAccess.indexOf(user.email) === -1) {
+                entry.canAccess.push(user.email);
+            }
             entry.save(function (err) {
                 if (err) {
                     console.log('add access');
+                    console.log(entry.name);
+                    console.log(user.email);
                     console.log(err);
                 }
             });
@@ -50,12 +58,19 @@ User.find({}).populate('own').populate('visible').populate('readable').exec(func
             user.own = [];
         }
         user.own.forEach(function (entry) {
-            entry.canView.push(user.email);
-            entry.canAccess.push(user.email);
+            if(entry.canView.indexOf(user.email) === -1) {
+                entry.canView.push(user.email);
+            }
+            
+            if(entry.canAccess.indexOf(user.email) === -1) {
+                entry.canAccess.push(user.email);
+            }
+            
             entry.save(function (err) {
-
                 if (err) {
                     console.log('add own');
+                    console.log(entry.name);
+                    console.log(user.email);
                     console.log(err);
                 }
             });
