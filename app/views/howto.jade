@@ -61,13 +61,19 @@ block content
                         `password:PASSWORD`
                         where capitalised words represent variables.
                     
-                        jQuery example :
+                        [jQuery](http://jquery.com/) example :
                     
                             $.post('https://webobservatory.soton.ac.uk/oauth/token',
                                 {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
                                 function(data){
                                     console.log(data);
                             });
+
+                        [httpie](https://github.com/jakubroztocil/httpie) example :
+
+                            http POST http://webobservatory.soton.ac.uk/oauth/token grant_type="password" client_id="53be91cb9790d31811850792" client_secret="dien8ck4kdie3" username=USER_NAME password=PASSWORD
+                        
+                        Note: To access https using httpie you have to [configure httpie](https://github.com/jakubroztocil/httpie#https) first.
                         
                         The response from the server (contained in data) will contain an access token if the request went through.
                         
@@ -90,11 +96,15 @@ block content
                                 type: "get",
                                 url: "https://webobservatory.soton.ac.uk/api/query",
                                 data: { eid: '53bc04568a1ea0572f934663', query:'select 1+1 as solution' },
-                                header: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
+                                headers: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
                                 }).done(function(result) {
                                     console.log(result);
                             });
-        
+
+                        httpie example :
+
+                            http GET http://webobservatory.soton.ac.uk/api/query Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" eid=="53bc04568a1ea0572f934663" query=="select 1+1 as solution"
+                        
                         The response from the server (contained in result) will contain the solution of your query.
                         
                         Example response:

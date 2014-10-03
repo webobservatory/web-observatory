@@ -44,9 +44,7 @@ module.exports.visibleEtry = function (req, res, next) {
             return next(err);
         }
 
-        if (!req.attach) {
-            req.attach = {};
-        }
+        req.attach = req.attach || {};
         req.attach.visibleEntries = entries;
 
         next();

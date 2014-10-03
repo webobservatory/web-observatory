@@ -27,8 +27,8 @@ exports.userExist = function (req, res, next) {
 };
 
 exports.hasAccToDB = function (req, res, next) {
-    var user = req.user || {own: [], readable: []}, //in case user is null (shouldn't happen)
-        _id = req.params.eid || req.query.eid;
+    var user = req.user || {own: [], readable: []}, //in case user is null
+        _id = req.param('eid');
 
     async.parallel([
             function (cb) {
@@ -56,9 +56,10 @@ exports.hasAccToDB = function (req, res, next) {
                 req.flash('error', [err.message]);
             } else if (!results[1]) {
                 req.flash('error', ['No entry found']);
-            } else if (!results[0] && !results[1].opAcc) { //user with no permision & dataset is private
+            } else if (!results[0] && !results[1].opAcc) { //user with no permission & dataset is private
                 req.flash('error', ['Access denied']);
             } else {
+                req.attach = req.attach || {};
                 req.attach.dataset = results[1]; //attach dataset
             }
             next();
