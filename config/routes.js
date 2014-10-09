@@ -825,17 +825,124 @@ module.exports = function (app, passport) {
             user: req.user
         });
     });
+
+    //application management
+
+    app.get('/client/create', ensureLoggedIn('/login'), function (req, res, next) {
+        var client, user, secret;
+
+        user = req.user;
+
+        secret = crypto.randomBytes(8).toString('hex');
+
+        client = new Client({
+            name: req.query.name,
+            clientSecret: secret,
+            owner: user.email,
+            redirectURI: req.query.callback
+        });
+
+        client.save(function (err) {
+            if (err) {
+                return next(err);
+            }
+
+            user.clients.push(client._id);
+            user.save(function (err) {
+                if (err) {
+                    return next(err);
+                }
+
+                res.redirect(req.get('referer')); //use ajax
+            });
+        });
+    });
+
+    app.get('/client/:eid/delete', Auth.isOwner, function (req, res, next) {
+        var user = req.user,
+            cid = req.params.eid;
+
+        Client.findByIdAndRemove(cid, function (err) {
+            if (err) {
+                next(err);
+            }
+        });
+
+        user.clients.pull(cid);
+        user.save(function (err) {
+            if (err) {
+                next(err);
+            }
+
+            res.redirect(req.get('referer')); //use ajax
+        });
+    });
+
     //API
+//    var buildLinks = function (req, res, next) {
+//        var base, links;
+//
+//        base = req.protocol + '://' + req.get('host');//TODO build base from app.js
+//
+//        links = [
+//            {href: base + req.path, rel: 'self', method: 'GET'}
+//        ];
+//
+//        req.attach = req.attach || {};
+//        req.attach.links = links;
+//        next();
+//    };
+
+    app.get('/api', cors(), function (req, res) {
+        var base, apiRes, links;// use base instead of baseUrl to prevent confusion with req.baseUrl
+        base = req.protocol + '://' + req.get('host');
+        links = [
+            {href: base + req.path, rel: 'self', method: 'GET'},
+            {href: base + '/oauth', rel: 'auth', method: 'GET'},
+            {href: base + '/api/wo', rel: 'list', method: 'GET'},
+            {href: base + '/api/wo/dataset', rel: 'list', method: 'GET'},
+            {href: base + '/api/wo/visualisation', rel: 'list', method: 'GET'}
+        ];
+
+        apiRes = {version: '0.1', links: links};
+        res.send(apiRes);
+    });
+
+    app.get('/oauth', cors(), function (req, res) {
+        var base, apiRes, links;// use base instead of baseUrl to prevent confusion with req.baseUrl
+        base = req.protocol + '://' + req.get('host');
+        links = [
+            {href: base + req.path, rel: 'self', method: 'GET'},
+            {href: base + '/oauth/token', rel: 'oauth/bearer', method: 'POST'},
+            {href: base + '/oauth/authorise', rel: 'oauth/auth', method: 'GET'},
+            {href: base + '/oauth/decision', rel: 'oauth/decision', method: 'POST'}
+        ];
+
+        apiRes = {links: links};
+        res.send(apiRes);
+    });
+
     app.get('/api/info', cors(), function (req, res) {
         res.send('This is not implemented yet');
     });
 
-    app.get('/api/query', cors(), passport.authenticate('bearer', {
+    app.get('/api/wo/:typ(dataset|visualisation)', cors(), modctrl.visibleEtry, function (req, res) {
+        var entries = req.attach.visibleEntries;
+
+
+    });
+
+    app.get('/api/query', cors(), function (req, res) {
+        res.set('Authorization', req.get('Authorization'));
+        res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);
+    });
+
+    app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {
         session: false
     }), Auth.hasAccToDB, function (req, res) {
-        
+
         var queryDriver, qlog, ds, query;
-        
+
         ds = req.attach.dataset;
 
         if (!ds) {
@@ -929,58 +1036,6 @@ module.exports = function (app, passport) {
     app.post('/oauth/decision', ensureLoggedIn('/login'), oauth2.decision);
 
     app.post('/oauth/token', cors(), oauth2.token);
-
-    //application management
-
-    app.get('/client/create', ensureLoggedIn('/login'), function (req, res, next) {
-        var client, user, secret;
-
-        user = req.user;
-
-        secret = crypto.randomBytes(8).toString('hex');
-
-        client = new Client({
-            name: req.query.name,
-            clientSecret: secret,
-            owner: user.email,
-            redirectURI: req.query.callback
-        });
-
-        client.save(function (err) {
-            if (err) {
-                return next(err);
-            }
-
-            user.clients.push(client._id);
-            user.save(function (err) {
-                if (err) {
-                    return next(err);
-                }
-
-                res.redirect(req.get('referer')); //use ajax
-            });
-        });
-    });
-
-    app.get('/client/:eid/delete', Auth.isOwner, function (req, res, next) {
-        var user = req.user,
-            cid = req.params.eid;
-
-        Client.findByIdAndRemove(cid, function (err) {
-            if (err) {
-                next(err);
-            }
-        });
-
-        user.clients.pull(cid);
-        user.save(function (err) {
-            if (err) {
-                next(err);
-            }
-
-            res.redirect(req.get('referer')); //use ajax
-        });
-    });
 
     //app.get('/client/:eid/edit', Auth.isOwner, function (req, res) {  });
 };

@@ -45,8 +45,6 @@ function mysqlDriver(query, mime, ds, cb) {
         options.password = pwd;
     }
     connection = mysql.createConnection(options);
-    console.log('query: ');
-    console.log(options);
     connection.connect();
     connection.query(query, function (err, rows, fields) {
         cb(err, rows);
@@ -206,7 +204,7 @@ module.exports.mongodbschema = function (ds, cb) {
                         names = names.map(function (name) {
                             return name.substring(name.indexOf('.') + 1);
                         });
-                        console.log(names);
+                        //console.log(names);
                         cb(err, names);
                     }
                     db.close();
@@ -216,7 +214,7 @@ module.exports.mongodbschema = function (ds, cb) {
             db.collectionNames({
                 namesOnly: true
             }, function (err, names) {
-                console.log(err);
+                logger.err(err);
                 if (err) {
                     cb(err);
                 }

@@ -36,6 +36,11 @@ var EntrySchema = mongoose.Schema({
     des: String //description
 });
 EntrySchema.index({ "$**": "text" });
+//EntrySchema.set('autoIndex', false);
 var Entry = mongoose.model('Entry', EntrySchema);
-Entry.ensureIndexes(function(err){console.log(err);});
+Entry.on('index', function (err) {
+    if (err) {
+        console.log(err);
+    }
+});
 module.exports = Entry;
