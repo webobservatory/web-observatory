@@ -898,24 +898,25 @@ module.exports = function (app, passport) {
         base = req.protocol + '://' + req.get('host');
         links = [
             {href: base + req.path, rel: 'self', method: 'GET'},
-            {href: base + '/oauth', rel: 'auth', method: 'GET'},
+            {href: base + '/oauth/token', rel: 'oauth/token', method: 'POST'},
+            {href: base + '/oauth/authorise', rel: 'oauth/auth', method: 'GET'},
             {href: base + '/api/wo', rel: 'list', method: 'GET'},
             {href: base + '/api/wo/dataset', rel: 'list', method: 'GET'},
             {href: base + '/api/wo/visualisation', rel: 'list', method: 'GET'}
         ];
 
-        apiRes = {version: '0.1', links: links};
+        apiRes = {version: '0.1', auth: 'OAuth2.0', links: links};
         res.send(apiRes);
     });
 
     app.get('/oauth', cors(), function (req, res) {
         var base, apiRes, links;// use base instead of baseUrl to prevent confusion with req.baseUrl
         base = req.protocol + '://' + req.get('host');
+
         links = [
             {href: base + req.path, rel: 'self', method: 'GET'},
-            {href: base + '/oauth/token', rel: 'oauth/bearer', method: 'POST'},
-            {href: base + '/oauth/authorise', rel: 'oauth/auth', method: 'GET'},
-            {href: base + '/oauth/decision', rel: 'oauth/decision', method: 'POST'}
+            {href: base + '/oauth/token', rel: 'oauth/token', method: 'POST'},
+            {href: base + '/oauth/authorise', rel: 'oauth/auth', method: 'GET'}
         ];
 
         apiRes = {links: links};
@@ -932,11 +933,12 @@ module.exports = function (app, passport) {
 
     });
 
+    //legacy entry, kept for backward compatibility
     app.get('/api/query', cors(), function (req, res) {
         res.set('Authorization', req.get('Authorization'));
         res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);
     });
-
+    
     app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {
         session: false
     }), Auth.hasAccToDB, function (req, res) {

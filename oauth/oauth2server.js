@@ -14,19 +14,11 @@ var oauth2orize = require('oauth2orize'),
 var server = oauth2orize.createServer();
 
 //utility function
-function manageToken(user, client, scope, done) {
+function manageToken(user, client, scope, refreshTokenIssue, done) {
 
-    var tokenValue, refreshTokenValue, token, refreshToken, info;
+    var accessTokenValue, refreshTokenValue, accessToken, refreshToken, info;
 
-    RefreshTokenModel.remove({
-        userId: user._id,
-        clientId: client._id
-    }, function (err) {
-        if (err) {
-            return done(err);
-        }
-    });
-
+    //generate an access token
     AccessTokenModel.remove({
         userId: user._id,
         clientId: client._id
@@ -36,47 +28,65 @@ function manageToken(user, client, scope, done) {
         }
     });
 
-    tokenValue = crypto.randomBytes(32).toString('base64');
+    accessTokenValue = crypto.randomBytes(32).toString('base64');
 
-    refreshTokenValue = crypto.randomBytes(32).toString('base64');
-
-    token = new AccessTokenModel({
-        token: tokenValue,
+    accessToken = new AccessTokenModel({
+        token: accessTokenValue,
         clientId: client._id,
         userId: user._id
     });
 
-    refreshToken = new RefreshTokenModel({
-        token: refreshTokenValue,
-        clientId: client._id,
-        userId: user._id
-    });
+    if (refreshTokenIssue) {//whether to issue a refresh token
 
-    refreshToken.save(function (err) {
-        if (err) {
-            return done(err);
-        }
-    });
+        //generate a refresh token
+        RefreshTokenModel.remove({
+            userId: user._id,
+            clientId: client._id
+        }, function (err) {
+            if (err) {
+                return done(err);
+            }
+        });
+
+        refreshTokenValue = crypto.randomBytes(32).toString('base64');
+
+        refreshToken = new RefreshTokenModel({
+            token: refreshTokenValue,
+            clientId: client._id,
+            userId: user._id
+        });
+
+        refreshToken.save(function (err) {
+            if (err) {
+                return done(err);
+            }
+        });
+    }
 
     info = {
-        scope: '*'
+        scope: scope || '*'
     };
 
-    token.save(function (err, token) {
+    accessToken.save(function (err, token) {
         if (err) {
             return done(err);
         }
 
-        done(null, tokenValue, refreshTokenValue, {
-            'expires_in': config.development.oauth.tokenLife,
-            info: info
-        });
+        if (refreshTokenIssue) {
+            done(null, accessTokenValue, refreshTokenValue, {
+                'expires_in': config.development.oauth.tokenLife,
+                info: info
+            });
+        } else {
+            done(null, accessTokenValue, {
+                'expires_in': config.development.oauth.tokenLife,
+                info: info
+            });
+        }
     });
 }
 
-
 // Register serialialization and deserialization functions.
-
 server.serializeClient(function (client, done) {
     return done(null, client._id);
 });
@@ -93,61 +103,7 @@ server.deserializeClient(function (id, done) {
     });
 });
 
-//Resource Owner Password Credentials
-// Exchange username & password for access token.
-server.exchange(oauth2orize.exchange.password(function (client, email, password, scope, done) {
-
-    UserModel.isValidUserPassword(email, password, function (err, user) {
-        if (err) {
-            return done(err);
-        }
-
-        if (!user) {
-            return done(null, false);
-        }
-
-        manageToken(user, client, scope, done);
-
-    });
-}));
-
-// Exchange refreshToken for access token.
-server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
-
-    RefreshTokenModel.findOne({
-        token: refreshToken
-    }, function (err, token) {
-
-        if (err) {
-            return done(err);
-        }
-
-        if (!token) {
-            return done(null, false);
-        }
-
-        if (client._id.toString() !== token.clientId.toString()) {
-            return done(null, false);
-        }
-
-        UserModel.findById(token.userId, function (err, user) {
-
-            if (err) {
-                return done(err);
-            }
-
-            if (!user) {
-                return done(null, false);
-            }
-
-            manageToken(user, client, scope, done);
-
-        });
-    });
-}));
-
-//Authorization Code
-//obtain an authorisation grant 
+//Authorization Code Grant
 server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, done) {
 
     var codeValue, code;
@@ -171,7 +127,31 @@ server.grant(oauth2orize.grant.code(function (client, redirectURI, user, ares, d
     });
 }));
 
-//exchange user grant for an access token
+//Implicit Grant
+server.grant(oauth2orize.grant.token(function (client, user, ares, done) {
+    manageToken(user, client, ares.scope, false, done);// a refresh token MUST NOT be issued for implicit grant
+}));
+
+//Resource Owner Password Credentials
+// Exchange username & password for access token.
+server.exchange(oauth2orize.exchange.password(function (client, email, password, scope, done) {
+
+    UserModel.isValidUserPassword(email, password, function (err, user) {
+        if (err) {
+            return done(err);
+        }
+
+        if (!user) {
+            return done(null, false);
+        }
+
+        manageToken(user, client, scope, true, done);
+
+    });
+}));
+
+
+//exchange user grant code for an access token
 server.exchange(oauth2orize.exchange.code(function (client, codeValue, redirectURI, done) {
 
     AuthoriseCodeModel.findOne({
@@ -213,14 +193,49 @@ server.exchange(oauth2orize.exchange.code(function (client, codeValue, redirectU
                 }
             });
 
-            manageToken(user, client, code.scope, done);
+            manageToken(user, client, code.scope, true, done);
 
         });
 
     });
 }));
 
-//authorise endpoint
+// Exchange refreshToken for access token.
+server.exchange(oauth2orize.exchange.refreshToken(function (client, refreshToken, scope, done) {
+
+    RefreshTokenModel.findOne({
+        token: refreshToken
+    }, function (err, token) {
+
+        if (err) {
+            return done(err);
+        }
+
+        if (!token) {
+            return done(null, false);
+        }
+
+        if (client._id.toString() !== token.clientId.toString()) {
+            return done(null, false);
+        }
+
+        UserModel.findById(token.userId, function (err, user) {
+
+            if (err) {
+                return done(err);
+            }
+
+            if (!user) {
+                return done(null, false);
+            }
+
+            manageToken(user, client, scope, true, done);
+
+        });
+    });
+}));
+
+//authorisation endpoint
 exports.authorise = server.authorization(function (clientID, redirectURI, done) {
     ClientModel.findById(clientID, function (err, client) {
         if (err) {
@@ -236,7 +251,7 @@ exports.authorise = server.authorization(function (clientID, redirectURI, done) 
     });
 });
 
-// authorisation decision
+// authorisation decision endpoint
 exports.decision = server.decision();
 
 // token endpoint
