@@ -620,7 +620,7 @@ module.exports = function (app, passport) {
     });
 
     app.get("/signup", forceSSL, function (req, res) {
-        var recaptcha = new Recaptcha(pbk, prk);
+        var recaptcha = new Recaptcha(pbk, prk, req.secure);
         res.render('signup', {
             layout: false,
             recaptcha_form: recaptcha.toHTML()
@@ -938,7 +938,7 @@ module.exports = function (app, passport) {
         res.set('Authorization', req.get('Authorization'));
         res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);
     });
-    
+
     app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {
         session: false
     }), Auth.hasAccToDB, function (req, res) {
