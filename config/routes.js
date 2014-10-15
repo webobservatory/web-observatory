@@ -105,6 +105,9 @@ module.exports = function (app, passport) {
         var sequence = {}, i;
 
         Entry.find({}, function (err, entries) {
+            if (err) {
+                logger.error(err);
+            }
             var key, additional, type, entry;
             for (i = 0; i < entries.length; i += 1) {
                 entry = entries[i];
@@ -198,6 +201,9 @@ module.exports = function (app, passport) {
                 $options: 'i'
             }
         }, 'name', function (err, etries) {
+            if (err) {
+                logger.error(err);
+            }
             var names = etries.map(function (etry) {
                 return etry.name;
             });
@@ -476,7 +482,13 @@ module.exports = function (app, passport) {
     //TODO deprecated route?
     app.get('/schematags', ensureLoggedIn('/login'), function (req, res) {
         Entry.findById(req.query.dsId, function (err, ds) {
+            if (err) {
+                logger.error(err);
+            }
             queries.mongodbschema(ds, function (err, names) {
+                if (err) {
+                    logger.error(err);
+                }
                 res.json(names);
             });
         });
@@ -501,6 +513,9 @@ module.exports = function (app, passport) {
             function (cb) {
                 if (qtype === 'mongodb') {
                     Entry.findById(req.params.eid, function (err, ds) {
+                        if (err) {
+                            cb(err);
+                        }
                         queries.mongodbschema(ds, cb);
                     });
                 } else {
@@ -508,7 +523,6 @@ module.exports = function (app, passport) {
                 }
             }
         ], function (err, result) {
-
             res.render('query/' + qtype, {
                 eid: req.params.eid,
                 tags: err ? null : result
@@ -548,6 +562,11 @@ module.exports = function (app, passport) {
             req.flash('error', ['Dataset type not supported']);
             res.redirect(req.get('referer'));
         } else {
+            if(ds.querytype === 'AMQP') {
+                return queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function(err, result) {
+                       res.write(result);
+                });
+            }
             //TODO implement queryDriver as middlelayer
             queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds,
                 function (err, result) {
@@ -559,9 +578,9 @@ module.exports = function (app, passport) {
                     }
 
                     if (mime === 'display') {
-                        var viewer = 'csvview';
-                        if (qtyp === 'mongodb' || qtyp === 'sql') {
-                            viewer = 'jsonview';
+                        var viewer = 'jsonview';
+                        if (qtyp === 'sparql') {
+                            viewer = 'csvview';
                         }
                         res.render('query/' + viewer, {
                             'result': result,
@@ -992,6 +1011,9 @@ module.exports = function (app, passport) {
         var i, sequence = {};
 
         Entry.find({}, function (err, entries) {
+            if (err) {
+                logger.error(err);
+            }
             var etry, type, additional, key;
 
             for (i = 0; i < entries.length; i += 1) {

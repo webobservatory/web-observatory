@@ -22,8 +22,8 @@ var EntrySchema = mongoose.Schema({
         type: Boolean,
         default: true
     }, //visible to public?
-    canView: [String],//user emails that can view this entry. use email in case user._id goes wrong it's easier to recover
-    canAccess: [String],//user emails that can access this entry. use email in case user._id goes wrong it's easier to recover
+    canView: {type: [String], default: []},//user emails that can view this entry. use email in case user._id goes wrong it's easier to recover
+    canAccess: {type: [String], default: []},//user emails that can access this entry. use email in case user._id goes wrong it's easier to recover
     auth: {
         apikey: String,
         user: String,

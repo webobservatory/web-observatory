@@ -19,6 +19,7 @@
         "errorhandler": "*",
         "method-override": "*",
 
+        "amqplib": "*",
         "cors": "*",
         "express-force-ssl": "*",
         "Faker": "*",

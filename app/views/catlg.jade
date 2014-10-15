@@ -47,12 +47,12 @@ block content
                                         .tp(data-toogle='tooltip' title=val.des)
                                             = des
                                     td
-                                        if (val.opAcc || (user && (val.publisher === user.email || val.canAccess.indexOf(user.email) != -1)))
-                                            span.glyphicon.glyphicon-ok
-                                            .hidden true
-                                        else
+                                        if (!val.opAcc && (!user || val.publisher !== user.email) && (!val.canAccess || val.canAccess.indexOf(user.email) === -1))
                                             span.glyphicon.glyphicon-remove
                                             .hidden false
+                                        else
+                                            span.glyphicon.glyphicon-ok
+                                            .hidden true
         .col-sm-6(style='overflow:auto; float:right;')
             .row#details
             .row#querypan

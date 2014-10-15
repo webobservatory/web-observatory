@@ -5,6 +5,7 @@ var crypto = require('crypto'),
     sparql = require('./sparql'),
     hive = require('./hive'),
     pq = require('pq'),
+    amqp = require('./amqp_connector'),
     mgclient = require('mongodb').MongoClient,
     logger = require('../../app/util/logger');
 
@@ -64,7 +65,7 @@ function mgdbDriver(query, mime, ds, cb) {
                 return cb(err);
             }
             if (ds.user) {
-                db.authenticate(ds.user, pwd, function (err, result) {
+                db.authenticate(ds.auth.user, pwd, function (err, result) {
                     if (err || !result) {
                         return cb(err || {
                             message: 'Authentication failed'
@@ -97,16 +98,28 @@ function sparqlDriver(query, mime, ds, cb) {
     sparql.query(ds.url, query, mime, cb);
 }
 
-function hiveDriver(query, mime, ds, cb) {
-    hive.query(ds.url, query, ds.user, cb);
+function amqpDriver(query, mime, ds, cb) {
+    var url = ds.url,
+        pwd = decryptPwd(ds),
+        user = ds.auth.user;
+
+    if (user) {
+        url = url.split('://');
+        url = url[0] + '://' + user + ':' + pwd + '@' + url[1];
+    }
+
+    amqp.getStream({url: url, ex: query}, cb);
 }
+/*function hiveDriver(query, mime, ds, cb) {
+ hive.query(ds.url, query, ds.user, cb);
+ }*/
 
 var drivers = {
     sparql: sparqlDriver,
     mysql: mysqlDriver,
     postgressql: pqDriver,
     mongodb: mgdbDriver,
-    hive: hiveDriver
+    amqp: amqpDriver
 };
 
 function sparqlTest(ds, cb) {
@@ -168,12 +181,19 @@ function mysqlTest(ds, cb) {
     });
 }
 
+//dummy tester
+//TODO add a real tester
+function amqpTest(ds, cb) {
+    cb();
+}
+
 var tests = {
     sparql: sparqlTest,
     mysql: mysqlTest,
     postgressql: pqTest,
     //hive: hiveTest,
-    mongodb: mgdbTest
+    mongodb: mgdbTest,
+    amqp: amqpTest
 };
 
 module.exports.drivers = drivers;
