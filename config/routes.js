@@ -83,6 +83,7 @@ module.exports = function (app, passport) {
     });
 
     //display vis
+    //TODO use pipe?
     app.get('/wo/show/:eid', function (req, res, next) {
         Entry.findById(req.params.eid, function (err, entry) {
             if (err) {
@@ -890,7 +891,7 @@ module.exports = function (app, passport) {
     });
 
     //legacy entry, kept for backward compatibility
-    app.get('/api/query', cors(),passport.authenticate('bearer', {
+    app.get('/api/query', cors(), passport.authenticate('bearer', {
         session: false
     }), Auth.hasAccToDB, function (req, res) {
 
@@ -935,8 +936,8 @@ module.exports = function (app, passport) {
                 }
             );
         }
-/*        res.set('Authorization', req.get('Authorization'));
-        res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);*/
+        /*        res.set('Authorization', req.get('Authorization'));
+         res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);*/
     });
 
     app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {

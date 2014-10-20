@@ -74,6 +74,17 @@ app.use(flash());
 app.use(logging);
 app.use(express.static(path.join(__dirname, 'public')));
 
+var options = {
+    key: fs.readFileSync('./ssl/key.pem'),
+    cert: fs.readFileSync('./ssl/cert.pem')
+};
+
+var secureServer = https.createServer(options, app);
+var server = http.createServer(app);
+var io = require('socket.io')(server);
+
+app.set('socketio', io);
+
 require('./config/routes')(app, passport);
 
 //if ('development' === env) {
@@ -104,13 +115,6 @@ app.use(function (req, res, next) {
     res.type('txt').send('Not found');
 });
 
-var options = {
-    key: fs.readFileSync('./ssl/key.pem'),
-    cert: fs.readFileSync('./ssl/cert.pem')
-};
-
-var secureServer = https.createServer(options, app);
-var server = http.createServer(app);
 
 secureServer.listen(app.get('httpsPort'), function () {
     console.log('Express ssl server listening on port ' + app.get('httpsPort'));
@@ -121,3 +125,4 @@ server.listen(app.get('port'), function () {
 });
 
 exports.app = app;//for vhost
+exports.socketio = io;//for vhost

@@ -35,7 +35,7 @@ function on_channel_open(ex, cb) {
                 if (err) {
                     return cb(err);
                 }
-                cb(null, ex + ' waiting for messages', ch);
+                cb(null, ex + ' waiting for messages\n\n', ch);
             });
         });
     };

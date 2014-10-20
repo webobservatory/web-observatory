@@ -40,11 +40,23 @@ module.exports = function (req, res, next) {
         res.redirect(req.get('referer'));
     } else {
         if (ds.querytype === 'AMQP') {
-            return queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, result) {
-                res.write(result);
+            var io = require('../../app').socketio;
+            io.on('connection', function (socket) {
+                var channel;
+                queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, result, ch) {
+                    if(ch){
+                        channel = ch;
+                    }
+                    socket.emit('chunk', result.toString());
+                });
+                socket.on('disconnect', function () {
+                    console.log('channel close');
+                    channel.close();
+                });
             });
+
+            return res.render('query/streamview');
         }
-        //TODO implement queryDriver as middlelayer
         queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds,
             function (err, result) {
                 //qlog.result = JSON.stringify(result);

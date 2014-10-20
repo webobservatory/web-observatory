@@ -1,29 +1,22 @@
-doctype html
-html(lang='en')
-  include ../includes/head
-  body
-    #wrap
-      .container
-        .row
-          include ../includes/flash-banner
-        .row
-          .col-md-4
-          #display.col-md-4
-          .col-md-4
-      #push
-  include ../includes/footer
-  link(href='/css/jquery.jsonview.css', rel='stylesheet')
-  script(src='/js/jquery-1.10.2.min.js')
-  script(src='/js/jquery.jsonview.js')
-  script.
-    var result = !{JSON.stringify(result)};
-    $(document).ready(function() {
-      try{
-        if(result && result.length > 0) {
-          //result = JSON.parse(result);
-          result = {result:result};
-          $('#display').JSONView(result);
-        }
-      }
-      catch(err) {console.log(err.message);}
-    });
+extends ../base
+
+block content
+    .col-md-4
+    #display.col-md-4
+    .col-md-4
+
+block footer
+    link(href='/css/jquery.jsonview.css', rel='stylesheet')
+    script(src='/js/jquery.jsonview.js')
+    script.
+        var result = !{JSON.stringify(result)};
+        $(document).ready(function() {
+            try{
+                if(result && result.length > 0) {
+                    //result = JSON.parse(result);
+                    result = {result:result};
+                $('#display').JSONView(result);
+                }
+            }
+            catch(err) {console.log(err.message);}
+        });
