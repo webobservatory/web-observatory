@@ -890,9 +890,53 @@ module.exports = function (app, passport) {
     });
 
     //legacy entry, kept for backward compatibility
-    app.get('/api/query', cors(), function (req, res) {
-        res.set('Authorization', req.get('Authorization'));
-        res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);
+    app.get('/api/query', cors(),passport.authenticate('bearer', {
+        session: false
+    }), Auth.hasAccToDB, function (req, res) {
+
+        var queryDriver, qlog, ds, query;
+
+        ds = req.attach.dataset;
+
+        if (!ds) {
+            return res.send({
+                error: req.flash('error')
+            });
+        }
+
+        query = req.query.query;
+
+        qlog = {};
+        qlog.time = new Date();
+        qlog.ip = req.connection.remoteAddress;
+        qlog.query = query;
+        qlog.usrmail = req.user.email;
+
+        qlog.ds = ds.url;
+        queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+        if (!queryDriver) {
+            res.send({
+                error: ['Dataset type not supported']
+            });
+        } else {
+            //TODO implement queryDriver as middlelayer
+            queryDriver(query, '', ds,
+                function (err, result) {
+                    //qlog.result = JSON.stringify(result);
+                    logger.info(qlog);
+                    if (err) {
+                        return res.send({
+                            error: [err.message]
+                        });
+                    }
+                    res.send({
+                        result: result
+                    });
+                }
+            );
+        }
+/*        res.set('Authorization', req.get('Authorization'));
+        res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);*/
     });
 
     app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {
