@@ -47,7 +47,7 @@ block content
                                         .tp(data-toogle='tooltip' title=val.des)
                                             = des
                                     td
-                                        if (!val.opAcc && (!user || val.publisher !== user.email) && (!val.canAccess || val.canAccess.indexOf(user?user.email:'') === -1))
+                                        if (!val.opAcc && (!user || val.publisher !== user.email) && (!user || !val.canAccess || val.canAccess.indexOf(user.email) === -1))
                                             span.glyphicon.glyphicon-remove
                                             .hidden false
                                         else

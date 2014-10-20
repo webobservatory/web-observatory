@@ -4,10 +4,9 @@ var mongoose = require('mongoose'),
     Entry = mongoose.model('Entry'),
     Client = mongoose.model('Client'),
     Auth = require('./middlewares/authorization.js'),
-    file = require('./middlewares/file.js'),
+    file = require('./middlewares/dataset/file.js'),
     async = require('async'),
     ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn,
-    queries = require('./middlewares/queries.js'),
     config = require('./config').development,
     Recaptcha = require('recaptcha').Recaptcha,
     pbk = config.recap_pbk, //'6LfwcOoSAAAAACeZnHuWzlnOCbLW7AONYM2X9K-H'
@@ -16,6 +15,8 @@ var mongoose = require('mongoose'),
     logger = require('../app/util/logger'),
     crypto = require('crypto'),
     modctrl = require('./middlewares/modctrl'),
+    accessdata = require('./middlewares/accessdata'),
+    queries = require('./middlewares/dataset/queries'),
     cors = require('cors'),
     forceSSL = require('express-force-ssl'),
     oauth2 = require('../oauth/oauth2server');
@@ -530,71 +531,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get('/endpoint/:eid/:typ', Auth.hasAccToDB, function (req, res) {
-
-        var queryDriver, query, mime, modname, qtyp, ds, qlog;
-        if (!req.attach.dataset) {
-            return res.redirect(req.get('referer'));
-        }
-
-        query = req.query.query || req.body.query;
-        mime = req.query.format || req.body.format;
-        modname = req.query.modname || req.body.modname;
-        qtyp = req.params.typ;
-        ds = req.attach.dataset;
-
-        if (modname) {
-            query = {
-                modname: modname,
-                query: query
-            };
-        }
-
-        qlog = {};
-        qlog.time = new Date();
-        qlog.ip = req.connection.remoteAddress;
-        qlog.query = query;
-        qlog.usrmail = req.user ? req.user.email : '';
-
-        qlog.ds = ds.url;
-        queryDriver = queries.drivers[ds.querytype.toLowerCase()];
-        if (!queryDriver) {
-            req.flash('error', ['Dataset type not supported']);
-            res.redirect(req.get('referer'));
-        } else {
-            if(ds.querytype === 'AMQP') {
-                return queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function(err, result) {
-                       res.write(result);
-                });
-            }
-            //TODO implement queryDriver as middlelayer
-            queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds,
-                function (err, result) {
-                    //qlog.result = JSON.stringify(result);
-                    logger.info(qlog);
-                    if (err) {
-                        req.flash('error', [err.message]);
-                        return res.redirect(req.get('referer'));
-                    }
-
-                    if (mime === 'display') {
-                        var viewer = 'jsonview';
-                        if (qtyp === 'sparql') {
-                            viewer = 'csvview';
-                        }
-                        res.render('query/' + viewer, {
-                            'result': result,
-                            'info': req.flash('info'),
-                            'error': req.flash('error')
-                        });
-                    } else {
-                        res.attachment('result.txt');
-                        res.end(result, 'UTF-8');
-                    }
-                }
-            );
-        }
-    });
+    app.get('/endpoint/:eid/:typ', Auth.hasAccToDB, accessdata);
 
     app.get('/contest', ensureLoggedIn('/login'), function (req, res) {
         var test = queries.tests[req.query.typ];
