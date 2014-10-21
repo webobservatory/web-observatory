@@ -9,7 +9,7 @@ var queries = require('./dataset/queries.js'),
 module.exports = function (req, res, next) {
     "use strict";
 
-    var queryDriver, query, mime, modname, qtyp, ds, qlog;
+    var queryDriver, query, mime, modname, qtyp, ds, qlog, io;
     if (!req.attach.dataset) {
         return res.redirect(req.get('referer'));
     }
@@ -40,16 +40,22 @@ module.exports = function (req, res, next) {
         res.redirect(req.get('referer'));
     } else {
         if (ds.querytype === 'AMQP') {
-            var io = require('../../app').socketio;
+            io = req.secure ? require('../../app').socketioSSL : require('../../app').socketio;
             io.on('connection', function (socket) {
                 var channel;
                 queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, result, ch) {
-                    if(ch){
+                    if (ch) {
                         channel = ch;
                     }
-                    socket.emit('chunk', result.toString());
+                    socket.emit('chunk', result);
                 });
+                
                 socket.on('disconnect', function () {
+                    console.log('channel close');
+                    channel.close();
+                });
+                
+                socket.on('stop', function () {
                     console.log('channel close');
                     channel.close();
                 });

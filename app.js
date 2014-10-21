@@ -81,6 +81,7 @@ var options = {
 
 var secureServer = https.createServer(options, app);
 var server = http.createServer(app);
+var ioSSL = require('socket.io')(secureServer);
 var io = require('socket.io')(server);
 
 app.set('socketio', io);
@@ -125,4 +126,5 @@ server.listen(app.get('port'), function () {
 });
 
 exports.app = app;//for vhost
-exports.socketio = io;//for vhost
+exports.socketio = io;
+exports.socketioSSL = ioSSL;
