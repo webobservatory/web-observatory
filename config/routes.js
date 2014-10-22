@@ -890,6 +890,11 @@ module.exports = function (app, passport) {
 
     });
 
+/*  cors with preflight doesn't allow redirection  
+    app.get('/api/query', cors(), function (req, res) {
+        //res.set('Access-Control-Allow-Origin', req.get('Origin'));
+        res.redirect('/api/wo/' + req.query.eid + '/query?query=' + encodeURIComponent(req.query.query));
+    });*/
     //legacy entry, kept for backward compatibility
     app.get('/api/query', cors(), passport.authenticate('bearer', {
         session: false
@@ -936,8 +941,6 @@ module.exports = function (app, passport) {
                 }
             );
         }
-        /*        res.set('Authorization', req.get('Authorization'));
-         res.redirect('/api/wo/' + req.query.eid + '/query?query=' + req.query.query);*/
     });
 
     app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {

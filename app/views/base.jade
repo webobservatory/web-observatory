@@ -2,7 +2,12 @@ doctype html
 html
     include includes/head
     block head
-body
+body(itemscope itemtype='http://schema.org/WebObservatory')
+    meta(itemprop='name' content='Southampton Web Observatory')
+    meta(itemprop='url' content='http://webobservatory.soton.ac.uk/')
+    //div(itemprop='publisher')
+        div(itemscope itemtype='http://schema.org/Organization')
+            meta(itemprop='name' content='University of Southampton')
     block nav
     #wrap
         .container

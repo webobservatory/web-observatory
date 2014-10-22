@@ -47,7 +47,7 @@ fs.readdirSync(models_dir).forEach(function (file) {
 require('./config/passport')(passport, config);
 
 var app = express();
-
+app.disable('x-powered-by');
 app.locals.moment = require('moment');
 app.set('port', process.env.PORT || 3000);
 app.set('httpsPort', process.env.HTTPSPORT || 443);

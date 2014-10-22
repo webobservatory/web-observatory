@@ -62,20 +62,24 @@ block content
                         where capitalised words represent variables.
                     
                         [jQuery](http://jquery.com/) example :
-                    
-                            $.post('https://webobservatory.soton.ac.uk/oauth/token',
-                                {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
-                                function(data){
-                                    console.log(data);
-                            });
+                        
+                        ```javascript
+                        $.post('https://webobservatory.soton.ac.uk/oauth/token',
+                            {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
+                            function(data){
+                                console.log(data);
+                        });
+                        ```
 
                         [httpie](https://github.com/jakubroztocil/httpie) example :
 
-                            http POST http://webobservatory.soton.ac.uk/oauth/token grant_type="password" client_id="53be91cb9790d31811850792" client_secret="dien8ck4kdie3" username=USER_NAME password=PASSWORD
+                        ```
+                        http POST http://webobservatory.soton.ac.uk/oauth/token grant_type="password" client_id="53be91cb9790d31811850792" client_secret="dien8ck4kdie3" username=USER_NAME password=PASSWORD
+                        ```
                         
                         Note: To access https using httpie you have to [configure httpie](https://github.com/jakubroztocil/httpie#https) first.
                         
-                        The response from the server (contained in data) will contain an access token if the request went through.
+                        The response from the server will contain an access token if the request went through.
                         
                         Example response:
                             
@@ -84,28 +88,32 @@ block content
                               expires_in: 3600,
                               token_type: "Bearer" }
                         
-                    3. Use the access token to query a dataset. HTTP GET to `https://webobservatory.soton.ac.uk/api/query` with the following data fields
-                        `eid:DATASET_ID` (which can be obtained from the URL of detial information page, the string after `#`)
-                        `query:QUERY_STRING`
-                        and the header
-                        `Authorization:'Bearer ACCESS_TOKEN'`
+                    3. Use the access token to query a dataset. HTTP GET `https://webobservatory.soton.ac.uk/api/wo/DATASET_ID/query` (`DATASET_ID` can be obtained from the URL of detial information page, the string after `#`), with the data field `query:QUERY_STRING` and the header `Authorization:"Bearer ACCESS_TOKEN"`
+                    
+                        The example below queries the [Twitter #FLWebSci hashtag](/wo/dataset#53bc04568a1ea0572f934663) dataset whose id is _53bc04568a1ea0572f934663_.
                         
                         jQuery example :
                             
-                            $.ajax({
-                                type: "get",
-                                url: "https://webobservatory.soton.ac.uk/api/query",
-                                data: { eid: '53bc04568a1ea0572f934663', query:'select 1+1 as solution' },
-                                headers: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
-                                }).done(function(result) {
-                                    console.log(result);
-                            });
-
+                        ```javascript        
+                        $.ajax({
+                            type: 'get',
+                            url: 'https://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/query',
+                            data: { query:'select 1+1 as solution' },
+                            headers: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
+                            }).done(function(result) {
+                                console.log(result);
+                        });
+                        ```
+    
                         httpie example :
-
-                            http GET http://webobservatory.soton.ac.uk/api/query Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" eid=="53bc04568a1ea0572f934663" query=="select 1+1 as solution"
                         
-                        The response from the server (contained in result) will contain the solution of your query.
-                        
+                        ```
+                        http GET http://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/query Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" query=="select 1+1 as solution"
+                        ```
+                            
+                        The response from the server  will contain the solution of your query.
+                            
                         Example response:
-                            { result: { solution:2 } }
+                        ```    
+                        { result: { solution:2 } }
+                        ```
