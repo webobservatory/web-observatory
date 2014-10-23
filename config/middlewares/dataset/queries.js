@@ -234,15 +234,14 @@ module.exports.mongodbschema = function (ds, cb) {
             db.collectionNames({
                 namesOnly: true
             }, function (err, names) {
-                logger.err(err);
                 if (err) {
+                    logger.error(err);
                     cb(err);
                 }
                 else {
                     names = names.map(function (name) {
                         return name.substring(name.indexOf('.') + 1);
                     });
-                    console.log(names);
                     cb(err, names);
                 }
 
