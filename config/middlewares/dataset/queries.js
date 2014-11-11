@@ -202,6 +202,7 @@ module.exports.tests = tests;
 module.exports.mongodbschema = function (ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds);
+    console.log(ds);
 
     mgclient.connect(url, function (err, db) {
         if (err) {

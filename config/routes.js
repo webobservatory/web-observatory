@@ -516,7 +516,7 @@ module.exports = function (app, passport) {
                 if (qtype === 'mongodb') {
                     Entry.findById(req.params.eid, function (err, ds) {
                         if (err) {
-                            cb(err);
+                            return cb(err);
                         }
                         queries.mongodbschema(ds, cb);
                     });
@@ -886,15 +886,9 @@ module.exports = function (app, passport) {
 
     app.get('/api/wo/:typ(dataset|visualisation)', cors(), modctrl.visibleEtry, function (req, res) {
         var entries = req.attach.visibleEntries;
-
-
     });
 
-/*  cors with preflight doesn't allow redirection  
-    app.get('/api/query', cors(), function (req, res) {
-        //res.set('Access-Control-Allow-Origin', req.get('Origin'));
-        res.redirect('/api/wo/' + req.query.eid + '/query?query=' + encodeURIComponent(req.query.query));
-    });*/
+    //cors with preflight doesn't allow redirection  
     //legacy entry, kept for backward compatibility
     app.get('/api/query', cors(), passport.authenticate('bearer', {
         session: false
