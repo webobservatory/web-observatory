@@ -40,9 +40,6 @@ fs.readdirSync(models_dir).forEach(function (file) {
     }
     require(models_dir + '/' + file);
 });
-//initialise mongoDB
-//var init = require('./init/init');
-//    init();
 
 require('./config/passport')(passport, config);
 
@@ -117,11 +114,11 @@ app.use(function (req, res, next) {
 });
 
 
-secureServer.listen(app.get('httpsPort'), function () {
+secureServer.listen(3443, function () {
     console.log('Express ssl server listening on port ' + app.get('httpsPort'));
 });
 
-server.listen(app.get('port'), function () {
+server.listen(3000, function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
 
