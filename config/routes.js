@@ -18,7 +18,8 @@ var mongoose = require('mongoose'),
     accessdata = require('./middlewares/accessdata'),
     queries = require('./middlewares/dataset/queries'),
     cors = require('cors'),
-    forceSSL = require('express-force-ssl'),
+    forceSSL = require('./middlewares/utils').forceSSL,
+    noneSSL = require('./middlewares/utils').noneSSL,
     oauth2 = require('../oauth/oauth2server');
 
 module.exports = function (app, passport) {
@@ -84,7 +85,7 @@ module.exports = function (app, passport) {
 
     //display vis
     //TODO use pipe?
-    app.get('/wo/show/:eid', function (req, res, next) {
+    app.get('/wo/show/:eid', noneSSL, function (req, res, next) {
         Entry.findById(req.params.eid, function (err, entry) {
             if (err) {
                 return next(err);

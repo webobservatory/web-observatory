@@ -12,7 +12,7 @@ function logMessage(cb) {
     return function (msg) {
         var result;
         if (msg) {
-            result = msg.content;
+            result = msg.content.toString();
             console.log(" [x] '%s'", result);
             cb(null, result);
         }

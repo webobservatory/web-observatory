@@ -50,7 +50,7 @@ var app = express();
 app.disable('x-powered-by');
 app.locals.moment = require('moment');
 app.set('port', process.env.PORT || 3000);
-app.set('httpsPort', process.env.HTTPSPORT || 443);
+app.set('httpsPort', process.env.HTTPSPORT || 3443);
 app.set('views', __dirname + '/app/views');
 app.engine('jade', require('jade').__express);
 app.set('view engine', 'jade');

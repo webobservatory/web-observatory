@@ -11,7 +11,7 @@ block footer
         $(document).ready(function() {
         var socket = io.connect(window.location.origin);
         socket.on('chunk', function (data) {
-                var liner = data.toString();
+                var liner = data;
                 $('#display').append(liner);
                 console.log(liner);
             });

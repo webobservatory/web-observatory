@@ -16,7 +16,6 @@
     "cors": "*",
     "errorhandler": "*",
     "express": "*",
-    "express-force-ssl": "*",
     "express-session": "*",
     "formidable": "*",
     "jade": "*",
