@@ -52,8 +52,8 @@ table.xedit.table.table-bordered.table-striped
             td
               span#opVis(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Is this entry publicly visible' data-title='Edit visibility')=etry.opVis
 
-span#owner.hidden(value=etry.isOwner)
-span#acc.hidden(value=etry.opAcc || etry.isOwner)
+span#owner.hidden(value=etry.isOwner.toString())
+span#acc.hidden(value=etry.opAcc.toString())
 span#type.hidden(value=etry.type)
 if etry.type === 'visualisation'
     span#url.hidden(value=etry.url)

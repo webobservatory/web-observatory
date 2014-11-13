@@ -60,6 +60,7 @@ module.exports = function (app, passport) {
         var email = req.user ? req.user.email : null,
             eid = req.params.eid;
         Entry.findById(eid, function (err, entry) {
+            entry.opAcc = entry.isOwner = false;
 
             if (err || !entry) {
                 return res.send(err.message || 'No record found');
@@ -71,10 +72,11 @@ module.exports = function (app, passport) {
 
             if (email && email === entry.publisher) {
                 entry.isOwner = true;
+                entry.opAcc = true;
             }
 
             if (req.user && req.user.readable && req.user.readable.indexOf(eid) !== -1) {
-                entry.isOwner = true;
+                entry.opAcc = true;
             }
 
             res.render('catlog-detail', {
@@ -216,7 +218,7 @@ module.exports = function (app, passport) {
 
     //adding an entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
-        var etry, email = req.user.email;
+        var etry, user = req.user;
         etry = {
             url: req.body.url,
             auth: {
@@ -228,18 +230,20 @@ module.exports = function (app, passport) {
             type: req.params.typ,
             querytype: req.body.querytype,
             desc: req.body.desc,
-            publisher: email,
-            publisher_name: req.user.username || ((req.user.firstName ? req.user.firstName + ' ' : '') + (req.user.lastName || '')),
+            publisher: user.email,
+            publisher_name: user.username || ((user.firstName ? user.firstName + ' ' : '') + (user.lastName || '')),
             related: req.body.basedOn,
             git: req.body.git,
             lice: req.body.lice,
             kw: req.body.kw ? req.body.kw.split(',') : [],
             des: req.body.des,
+            canView: [user.email],
+            canAccess: [user.email],
             opAcc: req.body.acc !== 'false',
             opVis: req.body.vis !== 'false'
         };
 
-        modctrl.addEtry(email, etry, function (err) {
+        modctrl.addEtry(user, etry, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 res.redirect('/add/' + req.params.typ);

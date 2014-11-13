@@ -130,8 +130,10 @@ module.exports.visibleEtry = function (req, res, next) {
 //    });
 };
 
-module.exports.addEtry = function (email, etry, cb) {
+module.exports.addEtry = function (user, etry, cb) {
 
+    var email = user.email;
+    //TODO use unique instead
     Entry.findOne({
         $or: [
             {
@@ -172,20 +174,8 @@ module.exports.addEtry = function (email, etry, cb) {
                     message: 'Failed to create entry ' + (etry.name || etry.url)
                 });
             }
-
-            entry.canView.push(email);
-            entry.canAccess.push(email);
-            entry.save(cb);
-
-            User.addEtry(email, entry._id, function (err) {
-                if (err) {
-                    logger.error(err);
-                    err = {
-                        message: 'Failed to create entry ' + (etry.name || etry.url)
-                    };
-                }
-                cb(err);
-            });
+            user.own.push(entry._id);
+            user.save(cb);
         });
     });
 };

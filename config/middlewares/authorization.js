@@ -17,12 +17,16 @@ exports.userExist = function (req, res, next) {
     User.count({
         email: req.body.email
     }, function (err, count) {
-        if (count === 0) {
-            next();
-        } else {
-            req.flash('info', ['User already exists, please login']);
-            res.redirect("/login");
+        if (err) {
+            return next(err);
         }
+
+        if (count === 0) {
+            return next();
+        }
+
+        req.flash('info', ['User already exists, please login']);
+        res.redirect("/login");
     });
 };
 
@@ -67,31 +71,18 @@ exports.hasAccToDB = function (req, res, next) {
 };
 
 exports.isOwner = function (req, res, next) {
-    if (!req.user) {
-        return res.send(401, 'Unauthorised');
+    var user = req.user,
+        eid = req.param('eid');
+
+    if (!user) {
+        return res.status(401).send('Unauthorised');
     }
 
-    var eid = req.params.eid || req.query.eid || req.body.eid;
+    if (user.own.indexOf(eid) !== -1 || user.clients.indexOf(eid) !== -1) {
+        return next();
+    }
 
-    User.findOne({
-        email: req.user.email,
-        $or: [
-            {
-                own: eid
-            },
-            {
-                clients: eid
-            }
-        ]
-    }, function (err, user) {
-        if (err) {
-            return next(err);
-        }
-        if (!user) {
-            return res.send(401, 'Unauthorised');
-        }
-        next();
-    });
+    return res.status(401).send('Unauthorised');
 };
 
 exports.rememberMe = function (req, res, next) {
@@ -103,7 +94,7 @@ exports.rememberMe = function (req, res, next) {
     crypto.randomBytes(32, function (ex, buf) {
         var token = buf.toString('hex');
         req.user.rememberme = token;
-        req.user.save(function (err, user) {
+        req.user.save(function (err) {
             if (err) {
                 return next(err);
             }
