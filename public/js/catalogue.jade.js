@@ -78,8 +78,8 @@ $(document).ready(function () {
             resetToolBar();
             $('#querypan').html('');
             $('#details').load('/wo/' + id, function () {
-                var isOwner = $('#owner').attr('value'),
-                    opAcc = $('#acc').attr('value'),
+                var isOwner = $('#owner').attr('value') === 'true',
+                    opAcc = $('#acc').attr('value') === 'true',
                     querytype = $('#querytype') ? $('#querytype').text().toLowerCase() : null;
 
                 if (isOwner) {

@@ -60,7 +60,7 @@ module.exports = function (app, passport) {
         var email = req.user ? req.user.email : null,
             eid = req.params.eid;
         Entry.findById(eid, function (err, entry) {
-            entry.opAcc = entry.isOwner = false;
+            entry.isOwner = false;
 
             if (err || !entry) {
                 return res.send(err.message || 'No record found');
@@ -75,8 +75,10 @@ module.exports = function (app, passport) {
                 entry.opAcc = true;
             }
 
-            if (req.user && req.user.readable && req.user.readable.indexOf(eid) !== -1) {
-                entry.opAcc = true;
+            if (!entry.opAcc) {
+                if (req.user && req.user.readable && req.user.readable.indexOf(eid) !== -1) {
+                    entry.opAcc = true;
+                }
             }
 
             res.render('catlog-detail', {

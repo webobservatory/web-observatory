@@ -6,7 +6,6 @@ var mongoose = require('mongoose'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
 
-
 module.exports.visibleEtry = function (req, res, next) {
 
     var user = req.user,
@@ -49,85 +48,6 @@ module.exports.visibleEtry = function (req, res, next) {
 
         next();
     });
-
-//    async.parallel([function (cb) {
-//        var query = {opVis: true};
-//        if (typ) {
-//            query.type = typ;
-//        }
-//        Entry.find(query, function (err, entries) {
-//            cb(err, entries);
-//        });
-//    }, function (cb) {
-//        if (user) {
-//            user.populate('own').populate('visible').populate('readable', cb);
-//        }
-//        else {
-//            cb();
-//        }
-//    }], function (err, results) {
-//        var entries, etry_ids;
-//        if (err) {
-//            return next(err);
-//        }
-//
-//        entries = results[0];
-//
-//        if (!req.attach) {
-//            req.attach = {};
-//        }
-//        req.attach.visibleEntries = entries;
-//
-//        if (!user) {
-//            return next();
-//        }
-//
-//        etry_ids = entries.map(function (e) {
-//            return e._id.toString();
-//        });
-//
-//        user.own.forEach(function (entry) {
-//            if (typ !== entry.type) {
-//                return;
-//            }
-//            var index = etry_ids.indexOf(entry._id.toString());
-//            if (-1 === index) {
-//                entry = JSON.parse(JSON.stringify(entry));
-//                entry.opAcc = true;
-//                entries.push(entry);
-//            }
-//            else {
-//                entries[index].opAcc = true;
-//            }
-//        });
-//
-//        user.readable.forEach(function (entry) {
-//            if (typ !== entry.type) {
-//                return;
-//            }
-//            var index = etry_ids.indexOf(entry._id.toString());
-//            if (-1 === index) {
-//                entry = JSON.parse(JSON.stringify(entry));
-//                entry.opAcc = true;
-//                entries.push(entry);
-//            }
-//            else {
-//                entries[index].opAcc = true;
-//            }
-//        });
-//
-//        user.visible.forEach(function (entry) {
-//            if (typ !== entry.type) {
-//                return;
-//            }
-//            var index = etry_ids.indexOf(entry._id.toString());
-//            if (-1 === index) {
-//                entries.push(entry);
-//            }
-//        });
-//
-//        next();
-//    });
 };
 
 module.exports.addEtry = function (user, etry, cb) {
