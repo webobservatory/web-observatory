@@ -17,7 +17,8 @@ block content
                             th Name
                             th Type
                             th Description
-                            th.col-sm-1 Access
+                            th.col-sm-1 Permission
+                            th.col-sm-1 Alive
                     tbody
                         each val in table
                             if val
@@ -53,6 +54,12 @@ block content
                                         else
                                             span.glyphicon.glyphicon-ok
                                             .hidden true
+                                    td
+                                        if (val.alive)
+                                            span.glyphicon.glyphicon-ok
+                                            .hidden alive
+                                        else
+                                            span.glyphicon.glyphicon-remove
         .col-sm-6(style='overflow:auto; float:right;')
             .row#details
             .row#querypan

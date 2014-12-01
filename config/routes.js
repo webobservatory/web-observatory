@@ -20,8 +20,8 @@ var mongoose = require('mongoose'),
     cors = require('cors'),
     forceSSL = require('./middlewares/utils').forceSSL,
     noneSSL = require('./middlewares/utils').noneSSL,
-    oauth2 = require('../oauth/oauth2server');
-
+    oauth2 = require('../oauth/oauth2server'),
+    connTest = require('./middlewares/connTest');
 module.exports = function (app, passport) {
 
     app.options('*', cors()); //for pre-flight cors
@@ -42,7 +42,7 @@ module.exports = function (app, passport) {
     });
 
     //listing entries
-    app.get('/wo/:typ(dataset|visualisation)', modctrl.visibleEtry, function (req, res) {
+    app.get('/wo/:typ(dataset|visualisation)', connTest, modctrl.visibleEtry, function (req, res) {
         var baseUrl = req.protocol + '://' + req.get('host');
 
         res.render('catlg', {

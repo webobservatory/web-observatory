@@ -141,6 +141,8 @@ function sparqlTest(ds, cb) {
 
 function mgdbTest(ds, cb) {
     var url = ds.url;
+    console.log('mongo url');
+    console.log(url);
 
     mgclient.connect(url, function (err, db) {
         if (err) {
@@ -192,6 +194,9 @@ function amqpTest(ds, cb) {
         pwd = ds.password,
         user = ds.user;
 
+    console.log('amqp');
+    console.log(ds);
+
     if (user) {
         url = url.split('://');
         url = url[0] + '://' + user + ':' + pwd + '@' + url[1];
@@ -200,13 +205,25 @@ function amqpTest(ds, cb) {
     amqp.testConn(url, cb);
 }
 
+//decode passwords if the input datasets are of type Entry
+function passDecodeWrapper(testFun) {
+    return function (ds, cb) {
+        if (ds.auth && ds.auth.user) {//ds is an Entry and requires to decipher password
+            ds.password = decryptPwd(ds);
+            ds.user = ds.auth.user;
+        }
+        testFun(ds, cb);
+    };
+}
+
+
 var tests = {
-    sparql: sparqlTest,
-    mysql: mysqlTest,
-    postgressql: pqTest,
+    sparql: passDecodeWrapper(sparqlTest),
+    mysql: passDecodeWrapper(mysqlTest),
+    postgressql: passDecodeWrapper(pqTest),
     //hive: hiveTest,
-    mongodb: mgdbTest,
-    amqp: amqpTest
+    mongodb: passDecodeWrapper(mgdbTest),
+    amqp: passDecodeWrapper(amqpTest)
 };
 
 module.exports.drivers = drivers;
@@ -215,7 +232,6 @@ module.exports.tests = tests;
 module.exports.mongodbschema = function (ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds);
-    console.log(ds);
 
     mgclient.connect(url, function (err, db) {
         if (err) {

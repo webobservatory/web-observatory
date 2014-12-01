@@ -6,8 +6,6 @@ var http = require('http'),
 function httpQuery(opts, cb) {
     try {
         var req = http.request(opts, function (res) {
-            console.log("Response: " + res.statusCode);
-
             switch (res.statusCode) {
                 case 404:
                     cb({

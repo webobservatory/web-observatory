@@ -33,7 +33,8 @@ var EntrySchema = mongoose.Schema({
     git: String, //github url if applicable
     lice: String, //licence
     kw: [String], //keywords
-    des: String //description
+    des: String, //description
+    alive: {type: Boolean, default: true} //entry connection alive? updated periodically
 });
 EntrySchema.index({ "$**": "text" });
 //EntrySchema.set('autoIndex', false);
