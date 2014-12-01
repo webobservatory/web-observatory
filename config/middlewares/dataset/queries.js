@@ -47,7 +47,7 @@ function mysqlDriver(query, mime, ds, cb) {
     }
     connection = mysql.createConnection(options);
     connection.connect();
-    connection.query(query, function (err, rows, fields) {
+    connection.query(query, function (err, rows) {
         cb(err, rows);
         connection.end();
     });
@@ -72,6 +72,9 @@ function mgdbDriver(query, mime, ds, cb) {
                         });
                     }
                     db.collection(modname, function (err, collection) {
+                        if (err) {
+                            return cb(err);
+                        }
                         collection.find(query.query, function (err, result) {
                             cb(err, result);
                             db.close();
@@ -80,6 +83,9 @@ function mgdbDriver(query, mime, ds, cb) {
                 });
             } else {
                 db.collection(modname, function (err, collection) {
+                    if (err) {
+                        return cb(err);
+                    }
                     collection.find(query.query).toArray(function (err, result) {
                         cb(err, result);
                         db.close();
@@ -124,7 +130,7 @@ var drivers = {
 
 function sparqlTest(ds, cb) {
     var query = 'ASK {?s ?p ?o}';
-    sparql.query(ds.url, query, null, function (err, data) {
+    sparql.query(ds.url, query, null, function (err) {
         if (err) {
             cb(err);
         } else {
@@ -157,7 +163,7 @@ function mgdbTest(ds, cb) {
     });
 }
 
-function pqTest(query, mime, ds, cb) {
+function pqTest(ds, cb) {
     var url = 'postgres://' + (ds.user ? ds.user + ':' + ds.password : '') + '@' + ds.url,
         client;
 
@@ -181,10 +187,17 @@ function mysqlTest(ds, cb) {
     });
 }
 
-//dummy tester
-//TODO add a real tester
 function amqpTest(ds, cb) {
-    cb();
+    var url = ds.url,
+        pwd = ds.password,
+        user = ds.user;
+
+    if (user) {
+        url = url.split('://');
+        url = url[0] + '://' + user + ':' + pwd + '@' + url[1];
+    }
+
+    amqp.testConn(url, cb);
 }
 
 var tests = {

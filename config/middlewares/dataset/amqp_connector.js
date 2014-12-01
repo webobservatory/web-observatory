@@ -41,7 +41,7 @@ function on_channel_open(ex, cb) {
     };
 }
 
-//TODO add pooling for connections & channels
+//TODO add pooling for channels
 module.exports.getStream = function (opts, cb) {
     "use strict";
     var url = opts.url, conn = connections[url];
@@ -55,6 +55,16 @@ module.exports.getStream = function (opts, cb) {
             connections[url] = conn;
             conn.createChannel(on_channel_open(opts.ex, cb));
         });
+    }
+};
+
+module.exports.testConn = function (url, cb) {
+    "use strict";
+    var conn = connections[url];
+    if (conn) {
+        cb(null);
+    } else {
+        amqp.connect(url, cb);
     }
 };
 
