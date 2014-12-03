@@ -114,10 +114,14 @@ app.use(function (req, res, next) {
 });
 
 app.use(function (err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('500', {
-        error: err
-    });
+    if (req.xhr) {
+        res.status(500).send(err);
+    } else {
+        res.status(err.status || 500);
+        res.render('500', {
+            error: err
+        });
+    }
 });
 
 secureServer.listen(3443, function () {
