@@ -18,11 +18,39 @@ $(document).ready(function () {
             disabled: true
         });
 
+        $('#opAcc').editable({
+            disabled: true,
+            source: [
+                {
+                    value: 1,
+                    text: 'Everyone'
+                },
+                {
+                    value: 0,
+                    text: 'Authorised only'
+                }
+            ]
+        });
+
+        $('#opVis').editable({
+            disabled: true,
+            source: [
+                {
+                    value: 1,
+                    text: 'Everyone'
+                },
+                {
+                    value: 0,
+                    text: 'Authorised only'
+                }
+            ]
+        });
+        
         var querytype = $('#querytype');
         if (querytype) {
             querytype.editable({
                 disabled: true,
-                value: 'SPARQL',
+                value: querytype.text(),
                 source: [
                     {
                         value: 'SPARQL',
@@ -88,14 +116,12 @@ $(document).ready(function () {
                 }
 
                 if (opAcc) {
-                    $('#explore').removeClass('hidden');
-                    if (querytype) {
-                        $('#explore').attr('href', '/query/' + querytype + '/' + id).click(function (event) {
-                            event.preventDefault();
-                            $('#querypan').load('/query/' + querytype + '/' + id);
-                        });
-                    } else
-                        $('#explore').attr('href', '/wo/show/' + id);
+                    if (querytype) {//display query panel for datasets
+                        $('#querypan').load('/query/' + querytype + '/' + id);
+                    } else {
+                        $('#explore').removeClass('hidden');
+                        $('#explore').attr('href', $('#url').attr('value'));
+                    }
                 } else {
                     $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function (event) {
                         event.preventDefault();

@@ -11,6 +11,28 @@ var mongoose = require('mongoose'),
 
 tester = function () {
     'use strict';
+    Entry.find({type: 'visualisation'}, function (err, vises) {
+        var tester = queries.tests.visualisation;
+        if (err) {
+            return logger.error(err);
+        }
+
+        vises.forEach(function (vis) {
+            tester(vis, function (msg) {
+
+                if (msg) {
+                    logger.warn('visualisation connTest ' + vis.url + ' ' + JSON.stringify(msg));
+                }
+                var alive = true;
+                if (msg) {
+                    alive = false;
+                }
+                vis.alive = alive;
+                vis.save();
+            });
+        });
+    });
+
     Entry.find({type: 'dataset'}, function (err, datasets) {
         if (err) {
             return logger.error(err);
@@ -22,7 +44,7 @@ tester = function () {
             }
             test(ds, function (msg) {
                 if (msg) {
-                    logger.warn('connTest ' + ds.url + ' ' + JSON.stringify(msg));
+                    logger.warn('dataset connTest ' + ds.url + ' ' + JSON.stringify(msg));
                 }
                 var alive = true;
                 if (msg) {

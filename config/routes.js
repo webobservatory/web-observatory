@@ -61,23 +61,25 @@ module.exports = function (app, passport) {
             eid = req.params.eid;
         Entry.findById(eid, function (err, entry) {
             entry.isOwner = false;
+            entry.haveAcc = entry.opAcc;
 
             if (err || !entry) {
                 return res.send(err.message || 'No record found');
             }
 
             if (!entry.opVis && email !== entry.publisher) {
-                return res.send('Record not visible to public');
+                return res.send('Permission denied to show this entry');
             }
 
             if (email && email === entry.publisher) {
+                //short cut fields for display
                 entry.isOwner = true;
-                entry.opAcc = true;
+                entry.haveAcc = true;
             }
 
             if (!entry.opAcc) {
                 if (req.user && req.user.readable && req.user.readable.indexOf(eid) !== -1) {
-                    entry.opAcc = true;
+                    entry.haveAcc = true;
                 }
             }
 
@@ -311,16 +313,19 @@ module.exports = function (app, passport) {
             case 'kw':
                 etry.kw = req.body.value.split(',');
                 break;
-            case 'acc':
-                etry.opAcc = req.body.value.indexOf('private') === -1;
-                etry.opVis = req.body.value.indexOf('novis') === -1;
+            case 'opAcc':
+                etry.opAcc = req.body.value === '1';
+                break;
+            case 'opVis':
+                etry.opVis = req.body.value === '1';
                 break;
         }
         modctrl.editEtry(eid, etry, function (err) {
             if (err) {
+                console.error(err);
                 res.send(400, err.message);
             } else {
-                res.send(200);
+                res.status(200).end();
             }
         });
     });

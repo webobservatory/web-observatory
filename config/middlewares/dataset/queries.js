@@ -6,6 +6,8 @@ var crypto = require('crypto'),
     hive = require('./hive'),
     pq = require('pq'),
     amqp = require('./amqp_connector'),
+    http = require('http'),
+    https = require('https'),
     mgclient = require('mongodb').MongoClient;
 
 var enc_alg = 'aes256';
@@ -214,9 +216,27 @@ var tests = {
     sparql: passDecodeWrapper(sparqlTest),
     mysql: passDecodeWrapper(mysqlTest),
     postgressql: passDecodeWrapper(pqTest),
-    file: function(){return null;},
+    file: function (ds, cb) {
+        cb(null);
+    },
     mongodb: passDecodeWrapper(mgdbTest),
-    amqp: passDecodeWrapper(amqpTest)
+    amqp: passDecodeWrapper(amqpTest),
+    visualisation: function (ds, cb) {
+        var protocol = http;
+        if (-1 !== ds.url.indexOf('https')) {
+            protocol = https;
+        }
+
+        protocol.get(ds.url, function (res) {
+            if (res.statusCode < 400) {
+                cb(null);
+            } else {
+                cb({message: 'Status code: ' + res.statusCode});
+            }
+        }).on('error', function (e) {
+            cb(e);
+        });
+    }
 };
 
 module.exports.drivers = drivers;

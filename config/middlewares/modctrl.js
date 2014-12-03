@@ -111,9 +111,9 @@ module.exports.editEtry = function (etry_id, update, cb) {
             return cb(err);
         }
         if (!entry) {
-            logger.warn('Nonexisting entry;' + ' entry: ' + etry_id + ';');
+            logger.warn('Entry not found' + ' entry: ' + etry_id + ';');
             return cb({
-                message: 'Nonexisting entry'
+                message: 'Entry not found'
             });
         }
 
