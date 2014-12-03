@@ -2,6 +2,7 @@
  * Created by xgfd on 11/11/14.
  */
 exports.forceSSL = function (req, res, next) {
+    'use strict';
     if (!req.secure) {
         var sslPort = req.app.get('httpsPort');
         console.log(req.hostname);
@@ -9,13 +10,14 @@ exports.forceSSL = function (req, res, next) {
     } else {
         next();
     }
-}
+};
 
 exports.noneSSL = function (req, res, next) {
+    'use strict';
     if (req.secure) {
         var port = req.app.get('port');
         res.redirect('http://' + req.hostname + ':' + port+ req.url);
     } else {
         next();
     }
-}
+};

@@ -1,29 +1,15 @@
 'use strict';
 var http = require('http'),
-    URLparser = require('url'),
-    logger = require('../../../app/util/logger');
+    URLparser = require('url');
+//logger = require('../../../app/util/logger');
 
 function httpQuery(opts, cb) {
     try {
         var req = http.request(opts, function (res) {
-            switch (res.statusCode) {
-                case 404:
-                    cb({
-                        message: 'Service not available'
-                    });
-                    break;
-                case 502:
-                    cb({
-                        message: 'Service not available'
-                    });
-                    break;
-                case 500:
-                    cb({
-                        message: 'Service timeout'
-                    });
-                    break;
+            var status = res.statusCode,
+                data = "";
+            switch (status) {
                 case 200:
-                    var data = "";
                     res.on('data', function (chunk) {
                         data += chunk;
                     });
@@ -33,16 +19,14 @@ function httpQuery(opts, cb) {
                     break;
                 default:
                     cb({
-                        message: 'Status code: ' + res.statusCode
+                        message: res.statusCode + ' ' + http.STATUS_CODES[status]
                     });
             }
         }).on('error', function (err) {
-            logger.error(err);
             cb(err);
         });
         req.end();
     } catch (err) {
-        logger.error(err);
         cb(err);
     }
 }
@@ -50,7 +34,7 @@ function httpQuery(opts, cb) {
 module.exports.query = function (url, query, mime, cb) {
 
     var opts, parsed;
-   
+
     parsed = URLparser.parse(url);
 
     opts = {

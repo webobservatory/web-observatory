@@ -3,6 +3,8 @@
  */
 "use strict";
 var express = require('express'),
+    app,
+    accessLogStream,
     fs = require('fs'),
     http = require('http'),
     https = require('https'),
@@ -15,13 +17,12 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
-//favicon = require('static-favicon'),
+    favicon = require('serve-favicon'),
     errorHandler = require('errorhandler'),
     methodOverride = require('method-override'),
-    logging = require('./config/middlewares/logging');
-
-var env = process.env.NODE_ENV || 'development',
-    config = require('./config/config')[env];
+    env = process.env.NODE_ENV || 'development',
+    config = require('./config/config')[env],
+    models_dir = __dirname + '/app/models';
 
 mongoose.connect(config.db);
 
@@ -33,7 +34,7 @@ if (!fs.existsSync(__dirname + '/files')) {
     fs.mkdir(__dirname + '/files');
 }
 
-var models_dir = __dirname + '/app/models';
+
 fs.readdirSync(models_dir).forEach(function (file) {
     if (file[0] === '.') {
         return;
@@ -43,7 +44,7 @@ fs.readdirSync(models_dir).forEach(function (file) {
 
 require('./config/passport')(passport, config);
 
-var app = express();
+app = express();
 app.disable('x-powered-by');
 app.locals.moment = require('moment');
 app.set('port', process.env.PORT || 3000);
@@ -51,8 +52,29 @@ app.set('httpsPort', process.env.HTTPSPORT || 3443);
 app.set('views', __dirname + '/app/views');
 app.engine('jade', require('jade').__express);
 app.set('view engine', 'jade');
-//app.use(favicon);
-app.use(morganLogger('dev'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(morganLogger('tiny', {
+
+    skip: function (req, res) {
+        var ignorPath = ['css', 'js', 'fonts', 'images', 'img'];
+        if (-1 !== ignorPath.indexOf(req.path.split('/')[1]) && res.statusCode < 400)//ignore SUCCESSFUL requests to certain paths
+        {
+            return true;
+        }
+    }
+}));
+// create a write stream (in append mode)
+accessLogStream = fs.createWriteStream(__dirname + '/log/morgan.log', {flags: 'a'});
+app.use(morganLogger('combined', {//Apache combined :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]
+    stream: accessLogStream,
+    skip: function (req, res) {
+        var ignorPath = ['css', 'js', 'fonts', 'images', 'img'];
+        if (-1 !== ignorPath.indexOf(req.path.split('/')[1]) && res.statusCode < 400)//ignore SUCCESSFUL requests to certain paths
+        {
+            return true;
+        }
+    }
+}));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -68,7 +90,6 @@ app.use(passport.session());
 app.use(passport.authenticate('remember-me'));
 app.use(methodOverride());
 app.use(flash());
-app.use(logging);
 app.use(express.static(path.join(__dirname, 'public')));
 
 var options = {
@@ -86,7 +107,7 @@ app.set('socketio', io);
 require('./config/routes')(app, passport);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);

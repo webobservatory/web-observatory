@@ -60,7 +60,6 @@ module.exports.getStream = function (opts, cb) {
 
 module.exports.testConn = function (url, cb) {
     "use strict";
-    console.log(url);
     amqp.connect(url, cb);
 };
 

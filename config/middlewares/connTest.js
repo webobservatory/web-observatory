@@ -6,23 +6,23 @@ var mongoose = require('mongoose'),
     Entry = mongoose.model('Entry'),
     queries = require('./dataset/queries'),
     lastTest = null,
-    tester;
+    tester,
+    logger = require('../../app/util/logger');
 
 tester = function () {
     'use strict';
     Entry.find({type: 'dataset'}, function (err, datasets) {
         if (err) {
-            return console.error(err);
+            return logger.error(err);
         }
         datasets.forEach(function (ds) {
             var test = queries.tests[ds.querytype.toLowerCase()];
             if (!test) {
-                return console.error('No testers available for ' + ds.querytype);
+                return logger.error('No testers available for ' + ds.querytype);
             }
             test(ds, function (msg) {
-                if(msg) {
-                    console.error(ds.url);
-                    console.error(msg);
+                if (msg) {
+                    logger.warn('connTest ' + ds.url + ' ' + JSON.stringify(msg));
                 }
                 var alive = true;
                 if (msg) {

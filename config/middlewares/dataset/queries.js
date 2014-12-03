@@ -6,8 +6,7 @@ var crypto = require('crypto'),
     hive = require('./hive'),
     pq = require('pq'),
     amqp = require('./amqp_connector'),
-    mgclient = require('mongodb').MongoClient,
-    logger = require('../../../app/util/logger');
+    mgclient = require('mongodb').MongoClient;
 
 var enc_alg = 'aes256';
 
@@ -215,7 +214,7 @@ var tests = {
     sparql: passDecodeWrapper(sparqlTest),
     mysql: passDecodeWrapper(mysqlTest),
     postgressql: passDecodeWrapper(pqTest),
-    //hive: hiveTest,
+    file: function(){return null;},
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest)
 };
@@ -259,7 +258,6 @@ module.exports.mongodbschema = function (ds, cb) {
                 namesOnly: true
             }, function (err, names) {
                 if (err) {
-                    logger.error(err);
                     cb(err);
                 }
                 else {
