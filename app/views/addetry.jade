@@ -92,6 +92,13 @@ block content
                 .col-md-3
                     textarea.form-control(name='des' placeholder='')
                     p.help-block A brief description of your entry
+            if type === 'dataset'
+                // Textarea
+                .form-group
+                    label.col-md-4.control-label(for='accessinfo') Description
+                    .col-md-3
+                        textarea.form-control(name='queryinfo' placeholder='')
+                        p.help-block Information required to query the dataset, e.g. schema, SQL table name, MongoDB collections etc.
         // Security
         .form-group
             label.col-md-4.control-label(for='access') Security Settings

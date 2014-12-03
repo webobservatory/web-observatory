@@ -34,6 +34,7 @@ var EntrySchema = mongoose.Schema({
     lice: String, //licence
     kw: [String], //keywords
     des: String, //description
+    queryinfo: String, //information required to access/query this entry
     alive: {type: Boolean, default: true} //entry connection alive? updated periodically
 });
 EntrySchema.index({ "$**": "text" });

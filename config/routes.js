@@ -232,6 +232,7 @@ module.exports = function (app, passport) {
             type: req.params.typ,
             querytype: req.body.querytype,
             desc: req.body.desc,
+            queryinfo: req.body.queryinfo,
             publisher: user.email,
             publisher_name: user.username || ((user.firstName ? user.firstName + ' ' : '') + (user.lastName || '')),
             related: req.body.basedOn,
@@ -291,6 +292,9 @@ module.exports = function (app, passport) {
                 break;
             case 'des':
                 etry.des = req.body.value;
+                break;
+            case 'queryinfo':
+                etry.queryinfo = req.body.value;
                 break;
             case 'lice':
                 etry.lice = req.body.value;
@@ -893,6 +897,7 @@ module.exports = function (app, passport) {
 
     app.get('/api/wo/:typ(dataset|visualisation)', cors(), modctrl.visibleEtry, function (req, res) {
         var entries = req.attach.visibleEntries;
+        res.send(entries);
     });
 
     //cors with preflight doesn't allow redirection  
@@ -946,16 +951,14 @@ module.exports = function (app, passport) {
 
     app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {
         session: false
-    }), Auth.hasAccToDB, function (req, res) {
+    }), Auth.hasAccToDB, function (req, res, next) {
 
-        var queryDriver, qlog, ds, query;
+        var queryDriver, qlog, ds, query, io;
 
         ds = req.attach.dataset;
 
         if (!ds) {
-            return res.send({
-                error: req.flash('error')
-            });
+            return next({message: 'Dataset not found'});
         }
 
         query = req.query.query;
@@ -969,19 +972,42 @@ module.exports = function (app, passport) {
         qlog.ds = ds.url;
         queryDriver = queries.drivers[ds.querytype.toLowerCase()];
         if (!queryDriver) {
-            res.send({
-                error: ['Dataset type not supported']
-            });
+            next({message: 'Dataset type not supported'});
         } else {
             //TODO implement queryDriver as middlelayer
+            if (ds.querytype === 'AMQP') {
+                io = req.secure ? require('../app').socketioSSL : require('../app').socketio;
+                io.on('connection', function (socket) {
+                    var channel;
+                    queryDriver(query, null, ds, function (err, result, ch) {
+                        if (err) {
+                            return next(err);
+                        }
+                        if (ch) {
+                            channel = ch;
+                        }
+                        socket.emit('chunk', result);
+                    });
+
+                    socket.on('disconnect', function () {
+                        console.log('channel closed');
+                        channel.close();
+                    });
+
+                    socket.on('stop', function () {
+                        console.log('closing channel');
+                        socket.emit('chunk', 'closing channel');
+                        channel.close();
+                    });
+                });
+                return res.render('query/streamview');
+            }
             queryDriver(query, '', ds,
                 function (err, result) {
                     //qlog.result = JSON.stringify(result);
                     logger.info(qlog);
                     if (err) {
-                        return res.send({
-                            error: [err.message]
-                        });
+                        return next(err);
                     }
                     res.send({
                         result: result

@@ -41,6 +41,12 @@ table.xedit.table.table-bordered.table-striped
             td
                 span#des(data-type='textarea' data-pk=etry._id data-url='/detail/'+ etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
 
+        if etry.type === 'dataset'
+            tr
+                td QueryInfo
+                td
+                    span#queryinfo(data-type='select' data-pk=etry._id data-url='/detail/'+ etry._id data-placeholder='Query interface of the entry' data-title='Edit query information')=etry.queryinfo
+
         //
           tr
             td Open access
