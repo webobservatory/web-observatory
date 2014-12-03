@@ -20,8 +20,10 @@ tester = function () {
                 return console.error('No testers available for ' + ds.querytype);
             }
             test(ds, function (msg) {
-                console.log(ds.url);
-                console.log(msg);
+                if(msg) {
+                    console.error(ds.url);
+                    console.error(msg);
+                }
                 var alive = true;
                 if (msg) {
                     alive = false;

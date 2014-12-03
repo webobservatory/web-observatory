@@ -3,21 +3,21 @@ $(document).ready(function () {
     $('.tp').tooltip();
 
     //datatable bt3
-    $('#display table').dataTable();
+    $('#display table').dataTable({order: []});
 
     //x editable
     function xeditable() {
 
         $.fn.editable.defaults.mode = 'inline';
-        
+
         $('#edit').click(function () {
             $('span.editable').editable('toggleDisabled');
         });
-        
+
         $('.xedit span').filter('[data-type=textarea], [data-type=text], [data-type=url]').editable({
             disabled: true
         });
-        
+
         var querytype = $('#querytype');
         if (querytype) {
             querytype.editable({

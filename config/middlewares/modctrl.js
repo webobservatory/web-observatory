@@ -38,16 +38,18 @@ module.exports.visibleEtry = function (req, res, next) {
         visOption.push({publisher: user.email}, {canView: user.email});
     }
 
-    aggregate.append({$match: {$or: visOption}}).exec(function (err, entries) {
-        if (err) {
-            return next(err);
-        }
+    aggregate
+        .append({$match: {$or: visOption}})
+        .append({$sort: {alive: -1, name: 1}})
+        .exec(function (err, entries) {
+            if (err) {
+                return next(err);
+            }
 
-        req.attach = req.attach || {};
-        req.attach.visibleEntries = entries;
-
-        next();
-    });
+            req.attach = req.attach || {};
+            req.attach.visibleEntries = entries;
+            next();
+        });
 };
 
 module.exports.addEtry = function (user, etry, cb) {

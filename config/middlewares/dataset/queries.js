@@ -141,9 +141,6 @@ function sparqlTest(ds, cb) {
 
 function mgdbTest(ds, cb) {
     var url = ds.url;
-    console.log('mongo url');
-    console.log(url);
-
     mgclient.connect(url, function (err, db) {
         if (err) {
             return cb(err);
@@ -193,9 +190,6 @@ function amqpTest(ds, cb) {
     var url = ds.url,
         pwd = ds.password,
         user = ds.user;
-
-    console.log('amqp');
-    console.log(ds);
 
     if (user) {
         url = url.split('://');
