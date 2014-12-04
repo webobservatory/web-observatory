@@ -22,6 +22,7 @@ var mongoose = require('mongoose'),
     noneSSL = require('./middlewares/utils').noneSSL,
     oauth2 = require('../oauth/oauth2server'),
     connTest = require('./middlewares/connTest');
+
 module.exports = function (app, passport) {
 
     app.options('*', cors()); //for pre-flight cors
@@ -981,11 +982,12 @@ module.exports = function (app, passport) {
         } else {
             //TODO implement queryDriver as middlelayer
             if (ds.querytype === 'AMQP') {
-                io = req.secure ? require('../app').socketioSSL : require('../app').socketio;
+                io = req.secure ? app.get('socketioSSL') : app.get('socketio');
                 io.on('connection', function (socket) {
                     var channel;
                     queryDriver(query, null, ds, function (err, result, ch) {
                         if (err) {
+                            console.log(err);
                             return next(err);
                         }
                         if (ch) {

@@ -104,6 +104,7 @@ var ioSSL = require('socket.io')(secureServer);
 var io = require('socket.io')(server);
 
 app.set('socketio', io);
+app.set('socketioSSL', ioSSL);
 
 require('./config/routes')(app, passport);
 
