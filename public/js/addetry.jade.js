@@ -1,8 +1,11 @@
-var con_succeed = -1;
+var con_succeed = -1,//check connection for datasets
+    related_ds = -1;//check whether a related dataset of a vis is form this portal
 $(document).ready(function () {
     'use strict';
     if (-1 !== window.location.pathname.indexOf('/visualisation')) {
         con_succeed = 1;//no connection test for vis
+    } else {
+        related_ds = 1;
     }
 
     $('#private').bind('click', function () {
@@ -24,16 +27,25 @@ $(document).ready(function () {
     });
 
     $('#dsTils').autocomplete({
+        change: function (event, ui) {
+            if (ui.item) {
+                related_ds = 1;
+            }
+        },
         source: '/nametags/dataset'
     });
 
     $('#submit').bind('click', function (event) {
         if (con_succeed === -1)
             contest();
-        if (con_succeed)
-            $('#adddata').submit();
-        else
-            alert('Please check the url of your entry');
+        if (-1 === con_succeed) {
+            return alert('Please check the url of your entry');
+        }
+
+        if (-1 === related_ds) {
+            return alert('Please select a dataset from the portal');
+        }
+        $('#adddata').submit();
         event.preventDefault();
     });
 

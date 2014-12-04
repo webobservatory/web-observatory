@@ -37,7 +37,7 @@ block content
                         //option(value='Hive') Hadoop Hive
                         option MongoDB
                         option(value='File') File (experimental)
-                        option(value='AMQP') RabbitMQ Stream
+                        option(value='AMQP') RabbitMQ Stream (experimental)
             #upload(style='display:none')
                 .form-group
                     label.col-md-4.control-label(for='file') Upload data
@@ -61,7 +61,7 @@ block content
                 .col-md-3
                     .ui-widget
                         input#dsTils.form-control.input-xlarge(name='basedOn' type='text' required='')
-                        p.help-block The dataset based on which this visualisation is produced. You should add the dataset first if it's not registered in this web site.
+                        p.help-block The dataset based on which this visualisation is produced. You must give the name of a dataset that is already listed in this portal. You should add the dataset first if it's not registered in this portal.
         .form-group
             .col-md-3.col-md-offset-4
                 a#optogl(data-toggle='collapse' data-target='#moreopt')
