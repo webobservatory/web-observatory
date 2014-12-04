@@ -21,7 +21,7 @@ exports.fileDownload = function (req, res, next) {
         }
 
         var filePath = entry.url,
-            file = path.join(__dirname, '../../files/', filePath);
+            file = path.join(__dirname, '../../../files/', filePath);
         res.download(file);
     });
 };
@@ -30,8 +30,9 @@ exports.fileUpload = function (req, res) {
 
     var fileFolder,
         form;
+    console.log(__dirname);
 
-    fileFolder = path.join(__dirname, '../../files/', req.user.email);
+    fileFolder = path.join(__dirname, '../../../files/', req.user.email);
 
     fs.exists(fileFolder, function (existing) {
         if (!existing) {

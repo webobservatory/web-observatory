@@ -97,7 +97,7 @@ $(document).ready(function () {
     function resetView() {
         $('#details').html('');
         $('#querypan').html('');
-        $('#display').removeClass('col-sm-6');
+        $('#display').removeClass('col-md-6');
     }
 
     //deep linking
@@ -130,7 +130,7 @@ $(document).ready(function () {
                         });
                     });
                 }
-                $('#display').addClass('col-sm-6');
+                $('#display').addClass('col-md-6');
             });
         } else {
             resetToolBar();
