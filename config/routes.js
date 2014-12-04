@@ -233,7 +233,7 @@ module.exports = function (app, passport) {
             },
             name: req.body.name,
             type: req.params.typ,
-            querytype: req.body.querytype,
+            querytype: req.body.querytype || 'Visualisation',
             desc: req.body.desc,
             queryinfo: req.body.queryinfo,
             publisher: user.email,

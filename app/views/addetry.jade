@@ -12,7 +12,7 @@ block content
         .form-group
             label.col-md-4.control-label(for='url') URL
             .col-md-3
-                input.form-control.input-xlarge(name='url' type='url', placeholder='Address of your entry', required='')
+                input.form-control.input-xlarge(name='url' type='text', placeholder='Address of your entry', required='')
                 p.help-block= 'The URL of your '+type+'. Leave it blank if you want to upload a data file.'
         if type==='dataset'
             // Text input
@@ -118,6 +118,7 @@ block content
 
 block footer
     link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
-    script(src='/js/jqBootstrapValidation.js')
+    link(href='/css/bootstrapValidator.css', rel='stylesheet')
+    script(src='/js/bootstrapValidator.min.js')
     script(src='/js/addetry.jade.js')
     script(src='/js/jquery-ui-1.10.3.min.js')

@@ -2,6 +2,8 @@ var con_succeed = -1,//check connection for datasets
     related_ds = -1;//check whether a related dataset of a vis is form this portal
 $(document).ready(function () {
     'use strict';
+
+
     if (-1 !== window.location.pathname.indexOf('/visualisation')) {
         con_succeed = 1;//no connection test for vis
     } else {
@@ -21,7 +23,8 @@ $(document).ready(function () {
             $('#visible input').prop('checked', false);
         }
     });
-    $("input,select,textarea").not("[type=submit]").jqBootstrapValidation();
+
+
     $('#optogl').bind('click', function () {
         $('#optogl span').toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
     });
@@ -50,10 +53,12 @@ $(document).ready(function () {
     });
 
     $('#dbtest').bind('click', function (event) {
+        event.preventDefault();
         contest();
     });
 
     function contest() {
+        console.log('contest');
         var protocol = {
             sparql: 'http',
             hive: 'http',
@@ -61,7 +66,6 @@ $(document).ready(function () {
             mysql: 'mysql',
             postgres: 'postgres'
         };
-        event.preventDefault();
         var data = {};
         $('#conted').removeClass('glyphicon-remove glyphicon-ok');
         data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
@@ -72,20 +76,48 @@ $(document).ready(function () {
         }
         data.user = $('#adddata input[name=user]').val();
         data.pwd = $('#adddata input[name=pwd]').val();
-        //if (data.typ.indexOf('postgresql') !== -1) return alert('Dataset not yet supported');
         $.get('/contest?url=' + data.url + '&typ=' + data.typ + '&user=' + data.user + '&pwd=' + data.pwd, function (data, textStatus) {
             console.log(data);
             if (data) {
                 $('#conted').addClass('glyphicon-remove');
                 con_succeed = false;
+                return false;
             } else {
                 $('#conted').addClass('glyphicon-ok');
                 con_succeed = true;
+                return true;
             }
         });
     }
 
-    //file uploading
+    //validation
+    $('#adddata').bootstrapValidator({
+        live: 'enabled',
+        message: 'This value is not valid',
+        feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            name: {
+                message: 'The tile is not valid',
+                validators: {
+                    notEmpty: {
+                        message: 'The title is required and cannot be empty'
+                    }
+                }
+            },
+            url: {
+                validators: {
+                    notEmpty: {
+                        message: 'The url is required and cannot be empty'
+                    }
+                }
+            }
+        }
+    });
+//file uploading
 //    $(':file').change(function(){
 //        var file = this.files[0];
 //        var name = file.name;
@@ -93,6 +125,7 @@ $(document).ready(function () {
 //        var type = file.type;
 //    });
 
+//file uploading
     $('#adddata select[name=querytype]').change(function () {
         var val = $(this).val();
         if ('file' === val.toLowerCase()) {
@@ -163,4 +196,5 @@ $(document).ready(function () {
         con_succeed = -1;
         alert('File uploading failed');
     }
-});
+})
+;
