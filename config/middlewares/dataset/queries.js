@@ -59,6 +59,11 @@ function mgdbDriver(query, mime, ds, cb) {
         pwd = decryptPwd(ds),
         modname = query.modname;
 
+    //deny access to system collections
+    if (0 === modname.indexOf('system.')) {
+        return cb({message: 'Access denied: querying system collections'});
+    }
+
     try {
         query.query = JSON.parse(query.query);
         mgclient.connect(url, function (err, db) {
@@ -257,7 +262,7 @@ module.exports.mongodbschema = function (ds, cb) {
                         message: 'Authentication failed'
                     });
                 }
-                db.collectionNames({
+                db.listCollections({
                     namesOnly: true
                 }, function (err, names) {
                     if (err) {
@@ -274,7 +279,7 @@ module.exports.mongodbschema = function (ds, cb) {
                 });
             });
         } else {
-            db.collectionNames({
+            db.listCollections({
                 namesOnly: true
             }, function (err, names) {
                 if (err) {

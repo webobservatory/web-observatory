@@ -1,10 +1,10 @@
 form#queryform(action='/endpoint/'+eid+'/mongodb' method='get' target='_blank')
   .form-group
-    if result
+    if tags
         label.control-label(for='modname') Select a model name
         select.form-control(name='modname')
           for val in tags
-            if val.indexOf('system.indexes') === -1
+            if val.indexOf('system.') !== 0
               option(value=val)= val
     else
         label.control-label(for='modname') Collection names not available, type a model name

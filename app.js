@@ -14,6 +14,7 @@ var express = require('express'),
     flash = require("connect-flash"),
 //express 4.0 middlewares
     morganLogger = require('morgan'),
+    winstonLogger = require('./app/util/logger'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
@@ -114,6 +115,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(function (err, req, res, next) {
+    winstonLogger.error(err);
     if (req.xhr) {
         res.status(500).send(err);
     } else {

@@ -106,12 +106,12 @@ $(document).ready(function () {
             resetToolBar();
             $('#querypan').html('');
             $('#details').load('/wo/' + id, function () {
+                xeditable();
                 var isOwner = $('#owner').attr('value') === 'true',
                     opAcc = $('#acc').attr('value') === 'true',
                     querytype = $('#querytype') ? $('#querytype').text().toLowerCase() : null;
 
                 if (isOwner) {
-                    xeditable();
                     $('#edit').removeClass('hidden');
                 }
 
