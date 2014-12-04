@@ -14,3 +14,27 @@ footer
 script(src='/js/jquery-1.10.2.min.js')
 script(src='/js/bootstrap.min.js')
 script(src='/js/flashmsg.js')
+script.
+  //for nav bar highlight
+  $(document).ready(function () {
+    var pathname = window.location.pathname;
+    $('#0').removeClass('active');
+    $('#1').removeClass('active');
+    $('#2').removeClass('active');
+    $('#3').removeClass('active');
+
+    switch (pathname) {
+      case '/':
+        $('#0').addClass('active');
+        break;
+      case '/wo/dataset':
+        $('#1').addClass('active');
+        break;
+      case '/wo/visualisation':
+        $('#2').addClass('active');
+        break;
+      case '/howto':
+        $('#3').addClass('active');
+        break;
+    }
+  });
