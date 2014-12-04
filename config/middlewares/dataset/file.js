@@ -22,7 +22,11 @@ exports.fileDownload = function (req, res, next) {
 
         var filePath = entry.url,
             file = path.join(__dirname, '../../../files/', filePath);
-        res.download(file);
+        if (0 === filePath.indexOf('http') || 0 === filePath.indexOf('ftp')) {
+            res.redirect(filePath);
+        } else {
+            res.download(file);
+        }
     });
 };
 
@@ -30,7 +34,6 @@ exports.fileUpload = function (req, res) {
 
     var fileFolder,
         form;
-    console.log(__dirname);
 
     fileFolder = path.join(__dirname, '../../../files/', req.user.email);
 
@@ -42,10 +45,14 @@ exports.fileUpload = function (req, res) {
 
     form = new formidable.IncomingForm();
     form.parse(req, function (err, fields, files) {
+        if (err) {
+            res.status(500);
+            return res.json({'success': false, error: err});
+        }
         var old_path, file_size, file_name, new_path, exist, extIndex, renameIndex;
-        
+
         old_path = files.file.path;
-        file_size = files.file.size;
+        file_size = files.file.size;//TODO limit file size
         file_name = files.file.name;
         new_path = path.join(fileFolder, file_name);
 
@@ -65,15 +72,21 @@ exports.fileUpload = function (req, res) {
             }
         }
 
-        console.log(new_path);
-
         fs.readFile(old_path, function (err, data) {
+            if (err) {
+                res.status(500);
+                return res.json({'success': false, error: err});
+            }
             fs.writeFile(new_path, data, function (err) {
+                if (err) {
+                    res.status(500);
+                    return res.json({'success': false, error: err});
+                }
                 var filePath = path.join(req.user.email, file_name);
                 fs.unlink(old_path, function (err) {
                     if (err) {
                         res.status(500);
-                        res.json({'success': false});
+                        res.json({'success': false, error: err});
                     } else {
                         res.status(200);
                         res.json({'success': true, path: filePath, size: file_size});

@@ -130,7 +130,7 @@ html(lang='en')
                                                 a#del.btn.btn-danger(href='#') Confirm
                         .row#requesteddataset
                             .page-header
-                                h1 Reuests sent (#{requested?requested.length:0})
+                                h1 Requests sent (#{requested?requested.length:0})
                             if requested && requested.length != 0
                                 form.form-horizontal(method='post' action='/reqacc')
                                     fieldset

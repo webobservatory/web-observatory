@@ -1,7 +1,9 @@
 var con_succeed = -1;
 $(document).ready(function () {
-
-    if (-1 !== window.location.pathname.indexOf('/visualisation')) con_succeed = 1;//no connection test for vis
+    'use strict';
+    if (-1 !== window.location.pathname.indexOf('/visualisation')) {
+        con_succeed = 1;//no connection test for vis
+    }
 
     $('#private').bind('click', function () {
         var $this = $(this);
@@ -124,17 +126,25 @@ $(document).ready(function () {
     function progressHandlingFunction(e) {
         if (e.lengthComputable) {
             var ratio = Math.round(e.loaded * 10000 / e.total) / 100 + '%';
-            $('.progress-bar').css('width', ratio).attr({'aria-valuenow': e.loaded, 'aria-valuemax': e.total}).text(ratio);
+            $('.progress-bar').css('width', ratio).attr({
+                'aria-valuenow': e.loaded,
+                'aria-valuemax': e.total
+            }).text(ratio);
         }
     }
 
     function completeHandler(data, status) {
         console.log(status);
         console.log(data);
-        con_succeed = 1;
-        alert('File uploaded');
-        var path = data.path;
-        $("#adddata input[name='url']").val(path);
+        if (status === 200) {
+            con_succeed = 1;
+            alert('File uploaded');
+            var path = data.path;
+            $("#adddata input[name='url']").val(path);
+        } else {
+            con_succeed = -1;
+            alert('File uploading failed.')
+        }
     }
 
     function errorHandler() {
