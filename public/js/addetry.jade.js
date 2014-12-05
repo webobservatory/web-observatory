@@ -38,19 +38,22 @@ $(document).ready(function () {
         source: '/nametags/dataset'
     });
 
-    $('#submit').bind('click', function (event) {
-        if (con_succeed === -1)
-            contest();
-        if (-1 === con_succeed) {
-            return alert('Please check the url of your entry');
-        }
+    /*    $('#submit').bind('click', function (event) {
+     if (con_succeed === -1)
+     contest();
+     if (-1 === con_succeed) {
+     return alert('Please check the url of your entry');
+     }
 
-        if (-1 === related_ds) {
-            return alert('Please select a dataset from the portal');
-        }
-        $('#adddata').submit();
-        event.preventDefault();
-    });
+     if (-1 === related_ds) {
+     return alert('Please select a dataset from the portal');
+     }
+     $('#adddata').submit(function (e) {
+     var $form = $(e.target);
+     var bv =
+     });
+     event.preventDefault();
+     });*/
 
     $('#dbtest').bind('click', function (event) {
         event.preventDefault();
@@ -81,11 +84,9 @@ $(document).ready(function () {
             if (data) {
                 $('#conted').addClass('glyphicon-remove');
                 con_succeed = false;
-                return false;
             } else {
                 $('#conted').addClass('glyphicon-ok');
                 con_succeed = true;
-                return true;
             }
         });
     }
@@ -116,7 +117,36 @@ $(document).ready(function () {
                 }
             }
         }
-    });
+    })
+
+        .on('success.form.bv', function (e) {
+            // Prevent form submission
+            e.preventDefault();
+
+            // You can get the form instance
+            var $form = $(e.target);
+
+            if (con_succeed === -1)
+                contest();
+            if (-1 === con_succeed) {
+                return alert('Please check the url of your entry');
+            }
+
+            if (-1 === related_ds) {
+                return alert('Please select a dataset from the portal');
+            }
+
+            // Use the defaultSubmit() method if you want to submit the form
+            // See http://bootstrapvalidator.com/api/#default-submit
+            $form.off('submit.bv').submit();//off the submit.bv event to prevent loop and submit
+
+            //bv.defaultSubmit();
+        })
+        .on('success.field.bv', function (e, data) {
+            if (data.bv.isValid()) {
+                data.bv.disableSubmitButtons(false);
+            }
+        });
 //file uploading
 //    $(':file').change(function(){
 //        var file = this.files[0];
