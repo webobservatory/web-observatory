@@ -2,7 +2,7 @@ extends main
 
 block jumbotron
 block content
-    form#adddata.form-horizontal(action='/add/'+type, method='post')
+    form#adddata.form-horizontal(action='/add/' + type method='post')
         // Text input
         .form-group
             label.col-md-4.control-label(for='name') Title
@@ -13,8 +13,8 @@ block content
             label.col-md-4.control-label(for='url') URL
             .col-md-3
                 input.form-control.input-xlarge(name='url' type='text', placeholder='Address of your entry', required='')
-                p.help-block= 'The URL of your '+type+'. Leave it blank if you want to upload a data file.'
-        if type==='dataset'
+                p.help-block= 'The URL of your ' + type + '. Leave it blank if you want to upload a data file.'
+        if type === 'dataset'
             // Text input
             .form-group
                 label.col-md-4.control-label(for='user') Username
@@ -48,13 +48,6 @@ block content
                 .col-md-3.col-md-offset-4
                     .progress
                         .progress-bar(aria-valuemin='0' role='progressbar') 0%
-            .form-group#contest
-                .col-md-3.col-md-offset-4
-                    button#dbtest.btn
-                        span.glyphicon.glyphicon-globe
-                        |  Test connection
-                    |  
-                    span#conted.glyphicon
         if type === 'visualisation'
             .form-group
                 label.col-md-4.control-label(for='basedOn') Related dataset
@@ -73,7 +66,7 @@ block content
                 label.col-md-4.control-label(for='creator') Creator
                 .col-md-3
                     input.form-control.input-xlarge(name='creator' type='text', placeholder='Creator name')
-                    p.help-block= 'The person who created this '+type+'. This can be different from the one who publish this entry'
+                    p.help-block= 'The person who created this ' + type + '. This can be different from the one who publish this entry'
             .form-group.hide
                 label.col-md-4.control-label(for='type') Entry type
                 .col-md-3
@@ -106,12 +99,12 @@ block content
                 label.checkbox(for='read')
                     input#private(type='checkbox', name='acc', value='false' data-toggle='collapse' data-target='#visible')
                     | Private entry
-                p.help-block= 'Private '+type+'; I wish to authorise individual users to access this '+type
+                p.help-block= 'Private ' + type + '; I wish to authorise individual users to access this ' + type
                 #visible.collapse
                     div
                         label.checkbox(for='visible')
                             input(type='checkbox', name='vis', value='false')
-                            = 'Do not list my private '+ type +' in the catalogue'
+                            | Do not list my entry in the catalogue
         .form-group
             .col-md-3.col-md-offset-4
                 button.btn.btn-primary(type='submit' disabled) Submit
@@ -119,6 +112,13 @@ block content
 block footer
     link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
     link(href='/css/bootstrapValidator.css', rel='stylesheet')
+    style(type='text/css').
+        #adddata .form-control-feedback {
+            top: 0;
+            right: -15px;
+        }
     script(src='/js/bootstrapValidator.min.js')
     script(src='/js/jquery-ui-1.10.3.min.js')
+    script.
+        var type = !{JSON.stringify(type)};
     script(src='/js/addetry.jade.js')

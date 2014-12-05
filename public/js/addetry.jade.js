@@ -1,15 +1,8 @@
-var con_succeed = -1,//check connection for datasets
-    related_ds = -1;//check whether a related dataset of a vis is form this portal
 $(document).ready(function () {
     'use strict';
 
-
-    if (-1 !== window.location.pathname.indexOf('/visualisation')) {
-        con_succeed = 1;//no connection test for vis
-    } else {
-        related_ds = 1;
-    }
-
+    var related_ds = -1;//check whether a related dataset of a vis is form this portal
+    //animations
     $('#private').bind('click', function () {
         var $this = $(this);
         // $this will contain a reference to the checkbox   
@@ -29,49 +22,31 @@ $(document).ready(function () {
         $('#optogl span').toggleClass('glyphicon-chevron-down glyphicon-chevron-up');
     });
 
+    //auto complete
     $('#dsTils').autocomplete({
         change: function (event, ui) {
             if (ui.item) {
                 related_ds = 1;
+            } else {
+                related_ds = -1;
             }
         },
         source: '/nametags/dataset'
     });
 
-    /*    $('#submit').bind('click', function (event) {
-     if (con_succeed === -1)
-     contest();
-     if (-1 === con_succeed) {
-     return alert('Please check the url of your entry');
-     }
-
-     if (-1 === related_ds) {
-     return alert('Please select a dataset from the portal');
-     }
-     $('#adddata').submit(function (e) {
-     var $form = $(e.target);
-     var bv =
-     });
-     event.preventDefault();
-     });*/
-
-    $('#dbtest').bind('click', function (event) {
-        event.preventDefault();
-        contest();
-    });
-
-    function contest() {
-        console.log('contest');
+    //dataset connection validator
+    function contest(value) {
         var protocol = {
-            sparql: 'http',
-            hive: 'http',
-            mongodb: 'mongodb',
-            mysql: 'mysql',
-            postgres: 'postgres'
-        };
-        var data = {};
-        $('#conted').removeClass('glyphicon-remove glyphicon-ok');
-        data.typ = $('#adddata select[name=querytype]').val().toLowerCase();
+                sparql: 'http',
+                hive: 'http',
+                mongodb: 'mongodb',
+                mysql: 'mysql',
+                postgres: 'postgres'
+            },
+            data = {},
+            msg;
+
+        data.typ = value.toLowerCase();
         data.url = $('#adddata input[name=url]').val();
         if (-1 === data.url.indexOf('://') && 'mysql' !== data.typ) {
             data.url = protocol[data.typ] + '://' + data.url;
@@ -79,20 +54,27 @@ $(document).ready(function () {
         }
         data.user = $('#adddata input[name=user]').val();
         data.pwd = $('#adddata input[name=pwd]').val();
-        $.get('/contest?url=' + data.url + '&typ=' + data.typ + '&user=' + data.user + '&pwd=' + data.pwd, function (data, textStatus) {
-            console.log(data);
-            if (data) {
-                $('#conted').addClass('glyphicon-remove');
-                con_succeed = false;
-            } else {
-                $('#conted').addClass('glyphicon-ok');
-                con_succeed = true;
-            }
+
+        $.ajax({
+            url: '/contest?url=' + data.url + '&typ=' + data.typ + '&user=' + data.user + '&pwd=' + data.pwd,
+            success: function (data) {
+                msg = data;
+            },
+            async: false
         });
+
+        if (msg) {
+            console.log(msg);
+        }
+        return {
+            valid: msg === null,
+            message: 'Please check your url, and username password of the dataset if required'
+        };
     }
 
     //validation
     $('#adddata').bootstrapValidator({
+        container: 'popover',
         live: 'enabled',
         message: 'This value is not valid',
         feedbackIcons: {
@@ -100,9 +82,9 @@ $(document).ready(function () {
             invalid: 'glyphicon glyphicon-remove',
             validating: 'glyphicon glyphicon-refresh'
         },
+        threshold: 3,
         fields: {
             name: {
-                message: 'The tile is not valid',
                 validators: {
                     notEmpty: {
                         message: 'The title is required and cannot be empty'
@@ -115,45 +97,43 @@ $(document).ready(function () {
                         message: 'The url is required and cannot be empty'
                     }
                 }
+            },
+            file: {
+                validators: {
+                    file: {
+                        maxSize: 20971520,   // 20MB
+                        message: 'File size up to 20MB'
+                    }
+                }
+            },
+            basedOn: {
+                threshold: 5,
+                validators: {
+                    callback: {
+                        enabled: 'visualisation' === type,
+                        message: 'You must select a dataset listed in the portal',
+                        callback: function (value, validator, $field) {
+                            return 1 === related_ds;
+                        }
+                    }
+                }
+            },
+            querytype: {
+                validators: {
+                    callback: {
+                        enabled: 'dataset' === type,
+                        message: 'You must select a dataset listed in the portal',
+                        callback: contest
+                    }
+                }
             }
         }
     })
-
-        .on('success.form.bv', function (e) {
-            // Prevent form submission
-            e.preventDefault();
-
-            // You can get the form instance
-            var $form = $(e.target);
-
-            if (con_succeed === -1)
-                contest();
-            if (-1 === con_succeed) {
-                return alert('Please check the url of your entry');
-            }
-
-            if (-1 === related_ds) {
-                return alert('Please select a dataset from the portal');
-            }
-
-            // Use the defaultSubmit() method if you want to submit the form
-            // See http://bootstrapvalidator.com/api/#default-submit
-            $form.off('submit.bv').submit();//off the submit.bv event to prevent loop and submit
-
-            //bv.defaultSubmit();
-        })
         .on('success.field.bv', function (e, data) {
             if (data.bv.isValid()) {
                 data.bv.disableSubmitButtons(false);
             }
         });
-//file uploading
-//    $(':file').change(function(){
-//        var file = this.files[0];
-//        var name = file.name;
-//        var size = file.size;
-//        var type = file.type;
-//    });
 
 //file uploading
     $('#adddata select[name=querytype]').change(function () {
@@ -212,18 +192,15 @@ $(document).ready(function () {
         console.log(status);
         console.log(data);
         if (status === 200) {
-            con_succeed = 1;
             alert('File uploaded');
             var path = data.path;
             $("#adddata input[name='url']").val(path);
         } else {
-            con_succeed = -1;
-            alert('File uploading failed.')
+            alert('File uploading failed.');
         }
     }
 
     function errorHandler() {
-        con_succeed = -1;
         alert('File uploading failed');
     }
 })
