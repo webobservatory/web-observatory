@@ -4,21 +4,65 @@
  */
 
 var queries = require('./dataset/queries.js'),
-    logger = require('../../app/util/logger');
+    crypto = require('crypto');
 
-module.exports = function (req, res, next) {
+function stream(req, res, next) {
     "use strict";
+    var query, queryDriver, io, streamid, ds;
 
-    var queryDriver, query, mime, modname, qtyp, ds, qlog, io;
-    if (!req.attach.dataset) {
-        return res.redirect(req.get('referer'));
+    ds = req.attach.dataset;
+
+    queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+    if (!queryDriver) {
+        return next({message: 'Dataset type not supported'});
     }
 
     query = req.query.query || req.body.query;
-    mime = req.query.format || req.body.format;
-    modname = req.query.modname || req.body.modname;
-    qtyp = req.params.typ;
+    io = req.secure ? require('../../app').socketioSSL : require('../../app').socketio;//TODO req.app.get('socket')?
+    streamid = crypto.randomBytes(32).toString('base64');
+    io.of(streamid)
+        .on('connection', function (socket) {
+            var channel;
+            queryDriver(query, null, ds, function (err, result, ch) {
+                if (err) {
+                    return next(err);
+                }
+                if (ch) {
+                    channel = ch;
+                }
+                socket.emit('chunk', result);
+            });
+
+            socket.on('disconnect', function () {
+                console.log('channel close');
+                channel.close();
+            });
+
+            socket.on('stop', function () {
+                console.log('channel close');
+                channel.close();
+            });
+        });
+    return res.render('query/streamview', {streamid: streamid});
+    //next();
+}
+
+function nonstream(req, res, next) {
+    "use strict";
+
+    var queryDriver, query, mime, modname, qtyp, ds;
+
     ds = req.attach.dataset;
+
+    queryDriver = queries.drivers[ds.querytype.toLowerCase()];
+    if (!queryDriver) {
+        return next({message: 'Dataset type not supported'});
+    }
+
+    qtyp = ds.querytype.toLowerCase();
+    mime = req.query.format || req.body.format;
+    query = req.query.query || req.body.query;
+    modname = req.query.modname || req.body.modname;
 
     if (modname) {
         query = {
@@ -27,65 +71,47 @@ module.exports = function (req, res, next) {
         };
     }
 
-    qlog = {};
-    qlog.time = new Date();
-    qlog.ip = req.connection.remoteAddress;
-    qlog.query = query;
-    qlog.usrmail = req.user ? req.user.email : '';
+    queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, result) {
+        if (err) {
+            return next(err);
+        }
 
-    qlog.ds = ds.url;
+        if (mime === 'display') {
+            var viewer = 'jsonview';
+            if (qtyp === 'sparql') {
+                viewer = 'csvview';
+            }
+            res.render('query/' + viewer, {
+                'result': result,
+                'info': req.flash('info'),
+                'error': req.flash('error')
+            });
+        } else {
+            res.attachment('result.txt');
+            res.end(result, 'UTF-8');
+        }
+    });
+}
+
+module.exports = function (req, res, next) {//dispatch function
+    "use strict";
+    var ds, queryDriver;
+
+    ds = req.attach.dataset;
+    if (!ds) {
+        return next({message: 'Please select a dataset'});
+    }
+
     queryDriver = queries.drivers[ds.querytype.toLowerCase()];
     if (!queryDriver) {
-        req.flash('error', ['Dataset type not supported']);
-        res.redirect(req.get('referer'));
-    } else {
-        if (ds.querytype === 'AMQP') {
-            io = req.secure ? require('../../app').socketioSSL : require('../../app').socketio;
-            io.on('connection', function (socket) {
-                var channel;
-                queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, result, ch) {
-                    if (ch) {
-                        channel = ch;
-                    }
-                    socket.emit('chunk', result);
-                });
-                
-                socket.on('disconnect', function () {
-                    console.log('channel close');
-                    channel.close();
-                });
-                
-                socket.on('stop', function () {
-                    console.log('channel close');
-                    channel.close();
-                });
-            });
-
-            return res.render('query/streamview');
-        }
-        queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds,
-            function (err, result) {
-                //qlog.result = JSON.stringify(result);
-                logger.info(qlog);
-                if (err) {
-                    return next(err);
-                }
-
-                if (mime === 'display') {
-                    var viewer = 'jsonview';
-                    if (qtyp === 'sparql') {
-                        viewer = 'csvview';
-                    }
-                    res.render('query/' + viewer, {
-                        'result': result,
-                        'info': req.flash('info'),
-                        'error': req.flash('error')
-                    });
-                } else {
-                    res.attachment('result.txt');
-                    res.end(result, 'UTF-8');
-                }
-            }
-        );
+        return next({message: 'Dataset type not supported'});
     }
-}
+
+    switch (ds.querytype) {
+        case 'AMQP':
+            stream(req, res, next);
+            break;
+        default:
+            nonstream(req, res, next);
+    }
+};

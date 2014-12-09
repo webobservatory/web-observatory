@@ -52,20 +52,26 @@ exports.hasAccToDB = function (req, res, next) {
             }
         ],
         function (err, results) {
+            if (err) {
+                return next(err);
+            }
+
             if (!req.attach) {
                 req.attach = {};
             }
 
-            if (err) {
-                req.flash('error', [err.message]);
-            } else if (!results[1]) {
-                req.flash('error', ['No entry found']);
-            } else if (!results[0] && !results[1].opAcc) { //user with no permission & dataset is private
-                req.flash('error', ['Access denied']);
-            } else {
-                req.attach = req.attach || {};
-                req.attach.dataset = results[1]; //attach dataset
+            var ds = results[1];
+
+            if (!ds) {
+                return next({message: 'No entry found'});
             }
+
+            if (!results[0] && !ds.opAcc) { //user with no permission & dataset is private
+                return next({message: 'Access denied'});
+            }
+
+            req.attach = req.attach || {};
+            req.attach.dataset = ds; //attach dataset
             next();
         });
 };

@@ -39,6 +39,10 @@ $(document).ready(function () {
         var data = {}, msg;
 
         data.typ = value.toLowerCase();
+        if ('file' === value) {
+            return true;
+        }
+
         data.url = $('#adddata input[name=url]').val();
         /*if (-1 === data.url.indexOf('://') && 'mysql' !== data.typ) {
          data.url = protocol[data.typ] + '://' + data.url;
