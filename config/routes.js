@@ -563,7 +563,10 @@ module.exports = function (app, passport) {
             user: req.query.user,
             password: req.query.pwd
         }, function (msg) {
-            res.send(msg.toString());
+            if(msg) {
+                msg = msg.toString();
+            }
+            res.json(msg);
         });
     });
     //authentication
