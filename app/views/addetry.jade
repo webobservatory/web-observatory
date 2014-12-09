@@ -12,8 +12,8 @@ block content
         .form-group
             label.col-md-4.control-label(for='url') URL
             .col-md-3
-                input.form-control.input-xlarge(name='url' type='text', placeholder='Address of your entry', required='')
-                p.help-block= 'The URL of your ' + type + '. Leave it blank if you want to upload a data file.'
+                input.form-control.input-xlarge(name='url' type='text', placeholder='URL or IP', required='')
+                p.help-block= 'The URL or IP of your ' + type + '. For MongoDB the protocol and database name must be given, e.g. mongodb://localhost/mydb. Leave this field blank if you want to upload a ile.'
         if type === 'dataset'
             // Text input
             .form-group

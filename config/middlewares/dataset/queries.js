@@ -100,9 +100,7 @@ function mgdbDriver(query, mime, ds, cb) {
             }
         });
     } catch (err) {
-        cb({
-            message: 'Query syntax error'
-        });
+        cb(err);
     }
 }
 
@@ -147,25 +145,30 @@ function sparqlTest(ds, cb) {
 
 function mgdbTest(ds, cb) {
     var url = ds.url;
-    mgclient.connect(url, function (err, db) {
-        if (err) {
-            return cb(err);
-        }
-        if (ds.user) {
-            db.authenticate(ds.user, ds.password, function (err, result) {
-                if (err || !result) {
-                    return cb(err || {
-                        message: 'Authentication failed'
-                    });
-                }
+    try {
+        mgclient.connect(url, function (err, db) {
+            if (err) {
+                return cb(err);
+            }
+            if (ds.user) {
+                db.authenticate(ds.user, ds.password, function (err, result) {
+                    if (err || !result) {
+                        return cb(err || {
+                            message: 'Authentication failed'
+                        });
+                    }
+                    cb(null);
+                    db.close();
+                });
+            } else {
                 cb(null);
                 db.close();
-            });
-        } else {
-            cb(null);
-            db.close();
-        }
-    });
+            }
+        });
+    }
+    catch (err) {
+        cb(err);
+    }
 }
 
 function pqTest(ds, cb) {
@@ -272,7 +275,6 @@ module.exports.mongodbschema = function (ds, cb) {
                         names = names.map(function (name) {
                             return name.substring(name.indexOf('.') + 1);
                         });
-                        //console.log(names);
                         cb(err, names);
                     }
                     db.close();
@@ -291,7 +293,6 @@ module.exports.mongodbschema = function (ds, cb) {
                     });
                     cb(err, names);
                 }
-
                 db.close();
             });
         }

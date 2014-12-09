@@ -48,10 +48,10 @@ $(document).ready(function () {
 
         data.typ = value.toLowerCase();
         data.url = $('#adddata input[name=url]').val();
-        if (-1 === data.url.indexOf('://') && 'mysql' !== data.typ) {
+        /*if (-1 === data.url.indexOf('://') && 'mysql' !== data.typ) {
             data.url = protocol[data.typ] + '://' + data.url;
             $('#adddata input[name=url]').val(data.url);
-        }
+        }*/
         data.user = $('#adddata input[name=user]').val();
         data.pwd = $('#adddata input[name=pwd]').val();
 
@@ -68,7 +68,7 @@ $(document).ready(function () {
         }
         return {
             valid: msg === null,
-            message: 'Please check your url, and username password of the dataset if required'
+            message: msg
         };
     }
 
@@ -122,7 +122,7 @@ $(document).ready(function () {
                 validators: {
                     callback: {
                         enabled: 'dataset' === type,
-                        message: 'You must select a dataset listed in the portal',
+                        message: 'Please check the url and username/password your provided for the dataset',
                         callback: contest
                     }
                 }
@@ -130,6 +130,7 @@ $(document).ready(function () {
         }
     })
         .on('success.field.bv', function (e, data) {
+            consolg.log(data);
             if (data.bv.isValid()) {
                 data.bv.disableSubmitButtons(false);
             }
