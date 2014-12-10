@@ -21,7 +21,8 @@ var mongoose = require('mongoose'),
     forceSSL = require('./middlewares/utils').forceSSL,
     noneSSL = require('./middlewares/utils').noneSSL,
     oauth2 = require('../oauth/oauth2server'),
-    connTest = require('./middlewares/connTest');
+    connTest = require('./middlewares/connTest'),
+    git = require('./middlewares/github/github');
 
 module.exports = function (app, passport) {
 
@@ -142,7 +143,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
+    app.get('/add/:typ(dataset|visualisation)', forceSSL, ensureLoggedIn('/login'), function (req, res) {
         res.render('addetry', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -222,7 +223,7 @@ module.exports = function (app, passport) {
     });
 
     //adding an entry
-    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
+    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), git, function (req, res) {
         var etry, user = req.user;
         etry = {
             url: req.body.url,
@@ -563,12 +564,18 @@ module.exports = function (app, passport) {
             user: req.query.user,
             password: req.query.pwd
         }, function (msg) {
-            if(msg) {
+            if (msg) {
                 msg = msg.toString();
             }
             res.json(msg);
         });
     });
+
+    app.get('/git/:uid/:repo', function (req, res) {
+        var uid = req.params.uid, repo = req.params.repo;
+        res.render(uid + '/' + repo);
+    });
+
     //authentication
 
     app.get("/login", forceSSL, function (req, res) {

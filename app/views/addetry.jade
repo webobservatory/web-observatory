@@ -13,7 +13,7 @@ block content
             label.col-md-4.control-label(for='url') URL
             .col-md-3
                 input.form-control.input-xlarge(name='url' type='text', placeholder='URL or IP', required='')
-                p.help-block= 'The address of your ' + type + '. For MongoDB should be in the form mongodb://host:port/dbname. Leave this field blank if you want to upload a ile.'
+                p.help-block= 'The address of your ' + type + '.' + (type === 'dataset' ? 'For MongoDB should be in the form mongodb://host:port/dbname. Leave this field blank if you want to upload a file.' : 'If you want us to host your application, leave this field blank and provide a Github address below')
         if type === 'dataset'
             // Text input
             .form-group
@@ -77,8 +77,8 @@ block content
                 .form-group
                     label.col-md-4.control-label(for='git') Source code
                     .col-md-3
-                        input.form-control.input-xlarge(name='git' type='text', placeholder='Github/Sourceforge etc.')
-                        p.help-block The url of your online repository that hosts this visualisation
+                        input.form-control.input-xlarge(name='git' type='text', placeholder='https://github.com/:user/:reponame')
+                        p.help-block The Github url of this visualisation
             // Textarea
             .form-group
                 label.col-md-4.control-label(for='des') Description

@@ -18,12 +18,15 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
+    servestatic = require('serve-static'),
     favicon = require('serve-favicon'),
     errorHandler = require('errorhandler'),
     methodOverride = require('method-override'),
     env = process.env.NODE_ENV || 'development',
     config = require('./config/config')[env],
     models_dir = __dirname + '/app/models';
+
+global.approot = path.resolve(__dirname);
 
 mongoose.connect(config.db);
 
@@ -91,7 +94,8 @@ app.use(passport.session());
 app.use(passport.authenticate('remember-me'));
 app.use(methodOverride());
 app.use(flash());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/git', servestatic(path.join(__dirname, 'git')));
+app.use(servestatic(path.join(__dirname, 'public')));
 
 var options = {
     key: fs.readFileSync('./ssl/key.pem'),

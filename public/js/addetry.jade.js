@@ -103,7 +103,7 @@ $(document).ready(function () {
                 }
             },
             basedOn: {
-                threshold: 5,
+                threshold: 3,
                 validators: {
                     callback: {
                         enabled: 'visualisation' === type,
@@ -120,6 +120,40 @@ $(document).ready(function () {
                         enabled: 'dataset' === type,
                         message: 'Please check the url and username/password your provided for the dataset',
                         callback: contest
+                    }
+                }
+            },
+            git: {
+                validators: {
+                    callback: {
+                        enabled: 'visualisation' === type,
+                        message: 'Invalid Github address',
+                        callback: function (value, validator) {
+                            var valid = false;
+                            if (-1 !== value.indexOf('https://github.com/')) {
+                                valid = true;
+                            }
+                            /*                            $.ajax({
+                             url: value,
+                             success: function (data, status) {
+                             stat = status;
+                             valid = true;
+                             },
+                             error: function (jxr, status) {
+                             stat = status;
+                             valid = false;
+                             },
+                             async: false
+                             });*/
+
+                            if (valid) {
+                                if (!validator.getFieldElements('url').val()) {
+                                    validator.updateStatus('url', 'VALID');
+                                }
+                            }
+
+                            return valid;
+                        }
                     }
                 }
             }
