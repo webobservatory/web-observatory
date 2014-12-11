@@ -4,7 +4,10 @@
  */
 
 var queries = require('./dataset/queries.js'),
-    crypto = require('crypto');
+    crypto = require('crypto'),
+    socketio = require('../../app').socketio,
+    socketioSSL = require('../../app').socketioSSL
+    ;
 
 function stream(req, res, next) {
     "use strict";
@@ -18,7 +21,7 @@ function stream(req, res, next) {
     }
 
     query = req.query.query || req.body.query;
-    io = req.secure ? require('../../app').socketioSSL : require('../../app').socketio;//TODO req.app.get('socket')?
+    io = req.secure ? socketioSSL : socketio;
     streamid = crypto.randomBytes(32).toString('base64');
     io.of(streamid)
         .on('connection', function (socket) {
@@ -75,7 +78,7 @@ function mongostream(req, res, next) {
         if (err) {
             return next(err);
         }
-        
+
         stream.pipe(res);
 
         //if (mime === 'display') {
@@ -98,24 +101,24 @@ function mongostream(req, res, next) {
 function nonstream(req, res, next) {
     "use strict";
 
-    var queryDriver, query, mime, modname, qtyp, ds;
+    var queryDriver, query, limit, skip, mime, modname, qtyp, ds;
 
     ds = req.attach.dataset;
 
     queryDriver = queries.drivers[ds.querytype.toLowerCase()];
-    if (!queryDriver) {
-        return next({message: 'Dataset type not supported'});
-    }
-
     qtyp = ds.querytype.toLowerCase();
     mime = req.query.format || req.body.format;
     query = req.query.query || req.body.query;
+    limit = req.query.limit || req.body.limit;
+    skip = req.query.skip || req.body.skip;
     modname = req.query.modname || req.body.modname;
 
     if (modname) {
         query = {
             modname: modname,
-            query: query
+            query: query,
+            limit: limit || 1000,
+            skip: skip || 0
         };
     }
 

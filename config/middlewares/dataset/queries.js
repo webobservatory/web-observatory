@@ -54,6 +54,20 @@ function mysqlDriver(query, mime, ds, cb) {
     });
 }
 
+function mgdbHelper(query, db, collection, cb) {
+    var stream = collection.find(query.query, {limit: query.limit, skip: query.skip}).stream({
+        transform: function (data) {
+            return JSON.stringify(data);
+        }
+    });
+
+    stream.on('close', function () {
+        db.close();
+    });
+
+    cb(null, stream);
+}
+
 function mgdbDriver(query, mime, ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds),
@@ -70,6 +84,7 @@ function mgdbDriver(query, mime, ds, cb) {
             if (err) {
                 return cb(err);
             }
+
             if (ds.user) {
                 db.authenticate(ds.auth.user, pwd, function (err, result) {
                     if (err || !result) {
@@ -77,18 +92,12 @@ function mgdbDriver(query, mime, ds, cb) {
                             message: 'Authentication failed'
                         });
                     }
+
                     db.collection(modname, function (err, collection) {
                         if (err) {
                             return cb(err);
                         }
 
-                        var stream = collection.find(query.query, {limit: 1000}).stream();
-
-                        stream.on('close', function () {
-                            db.close();
-                        });
-
-                        cb(null, stream);
                     });
                 });
             } else {
@@ -96,22 +105,8 @@ function mgdbDriver(query, mime, ds, cb) {
                     if (err) {
                         return cb(err);
                     }
-
-                    var stream = collection.find(query.query, {limit: 1000}).stream({
-                        transform: function (data) {
-                            return JSON.stringify(data);
-                        }
-                    });
-
-                    stream.on('close', function () {
-                        db.close();
-                    });
-
-                    cb(null, stream);
-                    //    toArray(function (err, result) {
-                    //    cb(err, result);
-                    //    db.close();
-                    //});
+                   
+                    mgdbHelper(query, db, collection, cb);
                 });
             }
         });
