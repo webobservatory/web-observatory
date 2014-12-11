@@ -81,10 +81,14 @@ function mgdbDriver(query, mime, ds, cb) {
                         if (err) {
                             return cb(err);
                         }
-                        collection.find(query.query, function (err, result) {
-                            cb(err, result);
+
+                        var stream = collection.find(query.query, {limit: 1000}).stream();
+
+                        stream.on('close', function () {
                             db.close();
                         });
+
+                        cb(null, stream);
                     });
                 });
             } else {
@@ -92,10 +96,22 @@ function mgdbDriver(query, mime, ds, cb) {
                     if (err) {
                         return cb(err);
                     }
-                    collection.find(query.query).toArray(function (err, result) {
-                        cb(err, result);
+
+                    var stream = collection.find(query.query, {limit: 1000}).stream({
+                        transform: function (data) {
+                            return JSON.stringify(data);
+                        }
+                    });
+
+                    stream.on('close', function () {
                         db.close();
                     });
+
+                    cb(null, stream);
+                    //    toArray(function (err, result) {
+                    //    cb(err, result);
+                    //    db.close();
+                    //});
                 });
             }
         });
