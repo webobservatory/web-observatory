@@ -22,7 +22,6 @@ module.exports = function (req, res, next) {
     reponame = giturl.slice(giturl.lastIndexOf('/') + 1, giturl.lastIndexOf('.'));
     try {
         gitrepo = path.join(__dirname, '../../../' + filebase, uid, reponame);
-        console.log(gitrepo);
 
         fs.exists(gitrepo, function (existing) {
             if (!existing) {

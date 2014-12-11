@@ -307,7 +307,7 @@ module.exports = function (app, passport) {
                 etry.creator = req.body.value;
                 break;
             case 'git':
-                etry.git = req.body.value;
+                etry.git = req.body.value.trim();
                 break;
             case 'related':
                 etry.related = req.body.value;
@@ -328,15 +328,15 @@ module.exports = function (app, passport) {
                 console.error(err);
                 res.send(400, err.message);
             } else {
-                res.status(200).end();
+                if (etry.git) {
+                    req.body.git = etry.git;
+                    next();
+                }
             }
         });
-
-        if (etry.git) {
-            req.body.git = etry.git;
-            next();
-        }
-    }, git);
+    }, git, function (req, res) {
+        res.status(200).end();
+    });
 
     app.get('/edit/:eid', ensureLoggedIn('/login'), function (req, res) {
 
