@@ -88,7 +88,7 @@ block content
                               expires_in: 3600,
                               token_type: "Bearer" }
                         
-                    3. Use the access token to query a dataset. HTTP GET `https://webobservatory.soton.ac.uk/api/wo/DATASET_ID/query` (`DATASET_ID` can be obtained from the URL of detial information page, the string after `#`), with the data field `query:QUERY_STRING` and the header `Authorization:"Bearer ACCESS_TOKEN"`
+                    3. Use the access token to query a dataset. HTTP GET `https://webobservatory.soton.ac.uk/api/wo/DATASET_ID/endpoint` (`DATASET_ID` can be obtained from the URL of detial information page, the string after `#`), with the data field `query:QUERY_STRING` and the header `Authorization:"Bearer ACCESS_TOKEN"`
                     
                         The example below queries the [Twitter #FLWebSci hashtag](/wo/dataset#53bc04568a1ea0572f934663) dataset whose id is _53bc04568a1ea0572f934663_.
                         
@@ -97,7 +97,7 @@ block content
                         ```javascript        
                         $.ajax({
                             type: 'get',
-                            url: 'https://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/query',
+                            url: 'https://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/endpoint',
                             data: { query:'select 1+1 as solution' },
                             headers: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
                             }).done(function(result) {
@@ -108,7 +108,7 @@ block content
                         httpie example :
                         
                         ```
-                        http GET http://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/query Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" query=="select 1+1 as solution"
+                        http GET http://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/endpoint Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" query=="select 1+1 as solution"
                         ```
                             
                         The response from the server  will contain the solution of your query.

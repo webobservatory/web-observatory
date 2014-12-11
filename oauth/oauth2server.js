@@ -150,7 +150,6 @@ server.exchange(oauth2orize.exchange.password(function (client, email, password,
     });
 }));
 
-
 //exchange user grant code for an access token
 server.exchange(oauth2orize.exchange.code(function (client, codeValue, redirectURI, done) {
 
@@ -244,8 +243,11 @@ exports.authorise = server.authorization(function (clientID, redirectURI, done) 
         // It's recomended by the OAuth2 spec to check that
         // redirectURI provided by the client matches one registered with
         // the server.
-        if (!client || redirectURI !== client.redirectURI) {
-            return done(null, false, null);
+        if (!client) {
+            return done({message: 'Client of the given ID not found'}, false, null);
+        }
+        if (client.redirectURI && redirectURI && redirectURI !== client.redirectURI) {
+            return done({message: 'Redirect URL not valid'}, false, null);
         }
         done(null, client, redirectURI);
     });

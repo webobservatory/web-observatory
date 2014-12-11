@@ -82,51 +82,26 @@ function mongostream(req, res, next) {
         }
 
         stream.pipe(res);
-
-        //if (mime === 'display') {
-        //    var viewer = 'jsonview';
-        //    if (qtyp === 'sparql') {
-        //        viewer = 'csvview';
-        //    }
-        //    res.render('query/' + viewer, {
-        //        'result': stream,
-        //        'info': req.flash('info'),
-        //        'error': req.flash('error')
-        //    });
-        //} else {
-        //    res.attachment('result.txt');
-        //    res.end(stream, 'UTF-8');
-        //}
     });
 }
 
 function nonstream(req, res, next) {
     "use strict";
 
-    var queryDriver, query, limit, skip, mime, modname, qtyp, ds;
+    var queryDriver, query, mime, ds;
 
     ds = req.attach.dataset;
-
     queryDriver = queries.drivers[ds.querytype.toLowerCase()];
-    qtyp = ds.querytype.toLowerCase();
     mime = req.query.format || req.body.format;
     query = req.query.query || req.body.query;
 
-    queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, result) {
+    queryDriver(query, mime === 'display' ? 'application/sparql-results+json' : mime, ds, function (err, result) {
         if (err) {
             return next(err);
         }
 
-        if (mime === 'display') {
-            var viewer = 'jsonview';
-            if (qtyp === 'sparql') {
-                viewer = 'csvview';
-            }
-            res.render('query/' + viewer, {
-                'result': result,
-                'info': req.flash('info'),
-                'error': req.flash('error')
-            });
+        if (!mime || mime === 'display') {
+            res.send(result);
         } else {
             res.attachment('result.txt');
             res.end(result, 'UTF-8');
