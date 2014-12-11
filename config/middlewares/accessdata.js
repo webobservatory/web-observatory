@@ -4,10 +4,7 @@
  */
 
 var queries = require('./dataset/queries.js'),
-    crypto = require('crypto'),
-    socketio = require('../../app').socketio,
-    socketioSSL = require('../../app').socketioSSL
-    ;
+    crypto = require('crypto');
 
 function stream(req, res, next) {
     "use strict";
@@ -20,8 +17,8 @@ function stream(req, res, next) {
         return next({message: 'Dataset type not supported'});
     }
 
-    query = req.query.query || req.body.query;
-    io = req.secure ? socketioSSL : socketio;
+    query = req.query.query || req.body.query || req.body.ex || req.query.ex;
+    io = req.secure ? req.app.get('socketioSSL') : req.app.get('socketio');
     streamid = crypto.randomBytes(32).toString('base64');
     io.of(streamid)
         .on('connection', function (socket) {

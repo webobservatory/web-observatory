@@ -106,7 +106,6 @@ var secureServer = https.createServer(options, app);
 var server = http.createServer(app);
 var ioSSL = require('socket.io')(secureServer);
 var io = require('socket.io')(server);
-
 app.set('socketio', io);
 app.set('socketioSSL', ioSSL);
 
@@ -120,7 +119,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(function (err, req, res, next) {
-    winstonLogger.error(err);
+    winstonLogger.error(err.toString());
     if (req.xhr) {
         res.status(500).send(err);
     } else {
@@ -139,6 +138,6 @@ server.listen(3000, function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
 
-exports.app = app;//for vhost
-exports.socketio = io;
-exports.socketioSSL = ioSSL;
+module.exports.app = app;//for vhost
+module.exports.socketio = io;
+module.exports.socketioSSL = ioSSL;
