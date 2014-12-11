@@ -59,8 +59,6 @@ function mgdbHelper(collname, query, db, cb) {
         if (err) {
             return cb(err);
         }
-        console.log(query);
-        console.log(typeof query.limit);
         var stream = collection.find(query.query)
             .limit(query.limit)
             .skip(query.skip)
