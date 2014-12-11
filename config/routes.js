@@ -283,7 +283,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post('/detail/:eid', Auth.isOwner, function (req, res) {
+    app.post('/detail/:eid', Auth.isOwner, function (req, res, next) {
         var eid = req.params.eid,
             etry = {};
 
@@ -322,6 +322,7 @@ module.exports = function (app, passport) {
                 etry.opVis = req.body.value === '1';
                 break;
         }
+
         modctrl.editEtry(eid, etry, function (err) {
             if (err) {
                 console.error(err);
@@ -330,7 +331,12 @@ module.exports = function (app, passport) {
                 res.status(200).end();
             }
         });
-    });
+
+        if (etry.git) {
+            req.body.git = etry.git;
+            next();
+        }
+    }, git);
 
     app.get('/edit/:eid', ensureLoggedIn('/login'), function (req, res) {
 
@@ -972,7 +978,7 @@ module.exports = function (app, passport) {
     app.get('/api/wo/:eid/endpoint', cors(), passport.authenticate('bearer', {
         session: false
     }), Auth.hasAccToDB, accessdata);
-    
+
     app.get('/api/stats', cors(), passport.authenticate('bearer', {
         session: false
     }), function (req, res) {
