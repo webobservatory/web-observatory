@@ -53,7 +53,7 @@ function stream(req, res, next) {
 function mongostream(req, res, next) {
     "use strict";
 
-    var queryDriver, query, mime, modname, qtyp, ds;
+    var queryDriver, query, limit, skip, modname, ds;
 
     ds = req.attach.dataset;
 
@@ -62,19 +62,21 @@ function mongostream(req, res, next) {
         return next({message: 'Dataset type not supported'});
     }
 
-    qtyp = ds.querytype.toLowerCase();
-    mime = req.query.format || req.body.format;
     query = req.query.query || req.body.query;
     modname = req.query.modname || req.body.modname;
+    limit = req.query.limit || req.body.limit;
+    skip = req.query.skip || req.body.skip;
 
     if (modname) {
         query = {
             modname: modname,
-            query: query
+            query: query,
+            limit: limit ? parseInt(limit) : 1000,
+            skip: skip ? parseInt(skip) : 0
         };
     }
 
-    queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, stream) {
+    queryDriver(query, null, ds, function (err, stream) {
         if (err) {
             return next(err);
         }
@@ -109,18 +111,6 @@ function nonstream(req, res, next) {
     qtyp = ds.querytype.toLowerCase();
     mime = req.query.format || req.body.format;
     query = req.query.query || req.body.query;
-    limit = req.query.limit || req.body.limit;
-    skip = req.query.skip || req.body.skip;
-    modname = req.query.modname || req.body.modname;
-
-    if (modname) {
-        query = {
-            modname: modname,
-            query: query,
-            limit: limit || 1000,
-            skip: skip || 0
-        };
-    }
 
     queryDriver(query, mime === 'display' ? 'text/csv' : mime, ds, function (err, result) {
         if (err) {

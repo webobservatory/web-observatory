@@ -54,27 +54,37 @@ function mysqlDriver(query, mime, ds, cb) {
     });
 }
 
-function mgdbHelper(query, db, collection, cb) {
-    var stream = collection.find(query.query, {limit: query.limit, skip: query.skip}).stream({
-        transform: function (data) {
-            return JSON.stringify(data);
+function mgdbHelper(collname, query, db, cb) {
+    db.collection(collname, function (err, collection) {
+        if (err) {
+            return cb(err);
         }
-    });
+        console.log(query);
+        console.log(typeof query.limit);
+        var stream = collection.find(query.query)
+            .limit(query.limit)
+            .skip(query.skip)
+            .stream({
+                transform: function (data) {
+                    return JSON.stringify(data);
+                }
+            });
 
-    stream.on('close', function () {
-        db.close();
-    });
+        stream.on('close', function () {
+            db.close();
+        });
 
-    cb(null, stream);
+        cb(null, stream);
+    });
 }
 
 function mgdbDriver(query, mime, ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds),
-        modname = query.modname;
+        collname = query.modname;
 
     //deny access to system collections
-    if (0 === modname.indexOf('system.')) {
+    if (0 === collname.indexOf('system.')) {
         return cb({message: 'Access denied: querying system collections'});
     }
 
@@ -92,22 +102,10 @@ function mgdbDriver(query, mime, ds, cb) {
                             message: 'Authentication failed'
                         });
                     }
-
-                    db.collection(modname, function (err, collection) {
-                        if (err) {
-                            return cb(err);
-                        }
-
-                    });
+                    mgdbHelper(collname, query, db, cb);
                 });
             } else {
-                db.collection(modname, function (err, collection) {
-                    if (err) {
-                        return cb(err);
-                    }
-                   
-                    mgdbHelper(query, db, collection, cb);
-                });
+                mgdbHelper(collname, query, db, cb);
             }
         });
     } catch (err) {

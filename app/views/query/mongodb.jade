@@ -14,31 +14,11 @@ form#queryform(action='/endpoint/' + eid + '/mongodb' method='get' target='_blan
     .form-group
         label.control-label
             | Limit:
-        select.form-control(name='limit')
-            option 1000
-            option 2000
-            option 3000
-            option 5000
-            option 8000
-            option 13000
-            option 21000
-            option 34000
-            option 55000
-            option 89000
+        input.form-control(name='limit' placeholder='Limit to 1000 results by default')
     .form-group
         label.control-label
             | Skip:
-        select.form-control(name='skip')
-            option 0
-            option 1000
-            option 2000
-            option 3000
-            option 5000
-            option 8000
-            option 13000
-            option 21000
-            option 34000
-            option 55000
+        input.form-control(name='skip' placeholder='Skip the first a few results')
     //.form-group
         label.control-label
             | Results:
