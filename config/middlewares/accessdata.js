@@ -19,7 +19,7 @@ function stream(req, res, next) {
 
     query = req.query.query || req.body.query || req.body.ex || req.query.ex;
     io = req.secure ? req.app.get('socketioSSL') : req.app.get('socketio');
-    streamid = crypto.randomBytes(32).toString('base64');
+    streamid = crypto.randomBytes(32).toString('base64').replace(/\//g, '_').replace(/\+/g, '-');
     io.of(streamid)
         .on('connection', function (socket) {
             var channel;
@@ -34,13 +34,17 @@ function stream(req, res, next) {
             });
 
             socket.on('disconnect', function () {
-                console.log('channel close');
-                channel.close();
+                console.log('disconnect channel close');
+                if (channel) {
+                    channel.close();
+                }
             });
 
             socket.on('stop', function () {
                 console.log('channel close');
-                channel.close();
+                if (channel) {
+                    channel.close();
+                }
             });
         });
     return res.render('query/streamview', {streamid: streamid});
