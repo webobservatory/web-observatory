@@ -330,8 +330,9 @@ module.exports = function (app, passport) {
             } else {
                 if (etry.git) {
                     req.body.git = etry.git;
-                    next();
+                    return next();
                 }
+                res.status(200).end();
             }
         });
     }, git, function (req, res) {
