@@ -47,6 +47,11 @@ function stream(req, res, next) {
                 }
             });
         });
+
+    if (0 === req.path.indexOf('/api')) {
+        return res.send(streamid);
+    }
+
     return res.render('query/streamview', {streamid: streamid});
     //next();
 }
