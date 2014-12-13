@@ -94,7 +94,6 @@ function mgdbDriver(query, mime, ds, cb) {
             query.query._id = new ObjectId(query.query._id);
         }
         query.project = JSON.parse(query.project);
-        console.log(query);
         mgclient.connect(url, function (err, db) {
             if (err) {
                 return cb(err);
