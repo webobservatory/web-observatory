@@ -62,6 +62,7 @@ function mgdbHelper(collname, query, db, cb) {
         var stream = collection.find(query.query)
             .limit(query.limit)
             .skip(query.skip)
+            .project(query.project)
             .stream({
                 transform: function (data) {
                     return JSON.stringify(data);
@@ -88,6 +89,7 @@ function mgdbDriver(query, mime, ds, cb) {
 
     try {
         query.query = JSON.parse(query.query);
+        query.project = JSON.parse(query.project);
         mgclient.connect(url, function (err, db) {
             if (err) {
                 return cb(err);

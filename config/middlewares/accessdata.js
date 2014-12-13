@@ -59,7 +59,7 @@ function stream(req, res, next) {
 function mongostream(req, res, next) {
     "use strict";
 
-    var queryDriver, query, limit, skip, modname, ds;
+    var queryDriver, query, limit, skip, project, modname, ds;
 
     ds = req.attach.dataset;
 
@@ -72,13 +72,15 @@ function mongostream(req, res, next) {
     modname = req.query.modname || req.body.modname;
     limit = req.query.limit || req.body.limit;
     skip = req.query.skip || req.body.skip;
+    project = req.query.project || req.body.project;
 
     if (modname) {
         query = {
             modname: modname,
             query: query,
             limit: limit ? parseInt(limit) : 1000,
-            skip: skip ? parseInt(skip) : 0
+            skip: skip ? parseInt(skip) : 0,
+            project: project ||'{}'
         };
     }
 

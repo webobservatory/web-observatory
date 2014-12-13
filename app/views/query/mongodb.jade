@@ -19,6 +19,10 @@ form#queryform(action='/endpoint/' + eid + '/mongodb' method='get' target='_blan
         label.control-label
             | Skip:
         input.form-control(name='skip' placeholder='Skip the first a few results')
+    .form-group
+        label.control-label
+            | Project:
+        input.form-control(name='project' placeholder='Specify the fields you need. Double-quote all key/value pairs')
     //.form-group
         label.control-label
             | Results:
