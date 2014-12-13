@@ -8,7 +8,8 @@ var crypto = require('crypto'),
     amqp = require('./amqp_connector'),
     http = require('http'),
     https = require('https'),
-    mgclient = require('mongodb').MongoClient;
+    mgclient = require('mongodb').MongoClient,
+    ObjectId = require('mongodb').ObjectID;
 
 var enc_alg = 'aes256';
 
@@ -89,7 +90,11 @@ function mgdbDriver(query, mime, ds, cb) {
 
     try {
         query.query = JSON.parse(query.query);
+        if (query.query._id) {
+            query.query._id = new ObjectId(query.query._id);
+        }
         query.project = JSON.parse(query.project);
+        console.log(query);
         mgclient.connect(url, function (err, db) {
             if (err) {
                 return cb(err);
