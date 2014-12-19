@@ -3,6 +3,7 @@ files
 # Logs
 log
 logs
+git
 *.log
 
 # Runtime data

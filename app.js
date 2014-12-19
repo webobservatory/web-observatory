@@ -18,12 +18,15 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     cookieParser = require('cookie-parser'),
     session = require('express-session'),
+    servestatic = require('serve-static'),
     favicon = require('serve-favicon'),
     errorHandler = require('errorhandler'),
     methodOverride = require('method-override'),
     env = process.env.NODE_ENV || 'development',
     config = require('./config/config')[env],
     models_dir = __dirname + '/app/models';
+
+global.approot = path.resolve(__dirname);
 
 mongoose.connect(config.db);
 
@@ -91,7 +94,8 @@ app.use(passport.session());
 app.use(passport.authenticate('remember-me'));
 app.use(methodOverride());
 app.use(flash());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use('/git', servestatic(path.join(__dirname, 'git')));
+app.use(servestatic(path.join(__dirname, 'public')));
 
 var options = {
     key: fs.readFileSync('./ssl/key.pem'),
@@ -102,7 +106,6 @@ var secureServer = https.createServer(options, app);
 var server = http.createServer(app);
 var ioSSL = require('socket.io')(secureServer);
 var io = require('socket.io')(server);
-
 app.set('socketio', io);
 app.set('socketioSSL', ioSSL);
 
@@ -116,7 +119,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(function (err, req, res, next) {
-    winstonLogger.error(err);
+    winstonLogger.error(err.toString());
     if (req.xhr) {
         res.status(500).send(err);
     } else {
@@ -135,6 +138,6 @@ server.listen(3000, function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
 
-exports.app = app;//for vhost
-exports.socketio = io;
-exports.socketioSSL = ioSSL;
+module.exports.app = app;//for vhost
+module.exports.socketio = io;
+module.exports.socketioSSL = ioSSL;

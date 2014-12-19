@@ -27,7 +27,7 @@ function on_channel_open(ex, cb) {
         }
         ch.assertQueue('', {exclusive: true}, function (err, ok) {
             if (err) {
-                cb(err);
+                return cb(err);
             }
             var q = ok.queue;
             ch.bindQueue(q, ex, '');

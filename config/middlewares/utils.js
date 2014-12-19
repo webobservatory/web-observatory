@@ -16,7 +16,7 @@ exports.noneSSL = function (req, res, next) {
     'use strict';
     if (req.secure) {
         var port = req.app.get('port');
-        res.redirect('http://' + req.hostname + ':' + port+ req.url);
+        res.redirect('http://' + req.hostname + ':' + port + req.url);
     } else {
         next();
     }

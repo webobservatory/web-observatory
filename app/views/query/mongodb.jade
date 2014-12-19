@@ -1,26 +1,38 @@
-form#queryform(action='/endpoint/'+eid+'/mongodb' method='get' target='_blank')
-  .form-group
-    if tags
-        label.control-label(for='modname') Select a model name
-        select.form-control(name='modname')
-          for val in tags
-            if val.indexOf('system.') !== 0
-              option(value=val)= val
-    else
-        label.control-label(for='modname') Collection names not available, type a model name
-        input.form-control(name='modname')
-  .form-group
-    textarea.form-control#querytext(name='query' rows='5' placeholder='Double-quote your key/value pairs, e.g. {"key":"value"}')
-  .form-group
-      label.control-label
-        | Results:
-      select.form-control#selectoutput(name='format')
-        option(value='display') Browse
-        option(value='application/sparql-results+json') JSON
-  .btn-group
-      button#send.btn.btn-primary Submit
-      button#reset.btn.btn-warning Reset
+form#queryform(action='/endpoint/' + eid + '/mongodb' method='get' target='_blank')
+    .form-group
+        if tags
+            label.control-label(for='modname') Select a model name
+            select.form-control(name='modname')
+                for val in tags
+                    if val.indexOf('system.') !== 0
+                        option(value=val)= val
+        else
+            label.control-label(for='modname') Collection names not available, type a model name
+            input.form-control(name='modname')
+    .form-group
+        textarea.form-control#querytext(name='query' rows='5' placeholder='Double-quote your key/value pairs, e.g. {"key":"value"}')
+    .form-group
+        label.control-label
+            | Limit:
+        input.form-control(name='limit' placeholder='Limit to 1000 results by default')
+    .form-group
+        label.control-label
+            | Skip:
+        input.form-control(name='skip' placeholder='Skip the first a few results')
+    .form-group
+        label.control-label
+            | Project:
+        input.form-control(name='project' placeholder='Specify the fields you need. Double-quote all key/value pairs')
+    //.form-group
+        label.control-label
+            | Results:
+        select.form-control#selectoutput(name='format')
+            option(value='display') Browse
+            option(value='application/sparql-results+json') JSON
+    .btn-group
+        button#send.btn.btn-primary Submit
+        button#reset.btn.btn-warning Reset
 script(src='/js/jquery-ui-1.10.3.min.js')
 script.
-  tags = !{JSON.stringify(tags)};
+    tags = !{JSON.stringify(tags)};
     //script(src='/js/mongodb.jade.js')

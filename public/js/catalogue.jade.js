@@ -1,5 +1,6 @@
 $(document).ready(function () {
 
+    'use strict';
     $('.tp').tooltip();
 
     //datatable bt3
@@ -45,8 +46,11 @@ $(document).ready(function () {
                 }
             ]
         });
-        
-        var querytype = $('#querytype');
+
+        var querytype = $('#querytype'),
+            related = $('#related'),
+            kw = $('#kw');
+
         if (querytype) {
             querytype.editable({
                 disabled: true,
@@ -65,10 +69,6 @@ $(document).ready(function () {
                         text: 'PostgreSQL'
                     },
                     {
-                        value: 'Hive',
-                        text: 'Hadoop Hive'
-                    },
-                    {
                         value: 'MongoDB',
                         text: 'MongoDB'
                     }
@@ -76,14 +76,51 @@ $(document).ready(function () {
             });
         }
 
-        var related = $('#related');
         if (related) {
             related.editable({
-                disabled: true,
-                typeahead: {
-                    remote: '/nametags/dataset/?term=%QUERY'
+                    disabled: true,
+                    inputclass: 'input-large',
+                    select2: {
+                        tokenSeparators: [",", " "],
+                        minimumInputLength: 2,
+                        tags: [],
+                        initSelection: function (element, callback) {//required to displaying existing tags
+                            var data = [];
+                            $('#related').text().split(',').forEach(function (text) {
+                                data.push({id: text, text: text});
+                            });
+                            callback(data);
+                        },
+                        ajax: {
+                            url: '/nametags/dataset',
+                            dataType: 'json',
+                            data: function (term, page) {
+                                return {term: term, page: page};
+                            },
+                            results: function (data, page) {
+                                data = data.map(function (ds) {
+                                    return {id: ds, text: ds};
+                                });
+                                return {results: data};
+                            }
+                        }
+                    }
                 }
+            );
+
+            kw.editable({
+                disabled: true,
+                source: {},
+                inputclass: 'input-large',
+                select2: {tokenSeparators: [",", " "], tags: []}
             });
+            //related.editable({
+            //    disabled: true,
+            //    typeahead: {
+            //        remote: '/nametags/dataset/?term=%QUERY'
+            //    }
+            //});
+
         }
     }
 
@@ -119,8 +156,7 @@ $(document).ready(function () {
                     if (querytype) {//display query panel for datasets
                         $('#querypan').load('/query/' + querytype + '/' + id);
                     } else {
-                        $('#explore').removeClass('hidden');
-                        $('#explore').attr('href', $('#url').attr('value'));
+                        $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
                     }
                 } else {
                     $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function (event) {

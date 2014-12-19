@@ -36,22 +36,18 @@ $(document).ready(function () {
 
     //dataset connection validator
     function contest(value) {
-        var protocol = {
-                sparql: 'http',
-                hive: 'http',
-                mongodb: 'mongodb',
-                mysql: 'mysql',
-                postgres: 'postgres'
-            },
-            data = {},
-            msg;
+        var data = {}, msg;
 
         data.typ = value.toLowerCase();
-        data.url = $('#adddata input[name=url]').val();
-        if (-1 === data.url.indexOf('://') && 'mysql' !== data.typ) {
-            data.url = protocol[data.typ] + '://' + data.url;
-            $('#adddata input[name=url]').val(data.url);
+        if ('file' === value) {
+            return true;
         }
+
+        data.url = $('#adddata input[name=url]').val();
+        /*if (-1 === data.url.indexOf('://') && 'mysql' !== data.typ) {
+         data.url = protocol[data.typ] + '://' + data.url;
+         $('#adddata input[name=url]').val(data.url);
+         }*/
         data.user = $('#adddata input[name=user]').val();
         data.pwd = $('#adddata input[name=pwd]').val();
 
@@ -68,7 +64,7 @@ $(document).ready(function () {
         }
         return {
             valid: msg === null,
-            message: 'Please check your url, and username password of the dataset if required'
+            message: msg
         };
     }
 
@@ -115,7 +111,7 @@ $(document).ready(function () {
                 }
             },
             basedOn: {
-                threshold: 5,
+                threshold: 3,
                 validators: {
                     callback: {
                         enabled: 'visualisation' === type,
@@ -130,18 +126,62 @@ $(document).ready(function () {
                 validators: {
                     callback: {
                         enabled: 'dataset' === type,
-                        message: 'You must select a dataset listed in the portal',
+                        message: 'Please check the url and username/password your provided for the dataset',
                         callback: contest
+                    }
+                }
+            },
+            git: {
+                validators: {
+                    callback: {
+                        enabled: 'visualisation' === type,
+                        message: 'Invalid Github address',
+                        callback: function (value, validator) {
+                            var valid = false;
+                            if (-1 !== value.indexOf('https://github.com/')) {
+                                valid = true;
+                            }
+                            /*                            $.ajax({
+                             url: value,
+                             success: function (data, status) {
+                             stat = status;
+                             valid = true;
+                             },
+                             error: function (jxr, status) {
+                             stat = status;
+                             valid = false;
+                             },
+                             async: false
+                             });*/
+
+                            if (valid) {
+                                if (!validator.getFieldElements('url').val()) {
+                                    validator.updateStatus('url', 'VALID');
+                                }
+                            }
+
+                            return valid;
+                        }
                     }
                 }
             }
         }
     })
         .on('success.field.bv', function (e, data) {
-            if (data.bv.isValid()) {
-                data.bv.disableSubmitButtons(false);
-            }
+            data.bv.disableSubmitButtons(false);
+        })
+        .on('error.field.bv', function (e, data) {
+            // $(e.target)  --> The field element
+            // data.bv      --> The BootstrapValidator instance
+            // data.field   --> The field name
+            // data.element --> The field element
+
+            data.bv.disableSubmitButtons(false);
         });
+
+    $('#adddata button[type=submit]').click(function () {
+        $('#adddata').bootstrapValidator('revalidateField', 'querytype');
+    });
 
 //file uploading
     $('#adddata select[name=querytype]').change(function () {

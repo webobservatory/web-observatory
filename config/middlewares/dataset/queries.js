@@ -8,7 +8,8 @@ var crypto = require('crypto'),
     amqp = require('./amqp_connector'),
     http = require('http'),
     https = require('https'),
-    mgclient = require('mongodb').MongoClient;
+    mgclient = require('mongodb').MongoClient,
+    ObjectId = require('mongodb').ObjectID;
 
 var enc_alg = 'aes256';
 
@@ -54,22 +55,50 @@ function mysqlDriver(query, mime, ds, cb) {
     });
 }
 
+function mgdbHelper(collname, query, db, cb) {
+    db.collection(collname, function (err, collection) {
+        if (err) {
+            return cb(err);
+        }
+        var stream = collection.find(query.query)
+            .limit(query.limit)
+            .skip(query.skip)
+            .project(query.project)
+            .stream({
+                transform: function (data) {
+                    return JSON.stringify(data);
+                }
+            });
+
+        stream.on('close', function () {
+            db.close();
+        });
+
+        cb(null, stream);
+    });
+}
+
 function mgdbDriver(query, mime, ds, cb) {
     var url = ds.url,
         pwd = decryptPwd(ds),
-        modname = query.modname;
+        collname = query.modname;
 
     //deny access to system collections
-    if (0 === modname.indexOf('system.')) {
+    if (0 === collname.indexOf('system.')) {
         return cb({message: 'Access denied: querying system collections'});
     }
 
     try {
         query.query = JSON.parse(query.query);
+        if (query.query._id) {
+            query.query._id = new ObjectId(query.query._id);
+        }
+        query.project = JSON.parse(query.project);
         mgclient.connect(url, function (err, db) {
             if (err) {
                 return cb(err);
             }
+
             if (ds.user) {
                 db.authenticate(ds.auth.user, pwd, function (err, result) {
                     if (err || !result) {
@@ -77,32 +106,14 @@ function mgdbDriver(query, mime, ds, cb) {
                             message: 'Authentication failed'
                         });
                     }
-                    db.collection(modname, function (err, collection) {
-                        if (err) {
-                            return cb(err);
-                        }
-                        collection.find(query.query, function (err, result) {
-                            cb(err, result);
-                            db.close();
-                        });
-                    });
+                    mgdbHelper(collname, query, db, cb);
                 });
             } else {
-                db.collection(modname, function (err, collection) {
-                    if (err) {
-                        return cb(err);
-                    }
-                    collection.find(query.query).toArray(function (err, result) {
-                        cb(err, result);
-                        db.close();
-                    });
-                });
+                mgdbHelper(collname, query, db, cb);
             }
         });
     } catch (err) {
-        cb({
-            message: 'Query syntax error'
-        });
+        cb(err);
     }
 }
 
@@ -147,25 +158,30 @@ function sparqlTest(ds, cb) {
 
 function mgdbTest(ds, cb) {
     var url = ds.url;
-    mgclient.connect(url, function (err, db) {
-        if (err) {
-            return cb(err);
-        }
-        if (ds.user) {
-            db.authenticate(ds.user, ds.password, function (err, result) {
-                if (err || !result) {
-                    return cb(err || {
-                        message: 'Authentication failed'
-                    });
-                }
+    try {
+        mgclient.connect(url, function (err, db) {
+            if (err) {
+                return cb(err);
+            }
+            if (ds.user) {
+                db.authenticate(ds.user, ds.password, function (err, result) {
+                    if (err || !result) {
+                        return cb(err || {
+                            message: 'Authentication failed'
+                        });
+                    }
+                    cb(null);
+                    db.close();
+                });
+            } else {
                 cb(null);
                 db.close();
-            });
-        } else {
-            cb(null);
-            db.close();
-        }
-    });
+            }
+        });
+    }
+    catch (err) {
+        cb(err);
+    }
 }
 
 function pqTest(ds, cb) {
@@ -272,7 +288,6 @@ module.exports.mongodbschema = function (ds, cb) {
                         names = names.map(function (name) {
                             return name.substring(name.indexOf('.') + 1);
                         });
-                        //console.log(names);
                         cb(err, names);
                     }
                     db.close();
@@ -291,7 +306,6 @@ module.exports.mongodbschema = function (ds, cb) {
                     });
                     cb(err, names);
                 }
-
                 db.close();
             });
         }

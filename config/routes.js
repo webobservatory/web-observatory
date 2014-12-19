@@ -21,7 +21,8 @@ var mongoose = require('mongoose'),
     forceSSL = require('./middlewares/utils').forceSSL,
     noneSSL = require('./middlewares/utils').noneSSL,
     oauth2 = require('../oauth/oauth2server'),
-    connTest = require('./middlewares/connTest');
+    connTest = require('./middlewares/connTest'),
+    git = require('./middlewares/github/github');
 
 module.exports = function (app, passport) {
 
@@ -142,7 +143,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
+    app.get('/add/:typ(dataset|visualisation)', forceSSL, ensureLoggedIn('/login'), function (req, res) {
         res.render('addetry', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -222,7 +223,7 @@ module.exports = function (app, passport) {
     });
 
     //adding an entry
-    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), function (req, res) {
+    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), git, function (req, res) {
         var etry, user = req.user;
         etry = {
             url: req.body.url,
@@ -282,7 +283,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.post('/detail/:eid', Auth.isOwner, function (req, res) {
+    app.post('/detail/:eid', Auth.isOwner, function (req, res, next) {
         var eid = req.params.eid,
             etry = {};
 
@@ -306,7 +307,7 @@ module.exports = function (app, passport) {
                 etry.creator = req.body.value;
                 break;
             case 'git':
-                etry.git = req.body.value;
+                etry.git = req.body.value.trim();
                 break;
             case 'related':
                 etry.related = req.body.value;
@@ -321,14 +322,21 @@ module.exports = function (app, passport) {
                 etry.opVis = req.body.value === '1';
                 break;
         }
+
         modctrl.editEtry(eid, etry, function (err) {
             if (err) {
                 console.error(err);
                 res.send(400, err.message);
             } else {
+                if (etry.git) {
+                    req.body.git = etry.git;
+                    return next();
+                }
                 res.status(200).end();
             }
         });
+    }, git, function (req, res) {
+        res.status(200).end();
     });
 
     app.get('/edit/:eid', ensureLoggedIn('/login'), function (req, res) {
@@ -563,9 +571,18 @@ module.exports = function (app, passport) {
             user: req.query.user,
             password: req.query.pwd
         }, function (msg) {
+            if (msg) {
+                msg = msg.toString();
+            }
             res.json(msg);
         });
     });
+
+    app.get('/git/:uid/:repo', function (req, res) {
+        var uid = req.params.uid, repo = req.params.repo;
+        res.render(uid + '/' + repo);
+    });
+
     //authentication
 
     app.get("/login", forceSSL, function (req, res) {
@@ -957,72 +974,11 @@ module.exports = function (app, passport) {
 
     app.get('/api/wo/:eid/query', cors(), passport.authenticate('bearer', {
         session: false
-    }), Auth.hasAccToDB, function (req, res, next) {
+    }), Auth.hasAccToDB, accessdata);
 
-        var queryDriver, qlog, ds, query, io;
-
-        ds = req.attach.dataset;
-
-        if (!ds) {
-            return next({message: 'Dataset not found'});
-        }
-
-        query = req.query.query;
-
-        qlog = {};
-        qlog.time = new Date();
-        qlog.ip = req.connection.remoteAddress;
-        qlog.query = query;
-        qlog.usrmail = req.user.email;
-
-        qlog.ds = ds.url;
-        queryDriver = queries.drivers[ds.querytype.toLowerCase()];
-        if (!queryDriver) {
-            next({message: 'Dataset type not supported'});
-        } else {
-            //TODO implement queryDriver as middlelayer
-            if (ds.querytype === 'AMQP') {
-                io = req.secure ? app.get('socketioSSL') : app.get('socketio');
-                io.on('connection', function (socket) {
-                    var channel;
-                    queryDriver(query, null, ds, function (err, result, ch) {
-                        if (err) {
-                            console.log(err);
-                            return next(err);
-                        }
-                        if (ch) {
-                            channel = ch;
-                        }
-                        socket.emit('chunk', result);
-                    });
-
-                    socket.on('disconnect', function () {
-                        console.log('channel closed');
-                        channel.close();
-                    });
-
-                    socket.on('stop', function () {
-                        console.log('closing channel');
-                        socket.emit('chunk', 'closing channel');
-                        channel.close();
-                    });
-                });
-                return res.render('query/streamview');
-            }
-            queryDriver(query, '', ds,
-                function (err, result) {
-                    //qlog.result = JSON.stringify(result);
-                    logger.info(qlog);
-                    if (err) {
-                        return next(err);
-                    }
-                    res.send({
-                        result: result
-                    });
-                }
-            );
-        }
-    });
+    app.get('/api/wo/:eid/endpoint', cors(), passport.authenticate('bearer', {
+        session: false
+    }), Auth.hasAccToDB, accessdata);
 
     app.get('/api/stats', cors(), passport.authenticate('bearer', {
         session: false
@@ -1068,7 +1024,7 @@ module.exports = function (app, passport) {
     });
 
     //Oauth
-    app.get('/oauth/authorise', cors(), ensureLoggedIn('/login'), oauth2.authorise, function (req, res) {
+    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function (req, res) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,

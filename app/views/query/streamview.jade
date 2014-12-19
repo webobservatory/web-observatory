@@ -8,9 +8,10 @@ block content
 block footer
     script(src='/socket.io/socket.io.js')
     script.
-        $(document).ready(function() {
-        var socket = io.connect(window.location.origin);
-        socket.on('chunk', function (data) {
+        var streamid = "#{streamid}";
+        $(document).ready(function () {
+            var socket = io.connect('/' + streamid);
+            socket.on('chunk', function (data) {
                 var liner = data;
                 $('#display').append(liner);
                 console.log(liner);
