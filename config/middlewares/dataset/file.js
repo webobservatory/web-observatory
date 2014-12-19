@@ -2,7 +2,13 @@
 var formidable = require('formidable'),
     path = require('path'),
     fs = require('fs'),
-    Entry = require('mongoose').model('Entry');
+    Entry = require('mongoose').model('Entry'),
+    fileRoot = path.join(__dirname, '../../../files/');
+
+exports.fileExist = function (fileRelative, cb) {
+    var filePath = path.join(fileRoot, fileRelative);
+    fs.exists(filePath, cb);
+};
 
 exports.fileDownload = function (req, res, next) {
     var eid = req.params.eid || req.query.eid;
@@ -21,7 +27,7 @@ exports.fileDownload = function (req, res, next) {
         }
 
         var filePath = entry.url,
-            file = path.join(__dirname, '../../../files/', filePath);
+            file = path.join(fileRoot, filePath);
         if (0 === filePath.indexOf('http') || 0 === filePath.indexOf('ftp')) {
             res.redirect(filePath);
         } else {
@@ -32,14 +38,13 @@ exports.fileDownload = function (req, res, next) {
 
 exports.fileUpload = function (req, res) {
 
-    var fileFolder,
-        form;
+    var usrFileFolder, form;
 
-    fileFolder = path.join(__dirname, '../../../files/', req.user.email);
+    usrFileFolder = path.join(fileRoot, req.user.email);
 
-    fs.exists(fileFolder, function (existing) {
+    fs.exists(usrFileFolder, function (existing) {
         if (!existing) {
-            fs.mkdir(fileFolder);
+            fs.mkdir(usrFileFolder);
         }
     });
 
@@ -54,7 +59,7 @@ exports.fileUpload = function (req, res) {
         old_path = files.file.path;
         file_size = files.file.size;//TODO limit file size
         file_name = files.file.name;
-        new_path = path.join(fileFolder, file_name);
+        new_path = path.join(usrFileFolder, file_name);
 
 
         exist = true;
@@ -65,7 +70,7 @@ exports.fileUpload = function (req, res) {
             if (fs.existsSync(new_path)) {
                 renameIndex += 1;
                 file_name = file_name.substring(0, extIndex) + '_' + renameIndex + file_name.substring(extIndex);
-                new_path = path.join(fileFolder, file_name);
+                new_path = path.join(usrFileFolder, file_name);
             }
             else {
                 exist = false;

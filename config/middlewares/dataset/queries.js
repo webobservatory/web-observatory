@@ -6,6 +6,7 @@ var crypto = require('crypto'),
     hive = require('./hive'),
     pq = require('pq'),
     amqp = require('./amqp_connector'),
+    file = require('./file.js'),
     http = require('http'),
     https = require('https'),
     mgclient = require('mongodb').MongoClient,
@@ -234,11 +235,17 @@ function passDecodeWrapper(testFun) {
 
 
 var tests = {
-    sparql: passDecodeWrapper(sparqlTest),
+    sparql: sparqlTest,
     mysql: passDecodeWrapper(mysqlTest),
     postgressql: passDecodeWrapper(pqTest),
     file: function (ds, cb) {
-        cb(null);
+        file.fileExist(ds.url, function (exist) {
+            if (!exist) {
+                return cb({message: 'File not found'});
+            }
+            cb(null);
+        });
+
     },
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest),
