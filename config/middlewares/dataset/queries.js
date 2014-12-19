@@ -251,17 +251,19 @@ var tests = {
     amqp: passDecodeWrapper(amqpTest),
     visualisation: function (ds, cb) {
         var protocol = http;
-        if (-1 !== ds.url.indexOf('https')) {
+        if (0 === ds.url.indexOf('https')) {
             protocol = https;
         }
 
         protocol.get(ds.url, function (res) {
-            if (res.statusCode < 400) {
+            console.log(ds.url + ': ' + res.statusCode);
+            if (res.statusCode && res.statusCode < 400) {
                 cb(null);
             } else {
-                cb({message: 'Status code: ' + res.statusCode});
+                cb({message: ds.url + ': ' + res.statusCode});
             }
         }).on('error', function (e) {
+            console.log(ds.url + ': ' + e);
             cb(e);
         });
     }
