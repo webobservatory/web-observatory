@@ -9,6 +9,7 @@ var crypto = require('crypto'),
     file = require('./file.js'),
     http = require('http'),
     https = require('https'),
+    url = require('url'),
     mgclient = require('mongodb').MongoClient,
     ObjectId = require('mongodb').ObjectID;
 
@@ -250,12 +251,17 @@ var tests = {
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest),
     visualisation: function (ds, cb) {
-        var protocol = http;
+        var protocol = http, options;
+
+        options = url.parse(ds.url);
+
         if (0 === ds.url.indexOf('https')) {
             protocol = https;
+            options.rejectUnauthorized = false;
         }
 
-        protocol.get(ds.url, function (res) {
+
+        protocol.get(options, function (res) {
             console.log(ds.url + ': ' + res.statusCode);
             if (res.statusCode && res.statusCode < 400) {
                 cb(null);
