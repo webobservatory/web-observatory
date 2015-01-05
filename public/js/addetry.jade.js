@@ -94,6 +94,14 @@ $(document).ready(function () {
                     }
                 }
             },
+            des: {
+                validators: {
+                    stringLength: {
+                        message: 'Description must be more than 100 characters',
+                        min: 100
+                    }
+                }
+            },
             file: {
                 validators: {
                     file: {
@@ -229,8 +237,6 @@ $(document).ready(function () {
     }
 
     function completeHandler(data, status) {
-        console.log(status);
-        console.log(data);
         if (status === 200) {
             alert('File uploaded');
             var path = data.path;

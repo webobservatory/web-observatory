@@ -6,8 +6,10 @@ var crypto = require('crypto'),
     hive = require('./hive'),
     pq = require('pq'),
     amqp = require('./amqp_connector'),
+    file = require('./file.js'),
     http = require('http'),
     https = require('https'),
+    url = require('url'),
     mgclient = require('mongodb').MongoClient,
     ObjectId = require('mongodb').ObjectID;
 
@@ -234,27 +236,40 @@ function passDecodeWrapper(testFun) {
 
 
 var tests = {
-    sparql: passDecodeWrapper(sparqlTest),
+    sparql: sparqlTest,
     mysql: passDecodeWrapper(mysqlTest),
     postgressql: passDecodeWrapper(pqTest),
     file: function (ds, cb) {
-        cb(null);
+        file.fileExist(ds.url, function (exist) {
+            if (!exist) {
+                return cb({message: 'File not found'});
+            }
+            cb(null);
+        });
+
     },
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest),
     visualisation: function (ds, cb) {
-        var protocol = http;
-        if (-1 !== ds.url.indexOf('https')) {
+        var protocol = http, options;
+
+        options = url.parse(ds.url);
+
+        if (0 === ds.url.indexOf('https')) {
             protocol = https;
+            options.rejectUnauthorized = false;
         }
 
-        protocol.get(ds.url, function (res) {
-            if (res.statusCode < 400) {
+
+        protocol.get(options, function (res) {
+            console.log(ds.url + ': ' + res.statusCode);
+            if (res.statusCode && res.statusCode < 400) {
                 cb(null);
             } else {
-                cb({message: 'Status code: ' + res.statusCode});
+                cb({message: ds.url + ': ' + res.statusCode});
             }
         }).on('error', function (e) {
+            console.log(ds.url + ': ' + e);
             cb(e);
         });
     }

@@ -118,8 +118,8 @@ app.use(function (req, res, next) {
     next(err);
 });
 
-app.use(function (err, req, res, next) {
-    winstonLogger.error(err.toString());
+app.use(function (err, req, res, __) {
+    winstonLogger.error(JSON.stringify(err));
     if (req.xhr) {
         res.status(500).send(err);
     } else {
