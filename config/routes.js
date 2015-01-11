@@ -143,7 +143,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get('/add/:typ(dataset|visualisation)', forceSSL, ensureLoggedIn('/login'), function (req, res) {
+    app.get('/add/:typ(dataset|visualisation)', noneSSL, ensureLoggedIn('/login'), function (req, res) {
         res.render('addetry', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -225,6 +225,7 @@ module.exports = function (app, passport) {
     //adding an entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), git, function (req, res) {
         var etry, user = req.user;
+        console.log(req.body);
         etry = {
             url: req.body.url,
             auth: {
@@ -234,7 +235,7 @@ module.exports = function (app, passport) {
             },
             name: req.body.name,
             type: req.params.typ,
-            querytype: req.body.querytype || 'Visualisation',
+            querytype: req.body.querytype || req.params.typ === 'dataset' ? 'Imported' : 'Visualisation',
             desc: req.body.desc,
             queryinfo: req.body.queryinfo,
             publisher: user.email,

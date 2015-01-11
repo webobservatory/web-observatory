@@ -134,7 +134,7 @@ $(document).ready(function () {
     function resetView() {
         $('#details').html('');
         $('#querypan').html('');
-        $('#display').removeClass('col-md-6');
+        $('#display').removeClass('col-md-7');
     }
 
     //deep linking
@@ -153,7 +153,7 @@ $(document).ready(function () {
                 }
 
                 if (opAcc) {
-                    if (querytype) {//display query panel for datasets
+                    if (querytype && querytype !== 'imported') {//display query panel for datasets
                         $('#querypan').load('/query/' + querytype + '/' + id);
                     } else {
                         $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
@@ -166,7 +166,7 @@ $(document).ready(function () {
                         });
                     });
                 }
-                $('#display').addClass('col-md-6');
+                $('#display').addClass('col-md-7');
             });
         } else {
             resetToolBar();

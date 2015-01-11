@@ -3,6 +3,17 @@ extends main
 block jumbotron
 block content
     form#adddata.form-horizontal(action='/add/' + type method='post')
+        if type === 'dataset'
+            .form-group
+                label.col-md-3.col-md-offset-4 Import a CKAN dataset
+            .form-group
+                .col-md-3.col-md-offset-4
+                    input#ckan.form-control.input-xlarge(type='text', placeholder='CKAN URI')
+            .form-group
+                .col-md-3.col-md-offset-4
+                    button#import.btn.btn-primary Import
+            .form-group
+                label.col-md-3.col-md-offset-4 or input manualy
         // Text input
         .form-group
             label.col-md-4.control-label(for='name') Title
@@ -12,15 +23,15 @@ block content
         .form-group
             label.col-md-4.control-label(for='url') URL
             .col-md-3
-                input.form-control.input-xlarge(name='url' type='text', placeholder='URL or IP', required='')
-                p.help-block= 'The address of your ' + type + '.' + (type === 'dataset' ? 'For MongoDB should be in the form mongodb://host:port/dbname. Leave this field blank if you want to upload a file.' : 'If you want us to host your application, leave this field blank and provide a Github address below')
+                input.form-control.input-xlarge(name='url' type='text', placeholder='The address of your entry', required='')
+                p.help-block= (type === 'dataset' ? 'Leave this field blank if you want to upload a file' : 'If you want us to host your application, leave this field blank and provide a Github address below')
         if type === 'dataset'
             // Text input
             .form-group
                 label.col-md-4.control-label(for='user') Username
                 .col-md-3
                     input.form-control.input-xlarge(name='user' type='text', placeholder='User name of your dataset')
-                    p.help-block Username of your dataset
+                    //p.help-block Username of your dataset
             // Text input
             .form-group
                 label.col-md-4.control-label(for='pwd') Password
@@ -85,6 +96,11 @@ block content
                 .col-md-3
                     textarea.form-control(name='des' placeholder='')
                     p.help-block A brief description of your entry
+            .form-group
+                label.col-md-4.control-label(for='kw') Tags
+                .col-md-3
+                    textarea.form-control(name='kw' placeholder='')
+                    p.help-block Comma separated tags
             if type === 'dataset'
                 // Textarea
                 .form-group
@@ -121,4 +137,6 @@ block footer
     script(src='/js/jquery-ui-1.10.3.min.js')
     script.
         var type = !{JSON.stringify(type)};
+    script(src='/js/rdfi.js')
+    script(src='/js/rdf-ext.js')
     script(src='/js/addetry.jade.js')

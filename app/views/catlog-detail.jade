@@ -61,5 +61,5 @@ table.xedit.table.table-bordered.table-striped
 span#owner.hidden(value=etry.isOwner.toString())
 span#acc.hidden(value=etry.haveAcc.toString())
 span#type.hidden(value=etry.type)
-if etry.type === 'visualisation'
+if etry.type === 'visualisation' || etry.querytype === 'Imported'
     span#url.hidden(value=etry.url)

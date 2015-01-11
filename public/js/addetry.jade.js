@@ -2,6 +2,7 @@ $(document).ready(function () {
     'use strict';
 
     var related_ds = -1;//check whether a related dataset of a vis is form this portal
+    var imported = false;//whether is dataset is imported from another site
     //animations
     $('#private').bind('click', function () {
         var $this = $(this);
@@ -39,7 +40,7 @@ $(document).ready(function () {
         var data = {}, msg;
 
         data.typ = value.toLowerCase();
-        if ('file' === value) {
+        if ('imported' === value || 'file' === value) {
             return true;
         }
 
@@ -180,22 +181,28 @@ $(document).ready(function () {
         });
 
     $('#adddata button[type=submit]').click(function () {
+        //if (imported) {
+        //    $('<input />').attr('type', 'hidden')
+        //        .attr('name', "imported")
+        //        .attr('value', true)
+        //        .appendTo('#adddata');
+        //}
         $('#adddata').bootstrapValidator('revalidateField', 'querytype');
     });
 
-//file uploading
+    //file uploading handling
+    //show/hide file uploading input
     $('#adddata select[name=querytype]').change(function () {
         var val = $(this).val();
-        if ('file' === val.toLowerCase()) {
+        if (val && 'file' === val.toLowerCase()) {
             $('#upload').fadeIn();
-            $('#contest').fadeOut();
         }
         else {
-            $('#contest').fadeIn();
             $('#upload').fadeOut();
         }
     });
 
+    //file uploading 
     $('#upload button').click(function (event) {
         event.preventDefault();
         var formData = new FormData($('form')[0]);
@@ -222,10 +229,12 @@ $(document).ready(function () {
         });
     });
 
+    //show progress bar
     function beforeSendHandler() {
         $('.progress').removeClass('hidden');
     }
 
+    //uploading progress
     function progressHandlingFunction(e) {
         if (e.lengthComputable) {
             var ratio = Math.round(e.loaded * 10000 / e.total) / 100 + '%';
@@ -249,5 +258,44 @@ $(document).ready(function () {
     function errorHandler() {
         alert('File uploading failed');
     }
-})
-;
+
+    //importing from ckan
+    $('#import').click(function (e) {
+        e.preventDefault();
+        ckanImport(function () {
+            $('#adddata').bootstrapValidator('validate');
+        });
+    });
+
+    //rdf.setPrefix('dcat','http://www.w3.org/ns/dcat#');
+    //rdf.setPrefix('dct','http://purl.org/dc/terms/');
+    //rdf.setPrefix('foaf','http://xmlns.com/foaf/0.1/');
+    function ckanImport(cb) {
+        var url = $('#ckan').val().trim();
+        if (!url) {
+            return;
+        }
+
+        if (-1 === url.indexOf('.rdf')) {
+            url += '.rdf';
+        }
+
+        $('#adddata select[name=querytype]').replaceWith('<p name=querytype class="input-xlarge form-control-static" value="Imported">Imported</p>');
+
+        rdf.defaultRequest('get', url,
+            {}, null, function (status, header, data) {
+                rdf.parseRdfXml(data, function (graph) {
+                    var jsonG = rdf.serializeJsonLd(graph)[0];
+                    var title = jsonG["http://purl.org/dc/terms/title"],
+                        des = jsonG["http://purl.org/dc/terms/description"],
+                        keyword = jsonG["http://www.w3.org/ns/dcat#keyword"].join(','),
+                        url = jsonG["@id"];
+                    $('#adddata input[name=name]').val(title);
+                    $('#adddata input[name=url]').val(url);
+                    $('#adddata textarea[name=des]').val(des);
+                    $('#adddata textarea[name=kw]').val(keyword);
+                    cb();
+                });
+            });
+    }
+});
