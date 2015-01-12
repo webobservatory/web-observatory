@@ -1,5 +1,5 @@
 var http = require('http'),
-    logger = require('../../app/util/logger');
+    logger = require('../../../app/util/logger');
 
 
 function httpQuery(opts, data, cb) {

@@ -6,18 +6,18 @@ var mongoose = require('mongoose'),
 
 var env = process.env.NODE_ENV || 'development',
     config = require('../config/config')[env];
-
+var client_name = process.argv[2],
+    client_secret = process.argv[3];
 mongoose.connect(config.db);
-Client.remove({}, function(err) {
 
-    var client = new Client({
-        name: "OurService iOS client v1",
-        clientSecret: "abc123456"
-    });
-    client.save(function(err, client) {
-        if (err) return console.log(err);
-        console.log("New client - %s:%s", client._id, client.clientSecret);
-    });
+var client = new Client({
+    name: client_name,
+    clientSecret: client_secret
+});
+
+client.save(function(err, client) {
+    if (err) return console.log(err);
+    console.log("New client - %s:%s", client._id, client.clientSecret);
 });
 
 AccessToken.remove({}, function(err) {

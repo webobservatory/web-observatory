@@ -1,35 +1,35 @@
 nav.navbar.navbar-inverse.navbar-fixed-top
-  .container-fluid
-    .navbar-header
-      button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
-        span.icon-bar
-        span.icon-bar
-        span.icon-bar
-      a.navbar-brand(href='/') Web Observatory Α
-    .navbar-collapse.collapse
-      ul.navbar-nav.nav
-        li
-          a(href='/') Home
-        //li.disabled
-          a(href='#about') About
-        //li.dropdown
-          a.dropdown-toggle(href='#', data-toggle='dropdown')
-            | Quick Menu
-            b.caret
-          ul.dropdown-menu(role='menu')
-        li
-          a(href='/catlg/dataset') Datasets
-        li
-          a(href='/catlg/visualisation') Visualisations
-        li
-          a(href='/search') Search
-      ul.navbar-right.nav.navbar-nav
-        if user == null                  
-          li.active
-            a(href='/login') Sign in
-        else
-          li
-            a(href="/profile")
-              =(user.firstName?user.firstName:user.email)+"'s Profile"
-          li 
-            a(href="/logout") Logout
+    .container-fluid
+        .navbar-header
+            button.navbar-toggle(type='button', data-toggle='collapse', data-target='.navbar-collapse')
+                span.icon-bar
+                span.icon-bar
+                span.icon-bar
+            a.navbar-brand(href='/') Web Observatory &alpha;
+        .navbar-collapse.collapse
+            ul.navbar-nav.nav
+                li#0
+                    a(href='/') Home
+                //li.disabled
+                  a(href='#about') About
+                //li.dropdown
+                  a.dropdown-toggle(href='#', data-toggle='dropdown')
+                    | Quick Menu
+                    b.caret
+                  ul.dropdown-menu(role='menu')
+                li#1
+                    a(href='/wo/dataset') Datasets
+                li#2
+                    a(href='/wo/visualisation') Visualisations
+                li#3
+                    a(href='/howto') Tutorials
+            ul.navbar-right.nav.navbar-nav
+                if user == null
+                    li.active
+                        a(href='/login') Sign in!
+                else
+                    li
+                        a(href="/profile")
+                            =(user.firstName ? user.firstName : user.email) + "'s Profile"
+                    li
+                        a(href="/logout") Logout

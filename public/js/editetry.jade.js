@@ -24,11 +24,11 @@ $(document).ready(function() {
         $('#conted').removeClass('glyphicon-remove glyphicon-ok');
         data.url = $('#adddata input[name=url]').val() || $('#adddata input[name=url]').attr('placeholder');
         data.typ = $('#adddata p.form-control-static[name=querytype]').text().toLowerCase();
-        if (data.url.split('://')[0] !== protocol[data.typ])
-            return alert("Dataset type doesn't mathch URL protocol");
-        if (data.typ.indexOf('sql') !== -1) return alert('Dataset not yet supported');
-        $.get('/contest?url=' + data.url + '&typ=' + data.typ, function(data, textStatus) {
-            //console.log(data);
+        data.user = $('#adddata input[name=user]').val() || $('#adddata input[name=user]').attr('placeholder');
+        data.pwd = $('#adddata input[name=pwd]').val();
+        console.log(data);
+        $.get('/contest', data, function(data, textStatus) {
+            console.log(data);
             if (data) {
                 //alert('Connection failed');
                 $('#conted').addClass('glyphicon-remove');

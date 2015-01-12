@@ -1,24 +1,23 @@
-doctype html
-html(lang='en')
-  include includes/head
-  body
-    include includes/nav
-    #wrap
-      .container
-        .row
-          include includes/site-banner
-        .row
-          .col-md-1
-          .col-md-5
-            h2 Datasets
-            p  A page containing information regarding various datasets gathered
-            p
-              a.btn.btn-primary.click(href='catlg/dataset') View details &raquo;
-          .col-md-5
-            h2 Visualisations
-            p  A page containing various data visualistions
-            p
-              a.btn.btn-primary.click(href='catlg/visualisation') View details &raquo;
-          .col-md-1
-      #push
-    include includes/footer
+extends main
+block jumbotron
+    include includes/slide-banner
+block content
+    .col-md-1
+    .col-md-5
+        h2 Datasets
+        p  A page containing information regarding various datasets gathered
+        p
+            a.btn.btn-primary.click(href='wo/dataset') View details &raquo;
+    .col-md-5
+        h2 Visualisations
+        p  A page containing various data visualistions
+        p
+            a.btn.btn-primary.click(href='wo/visualisation') View details &raquo;
+    .col-md-1
+block footer
+    script(src='/js/unslider.min.js')
+    link(href='/css/slide-banner.css', rel='stylesheet')
+    script.
+        $(function() {
+          $('.banner').unslider({keys:true, dots:true});
+        });

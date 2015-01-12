@@ -1,0 +1,65 @@
+table.xedit.table.table-bordered.table-striped
+    thead
+        tr
+    tbody
+        tr
+            td.col-md-1 Name
+            td
+                span#name(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Name of the entry' data-title='Edit name')=etry.name
+        tr
+            td Creator
+            td
+                span#creator(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Creator of the entry' data-title='Edit creator')=etry.creator
+        tr
+            td Publisher
+            td
+                span#publisher(data-type='text' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.publisher_name
+
+        tr
+            td Related dataset
+            td
+                span#related(data-type='select2' data-pk=etry._id data-url='/detail/' + etry._id data-title='Edit related dataset')=etry.related
+        if etry.type === 'visualisation'
+            tr
+                td Github address
+                td
+                    span#git(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Git address of the entry' data-title='Edit git address')=etry.git
+
+        if etry.type === 'dataset'
+            tr
+                td Query
+                td
+                    span#querytype(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query protocol of the entry' data-title='Edit query protocol')=etry.querytype
+
+        tr
+            td Keywords
+            td
+                span#kw(data-type='select2' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Keywords and tags' data-title='Edit keywords')=etry.kw
+
+        tr
+            td Description
+            td
+                span#des(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
+
+        if etry.type === 'dataset'
+            tr
+                td QueryInfo
+                td
+                    span#queryinfo(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query interface of the entry' data-title='Edit query information')=etry.queryinfo
+
+        tr
+            td Shown to
+            td
+                span#opVis(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can see this entry?' data-title='Edit visibility permision' data-value=etry.opVis ? 1 : 0)
+
+        tr
+            td Access
+            td
+                span#opAcc(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can access this entry?' data-title='Edit access permision' data-value=etry.opAcc ? 1 : 0)
+
+
+span#owner.hidden(value=etry.isOwner.toString())
+span#acc.hidden(value=etry.haveAcc.toString())
+span#type.hidden(value=etry.type)
+if etry.type === 'visualisation' || etry.querytype === 'Imported'
+    span#url.hidden(value=etry.url)

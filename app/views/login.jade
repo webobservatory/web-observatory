@@ -1,29 +1,12 @@
-include includes/head
-link(href='/css/signin.css', rel='stylesheet')
-body
-  #wrap
-    .container.text-center
-      .row
-        include includes/flash-banner
-      .row
-        include includes/site-banner
-      .row
-        form.form-signin(action='/login', method='post')
-          label.form-signin-heading WO account login 
-          input.form-control(placeholder='Email' type='email' name='email' required='')
-          input.form-control(placeholder='Password' type='password', name='password' required='')
-          button.btn.btn-primary.btn-lg.btn-block(type='submit') Login
-          .checkbox
-            label Remember Me
-              input(name='remember_me' type='checkbox')
-      .row
-        //a(href="/auth/facebook") Log In With Facebook
-        a(href='/profile/forgot-pass') Forgot password?
-        br
-        | or 
-        a(href='/signup') Sign Up 
-        br
-      #push
-  include includes/footer
-  script(src='/js/jqBootstrapValidation.js')
-  script(src='/js/reset-pass.jade.js')
+extends base
+
+block content
+    include includes/loginbox
+    include includes/sotonbox
+
+block footer
+    script.
+        $('button.signin').bind('click',function(event){
+            event.preventDefault();
+            $('#loginform').attr('action',$(this).attr('target')).submit();
+        })

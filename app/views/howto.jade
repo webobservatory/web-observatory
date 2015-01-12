@@ -1,0 +1,119 @@
+extends main
+
+block content
+    :markdown
+        This tutorial is at a preliminary stage. Please send your feedbacks (concrete comments and possible solutions) to [Contact](mailto:webobservatory@ecs.soton.ac.uk).
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#user') New users
+        #user.panel-collapse.collapse.in
+            .panel-body
+                :markdown
+                   Although you can anonymously browse datasets and visualisations, more functionalities will be available after logging in. Two types of accounts are accepted by this site, a Web Observatory account (wo account), or a Southampton University account (su account). An wo account can be created at the [signup page](/signup). 
+                       
+                    You can login using either account at the [sign in page](/login), by choosing the desired login button. For wo account login, the username is your email. For su account login the username is your university username (without *@soton.ac.uk* part), and the password is your university password (not ecs password). The first time you login using your su account, a wo account will be automatically created. This account will use your university email as the username, and a password reset is required the first time you use it.
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#browse') Browse datasets and visualisations
+        #browse.panel-collapse.collapse.in
+            .panel-body
+                :markdown
+                    Datasets and visualisations registered on this site can be browsed at either [Datasets](/wo/dataset) and [Visualisations](/wo/visualisation) respectively. The default view shows a table of entries with basic information (metadata). You can specify how many entries are shown per page, filter entires using the search box, and reorder entires by clicking the title of a column. A detailed information panel along with additional buttons will show after clicking the name of an entry. Function of these buttons will be described in section [Query datasets](#query).
+                    
+                    Each entry on this site has a uniques identifier (e.g. [DBpedia](/wo/dataset#52e19220bef627683c79c3a6) `/wo/dataset#52e19220bef627683c79c3a6`). These identifiers are resolvable and will give detailed metadata of the entry, as if you've clicked the name of the entry. The segment part (i.e. the string after #) is the ID of this entry, which is required to used the [Query API](#api). 
+
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#reg') Register datasets and visualisations
+        #reg.panel-collapse.collapse.in
+            .panel-body
+                :markdown
+                    You are more than welcome to register your datasets and visualisations on this site, which can be doen by clicking the *Add* button at either [Datasets](/wo/dataset) or [Visualisations](/wo/visualisation). You will have to provide basic metadata, such as name, URL, publisher (you), creator etc. as well as access control options at the bottom. For datasets, you have to provide username and password of datasets where applicable. In addition you need to test whether the URL, username and password you provided are valid.
+
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#query') Query datasets
+        #query.panel-collapse.collapse.in
+            .panel-body
+                :markdown
+                    Once you logged in, you can query a dataset that you have permission to access (i.e. either publich datasets or the publisher has granted you permission). An *Explore* button will become available on top of the detail panel of the dataset. Clicking that button will show a query panel below the detail panel. Currently supported datasets/query languages are SPARQL, MongoDB and MySQL. 
+
+    .panel-default.panel
+        .panel-heading
+            .panel-title
+                a(data-toggle='collapse' href='#api') Query API
+        #api.panel-collapse.collapse.in
+            .panel-body
+                :markdown
+                    The query API allows users to create applications that access/query datasets on users' behalf. To enforce protection for (private) datasets on the portal, the query API is protected by OAuth2.0, the technique that enables you to login to various sites using your Facebook/Google account.
+                    To use the query API firstly you need to follow the following steps:
+                    
+                    1. Create a new application at [Applications](/profile#clients) in your profile, where you can have an applicatoin ID and a secret. They're the credentials of your application which should be kept safe.
+                    2. HTTP POST to `https://webobservatory.soton.ac.uk/oauth/token` with the following data fields 
+                        `grant_type:'password'`
+                        `client_id:APP_ID`
+                        `client_secret:APP_SECRET`
+                        `username:USER_NAME`
+                        `password:PASSWORD`
+                        where capitalised words represent variables.
+                    
+                        [jQuery](http://jquery.com/) example :
+                        
+                        ```javascript
+                        $.post('https://webobservatory.soton.ac.uk/oauth/token',
+                            {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
+                            function(data){
+                                console.log(data);
+                        });
+                        ```
+
+                        [httpie](https://github.com/jakubroztocil/httpie) example :
+
+                        ```
+                        http POST http://webobservatory.soton.ac.uk/oauth/token grant_type="password" client_id="53be91cb9790d31811850792" client_secret="dien8ck4kdie3" username=USER_NAME password=PASSWORD
+                        ```
+                        
+                        Note: To access https using httpie you have to [configure httpie](https://github.com/jakubroztocil/httpie#https) first.
+                        
+                        The response from the server will contain an access token if the request went through.
+                        
+                        Example response:
+                            
+                            { access_token: "BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=",
+                              refresh_token: "woHiAGTspWnsYCJD0ACv9yOi4sMxZln0lWix99dd4hU=",
+                              expires_in: 3600,
+                              token_type: "Bearer" }
+                        
+                    3. Use the access token to query a dataset. HTTP GET `https://webobservatory.soton.ac.uk/api/wo/DATASET_ID/endpoint` (`DATASET_ID` can be obtained from the URL of detial information page, the string after `#`), with the data field `query:QUERY_STRING` and the header `Authorization:"Bearer ACCESS_TOKEN"`
+                    
+                        The example below queries the [Twitter #FLWebSci hashtag](/wo/dataset#53bc04568a1ea0572f934663) dataset whose id is _53bc04568a1ea0572f934663_.
+                        
+                        jQuery example :
+                            
+                        ```javascript        
+                        $.ajax({
+                            type: 'get',
+                            url: 'https://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/endpoint',
+                            data: { query:'select 1+1 as solution' },
+                            headers: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
+                            }).done(function(result) {
+                                console.log(result);
+                        });
+                        ```
+    
+                        httpie example :
+                        
+                        ```
+                        http GET http://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/endpoint Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" query=="select 1+1 as solution"
+                        ```
+                            
+                        The response from the server  will contain the solution of your query.
+                            
+                        Example response:
+                        ```    
+                        { result: { solution:2 } }
+                        ```

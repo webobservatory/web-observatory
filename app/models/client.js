@@ -1,7 +1,7 @@
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
-var ClientSchema = Schema({
+var ClientSchema = new Schema({
     name: {
         type: String,
         unique: true,
@@ -11,7 +11,12 @@ var ClientSchema = Schema({
         type: String,
         required: true
     },
-    redirectURI: String
+    redirectURI: String,
+    owner: String,//owner's email
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
 });
 
 module.exports = mongoose.model("Client", ClientSchema);

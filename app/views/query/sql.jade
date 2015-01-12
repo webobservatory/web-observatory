@@ -1,32 +1,12 @@
-doctype html
-html(lang='en')
-  include ../includes/head
-  body
-    include ../includes/nav
-    #wrap
-      .container
-        .row
-          include ../includes/flash-banner
-        .row
-          form.form-horizontal.col-sm-10#queryform(action='/endpoint/'+dsID+'/sql', method='get')
-            .form-group
-              .col-sm-offset-5
-                h2 SQL
-                = 'Dataset: ' + name
-            .form-group
-              .col-sm-offset-5.col-sm-5
-                textarea.form-control#querytext(name='query' rows='5' placeholder='Inpute your SQL query')
-            .form-group
-              label.control-label.col-sm-5
-                | Results:
-              .col-sm-2
-                select.form-control#selectoutput(name='format')
-                  option(value='display') Browse
-                  option(value='application/sparql-results+json') JSON
-            .form-group
-              .col-sm-offset-5.col-sm-5
-                .btn-group
-                  button#send.btn.btn-primary Submit
-                  button#reset.btn.btn-warning Reset
-      #push
-    include ../includes/footer
+form#queryform(action='/endpoint/'+eid+'/sql' method='get' target='_blank')
+  .form-group
+    textarea.form-control#querytext(name='query' rows='5' placeholder='Inpute your SQL query')
+  .form-group
+    label.control-label
+      | Results:
+    select.form-control#selectoutput(name='format')
+      option(value='display') Browse
+        //option(value='application/sparql-results+json') JSON
+  .btn-group
+    button#send.btn.btn-primary Submit
+    button#reset.btn.btn-warning Reset

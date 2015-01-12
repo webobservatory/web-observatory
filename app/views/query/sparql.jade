@@ -1,37 +1,20 @@
-doctype html
-html(lang='en')
-  include ../includes/head
-  body
-    include ../includes/nav
-    #wrap
-      .container
-        .row
-          include ../includes/flash-banner
-        .row
-          form.form-horizontal.col-sm-5#queryform(action='/endpoint/'+dsID+'/sparql', method='get')
-            .form-group
-              h2 SPARQL
-              = 'Dataset: ' + name
-              pre#prefixestext.pre-scrollable
-            .form-group
-                input.form-control.hide(name='query')
-                textarea.form-control#querytext(rows='5')
-            .form-group
-              label.control-label.col-sm-2
-                | Results:
-              .col-sm-3
-                select.form-control#selectoutput(name='format')
-                  option(value='display') Browse
-                  option(value='application/sparql-results+json') JSON
-                  option(value='text/csv') CSV
-                  option(value='text/tab-separated-values') TSV
-                  option(value='application/sparql-results+xml') XML
-            .form-group
-              .btn-group
-                button#send.btn.btn-primary Submit
-                button#reset.btn.btn-warning Reset
-          #result
-      #push
-    include ../includes/footer
-    script(src='/js/sparql.jade.js')
-    script(src='/js/sparql.js')
+form#queryform(action='/endpoint/'+eid+'/sparql', method='get' target='_blank')
+  .form-group
+    pre#prefixestext.pre-scrollable
+  .form-group
+      input.form-control.hide(name='query')
+      textarea.form-control#querytext(rows='5')
+  .form-group
+    label
+      | Results:
+    select.form-control#selectoutput(name='format')
+      option(value='display') Browse
+      option(value='application/sparql-results+json') JSON
+      option(value='text/csv') CSV
+      option(value='text/tab-separated-values') TSV
+      option(value='application/sparql-results+xml') XML
+  .btn-group
+    button#send.btn.btn-primary Submit
+    button#reset.btn.btn-warning Reset
+script(src='/js/sparql.jade.js')
+script(src='/js/sparql.js')

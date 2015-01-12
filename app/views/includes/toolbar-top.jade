@@ -1,0 +1,24 @@
+nav.navbar.navbar-fixed-top(style='top:51px; z-index:1030; background-color:#ffffff')
+  .container
+    .collapse.navbar-collapse
+      .btn-toolbar
+        .btn-group
+            a.btn.btn-default.navbar-btn(href='/add/'+type role='button' disabled=user?null:'disabled')
+                span.glyphicon.glyphicon-plus 
+                |  Add
+          //a.btn.btn-default.navbar-btn(href='/stats' role='button') 
+            span.glyphicon.glyphicon-stats
+            |  Statistics
+        .btn-group.pull-right
+          button#edit.btn.btn-default.navbar-btn.hidden
+            span.glyphicon.glyphicon-edit 
+            |  Edit
+        .btn-group.pull-right
+          a#request.btn.btn-default.navbar-btn.hidden(disabled=user?null:'disabled' href='' role='button')
+            span.glyphicon.glyphicon-expand
+            | Request Access
+        .btn-group.pull-right
+          a#explore.btn.btn-default.navbar-btn.hidden(target='_blank' href='' role='button')
+            span.glyphicon.glyphicon-expand
+            |  Show in new tab
+div(style='height:51px')

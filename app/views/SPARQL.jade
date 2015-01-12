@@ -1,0 +1,30 @@
+doctype html
+html(lang='en')
+    include includes/head
+    body
+        include includes/nav
+        #wrap
+            .container
+                .row
+                    include includes/flash-banner
+                .row
+                    h2 SPARQL
+                    span#endpoint
+                    pre#prefixestext.pre-scrollable
+                    form#queryform(action='/endpoint/'+dsID+'/sparql', method='get')
+                        div
+                            input.hide(name='query')
+                            textarea#querytext.span7(rows='5')
+                        div
+                            | Results:
+                            select#selectoutput(name='format')
+                                option(value='browse') Browse
+                                option(value='json') JSON
+                                option(value='csv') CSV
+                                option(value='xml') XML
+                        .btn-group
+                            button#send.btn.btn-primary Submit
+                            button#reset.btn.btn-warning Reset
+                        #result
+            #push
+        include includes/footer
