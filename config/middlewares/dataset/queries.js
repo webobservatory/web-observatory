@@ -223,6 +223,29 @@ function amqpTest(ds, cb) {
     amqp.testConn(url, cb);
 }
 
+function wegPageTest(ds, cb) {
+    var protocol = http, options;
+
+    options = url.parse(ds.url);
+
+    if (0 === ds.url.indexOf('https')) {
+        protocol = https;
+        options.rejectUnauthorized = false;
+    }
+
+
+    protocol.get(options, function (res) {
+        //console.log(ds.url + ': ' + res.statusCode);
+        if (res.statusCode && res.statusCode < 400) {
+            cb(null);
+        } else {
+            cb({message: ds.url + ': ' + res.statusCode});
+        }
+    }).on('error', function (e) {
+        console.log(ds.url + ': ' + e);
+        cb(e);
+    });
+}
 //decode passwords if the input datasets are of type Entry
 function passDecodeWrapper(testFun) {
     return function (ds, cb) {
@@ -250,29 +273,8 @@ var tests = {
     },
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest),
-    visualisation: function (ds, cb) {
-        var protocol = http, options;
-
-        options = url.parse(ds.url);
-
-        if (0 === ds.url.indexOf('https')) {
-            protocol = https;
-            options.rejectUnauthorized = false;
-        }
-
-
-        protocol.get(options, function (res) {
-            console.log(ds.url + ': ' + res.statusCode);
-            if (res.statusCode && res.statusCode < 400) {
-                cb(null);
-            } else {
-                cb({message: ds.url + ': ' + res.statusCode});
-            }
-        }).on('error', function (e) {
-            console.log(ds.url + ': ' + e);
-            cb(e);
-        });
-    }
+    visualisation: wegPageTest,
+    imported: wegPageTest
 };
 
 module.exports.drivers = drivers;
