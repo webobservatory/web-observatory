@@ -106,8 +106,8 @@ $(document).ready(function () {
             file: {
                 validators: {
                     file: {
-                        maxSize: 20971520,   // 20MB
-                        message: 'File size up to 20MB'
+                        maxSize: 10485760,   // 10MB
+                        message: 'File size up to 10MB'
                     }
                 }
             },
@@ -196,8 +196,10 @@ $(document).ready(function () {
         var val = $(this).val();
         if (val && 'file' === val.toLowerCase()) {
             $('#upload').fadeIn();
+            $('.dsfields').fadeOut();
         }
         else {
+            $('.dsfields').fadeIn();
             $('#upload').fadeOut();
         }
     });
@@ -246,7 +248,7 @@ $(document).ready(function () {
     }
 
     function completeHandler(data, status) {
-        if (status === 200) {
+        if (status === 'success') {
             alert('File uploaded');
             var path = data.path;
             $("#adddata input[name='url']").val(path);

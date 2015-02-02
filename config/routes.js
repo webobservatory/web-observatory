@@ -224,31 +224,31 @@ module.exports = function (app, passport) {
 
     //adding an entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), git, function (req, res) {
-        var etry, user = req.user;
-        console.log(req.body);
+        var etry, user = req.user, body = req.body;
+        console.log(body);
         etry = {
-            url: req.body.url,
+            url: body.url,
             auth: {
-                user: req.body.user,
-                encpwd: req.body.pwd,
-                apikey: req.body.apikey
+                user: body.user,
+                encpwd: body.pwd,
+                apikey: body.apikey
             },
-            name: req.body.name,
+            name: body.name,
             type: req.params.typ,
-            querytype: req.body.querytype || req.params.typ === 'dataset' ? 'Imported' : 'Visualisation',
-            desc: req.body.desc,
-            queryinfo: req.body.queryinfo,
+            querytype: body.querytype || (req.params.typ === 'dataset' ? 'Imported' : 'Visualisation'),
+            desc: body.desc,
+            queryinfo: body.queryinfo,
             publisher: user.email,
             publisher_name: user.username || ((user.firstName ? user.firstName + ' ' : '') + (user.lastName || '')),
-            related: req.body.basedOn,
-            git: req.body.git,
-            lice: req.body.lice,
-            kw: req.body.kw ? req.body.kw.split(',') : [],
-            des: req.body.des,
+            related: body.basedOn,
+            git: body.git,
+            lice: body.lice,
+            kw: body.kw ? req.body.kw.split(',') : [],
+            des: body.des,
             canView: [user.email],
             canAccess: [user.email],
-            opAcc: req.body.acc !== 'false',
-            opVis: req.body.vis !== 'false'
+            opAcc: body.acc !== 'false',
+            opVis: body.vis !== 'false'
         };
 
         modctrl.addEtry(user, etry, function (err) {

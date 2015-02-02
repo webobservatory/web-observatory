@@ -20,20 +20,20 @@ block content
             .col-md-3
                 input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the entry', required='')
         // Text input
-        .form-group
+        .form-group.dsfields
             label.col-md-4.control-label(for='url') URL
             .col-md-3
                 input.form-control.input-xlarge(name='url' type='text', placeholder='The address of your entry', required='')
                 p.help-block= (type === 'dataset' ? 'Leave this field blank if you want to upload a file' : 'If you want us to host your application, leave this field blank and provide a Github address below')
         if type === 'dataset'
             // Text input
-            .form-group
+            .form-group.dsfields
                 label.col-md-4.control-label(for='user') Username
                 .col-md-3
                     input.form-control.input-xlarge(name='user' type='text', placeholder='User name of your dataset')
                     //p.help-block Username of your dataset
             // Text input
-            .form-group
+            .form-group.dsfields
                 label.col-md-4.control-label(for='pwd') Password
                 .col-md-3
                     input.form-control.input-xlarge(name='pwd' type='password', placeholder='Password of your dataset')

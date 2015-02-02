@@ -4,12 +4,11 @@ var User = require('../../app/models/user'),
     crypto = require('crypto'),
     hash = require('./hash');
 
-var smtpTransport = nodemailer.createTransport("SMTP", {
-    host: config.smtp//'smtp.ecs.soton.ac.uk'
-});
+var smtpTransport = nodemailer.createTransport("SMTP", config.smtp);
 
 module.exports.forgotPass = function (req, res, next) {
 
+    'use strict';
     var email = req.body.email, reset_path = req.protocol + '://' + req.get('host') + '/profile/reset-pass';
 
     User.findOne({
@@ -52,16 +51,18 @@ module.exports.forgotPass = function (req, res, next) {
 
 module.exports.resetPass = function (tk, password, cb) {
 
+    'use strict';
     User.findOne({
         'reset.token': tk
     }, function (err, user) {
         if (err) {
             return cb(err);
         }
-        if (!user)
+        if (!user) {
             return cb({
                 message: 'Token expired'
             });
+        }
 
         var past_hour = Math.abs(new Date() - user.reset.time_stamp) / 1000 / 60 / 60;
 

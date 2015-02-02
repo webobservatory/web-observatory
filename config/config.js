@@ -4,7 +4,7 @@ module.exports = {
         app: {
             name: 'WO Portal'
         },
-        smtp: '', //smtp server used for pass reset/newsletter
+        smtp: '', //{host: 'smtp_host'} smtp server used for pass reset/newsletter
         recap_pbk: '', //recaptcha public key
         recap_prk: '', //recaptcha private key
         oauth: {
