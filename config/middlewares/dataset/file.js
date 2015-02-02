@@ -36,9 +36,16 @@ exports.fileDownload = function (req, res, next) {
     });
 };
 
+function ranFN() {
+    return (Math.random() + 1).toString(36).slice(2, 7);
+}
+
+var form = new formidable.IncomingForm();
+form.keepExtensions = true;
+
 exports.fileUpload = function (req, res) {
 
-    var usrFileFolder, form;
+    var usrFileFolder;
 
     usrFileFolder = path.join(fileRoot, req.user.email);
 
@@ -48,56 +55,41 @@ exports.fileUpload = function (req, res) {
         }
     });
 
-    form = new formidable.IncomingForm();
+    form.uploadDir = usrFileFolder;
     form.parse(req, function (err, fields, files) {
         if (err) {
             res.status(500);
             return res.json({'success': false, error: err});
         }
-        var old_path, file_size, file_name, new_path, exist, extIndex, renameIndex;
-
+        var old_path, orgn_fn, file_size, new_fn, new_path, ext;
         old_path = files.file.path;
-        file_size = files.file.size;//TODO limit file size
-        file_name = files.file.name;
-        new_path = path.join(usrFileFolder, file_name);
 
+        //get extension
+        orgn_fn = files.file.name;
+        var extIndex = orgn_fn.lastIndexOf('.');
+        if (extIndex === -1) {
+            extIndex = extIndex = orgn_fn.length;
+        }
+        ext = orgn_fn.substring(extIndex);
 
-        exist = true;
-        extIndex = file_name.lastIndexOf('.');
-        renameIndex = 0;
+        file_size = files.file.size;
+        new_fn = ranFN() + ext;
+        new_path = path.join(usrFileFolder, new_fn);
 
-        while (exist) {
-            if (fs.existsSync(new_path)) {
-                renameIndex += 1;
-                file_name = file_name.substring(0, extIndex) + '_' + renameIndex + file_name.substring(extIndex);
-                new_path = path.join(usrFileFolder, file_name);
-            }
-            else {
-                exist = false;
-            }
+        while (fs.existsSync(new_path)) {
+            new_fn = ranFN() + ext;
+            new_path = path.join(usrFileFolder, new_fn);
         }
 
-        fs.readFile(old_path, function (err, data) {
+        fs.rename(old_path, new_path, function (err) {
             if (err) {
                 res.status(500);
-                return res.json({'success': false, error: err});
+                res.json({'success': false, error: err});
+            } else {
+                var filePath = path.join(req.user.email, new_fn);
+                res.status(200);
+                res.json({'success': true, path: filePath, size: file_size});
             }
-            fs.writeFile(new_path, data, function (err) {
-                if (err) {
-                    res.status(500);
-                    return res.json({'success': false, error: err});
-                }
-                var filePath = path.join(req.user.email, file_name);
-                fs.unlink(old_path, function (err) {
-                    if (err) {
-                        res.status(500);
-                        res.json({'success': false, error: err});
-                    } else {
-                        res.status(200);
-                        res.json({'success': true, path: filePath, size: file_size});
-                    }
-                });
-            });
         });
     });
 };
