@@ -8,11 +8,8 @@ var mongoose = require('mongoose'),
 var UserSchema = mongoose.Schema({
     firstName: String,
     lastName: String,
-    username: {
-        type: String,
-        unique: true
-    },
-    email: String,
+    username: String,
+    email: {type: String, unique: true},
     org: String,
     salt: String,
     hash: String,
