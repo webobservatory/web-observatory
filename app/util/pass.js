@@ -30,7 +30,7 @@ module.exports.forgotPass = function (req, res, next) {
                     return next(err);
                 }
                 var mailOptions = {
-                    from: 'Soton Web Observatory <wo_passreset@ecs.soton.ac.uk>', // sender address
+                    from: 'Web Observatory <noreply@soton.ac.uk>', // sender address
                     to: (email === 'xgfd@admin.com' ? 'xinxinbird@gmail.com' : email),
                     subject: "Password reset", // Subject line
                     html: 'Click here to <a href="' + reset_path + '?tk=' + tk + '">reset your password</a>. <br>You cannot reply to this mail address.' // html body
