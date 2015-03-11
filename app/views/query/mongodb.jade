@@ -1,15 +1,17 @@
 form#queryform(action='/endpoint/' + eid + '/mongodb' method='get' target='_blank')
     .form-group
         if tags
-            label.control-label(for='modname') Select a model name
-            select.form-control(name='modname')
+            label.control-label(for='collection') Collection:
+            select.form-control(name='collection')
                 for val in tags
                     if val.indexOf('system.') !== 0
                         option(value=val)= val
         else
-            label.control-label(for='modname') Collection names not available, type a model name
-            input.form-control(name='modname')
+            label.control-label(for='collection') Collection names not available, type a model name
+            input.form-control(name='collection')
     .form-group
+        label.control-label
+            | Query:
         textarea.form-control#querytext(name='query' rows='5' placeholder='Double-quote your key/value pairs, e.g. {"key":"value"}')
     .form-group
         label.control-label

@@ -2,6 +2,8 @@ form#queryform(action='/endpoint/'+eid+'/sparql', method='get' target='_blank')
   .form-group
     pre#prefixestext.pre-scrollable
   .form-group
+      label
+        | Query:
       input.form-control.hide(name='query')
       textarea.form-control#querytext(rows='5')
   .form-group
