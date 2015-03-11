@@ -57,28 +57,7 @@ app.set('views', __dirname + '/app/views');
 app.engine('jade', require('jade').__express);
 app.set('view engine', 'jade');
 app.use(favicon(__dirname + '/public/favicon.ico'));
-app.use(morganLogger('tiny', {
 
-    skip: function (req, res) {
-        var ignorPath = ['css', 'js', 'fonts', 'images', 'img'];
-        if (-1 !== ignorPath.indexOf(req.path.split('/')[1]) && res.statusCode < 400)//ignore SUCCESSFUL requests to certain paths
-        {
-            return true;
-        }
-    }
-}));
-// create a write stream (in append mode)
-accessLogStream = fs.createWriteStream(__dirname + '/log/morgan.log', {flags: 'a'});
-app.use(morganLogger('combined', {//Apache combined :remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length]
-    stream: accessLogStream,
-    skip: function (req, res) {
-        var ignorPath = ['css', 'js', 'fonts', 'images', 'img'];
-        if (-1 !== ignorPath.indexOf(req.path.split('/')[1]) && res.statusCode < 400)//ignore SUCCESSFUL requests to certain paths
-        {
-            return true;
-        }
-    }
-}));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -92,6 +71,31 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.authenticate('remember-me'));
+
+//logging
+function skip(req, res) {
+    var ignorPath = ['css', 'js', 'fonts', 'images', 'img'];
+    if (-1 !== ignorPath.indexOf(req.path.split('/')[1]) && res.statusCode < 400)//ignore SUCCESSFUL requests to certain paths
+    {
+        return true;
+    }
+}
+
+morganLogger.token('email', function (req) {
+    var user = req.user || {};
+    return user.email;
+});
+
+app.use(morganLogger('tiny', {
+    skip: skip
+}));
+
+accessLogStream = fs.createWriteStream(__dirname + '/log/morgan.log', {flags: 'a'});
+app.use(morganLogger(':remote-addr - :remote-user :email [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { //Apache combined extended with user email
+    stream: accessLogStream,
+    skip: skip
+}));
+
 app.use(methodOverride());
 app.use(flash());
 app.use('/git', servestatic(path.join(__dirname, 'git')));
