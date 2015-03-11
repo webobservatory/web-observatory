@@ -53,14 +53,15 @@ block content
                     To use the query API firstly you need to follow the following steps:
                     
                     1. Create a new application at [Applications](/profile#clients) in your profile, where you can have an applicatoin ID and a secret. They're the credentials of your application which should be kept safe.
-                    2. HTTP POST to `https://webobservatory.soton.ac.uk/oauth/token` with the following data fields 
+                    2. Authenticate and authorise your application through OAuth 2.0. Here we provide an example using the [Resource Owner Password Credentials Grant](http://tools.ietf.org/html/rfc6749#section-4.3). In the example capitalised words represent variables to which a user should provide values.
+
+                     HTTP POST to `https://webobservatory.soton.ac.uk/oauth/token` with the following data fields
                         `grant_type:'password'`
                         `client_id:APP_ID`
                         `client_secret:APP_SECRET`
                         `username:USER_NAME`
                         `password:PASSWORD`
-                        where capitalised words represent variables.
-                    
+
                         [jQuery](http://jquery.com/) example :
                         
                         ```javascript
@@ -76,8 +77,13 @@ block content
                         ```
                         http POST http://webobservatory.soton.ac.uk/oauth/token grant_type="password" client_id="53be91cb9790d31811850792" client_secret="dien8ck4kdie3" username=USER_NAME password=PASSWORD
                         ```
-                        
-                        Note: To access https using httpie you have to [configure httpie](https://github.com/jakubroztocil/httpie#https) first.
+                        [cURL](http://curl.haxx.se/docs/manpage.html) example :
+
+                        ```
+                        curl --data http://webobservatory.soton.ac.uk/oauth/token "grant_type=password&client_id=53be91cb9790d31811850792&client_secret=dien8ck4kdie3&username=USER_NAME&password=PASSWORD"
+                        ```
+
+                        Note: To access https using httpie or cURL you have to [configure them](https://github.com/jakubroztocil/httpie#https) first.
                         
                         The response from the server will contain an access token if the request went through.
                         
@@ -88,17 +94,17 @@ block content
                               expires_in: 3600,
                               token_type: "Bearer" }
                         
-                    3. Use the access token to query a dataset. HTTP GET `https://webobservatory.soton.ac.uk/api/wo/DATASET_ID/endpoint` (`DATASET_ID` can be obtained from the URL of detial information page, the string after `#`), with the data field `query:QUERY_STRING` and the header `Authorization:"Bearer ACCESS_TOKEN"`
+                    3. Use the access token to query a dataset. HTTP GET `https://webobservatory.soton.ac.uk/api/wo/DATASET_ID/endpoint` (`DATASET_ID` can be obtained from the URL of detial information page, the string after `#`), with the data field `query:QUERY_STRING`, `collection:COLLECTION_NAME` (different datasets may require different fileds, which can be found from the query page of a dataset) and the header `Authorization:"Bearer ACCESS_TOKEN"`
                     
-                        The example below queries the [Twitter #FLWebSci hashtag](/wo/dataset#53bc04568a1ea0572f934663) dataset whose id is _53bc04568a1ea0572f934663_.
+                        The example below queries the [Ebola Tweets](http://webobservatory.soton.ac.uk/wo/dataset#548047c832582f2c45520ce7) dataset whose ID is `548047c832582f2c45520ce7`.
                         
                         jQuery example :
                             
                         ```javascript        
                         $.ajax({
                             type: 'get',
-                            url: 'https://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/endpoint',
-                            data: { query:'select 1+1 as solution' },
+                            url: 'https://webobservatory.soton.ac.uk/api/wo/548047c832582f2c45520ce7/endpoint',
+                            data: { query:'{}', collection: 'tweet' },
                             headers: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
                             }).done(function(result) {
                                 console.log(result);
@@ -108,12 +114,12 @@ block content
                         httpie example :
                         
                         ```
-                        http GET http://webobservatory.soton.ac.uk/api/wo/53bc04568a1ea0572f934663/endpoint Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" query=="select 1+1 as solution"
+                        http GET http://webobservatory.soton.ac.uk/api/wo/548047c832582f2c45520ce7/endpoint Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" query=="{}" collection=="tweet"
                         ```
                             
-                        The response from the server  will contain the solution of your query.
-                            
-                        Example response:
-                        ```    
-                        { result: { solution:2 } }
+                        cURL example :
+
                         ```
+                        curl  --header "Authorization:Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" "http://webobservatory.soton.ac.uk/api/wo/548047c832582f2c45520ce7/endpoint?query={}&collection=tweet"
+                        ```
+                        The response from the server will contain the solution of your query.

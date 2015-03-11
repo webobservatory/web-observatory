@@ -1,5 +1,7 @@
 form#queryform(action='/endpoint/'+eid+'/sql' method='get' target='_blank')
   .form-group
+    label.control-label
+      | Query:
     textarea.form-control#querytext(name='query' rows='5' placeholder='Inpute your SQL query')
   .form-group
     label.control-label

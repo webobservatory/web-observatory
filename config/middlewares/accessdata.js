@@ -69,7 +69,7 @@ function mongostream(req, res, next) {
     }
 
     query = req.query.query || req.body.query;
-    modname = req.query.modname || req.body.modname;
+    modname = req.query.collection || req.body.collection || req.query.modname || req.body.modname;
     limit = req.query.limit || req.body.limit;
     skip = req.query.skip || req.body.skip;
     project = req.query.project || req.body.project;
