@@ -2,7 +2,7 @@ extends main
 
 block content
     :markdown
-        This tutorial is at a preliminary stage. Please send your feedbacks (concrete comments and possible solutions) to [Contact](mailto:webobservatory@ecs.soton.ac.uk).
+        This tutorial is at a preliminary stage. Please send your feedbacks (concrete comments and possible solutions) to [Issues](https://github.com/xgfd/web-observatory-issues/issues).
     .panel-default.panel
         .panel-heading
             .panel-title
@@ -22,7 +22,7 @@ block content
                 :markdown
                     Datasets and visualisations registered on this site can be browsed at either [Datasets](/wo/dataset) and [Visualisations](/wo/visualisation) respectively. The default view shows a table of entries with basic information (metadata). You can specify how many entries are shown per page, filter entires using the search box, and reorder entires by clicking the title of a column. A detailed information panel along with additional buttons will show after clicking the name of an entry. Function of these buttons will be described in section [Query datasets](#query).
                     
-                    Each entry on this site has a uniques identifier (e.g. [DBpedia](/wo/dataset#52e19220bef627683c79c3a6) `/wo/dataset#52e19220bef627683c79c3a6`). These identifiers are resolvable and will give detailed metadata of the entry, as if you've clicked the name of the entry. The segment part (i.e. the string after #) is the ID of this entry, which is required to used the [Query API](#api). 
+                    Each entry on this site has a uniques identifier (e.g. [DBpedia](/wo/dataset#52e19220bef627683c79c3a6) `/wo/dataset#52e19220bef627683c79c3a6`). These identifiers are resolvable and will give detailed metadata of the entry, as if you've clicked the name of the entry. The segment part (i.e. the string after #) is the ID of this entry, which is required to used the [Query API](#api).
 
     .panel-default.panel
         .panel-heading
@@ -53,7 +53,7 @@ block content
                     To use the query API firstly you need to follow the following steps:
                     
                     1. Create a new application at [Applications](/profile#clients) in your profile, where you can have an applicatoin ID and a secret. They're the credentials of your application which should be kept safe.
-                    2. Authenticate and authorise your application through OAuth 2.0. Here we provide an example using the [Resource Owner Password Credentials Grant](http://tools.ietf.org/html/rfc6749#section-4.3). In the example capitalised words represent variables to which a user should provide values.
+                    2. Authenticate and authorise your application through OAuth 2.0. Here we provide an example using the [Resource Owner Password Credentials Grant](http://tools.ietf.org/html/rfc6749#section-4.3). In the example capitalised words represent variables to which a user should provide values. Currently the API can only be used by a
 
                      HTTP POST to `https://webobservatory.soton.ac.uk/oauth/token` with the following data fields
                         `grant_type:'password'`
@@ -80,7 +80,7 @@ block content
                         [cURL](http://curl.haxx.se/docs/manpage.html) example :
 
                         ```
-                        curl --data http://webobservatory.soton.ac.uk/oauth/token "grant_type=password&client_id=53be91cb9790d31811850792&client_secret=dien8ck4kdie3&username=USER_NAME&password=PASSWORD"
+                        curl --data "grant_type=password&client_id=53be91cb9790d31811850792&client_secret=dien8ck4kdie3&username=USER_NAME&password=PASSWORD" http://webobservatory.soton.ac.uk/oauth/token
                         ```
 
                         Note: To access https using httpie or cURL you have to [configure them](https://github.com/jakubroztocil/httpie#https) first.
