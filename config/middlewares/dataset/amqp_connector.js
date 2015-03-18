@@ -60,7 +60,15 @@ module.exports.getStream = function (opts, cb) {
 
 module.exports.testConn = function (url, cb) {
     "use strict";
-    amqp.connect(url, cb);
+    try {
+        amqp.connect(url, function (err) {
+            console.log(err);
+            cb(err);
+        });
+    }
+    catch(err) {
+        cb(err);
+    }
 };
 
 module.exports.closeConn = function (url, cb) {

@@ -18,9 +18,7 @@ function httpQuery(opts, cb) {
                     });
                     break;
                 default:
-                    cb({
-                        message: res.statusCode + ' ' + http.STATUS_CODES[status]
-                    });
+                    cb(new Error(res.statusCode + ' ' + http.STATUS_CODES[status]));
             }
         }).on('error', function (err) {
             cb(err);
