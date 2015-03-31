@@ -269,7 +269,6 @@ var tests = {
             }
             cb(null);
         });
-
     },
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest),
