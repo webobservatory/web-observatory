@@ -123,7 +123,7 @@ app.use(function (req, res, next) {
 });
 
 app.use(function (err, req, res, __) {
-    winstonLogger.error(JSON.stringify(err));
+    winstonLogger.error(err.message);
     if (req.xhr) {
         res.status(500).send(err);
     } else {

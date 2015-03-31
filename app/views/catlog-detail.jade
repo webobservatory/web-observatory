@@ -6,6 +6,11 @@ table.xedit.table.table-bordered.table-striped
             td.col-md-1 Name
             td
                 span#name(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Name of the entry' data-title='Edit name')=etry.name
+        if etry.isOwner
+            tr
+                td URL
+                td
+                    span#url(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-title='Edit URL')=etry.url
         tr
             td Creator
             td

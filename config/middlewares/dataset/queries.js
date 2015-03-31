@@ -223,7 +223,7 @@ function amqpTest(ds, cb) {
     amqp.testConn(url, cb);
 }
 
-function wegPageTest(ds, cb) {
+function webPageTest(ds, cb) {
     var protocol = http, options;
 
     options = url.parse(ds.url);
@@ -239,7 +239,7 @@ function wegPageTest(ds, cb) {
         if (res.statusCode && res.statusCode < 400) {
             cb(null);
         } else {
-            cb({message: ds.url + ': ' + res.statusCode});
+            cb(new Error(ds.url + ': ' + res.statusCode));
         }
     }).on('error', function (e) {
         console.log(ds.url + ': ' + e);
@@ -265,16 +265,15 @@ var tests = {
     file: function (ds, cb) {
         file.fileExist(ds.url, function (exist) {
             if (!exist) {
-                return cb({message: 'File not found'});
+                return cb(new Error('File not found'));
             }
             cb(null);
         });
-
     },
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest),
-    visualisation: wegPageTest,
-    imported: wegPageTest
+    visualisation: webPageTest,
+    imported: webPageTest
 };
 
 module.exports.drivers = drivers;
@@ -291,9 +290,7 @@ module.exports.mongodbschema = function (ds, cb) {
         if (ds.user) {
             db.authenticate(ds.user, pwd, function (err, result) {
                 if (err || !result) {
-                    return cb(err || {
-                        message: 'Authentication failed'
-                    });
+                    return cb(err || new Error('Authentication failed'));
                 }
                 db.listCollections({
                     namesOnly: true

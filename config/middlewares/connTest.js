@@ -21,7 +21,7 @@ tester = function () {
             tester(vis, function (msg) {
 
                 if (msg) {
-                    logger.warn('visualisation connTest ' + vis.url + ' ' + JSON.stringify(msg));
+                    logger.warn('visualisation connTest ' + vis.url + ' ' + msg.toString());
                 }
                 var alive = true;
                 if (msg) {
@@ -44,7 +44,7 @@ tester = function () {
             }
             test(ds, function (msg) {
                 if (msg) {
-                    logger.warn('dataset connTest ' + ds.url + ' ' + JSON.stringify(msg));
+                    logger.warn('dataset connTest ' + ds.url + ' ' + msg.toString());
                 }
                 var alive = true;
                 if (msg) {

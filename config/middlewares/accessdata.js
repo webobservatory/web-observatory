@@ -4,6 +4,7 @@
  */
 
 var queries = require('./dataset/queries.js'),
+    winstonLogger = require('../../app/util/logger'),
     crypto = require('crypto');
 
 function stream(req, res, next) {
@@ -17,15 +18,18 @@ function stream(req, res, next) {
         return next({message: 'Dataset type not supported'});
     }
 
-    query = req.query.query || req.body.query || req.body.ex || req.query.ex;
+    query = req.query.query || req.query.ex || req.body.query || req.body.ex;
     io = req.secure ? req.app.get('socketioSSL') : req.app.get('socketio');
-    streamid = crypto.randomBytes(32).toString('base64').replace(/\//g, '_').replace(/\+/g, '-');
+    streamid = 'socket:' + req.ip + ':' + crypto.randomBytes(32).toString('base64').replace(/\//g, '_').replace(/\+/g, '-');
     io.of(streamid)
         .on('connection', function (socket) {
+
+            winstonLogger.info(streamid + ' channel connected');
             var channel;
             queryDriver(query, null, ds, function (err, result, ch) {
                 if (err) {
-                    return next(err);
+                    result = err.message;
+                    socket.emit('closed', err.message);
                 }
                 if (ch) {
                     channel = ch;
@@ -34,17 +38,19 @@ function stream(req, res, next) {
             });
 
             socket.on('disconnect', function () {
-                console.log('disconnect channel close');
+                winstonLogger.info(streamid + ' channel disconnected');
                 if (channel) {
                     channel.close();
                 }
+                socket.emit('closed', null);
             });
 
             socket.on('stop', function () {
-                console.log('channel close');
+                winstonLogger.info(streamid + ' channel stopped');
                 if (channel) {
                     channel.close();
                 }
+                socket.emit('closed', null);
             });
         });
 
@@ -80,7 +86,7 @@ function mongostream(req, res, next) {
             query: query,
             limit: limit ? parseInt(limit) : 1000,
             skip: skip ? parseInt(skip) : 0,
-            project: project ||'{}'
+            project: project || '{}'
         };
     }
 

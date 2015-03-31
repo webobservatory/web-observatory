@@ -222,7 +222,7 @@ module.exports = function (app, passport) {
         });
     });
 
-    //adding an entry
+    //add an entry
     app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), git, function (req, res) {
         var etry, user = req.user, body = req.body;
         console.log(body);
@@ -572,10 +572,8 @@ module.exports = function (app, passport) {
             user: req.query.user,
             password: req.query.pwd
         }, function (msg) {
-            if (msg) {
-                msg = msg.toString();
-            }
-            res.json(msg);
+            console.log(msg instanceof Error);
+            res.json(msg ? msg.toString() : null);
         });
     });
 

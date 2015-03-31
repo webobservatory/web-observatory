@@ -13,7 +13,7 @@ function logMessage(cb) {
         var result;
         if (msg) {
             result = msg.content.toString();
-            console.log(" [x] '%s'", result);
+            //console.log(" [x] '%s'", result);
             cb(null, result);
         }
     };
@@ -49,6 +49,9 @@ module.exports.getStream = function (opts, cb) {
         conn.createChannel(on_channel_open(opts.ex, cb));
     } else {
         amqp.connect(url, function (err, conn) {
+            conn.on('error', function (err) {
+                cb(err);
+            });
             if (err) {
                 return cb(err);
             }
@@ -60,7 +63,14 @@ module.exports.getStream = function (opts, cb) {
 
 module.exports.testConn = function (url, cb) {
     "use strict";
-    amqp.connect(url, cb);
+    try {
+        amqp.connect(url, function (err) {
+            cb(err);
+        });
+    }
+    catch (err) {
+        cb(err);
+    }
 };
 
 module.exports.closeConn = function (url, cb) {
