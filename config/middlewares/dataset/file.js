@@ -49,11 +49,9 @@ exports.fileUpload = function (req, res) {
 
     usrFileFolder = path.join(fileRoot, req.user.email);
 
-    fs.exists(usrFileFolder, function (existing) {
-        if (!existing) {
-            fs.mkdir(usrFileFolder);
-        }
-    });
+    if (!fs.existsSync(usrFileFolder)) {
+        fs.mkdir(usrFileFolder);
+    }
 
     form.uploadDir = usrFileFolder;
     form.parse(req, function (err, fields, files) {
@@ -68,7 +66,7 @@ exports.fileUpload = function (req, res) {
         orgn_fn = files.file.name;
         var extIndex = orgn_fn.lastIndexOf('.');
         if (extIndex === -1) {
-            extIndex = extIndex = orgn_fn.length;
+            extIndex = orgn_fn.length;
         }
         ext = orgn_fn.substring(extIndex);
 
