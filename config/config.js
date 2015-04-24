@@ -12,6 +12,8 @@ module.exports = {
             clientSecret: "", //clientSecret
             callbackURL: "" //http://localhost:3000/auth/facebook/callback
         },
+        port: {},//{http: 80, https: 443},// external ports when port forward is set up, default to listenOn ports if emitted
+        listenOn: {http: 3000, https: 3443},// local port
         oauth: {
             tokenLife: 3600
         }
