@@ -51,8 +51,8 @@ require('./config/passport')(passport, config);
 app = express();
 app.disable('x-powered-by');
 app.locals.moment = require('moment');
-app.set('port', process.env.PORT || 3000);
-app.set('httpsPort', process.env.HTTPSPORT || 3443);
+app.set('port', process.env.PORT || config.port.http || config.listenOn.http);
+app.set('httpsPort', process.env.HTTPSPORT || config.port.https || config.listenOn.https);
 app.set('views', __dirname + '/app/views');
 app.engine('jade', require('jade').__express);
 app.set('view engine', 'jade');
@@ -134,11 +134,11 @@ app.use(function (err, req, res, __) {
     }
 });
 
-secureServer.listen(3443, function () {
+secureServer.listen(config.listenOn.https, function () {
     console.log('Express ssl server listening on port ' + app.get('httpsPort'));
 });
 
-server.listen(3000, function () {
+server.listen(config.listenOn.http, function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
 
