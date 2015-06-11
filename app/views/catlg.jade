@@ -23,7 +23,7 @@ block content
                         each val in table
                             if val
                                 - val.url = '/wo/'+val.type+'#'+val._id
-                                tr.entry(itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
+                                tr.entry(id=val._id  itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
                                     - var name=val.name || '';
                                     - if(name.length>30) {
                                     -   name = name.substring(0,27);
@@ -60,7 +60,7 @@ block content
                                             .hidden alive
                                         else
                                             span.glyphicon.glyphicon-remove
-        .col-md-5(style='overflow:auto; float:right;')
+        //.col-md-5(style='overflow:auto; float:right;')
             .row#details
             .row#querypan
 block footer

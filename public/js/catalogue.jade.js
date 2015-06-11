@@ -1,17 +1,21 @@
-$(document).ready(function () {
+var pan_id;
+
+$(document).ready(function() {
 
     'use strict';
     $('.tp').tooltip();
 
     //datatable bt3
-    $('#display table').dataTable({order: []});
+    $('#display table').dataTable({
+        order: []
+    });
 
     //x editable
     function xeditable() {
 
         $.fn.editable.defaults.mode = 'inline';
 
-        $('#edit').click(function () {
+        $('#edit').click(function() {
             $('span.editable').editable('toggleDisabled');
         });
 
@@ -21,30 +25,24 @@ $(document).ready(function () {
 
         $('#opAcc').editable({
             disabled: true,
-            source: [
-                {
-                    value: 1,
-                    text: 'Everyone'
-                },
-                {
-                    value: 0,
-                    text: 'Authorised only'
-                }
-            ]
+            source: [{
+                value: 1,
+                text: 'Everyone'
+            }, {
+                value: 0,
+                text: 'Authorised only'
+            }]
         });
 
         $('#opVis').editable({
             disabled: true,
-            source: [
-                {
-                    value: 1,
-                    text: 'Everyone'
-                },
-                {
-                    value: 0,
-                    text: 'Authorised only'
-                }
-            ]
+            source: [{
+                value: 1,
+                text: 'Everyone'
+            }, {
+                value: 0,
+                text: 'Authorised only'
+            }]
         });
 
         var querytype = $('#querytype'),
@@ -55,64 +53,72 @@ $(document).ready(function () {
             querytype.editable({
                 disabled: true,
                 value: querytype.text(),
-                source: [
-                    {
-                        value: 'SPARQL',
-                        text: 'SPARQL'
-                    },
-                    {
-                        value: 'MySQL',
-                        text: 'MySQL'
-                    },
-                    {
-                        value: 'PostgreSQL',
-                        text: 'PostgreSQL'
-                    },
-                    {
-                        value: 'MongoDB',
-                        text: 'MongoDB'
-                    }
-                ]
+                source: [{
+                    value: 'SPARQL',
+                    text: 'SPARQL'
+                }, {
+                    value: 'MySQL',
+                    text: 'MySQL'
+                }, {
+                    value: 'PostgreSQL',
+                    text: 'PostgreSQL'
+                }, {
+                    value: 'MongoDB',
+                    text: 'MongoDB'
+                }]
             });
         }
 
         if (related) {
             related.editable({
-                    disabled: true,
-                    inputclass: 'input-large',
-                    select2: {
-                        tokenSeparators: [",", " "],
-                        minimumInputLength: 2,
-                        tags: [],
-                        initSelection: function (element, callback) {//required to displaying existing tags
-                            var data = [];
-                            $('#related').text().split(',').forEach(function (text) {
-                                data.push({id: text, text: text});
+                disabled: true,
+                inputclass: 'input-large',
+                select2: {
+                    tokenSeparators: [",", " "],
+                    minimumInputLength: 2,
+                    tags: [],
+                    initSelection: function(element, callback) { //required to displaying existing tags
+                        var data = [];
+                        $('#related').text().split(',').forEach(function(text) {
+                            data.push({
+                                id: text,
+                                text: text
                             });
-                            callback(data);
+                        });
+                        callback(data);
+                    },
+                    ajax: {
+                        url: '/nametags/dataset',
+                        dataType: 'json',
+                        data: function(term, page) {
+                            return {
+                                term: term,
+                                page: page
+                            };
                         },
-                        ajax: {
-                            url: '/nametags/dataset',
-                            dataType: 'json',
-                            data: function (term, page) {
-                                return {term: term, page: page};
-                            },
-                            results: function (data, page) {
-                                data = data.map(function (ds) {
-                                    return {id: ds, text: ds};
-                                });
-                                return {results: data};
-                            }
+                        results: function(data, page) {
+                            data = data.map(function(ds) {
+                                return {
+                                    id: ds,
+                                    text: ds
+                                };
+                            });
+                            return {
+                                results: data
+                            };
                         }
                     }
                 }
-            );
+            });
 
             kw.editable({
                 disabled: true,
                 source: {},
                 inputclass: 'input-large',
-                select2: {tokenSeparators: [",", " "], tags: []}
+                select2: {
+                    tokenSeparators: [",", " "],
+                    tags: []
+                }
             });
             //related.editable({
             //    disabled: true,
@@ -134,15 +140,19 @@ $(document).ready(function () {
     function resetView() {
         $('#details').html('');
         $('#querypan').html('');
-        $('#display').removeClass('col-md-7');
+        //$('#display').removeClass('col-md-7');
     }
 
     //deep linking
-    function rightPan(id) {
+    function openPan(id) {
         if (id) {
             resetToolBar();
-            $('#querypan').html('');
-            $('#details').load('/wo/' + id, function () {
+            var target = $('#' + id);
+            var expand = $('<tr class="expand"><td colspan=5> <div class="row col-xs-5" id="details"></div> <div class="row col-xs-5" style="float:right;" id="querypan"></div></td></tr>');
+            expand.insertAfter(target);
+
+            //$('#querypan').html('');
+            $('#details').load('/wo/' + id, function() {
                 xeditable();
                 var isOwner = $('#owner').attr('value') === 'true',
                     opAcc = $('#acc').attr('value') === 'true',
@@ -153,20 +163,20 @@ $(document).ready(function () {
                 }
 
                 if (opAcc) {
-                    if (querytype && querytype !== 'imported') {//display query panel for datasets
+                    if (querytype && querytype !== 'imported') { //display query panel for datasets
                         $('#querypan').load('/query/' + querytype + '/' + id);
                     } else {
                         $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
                     }
                 } else {
-                    $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function (event) {
+                    $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
                         event.preventDefault();
-                        $.get($(this).attr('href'), function (data) {
+                        $.get($(this).attr('href'), function(data) {
                             $('#flash-banner').html(data);
                         });
                     });
                 }
-                $('#display').addClass('col-md-7');
+                //$('#display').addClass('col-md-7');
             });
         } else {
             resetToolBar();
@@ -175,8 +185,22 @@ $(document).ready(function () {
     }
 
     $.address.strict(false);
-    $.address.change(function (event) {
+    $.address.change(function(event) {
         var id = event.value;
-        rightPan(id);
+        $('.expand').fadeOut().remove();
+        openPan(id);
+        pan_id = id;
     });
+
+    $('.entry').click(function(event) {
+      event.preventDefault();
+        var id = $(this).attr('id');
+        if (id === pan_id) {
+            pan_id = null;
+            $.address.value('');
+        } else {
+            $.address.value(id);
+        }
+    });
+
 });
