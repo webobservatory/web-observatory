@@ -23,13 +23,13 @@ block content
                         each val in table
                             if val
                                 - val.url = '/wo/'+val.type+'#'+val._id
-                                tr.entry(id=val._id  itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
+                                tr.entry(data-toggle='collapse' data-target='#'+val._id itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
                                     - var name=val.name || '';
                                     - if(name.length>30) {
                                     -   name = name.substring(0,27);
                                     -   name = name + '...';}
                                     td
-                                        a(data-toogle='tooltip' title=val.url href=val.url address='true')
+                                        a(data-toogle='tooltip' title=val.url href='#'+val._id address='true')
                                             = name
                                         //schema.org meta data
                                         meta(itemprop='http://schema.org/name' content=val.name)

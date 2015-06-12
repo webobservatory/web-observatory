@@ -63,8 +63,8 @@ table.xedit.table.table-bordered.table-striped
                 span#opAcc(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can access this entry?' data-title='Edit access permision' data-value=etry.opAcc ? 1 : 0)
 
 
-span#owner.hidden(value=etry.isOwner.toString())
-span#acc.hidden(value=etry.haveAcc.toString())
-span#type.hidden(value=etry.type)
+span.hidden(name='owner' value=etry.isOwner.toString())
+span.hidden(name='acc' value=etry.haveAcc.toString())
+span.hidden(name='type' value=etry.type)
 if etry.type === 'visualisation' || etry.querytype === 'Imported'
     span#url.hidden(value=etry.url)

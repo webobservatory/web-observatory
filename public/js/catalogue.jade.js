@@ -1,12 +1,10 @@
-var pan_id;
-
 $(document).ready(function() {
 
     'use strict';
     $('.tp').tooltip();
 
     //datatable bt3
-    $('#display table').dataTable({
+    var table = $('#display table').DataTable({
         order: []
     });
 
@@ -147,60 +145,77 @@ $(document).ready(function() {
     function openPan(id) {
         if (id) {
             resetToolBar();
-            var target = $('#' + id);
-            var expand = $('<tr class="expand"><td colspan=5> <div class="row col-xs-5" id="details"></div> <div class="row col-xs-5" style="float:right;" id="querypan"></div></td></tr>');
-            expand.insertAfter(target);
+            var target = $('#' + id),
+                details = target.children('.details'),
+                querypan = target.children('.querypan');
 
-            //$('#querypan').html('');
-            $('#details').load('/wo/' + id, function() {
-                xeditable();
-                var isOwner = $('#owner').attr('value') === 'true',
-                    opAcc = $('#acc').attr('value') === 'true',
-                    querytype = $('#querytype') ? $('#querytype').text().toLowerCase() : null;
+            if (details.html() === '') {
 
-                if (isOwner) {
-                    $('#edit').removeClass('hidden');
-                }
+                details.load('/wo/' + id, function() {
+                    xeditable();
+                    var isOwner = details.children('span[name="owner"]').attr('value') === 'true',
+                        opAcc = details.children('span[name="acc"]').attr('value') === 'true';
+                       var qtypelt = details.find('#querytype');
+                       var querytype = qtypelt ? qtypelt.text().toLowerCase() : null;
 
-                if (opAcc) {
-                    if (querytype && querytype !== 'imported') { //display query panel for datasets
-                        $('#querypan').load('/query/' + querytype + '/' + id);
-                    } else {
-                        $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
+                    if (isOwner) {
+                        $('#edit').removeClass('hidden');
                     }
-                } else {
-                    $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
-                        event.preventDefault();
-                        $.get($(this).attr('href'), function(data) {
-                            $('#flash-banner').html(data);
+
+                    if (opAcc) {
+                        if (querytype && querytype !== 'imported') { //display query panel for datasets
+                            console.log(querytype);
+                            querypan.load('/query/' + querytype + '/' + id);
+                        } else {
+                            $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
+                        }
+                    } else {
+                        $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
+                            event.preventDefault();
+                            $.get($(this).attr('href'), function(data) {
+                                $('#flash-banner').html(data);
+                            });
                         });
-                    });
-                }
-                //$('#display').addClass('col-md-7');
-            });
+                    }
+                });
+            }
+
+            //open details panel for the first time
+            if (!target.hasClass('collasped')) {
+                $('#' + id).collapse('show');
+            }
         } else {
             resetToolBar();
-            resetView();
         }
     }
 
     $.address.strict(false);
     $.address.change(function(event) {
         var id = event.value;
-        $('.expand').fadeOut().remove();
+        appendAccordion(id);
         openPan(id);
-        pan_id = id;
     });
 
-    $('.entry').click(function(event) {
-      event.preventDefault();
-        var id = $(this).attr('id');
-        if (id === pan_id) {
-            pan_id = null;
-            $.address.value('');
-        } else {
-            $.address.value(id);
+    function appendAccordion(id) {
+        var tr = $('tr[data-target="#' + id + '"]');
+        var row = table.row(tr);
+        if (!row.child.isShown()) {
+            // Open this row
+            row.child(panel(id)).show();
         }
-    });
+    }
 
+    function panel(id) {
+        return '<div class="collapse " id=' + id + '>' +
+            '<div class="details "></div>' +
+            //'<div class="col-md-2"></div>' +
+            '<div class="querypan "></div>' +
+            '</div>';
+    }
+
+    //to gain a smooth animation when clicking the link
+    $('.entry a').click(function(event) {
+        event.preventDefault();
+        $.address.value($(this).attr('href').slice(1));
+    })
 });
