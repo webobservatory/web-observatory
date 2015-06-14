@@ -3,13 +3,12 @@ block append nav
     include includes/toolbar-top
 block jumbotron
 block content
-    if !user
+    //if !user
         .row
             .alert.alert-success
                 button.close(type='button' data-dismiss='alert') &times;
                 | Login to reveal more features
-    .row
-        #display
+    .row#display
             if table
                 table.table.table-hover.header-fixed
                     thead
@@ -17,8 +16,8 @@ block content
                             th Name
                             th Type
                             th Description
-                            th.col-md-1 Permission
-                            th.col-md-1 Status
+                            th Permission
+                            th Status
                     tbody
                         each val in table
                             if val

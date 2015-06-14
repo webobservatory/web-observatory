@@ -206,10 +206,10 @@ $(document).ready(function() {
     }
 
     function panel(id) {
-        return '<div class="collapse " id=' + id + '>' +
-            '<div class="details "></div>' +
+        return '<div class="collapse" id=' + id + '>' +
+            '<div class="details col-sm-6"></div>' +
             //'<div class="col-md-2"></div>' +
-            '<div class="querypan "></div>' +
+            '<div class="querypan col-sm-6"></div>' +
             '</div>';
     }
 
