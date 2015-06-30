@@ -148,6 +148,7 @@ module.exports = function (app, passport) {
             info: req.flash('info'),
             error: req.flash('error'),
             user: req.user,
+            licenses: req.attach.licenses,//TODO add license model; edit addEtry.jade
             type: req.params.typ
         });
     });
