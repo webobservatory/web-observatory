@@ -6,7 +6,22 @@ var mongoose = require('mongoose'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
 
-module.exports.visibleEtry = function (req, res, next) {
+//TODO read licenses stub
+module.exports.licenses = function(req, res, next) {
+    License.find({}, function(err, licenses) {
+//        console.log(licenses);
+
+        if (err) {
+            return next(err);
+        }
+
+        req.attach = req.attach || {};
+        req.attach.licenses = licenses;
+        next();
+    })
+}
+
+module.exports.visibleEtry = function(req, res, next) {
 
     var user = req.user,
         typ = req.param('typ'),

@@ -146,11 +146,12 @@ module.exports = function (app, passport) {
         });
     });
 
-    app.get('/add/:typ(dataset|visualisation)', noneSSL, ensureLoggedIn('/login'), function (req, res) {
+    app.get('/add/:typ(dataset|visualisation)', noneSSL,modctrl.licenses, ensureLoggedIn('/login'), function (req, res) {
         res.render('addetry', {
             info: req.flash('info'),
             error: req.flash('error'),
             user: req.user,
+            licenses: req.attach.licenses,
             type: req.params.typ
         });
     });
