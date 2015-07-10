@@ -45,6 +45,12 @@ table.xedit.table.table-bordered.table-striped
             td Description
             td
                 span#des(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
+        tr
+            td License
+            td
+                span#lice(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='License of the entry' data-title='Edit License')=etry.lice
+                //TODO not working atm 
+
 
         if etry.type === 'dataset'
             tr

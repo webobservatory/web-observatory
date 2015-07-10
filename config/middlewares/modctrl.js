@@ -8,9 +8,9 @@ var mongoose = require('mongoose'),
     logger = require('../../app/util/logger');
 
 //TODO read licenses stub
-/*module.exports.licenses = function(req, res, next) {
+module.exports.licenses = function(req, res, next) {
     License.find({}, function(err, licenses) {
-        console.log(licenses);
+//        console.log(licenses);
 
         if (err) {
             return next(err);
@@ -20,7 +20,7 @@ var mongoose = require('mongoose'),
         req.attach.licenses = licenses;
         next();
     })
-}*/
+}
 
 module.exports.visibleEtry = function(req, res, next) {
 
