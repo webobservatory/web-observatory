@@ -164,7 +164,6 @@ $(document).ready(function() {
 
                     if (opAcc) {
                         if (querytype && querytype !== 'imported') { //display query panel for datasets
-                            console.log(querytype);
                             querypan.load('/query/' + querytype + '/' + id);
                         } else {
                             $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
