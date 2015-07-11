@@ -49,77 +49,101 @@ block content
         #api.panel-collapse.collapse.in
             .panel-body
                 :markdown
-                    The query API allows users to create applications that access/query datasets on users' behalf. To enforce protection for (private) datasets on the portal, the query API is protected by OAuth2.0, the technique that enables you to login to various sites using your Facebook/Google account.
-                    To use the query API firstly you need to follow the following steps:
-                    
-                    1. Create a new application at [Applications](/profile#clients) in your profile, where you can have an applicatoin ID and a secret. They're the credentials of your application which should be kept safe.
-                    2. Authenticate and authorise your application through OAuth 2.0. Here we provide an example using the [Resource Owner Password Credentials Grant](http://tools.ietf.org/html/rfc6749#section-4.3). In the example capitalised words represent variables to which a user should provide values. Currently the API can only be used by a
+                        This section provides an overview of how to use the Web Observatory API. For API specification, please follow the link in the footer.
 
-                     HTTP POST to `https://webobservatory.soton.ac.uk/oauth/token` with the following data fields
-                        `grant_type:'password'`
-                        `client_id:APP_ID`
-                        `client_secret:APP_SECRET`
-                        `username:USER_NAME`
-                        `password:PASSWORD`
+                        The Web Observatory API currently supports client side javascript and Nodejs. API written in python will be released soon.
 
-                        [jQuery](http://jquery.com/) example :
                         
-                        ```javascript
-                        $.post('https://webobservatory.soton.ac.uk/oauth/token',
-                            {grant_type:'password', client_id:'53be91cb9790d31811850792', client_secret:'dien8ck4kdie3', username:USER_NAME, password:PASSWORD},
-                            function(data){
-                                console.log(data);
+
+                        ### Installation
+
+
+
+                        Download the API file wo.js from [https://github.com/webobservatory/wo-api-js](https://github.com/webobservatory/wo-api-js) 
+
+                        and include in your html file:
+                        ```
+                        <script type="text/javascript" charset="utf-8" src="path/to/wo.js"> </script>
+                        ```
+                        Please note, due to local file security policy, your application needs to be served by a web server in order for it to work. Simply open your html as a local file in a browser would not work (or follow [this guide](https://github.com/mrdoob/three.js/wiki/How-to-run-things-locally#change-local-files-security-policy) for a work around).  
+
+                        ###Usage
+
+                        **Create a new WO client:**
+                        ```
+                        var client = new WO("webobservatory.soton.ac.uk", "client_id"); 
+                        ```
+                        *client_id: This is your application ID in your WO profile.  (You need to create an application if you don’t already have one. )*
+
+                        **Login**
+                        ```
+                        client.login()
+                        ```
+                        You would normally assign this action to a button click:
+
+                        Create a button in html: 
+                        ```
+                        <button href="#" id='authButton' >Connect</button>
+                        ```
+                        then assign the click action to the login function:
+                        ```
+                        document.getElementById("authButton").addEventListener("click",client.login);
+                        ```
+                        or 
+                        ```
+                        //jQuery
+                        $('#authButton').click(client.login);
+                        ```
+                        Clicking the button would redirect the user of your application to the WO login page and ask the user to authorise your application for accessing the data on their behalf. 
+
+                        **Querying static dataset**
+
+                        Quering a mongodb's tweets collection with an empty query {}
+                        ```
+                        var opt =
+                        {
+                          collection: "tweets", //mongodb collection name, required
+                          query: "{}", //mongodb query, required
+                          limit: 20, //query modifier, optional
+                          skip: 0 //query modifier, optional
+                        };
+                        var id = ‘548047c832582f2c45520ce7’; //dataset_id, ebola mongodb
+                        client.query(id, opt, function(err, data) {
+                        if(!err)
+                             console.log(data);
+                        });
+                        ```
+                        *Note: dataset_id can be obtained from the URL of detail information page, the string after #).*
+
+                        **Accessing live stream dataset:**
+                        ```
+                        //open the AMQP dataset ‘54eb13d7590ea23530f24645’
+                        //with the exchange name ‘logs’
+                        //display the first chunk of the stream and close it
+                        client.openStream(‘54eb13d7590ea23530f24645’, {query: ‘logs’},
+                        function(err, data, stream) {
+                        if(!err) {
+                        console.log(data);
+                        //close all streams from
+                        //dataset ‘54eb13d7590ea23530f24645’
+                        client.closeStream(‘54eb13d7590ea23530f24645’);
+                        //or you can close this stream only
+                        client.closeStream(stream.id);
+                        }});
+                        ```
+                        **Listing the existing open stream connections:**
+                        ```
+                        //list all stream that are connected to ‘54eb13d7590ea23530f24645’
+                        var opStreams = client.listStream(‘54eb13d7590ea23530f24645’);
+                        //list all stream
+                        var opStreams = client.listStream();
+                        ```
+                        **Close Stream connections:**
+                        ```
+                        //close the listed streams
+                        //same as client.closeStream(‘54eb13d7590ea23530f24645’) in this specific case
+                        opStreams.forEach(function(sid) {
+                        client.closeStream(sid);
                         });
                         ```
 
-                        [httpie](https://github.com/jakubroztocil/httpie) example :
-
-                        ```
-                        http POST http://webobservatory.soton.ac.uk/oauth/token grant_type="password" client_id="53be91cb9790d31811850792" client_secret="dien8ck4kdie3" username=USER_NAME password=PASSWORD
-                        ```
-                        [cURL](http://curl.haxx.se/docs/manpage.html) example :
-
-                        ```
-                        curl --data "grant_type=password&client_id=53be91cb9790d31811850792&client_secret=dien8ck4kdie3&username=USER_NAME&password=PASSWORD" http://webobservatory.soton.ac.uk/oauth/token
-                        ```
-
-                        Note: To access https using httpie or cURL you have to [configure them](https://github.com/jakubroztocil/httpie#https) first.
-                        
-                        The response from the server will contain an access token if the request went through.
-                        
-                        Example response:
-                            
-                            { access_token: "BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=",
-                              refresh_token: "woHiAGTspWnsYCJD0ACv9yOi4sMxZln0lWix99dd4hU=",
-                              expires_in: 3600,
-                              token_type: "Bearer" }
-                        
-                    3. Use the access token to query a dataset. HTTP GET `https://webobservatory.soton.ac.uk/api/wo/DATASET_ID/endpoint` (`DATASET_ID` can be obtained from the URL of detial information page, the string after `#`), with the data field `query:QUERY_STRING`, `collection:COLLECTION_NAME` (different datasets may require different fileds, which can be found from the query page of a dataset) and the header `Authorization:"Bearer ACCESS_TOKEN"`
-                    
-                        The example below queries the [Ebola Tweets](http://webobservatory.soton.ac.uk/wo/dataset#548047c832582f2c45520ce7) dataset whose ID is `548047c832582f2c45520ce7`.
-                        
-                        jQuery example :
-                            
-                        ```javascript        
-                        $.ajax({
-                            type: 'get',
-                            url: 'https://webobservatory.soton.ac.uk/api/wo/548047c832582f2c45520ce7/endpoint',
-                            data: { query:'{}', collection: 'tweet' },
-                            headers: {Authorization:'Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE='}
-                            }).done(function(result) {
-                                console.log(result);
-                        });
-                        ```
-    
-                        httpie example :
-                        
-                        ```
-                        http GET http://webobservatory.soton.ac.uk/api/wo/548047c832582f2c45520ce7/endpoint Authorization:"Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" query=="{}" collection=="tweet"
-                        ```
-                            
-                        cURL example :
-
-                        ```
-                        curl  --header "Authorization:Bearer BAd8AFoQI6ydBWF59d48WXrCpAEqiQG1Mn5ai3A3UEE=" "http://webobservatory.soton.ac.uk/api/wo/548047c832582f2c45520ce7/endpoint?query={}&collection=tweet"
-                        ```
-                        The response from the server will contain the solution of your query.
