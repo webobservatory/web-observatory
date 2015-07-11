@@ -135,19 +135,19 @@ $(document).ready(function() {
         $('#request').addClass('hidden').attr('href', '#').off('click');
     }
 
-    function resetView() {
-        $('#details').html('');
-        $('#querypan').html('');
-        //$('#display').removeClass('col-md-7');
-    }
+    //    function resetView() {
+    //        $('#details').html('');
+    //        $('#querypan').html('');
+    //        //$('#display').removeClass('col-md-7');
+    //    }
 
     //deep linking
-    function openPan(id) {
+    function showDetailPan(id) {
         if (id) {
             resetToolBar();
-            var target = $('#' + id),
-                details = target.children('.details'),
-                querypan = target.children('.querypan');
+            var target = $('tr.' + id),
+                details = target.find('.details'),
+                querypan = target.find('.querypan');
 
             if (details.html() === '') {
 
@@ -155,8 +155,8 @@ $(document).ready(function() {
                     xeditable();
                     var isOwner = details.children('span[name="owner"]').attr('value') === 'true',
                         opAcc = details.children('span[name="acc"]').attr('value') === 'true';
-                       var qtypelt = details.find('#querytype');
-                       var querytype = qtypelt ? qtypelt.text().toLowerCase() : null;
+                    var qtypelt = details.find('#querytype');
+                    var querytype = qtypelt ? qtypelt.text().toLowerCase() : null;
 
                     if (isOwner) {
                         $('#edit').removeClass('hidden');
@@ -179,11 +179,7 @@ $(document).ready(function() {
                     }
                 });
             }
-
-            //open details panel for the first time
-            if (!target.hasClass('collasped')) {
-                $('#' + id).collapse('show');
-            }
+            target.collapse('show');
         } else {
             resetToolBar();
         }
@@ -193,24 +189,22 @@ $(document).ready(function() {
     $.address.change(function(event) {
         var id = event.value;
         appendAccordion(id);
-        openPan(id);
+        showDetailPan(id);
     });
 
     function appendAccordion(id) {
-        var tr = $('tr[data-target="#' + id + '"]');
+        var tr = $('#' + id);
         var row = table.row(tr);
         if (!row.child.isShown()) {
             // Open this row
-            row.child(panel(id)).show();
+            row.child(panel(id), id).show();
         }
     }
 
     function panel(id) {
-        return '<div class="collapse " id=' + id + '>' +
-            '<div class="details "></div>' +
-            //'<div class="col-md-2"></div>' +
-            '<div class="querypan "></div>' +
-            '</div>';
+        return '<div class="details col-sm-6"></div>' +
+        //'<div class="col-md-2"></div>' +
+        '<div class="querypan col-sm-6"></div>';
     }
 
     //to gain a smooth animation when clicking the link

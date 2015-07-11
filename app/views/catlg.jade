@@ -3,13 +3,8 @@ block append nav
     include includes/toolbar-top
 block jumbotron
 block content
-    if !user
-        .row
-            .alert.alert-success
-                button.close(type='button' data-dismiss='alert') &times;
-                | Login to reveal more features
     .row
-        #display
+        #display.panel-group.table-responsive
             if table
                 table.table.table-hover.header-fixed
                     thead
@@ -23,7 +18,7 @@ block content
                         each val in table
                             if val
                                 - val.url = '/wo/'+val.type+'#'+val._id
-                                tr.entry(data-toggle='collapse' data-target='#'+val._id itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
+                                tr.entry(data-toggle='collapse' id=val._id data-target='tr.'+val._id data-parent='#display' itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
                                     - var name=val.name || '';
                                     - if(name.length>30) {
                                     -   name = name.substring(0,27);
@@ -69,6 +64,10 @@ block footer
     link(href='/css/select2.css', rel='stylesheet')
     link(href='/css/select2-bootstrap.css', rel='stylesheet')
     link(href='/css/dataTables.bootstrap.css', rel='stylesheet')
+    style.
+      table .collapse.in {
+        display: table-row !important;
+      }
     script(src='/js/jquery.dataTables.min.js')
     script(src='/js/dataTables.bootstrap.js')
     script(src='/js/jquery.address-1.6.js')
