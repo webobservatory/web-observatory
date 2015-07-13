@@ -107,7 +107,7 @@ block content
                         ```
                         Clicking the button would redirect the user of your application to the WO login page and ask the user to authorise your application for accessing the data on their behalf. 
 
-                        **Querying static dataset**
+                        **Querying a static dataset**
 
                         Quering a mongodb's tweets collection with an empty query {}
                         ```
@@ -126,7 +126,7 @@ block content
                         ```
                         *Note: dataset_id can be obtained from the URL of detail information page, the string after #).*
 
-                        **Accessing live stream dataset:**
+                        **Accessing a stream dataset:**
                         ```
                         //open the AMQP dataset ‘54eb13d7590ea23530f24645’
                         //with the exchange name ‘logs’
@@ -142,17 +142,20 @@ block content
                         client.closeStream(stream.id);
                         }});
                         ```
-                        **Listing the existing open stream connections:**
+                        **Listing open connections to a stream dataset:**
                         ```
                         //list all stream that are connected to ‘54eb13d7590ea23530f24645’
                         var opStreams = client.listStream(‘54eb13d7590ea23530f24645’);
                         //list all stream
                         var opStreams = client.listStream();
                         ```
-                        **Close Stream connections:**
+                        **Close stream connections:**
                         ```
-                        //close the listed streams
-                        //same as client.closeStream(‘54eb13d7590ea23530f24645’) in this specific case
+                        //Close all connections to '54eb13d7590ea23530f24645'
+                        client.closeStream(‘54eb13d7590ea23530f24645’)
+
+                        // You can also close a specific connection using the stream id
+                        // In the following example,we close all connections stored in opStreams. 
                         opStreams.forEach(function(sid) {
                         client.closeStream(sid);
                         });
