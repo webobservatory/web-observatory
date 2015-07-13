@@ -18,13 +18,14 @@ block content
                         each val in table
                             if val
                                 - val.url = '/wo/'+val.type+'#'+val._id
-                                tr.entry(data-toggle='collapse' id=val._id data-target='tr.'+val._id data-parent='#display' itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
+                                tr.entry(id=val._id itemscope itemtype=(val.type==='dataset'?'http://schema.org/Dataset/WebObservatoryDataset':'http://schema.org/WebPage'))
                                     - var name=val.name || '';
                                     - if(name.length>30) {
                                     -   name = name.substring(0,27);
                                     -   name = name + '...';}
+                                    //td(data-toggle='collapse' data-target='tr.'+val._id data-parent='#display')
                                     td
-                                        a(data-toogle='tooltip' title=val.url href='#'+val._id address='true')
+                                        a(data-toggle='tooltip' title=val.url href='#'+val._id address='true')
                                             = name
                                         //schema.org meta data
                                         meta(itemprop='http://schema.org/name' content=val.name)
@@ -40,7 +41,7 @@ block content
                                     -   des = val.des.substring(0,50);
                                     -   des = des + '...';}
                                     td
-                                        .tp(data-toogle='tooltip' title=val.des)
+                                        .tp(data-toggle='tooltip' title=val.des)
                                             = des
                                     td
                                         if (!val.opAcc && (!user || val.publisher !== user.email) && (!user || !val.canAccess || val.canAccess.indexOf(user.email) === -1))

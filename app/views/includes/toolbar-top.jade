@@ -13,7 +13,7 @@ nav.navbar.navbar-default.navbar-fixed-bottom
           span.glyphicon.glyphicon-edit 
           |  Edit
       .btn-group.pull-right
-        a#request.btn.btn-default.navbar-btn.hidden(disabled=user?null:'disabled' href='' role='button')
+        a#request.tp.btn.btn-default.navbar-btn.hidden(disabled=user?null:'disabled' href='' role='button' data-toggle='tooltip' title=user?null:'Please log in to enable this button')
           span.glyphicon.glyphicon-expand
           | Request Access
       .btn-group.pull-right

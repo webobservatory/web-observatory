@@ -1,12 +1,84 @@
 $(document).ready(function() {
 
     'use strict';
-    $('.tp').tooltip();
+    $('[data-toggle="tooltip"]').tooltip();
 
     //datatable bt3
     var table = $('#display table').DataTable({
         order: []
     });
+
+
+    //detail & query panels
+    var lastAccordion = null;
+
+    //deep linking
+    $.address.strict(false);
+    $.address.change(function(event) {
+        var id = event.value;
+
+        if (lastAccordion) {
+            lastAccordion.child.hide();
+        }
+
+        appendAccordion(id);
+        display(id);
+    });
+
+    function appendAccordion(id) {
+        var tr = $('#' + id);
+        var row = lastAccordion = table.row(tr);
+        if (!row.child.isShown()) {
+            // Open this row
+            row.child(panel(id), id).show();
+        }
+    }
+
+    function panel(id) {
+        return '<div class="details col-sm-6"></div>' +
+            '<div class="querypan col-sm-6"></div>';
+    }
+
+    function display(id) {
+        if (id) {
+            resetToolBar();
+            var target = $('tr.' + id),
+                detail_elt = target.find('.details'),
+                query_elt = target.find('.querypan');
+
+            //if (detail_elt.html() === '') {
+
+            detail_elt.load('/wo/' + id, function() {
+                xeditable();
+                var isOwner = detail_elt.children('span[name="owner"]').attr('value') === 'true',
+                    opAcc = detail_elt.children('span[name="acc"]').attr('value') === 'true';
+                var qtypelt = detail_elt.find('#querytype');
+                var querytype = qtypelt ? qtypelt.text().toLowerCase() : null;
+
+                if (isOwner) {
+                    $('#edit').removeClass('hidden');
+                }
+
+                if (opAcc) {
+                    if (querytype && querytype !== 'imported') { //display query panel for datasets
+                        query_elt.load('/query/' + querytype + '/' + id);
+                    } else {
+                        $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
+                    }
+                } else {
+                    $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
+                        event.preventDefault();
+                        $.get($(this).attr('href'), function(data) {
+                            $('#flash-banner').html(data);
+                        });
+                    });
+                }
+            });
+            //target.collapse('show');
+        } else {
+            resetToolBar();
+        }
+    }
 
     //x editable
     function xeditable() {
@@ -128,82 +200,31 @@ $(document).ready(function() {
         }
     }
 
+    //toggle detail panles
+    $('a[data-toggle="tooltip"]').click(function() {
+        var tr = $(this).closest('tr');
+        var row = table.row(tr);
+
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            lastAccordion = null;
+        } else {
+            // Open this row
+            if (lastAccordion && lastAccordion !== row) {
+                lastAccordion.child.hide();
+            }
+            lastAccordion = row;
+            row.child.show();
+        }
+    });
+
+
     //reset helper functions
     function resetToolBar() {
         $('#edit').addClass('hidden').off('click');
         $('#explore').addClass('hidden').attr('href', '#').off('click');
         $('#request').addClass('hidden').attr('href', '#').off('click');
-    }
-
-    //    function resetView() {
-    //        $('#details').html('');
-    //        $('#querypan').html('');
-    //        //$('#display').removeClass('col-md-7');
-    //    }
-
-    //deep linking
-    function showDetailPan(id) {
-        if (id) {
-            resetToolBar();
-            var target = $('tr.' + id),
-                details = target.find('.details'),
-                querypan = target.find('.querypan');
-
-            if (details.html() === '') {
-
-                details.load('/wo/' + id, function() {
-                    xeditable();
-                    var isOwner = details.children('span[name="owner"]').attr('value') === 'true',
-                        opAcc = details.children('span[name="acc"]').attr('value') === 'true';
-                    var qtypelt = details.find('#querytype');
-                    var querytype = qtypelt ? qtypelt.text().toLowerCase() : null;
-
-                    if (isOwner) {
-                        $('#edit').removeClass('hidden');
-                    }
-
-                    if (opAcc) {
-                        if (querytype && querytype !== 'imported') { //display query panel for datasets
-                            querypan.load('/query/' + querytype + '/' + id);
-                        } else {
-                            $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
-                        }
-                    } else {
-                        $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
-                            event.preventDefault();
-                            $.get($(this).attr('href'), function(data) {
-                                $('#flash-banner').html(data);
-                            });
-                        });
-                    }
-                });
-            }
-            target.collapse('show');
-        } else {
-            resetToolBar();
-        }
-    }
-
-    $.address.strict(false);
-    $.address.change(function(event) {
-        var id = event.value;
-        appendAccordion(id);
-        showDetailPan(id);
-    });
-
-    function appendAccordion(id) {
-        var tr = $('#' + id);
-        var row = table.row(tr);
-        if (!row.child.isShown()) {
-            // Open this row
-            row.child(panel(id), id).show();
-        }
-    }
-
-    function panel(id) {
-        return '<div class="details col-sm-6"></div>' +
-        //'<div class="col-md-2"></div>' +
-        '<div class="querypan col-sm-6"></div>';
     }
 
     //to gain a smooth animation when clicking the link
