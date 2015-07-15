@@ -11,20 +11,20 @@ block content
 
     #accordion.panel-group
         .panel-default.panel
-            .panel-heading
+            #user.panel-heading
                 .panel-title
                     a.section(data-toggle='collapse' data-parent='#accordion' href='#user') New users
-            #user.panel-collapse.collapse.in
+            .panel-collapse.collapse.in
                 .panel-body
                     :markdown
                        Although you can anonymously browse datasets and visualisations, more functionalities will be available after logging in. Two types of accounts are accepted by this site, a Web Observatory account (wo account), or a Southampton University account (su account). An wo account can be created at the [signup page](/signup). 
                            
                         You can login using either account at the [sign in page](/login), by choosing the desired login button. For wo account login, the username is your email. For su account login the username is your university username (without *@soton.ac.uk* part), and the password is your university password (not ecs password). The first time you login using your su account, a wo account will be automatically created. This account will use your university email as the username, and a password reset is required the first time you use it.
         .panel-default.panel
-            .panel-heading
+            #browse.panel-heading
                 .panel-title
                     a(data-toggle='collapse' data-parent='#accordion' href='#browse') Browse datasets and visualisations
-            #browse.panel-collapse.collapse
+            .panel-collapse.collapse
                 .panel-body
                     :markdown
                         Datasets and visualisations registered on this site can be browsed at either [Datasets](/wo/dataset) and [Visualisations](/wo/visualisation) respectively. The default view shows a table of entries with basic information (metadata). You can specify how many entries are shown per page, filter entires using the search box, and reorder entires by clicking the title of a column. A detailed information panel along with additional buttons will show after clicking the name of an entry. Function of these buttons will be described in section [Query datasets](#query).
@@ -32,28 +32,28 @@ block content
                         Each entry on this site has a uniques identifier (e.g. [DBpedia](/wo/dataset#52e19220bef627683c79c3a6) `/wo/dataset#52e19220bef627683c79c3a6`). These identifiers are resolvable and will give detailed metadata of the entry, as if you've clicked the name of the entry.
 
         .panel-default.panel
-            .panel-heading
+            #reg.panel-heading
                 .panel-title
                     a(data-toggle='collapse' data-parent='#accordion' href='#reg') Register datasets and visualisations
-            #reg.panel-collapse.collapse
+            .panel-collapse.collapse
                 .panel-body
                     :markdown
                         You are more than welcome to register your datasets and visualisations on this site, which can be doen by clicking the *Add* button at either [Datasets](/wo/dataset) or [Visualisations](/wo/visualisation). You will have to provide basic metadata, such as name, URL, publisher (you), creator etc. as well as access control options at the bottom. For datasets, you have to provide username and password of datasets where applicable. In addition you need to test whether the URL, username and password you provided are valid.
 
         .panel-default.panel
-            .panel-heading
+            #query.panel-heading
                 .panel-title
                     a(data-toggle='collapse' data-parent='#accordion' href='#query') Query datasets from the Browser
-            #query.panel-collapse.collapse
+            .panel-collapse.collapse
                 .panel-body
                     :markdown
                         Once you logged in, you can query a dataset that you have permission to access (i.e. either publich datasets or the publisher has granted you permission). Clicking the name of a dataset will bring up a query panel beside the detail panel. Currently supported datasets/query languages are SPARQL, MongoDB and MySQL. 
 
         .panel-default.panel
-            .panel-heading
+            #api.panel-heading
                 .panel-title
                     a(data-toggle='collapse' data-parent='#accordion' href='#api') Query datasets using the Javascript API
-            #api.panel-collapse.collapse
+            .panel-collapse.collapse
                 .panel-body
                     :markdown
                             This section provides an overview of how to use the Web Observatory API. For API specification, please follow the link in the footer.
@@ -157,4 +157,8 @@ block content
                             });
                             ```
 
-
+    style.
+      .panel-heading {
+        padding-top: 70px;
+        margin-top: -70px;
+      }
