@@ -8,6 +8,8 @@ block content
         3. [Register datasets and visualisations](#reg)
         4. [Query datasets from the Browser](#query)
         5. [Query datasets using the Javascript API](#api)
+        6. [Query datasets using the Python API](#pythonapi)
+        7. [Node.js API](#nodeapi)
 
     #accordion.panel-group
         .panel-default.panel
@@ -17,7 +19,7 @@ block content
             #user.panel-collapse.collapse.in
                 .panel-body
                     :markdown
-                       Although you can anonymously browse datasets and visualisations, more functionalities will be available after logging in. Two types of accounts are accepted by this site, a Web Observatory account (wo account), or a Southampton University account (su account). An wo account can be created at the [signup page](/signup). 
+                        Although you can anonymously browse datasets and visualisations, more functionalities will be available after logging in. Two types of accounts are accepted by this site, a Web Observatory account (wo account), or a Southampton University account (su account). An wo account can be created at the [signup page](/signup). 
                            
                         You can login using either account at the [sign in page](/login), by choosing the desired login button. For wo account login, the username is your email. For su account login the username is your university username (without *@soton.ac.uk* part), and the password is your university password (not ecs password). The first time you login using your su account, a wo account will be automatically created. This account will use your university email as the username, and a password reset is required the first time you use it.
         .panel-default.panel
@@ -48,7 +50,6 @@ block content
                 .panel-body
                     :markdown
                         Once you logged in, you can query a dataset that you have permission to access (i.e. either publich datasets or the publisher has granted you permission). Clicking the name of a dataset will bring up a query panel beside the detail panel. Currently supported datasets/query languages are SPARQL, MongoDB and MySQL. 
-
         .panel-default.panel
             .panel-heading
                 .panel-title
@@ -56,106 +57,199 @@ block content
             #api.panel-collapse.collapse
                 .panel-body
                     :markdown
-                            This section provides an overview of how to use the Web Observatory API. For API specification, please follow the link in the footer.
+                        This section provides an overview of how to use the Web Observatory API. For API specification, please follow the link in the footer.
 
-                            The Web Observatory API currently supports client side javascript and Nodejs. API written in python will be released soon.
+                        The Web Observatory API currently supports client side javascript and Nodejs. API written in python will be released soon.
 
                             
 
-                            ### Installation
+                        ### Installation
 
 
 
-                            Download the API file wo.js from [https://github.com/webobservatory/wo-api-js](https://github.com/webobservatory/wo-api-js) 
+                        Download the API file wo.js from [https://github.com/webobservatory/wo-api-js](https://github.com/webobservatory/wo-api-js) 
 
-                            and include in your html file:
+                        and include in your html file:
+                        ```
+                        <script type="text/javascript" charset="utf-8" src="path/to/wo.js"> </script>
+                        ```
+                        Please note, due to local file security policy, your application needs to be served by a web server in order for it to work. Simply open your html as a local file in a browser would not work (or follow [this guide](https://github.com/mrdoob/three.js/wiki/How-to-run-things-locally#change-local-files-security-policy) for a work around).  
+
+                        ###Usage
+
+                        **Create a new WO client:**
+                        ```
+                        var client = new WO("webobservatory.soton.ac.uk", "client_id"); 
+                        ```
+                        *client_id: This is your application ID in your WO profile.  (You need to create an application if you don’t already have one. )*
+
+                        **Login**
+                        ```
+                        client.login()
+                        ```
+                        You would normally assign this action to a button click:
+
+                        Create a button in html: 
+                        ```
+                        <button href="#" id='authButton' >Connect</button>
+                        ```
+                        then assign the click action to the login function:
+                        ```
+                        document.getElementById("authButton").addEventListener("click",client.login);
+                        ```
+                        or 
+                        ```
+                        //jQuery
+                        $('#authButton').click(client.login);
+                        ```
+                        Clicking the button would redirect the user of your application to the WO login page and ask the user to authorise your application for accessing the data on their behalf. 
+
+                        **Querying a static dataset**
+
+                        Quering a mongodb's tweets collection with an empty query {}
+                        ```
+                        var opt =
+                        {
+                          collection: "tweets", //mongodb collection name, required
+                          query: "{}", //mongodb query, required
+                          limit: 20, //query modifier, optional
+                          skip: 0 //query modifier, optional
+                        };
+                        var id = ‘548047c832582f2c45520ce7’; //dataset_id, ebola mongodb
+                        client.query(id, opt, function(err, data) {
+                        if(!err)
+                             console.log(data);
+                        });
+                        ```
+                        *Note: dataset_id can be obtained from the dataset information page.*
+
+                        **Accessing a stream dataset:**
+                        ```
+                        //open the AMQP dataset ‘54eb13d7590ea23530f24645’
+                        //with the exchange name ‘logs’
+                        //display the first chunk of the stream and close it
+                        client.openStream(‘54eb13d7590ea23530f24645’, {query: ‘logs’},
+                        function(err, data, stream) {
+                        if(!err) {
+                        console.log(data);
+                        //close all streams from
+                        //dataset ‘54eb13d7590ea23530f24645’
+                        client.closeStream(‘54eb13d7590ea23530f24645’);
+                        //or you can close this stream only
+                        client.closeStream(stream.id);
+                        }});
+                        ```
+                        **Listing open connections to a stream dataset:**
+                        ```
+                        //list all stream that are connected to ‘54eb13d7590ea23530f24645’
+                        var opStreams = client.listStream(‘54eb13d7590ea23530f24645’);
+                        //list all stream
+                        var opStreams = client.listStream();
+                        ```
+                        **Close stream connections:**
+                        ```
+                        //Close all connections to '54eb13d7590ea23530f24645'
+                        client.closeStream(‘54eb13d7590ea23530f24645’)
+
+                        // You can also close a specific connection using the stream id
+                        // In the following example,we close all connections stored in opStreams. 
+                        opStreams.forEach(function(sid) {
+                        client.closeStream(sid);
+                        });
+                        ```
+                            
+                            
+                            
+        .panel-default.panel
+            .panel-heading
+                .panel-title
+                    a(data-toggle='collapse' data-parent='#accordion' href='#pythonapi') Query datasets using the Python API
+            #pythonapi.panel-collapse.collapse
+                .panel-body
+                    :markdown
+                            ### Python API Installation
+
+                            Download the API file wo.py from [https://github.com/webobservatory/wo-api-python](https://github.com/webobservatory/wo-api-python). 
+                            Install the dependencies as per github instruction. 
+
+                            put the wo.py in the same folder as your python file, and import it in your python file:
                             ```
-                            <script type="text/javascript" charset="utf-8" src="path/to/wo.js"> </script>
+                            from wo import WO
                             ```
-                            Please note, due to local file security policy, your application needs to be served by a web server in order for it to work. Simply open your html as a local file in a browser would not work (or follow [this guide](https://github.com/mrdoob/three.js/wiki/How-to-run-things-locally#change-local-files-security-policy) for a work around).  
+                            
 
                             ###Usage
 
                             **Create a new WO client:**
                             ```
-                            var client = new WO("webobservatory.soton.ac.uk", "client_id"); 
+                            client = WO('webobservatory.soton.ac.uk', application_id, application_secret, username ,password )
                             ```
-                            *client_id: This is your application ID in your WO profile.  (You need to create an application if you don’t already have one. )*
+                            *application_id and application_secret: This is your application ID and secret in your WO profile.  (You need to create an application if you don’t already have one. )*
+                            
+                            *username and password: This is your webobservatory username and password. This API library only implements the Resource Owner Password Credentials Grant.*
 
                             **Login**
                             ```
-                            client.login()
+                            ##login after the client creation
+                            res = client.login()
+                            if res:
+                                print "Error message:"+ res
                             ```
-                            You would normally assign this action to a button click:
-
-                            Create a button in html: 
-                            ```
-                            <button href="#" id='authButton' >Connect</button>
-                            ```
-                            then assign the click action to the login function:
-                            ```
-                            document.getElementById("authButton").addEventListener("click",client.login);
-                            ```
-                            or 
-                            ```
-                            //jQuery
-                            $('#authButton').click(client.login);
-                            ```
-                            Clicking the button would redirect the user of your application to the WO login page and ask the user to authorise your application for accessing the data on their behalf. 
-
+                            
                             **Querying a static dataset**
+                            
+                            ```
+                            ## query a dataset using a string query:
+                            err, res1 = client.query('52e19220bef627683c79c3a6','SELECT * WHERE {  ?subject rdf:type ?class} LIMIT 10')
+                            if not err:
+                                print res1
+                            else:
+                                print err
+                            ```
+                            *Note: 52e19220bef627683c79c3a6 is a dataset_id, which can be obtained from the dataset details page.*
+                            
+                            ```
+                            ##query a dataset using a dict
+                            ##define your query as a dict
+                            opt = {'collection':"abuse_entries_2014_12", 'query':'{}', 'limit':10,'skip':0}
+                            ##send the dict as the second parameter.
+                            err, res2 = client.query('54eb0a1d590ea23530f24644', opt)
+                            if not err:
+                                print res2
+                            else:
+                                print err
+                            ```
 
-                            Quering a mongodb's tweets collection with an empty query {}
-                            ```
-                            var opt =
-                            {
-                              collection: "tweets", //mongodb collection name, required
-                              query: "{}", //mongodb query, required
-                              limit: 20, //query modifier, optional
-                              skip: 0 //query modifier, optional
-                            };
-                            var id = ‘548047c832582f2c45520ce7’; //dataset_id, ebola mongodb
-                            client.query(id, opt, function(err, data) {
-                            if(!err)
-                                 console.log(data);
-                            });
-                            ```
-                            *Note: dataset_id can be obtained from the URL of detail information page, the string after #).*
+
 
                             **Accessing a stream dataset:**
                             ```
-                            //open the AMQP dataset ‘54eb13d7590ea23530f24645’
-                            //with the exchange name ‘logs’
-                            //display the first chunk of the stream and close it
-                            client.openStream(‘54eb13d7590ea23530f24645’, {query: ‘logs’},
-                            function(err, data, stream) {
-                            if(!err) {
-                            console.log(data);
-                            //close all streams from
-                            //dataset ‘54eb13d7590ea23530f24645’
-                            client.closeStream(‘54eb13d7590ea23530f24645’);
-                            //or you can close this stream only
-                            client.closeStream(stream.id);
-                            }});
+                            #open the AMQP dataset ‘54eb13d7590ea23530f24645’
+                            #with the exchange name ‘logs’
+                            #print the data from the stream
+                            def callback(err, data,socket):
+                                if not err:
+                                    print 'data:'+data
+                                else:
+                                    print err
+                            client.openStream('54eb13d7590ea23530f24645','logs',callback)
                             ```
-                            **Listing open connections to a stream dataset:**
-                            ```
-                            //list all stream that are connected to ‘54eb13d7590ea23530f24645’
-                            var opStreams = client.listStream(‘54eb13d7590ea23530f24645’);
-                            //list all stream
-                            var opStreams = client.listStream();
-                            ```
-                            **Close stream connections:**
-                            ```
-                            //Close all connections to '54eb13d7590ea23530f24645'
-                            client.closeStream(‘54eb13d7590ea23530f24645’)
-
-                            // You can also close a specific connection using the stream id
-                            // In the following example,we close all connections stored in opStreams. 
-                            opStreams.forEach(function(sid) {
-                            client.closeStream(sid);
-                            });
-                            ```
+                            *Please Note, once your app is connected to a stream, your app waits for the stream forever. *
+        
+        
+        .panel-default.panel
+            .panel-heading
+                .panel-title
+                    a(data-toggle='collapse' data-parent='#accordion' href='#nodeapi') Node.js API
+            #nodeapi.panel-collapse.collapse
+                .panel-body
+                    :markdown
+                            ### Node.js API
+                            
+                            Obtain the API files from [https://github.com/webobservatory/wo-api-nodejs](https://github.com/webobservatory/wo-api-nodejs)
+                            Follow the Github instructions to get the example node app running. 
+                            
+                            The API function signatures are the same as the javascript API
 
     style.
       .panel-collapse {
