@@ -12,7 +12,7 @@ var express = require('express'),
     mongoose = require('mongoose'),
     passport = require("passport"),
     flash = require("connect-flash"),
-//express 4.0 middlewares
+    //express 4.0 middlewares
     morganLogger = require('morgan'),
     winstonLogger = require('./app/util/logger'),
     bodyParser = require('body-parser'),
@@ -39,7 +39,7 @@ if (!fs.existsSync(__dirname + '/files')) {
 }
 
 
-fs.readdirSync(models_dir).forEach(function (file) {
+fs.readdirSync(models_dir).forEach(function(file) {
     if (file[0] === '.') {
         return;
     }
@@ -75,13 +75,13 @@ app.use(passport.authenticate('remember-me'));
 //logging
 function skip(req, res) {
     var ignorPath = ['css', 'js', 'fonts', 'images', 'img'];
-    if (-1 !== ignorPath.indexOf(req.path.split('/')[1]) && res.statusCode < 400)//ignore SUCCESSFUL requests to certain paths
+    if (-1 !== ignorPath.indexOf(req.path.split('/')[1]) && res.statusCode < 400) //ignore SUCCESSFUL requests to certain paths
     {
         return true;
     }
 }
 
-morganLogger.token('email', function (req) {
+morganLogger.token('email', function(req) {
     var user = req.user || {};
     return user.email;
 });
@@ -90,7 +90,9 @@ app.use(morganLogger('tiny', {
     skip: skip
 }));
 
-accessLogStream = fs.createWriteStream(__dirname + '/log/morgan.log', {flags: 'a'});
+accessLogStream = fs.createWriteStream(__dirname + '/log/morgan.log', {
+    flags: 'a'
+});
 app.use(morganLogger(':remote-addr - :remote-user :email [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent"', { //Apache combined extended with user email
     stream: accessLogStream,
     skip: skip
@@ -102,8 +104,8 @@ app.use('/git', servestatic(path.join(__dirname, 'git')));
 app.use(servestatic(path.join(__dirname, 'public')));
 
 var options = {
-    key: fs.readFileSync('./ssl/key.pem'),
-    cert: fs.readFileSync('./ssl/cert.pem')
+    key: fs.readFileSync(path.join(__dirname, './ssl/key.pem')),
+    cert: fs.readFileSync(path.join(__dirname, './ssl/cert.pem'))
 };
 
 var secureServer = https.createServer(options, app);
@@ -116,13 +118,13 @@ app.set('socketioSSL', ioSSL);
 require('./config/routes')(app, passport);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 
-app.use(function (err, req, res, __) {
+app.use(function(err, req, res, __) {
     winstonLogger.error(err.message);
     if (req.xhr) {
         res.status(500).send(err);
@@ -134,14 +136,14 @@ app.use(function (err, req, res, __) {
     }
 });
 
-secureServer.listen(config.listenOn.https, function () {
+secureServer.listen(config.listenOn.https, function() {
     console.log('Express ssl server listening on port ' + app.get('httpsPort'));
 });
 
-server.listen(config.listenOn.http, function () {
+server.listen(config.listenOn.http, function() {
     console.log('Express server listening on port ' + app.get('port'));
 });
 
-module.exports.app = app;//for vhost
+module.exports.app = app; //for vhost
 module.exports.socketio = io;
 module.exports.socketioSSL = ioSSL;
