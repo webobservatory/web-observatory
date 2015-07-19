@@ -12,7 +12,7 @@ body
             .row
                 p
                     = client.name
-                    | is requesting access to your account. Do you approve?
+                    | is requesting access to your datasets, visualisations and email. Do you approve?
                 form.form-signin(method="POST", action="/oauth/decision")
                     input(type='hidden', name='transaction_id', value=transactionID)
                     button.btn.btn-primary.btn-lg.btn-block(type="submit") Allow

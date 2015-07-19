@@ -1013,8 +1013,7 @@ module.exports = function (app, passport) {
     }), function (req, res) {
         // req.authInfo is set using the `info` argument supplied by
         // `BearerStrategy`.  It is typically used to indicate scope of the token,
-        // and used in access control checks.  For illustrative purposes, this
-        // example simply returns the scope in the response.
+        // and used in access control checks.
         res.json({
             user_id: req.user._id,
             email: req.user.email,
@@ -1027,6 +1026,7 @@ module.exports = function (app, passport) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,
+            scope: req.authInfo.scope,
             client: req.oauth2.client
         });
     });

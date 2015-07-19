@@ -16,7 +16,6 @@ var AuthoriseCodeSchema = new Schema({
         required: true
     },
     redirectURI: String,
-    scope: String,
     created: {
         type: Date,
         default: Date.now
