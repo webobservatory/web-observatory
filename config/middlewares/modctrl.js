@@ -2,6 +2,7 @@
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Entry = mongoose.model('Entry'),
+    License = mongoose.model('License'),
     async = require('async'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
