@@ -472,8 +472,8 @@ module.exports = function (app, passport) {
             var mailOptions = {
                 from: req.user.email, // sender address
                 to: entry.publisher,
-                subject: "[Web-Observatory] Dataset Access Request", // Subject line
-                html: req.user.firstName +" "+req.user.lastName +" ("+req.user.email +") would like to access your dataset listed on Web Observatory. Please <a href='https://"+req.headers.host+"/profile#requests'>login</a> to Grant or Deny this request. " // html body
+                subject: "[Web-Observatory] Access Request", // Subject line
+                html: req.user.firstName +" "+req.user.lastName +" ("+req.user.email +") would like to access your dataset/visualisation listed on Web Observatory. Please <a href='https://"+req.headers.host+"/profile#requests'>login</a> to Grant or Deny this request. " // html body
             };
             smtpTransport.sendMail(mailOptions, function (err) {
                 if (err) {
