@@ -31,6 +31,7 @@ exports.fileDownload = function (req, res, next) {
         if (0 === filePath.indexOf('http') || 0 === filePath.indexOf('ftp')) {
             res.redirect(filePath);
         } else {
+            console.log(file);
             res.download(file);
         }
     });

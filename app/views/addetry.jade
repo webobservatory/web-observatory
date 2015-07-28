@@ -66,6 +66,17 @@ block content
                     .ui-widget
                         input#dsTils.form-control.input-xlarge(name='basedOn' type='text' required='')
                         p.help-block The dataset based on which this visualisation is produced. You must give the name of a dataset that is already listed in this portal. You should add the dataset first if it's not registered in this portal.
+            #upload
+                .form-group
+                    label.col-md-4.control-label(for='file') Upload Zip
+                    .col-md-2
+                        input.form-control(name='file' type='file')
+                    .col-md-1
+                        button.btn.btn-default Upload
+                    //p.help-block Upload your HTML/Javascript visualisation in a Zip file. 
+                .col-md-3.col-md-offset-4
+                    .progress
+                        .progress-bar(aria-valuemin='0' role='progressbar') 0%
         .form-group
             .col-md-3.col-md-offset-4
                 a#optogl(data-toggle='collapse' data-target='#moreopt')
@@ -143,10 +154,10 @@ block footer
     script(src='/js/jquery-ui-1.10.3.min.js')
     script.
         var type = !{JSON.stringify(type)};
-        console.log(type);
+        //console.log(type);
         var licenses = !{JSON.stringify(licenses)};
-        console.log(licenses[0].name);
-        console.log(licenses[0].URL);
+        //console.log(licenses[0].name);
+        //console.log(licenses[0].URL);
     script(src='/js/rdfi.js')
     script(src='/js/rdf-ext.js')
     script(src='/js/addetry.jade.js')
