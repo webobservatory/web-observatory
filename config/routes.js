@@ -22,7 +22,10 @@ var mongoose = require('mongoose'),
     noneSSL = require('./middlewares/utils').noneSSL,
     oauth2 = require('../oauth/oauth2server'),
     connTest = require('./middlewares/connTest'),
+    nodemailer = require('nodemailer'),
+    smtpTransport = require('nodemailer-smtp-transport'),
     git = require('./middlewares/github/github');
+
 
 module.exports = function (app, passport) {
 
@@ -450,12 +453,39 @@ module.exports = function (app, passport) {
     //request access of datasets
     app.get('/reqacc/:eid', ensureLoggedIn('/login'), function (req, res) {
         var eids = [req.params.eid];
+        var smtpTransport = nodemailer.createTransport(config.smtp);
 
         modctrl.reqAccToEtry(eids, req.user, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
             } else {
-                req.flash('info', ['Request sent']);
+                req.flash('info', ['Request sent']); //TODO add send mail
+        
+        async.map(eids, function (eid, next) {
+        Entry.findById(eid, function (err, entry) {
+            if (err) {
+                return next(err);
+            }
+            if (!entry) {
+                return next({message: 'Entry not found'});
+            }
+            var mailOptions = {
+                from: req.user.email, // sender address
+                to: entry.publisher,
+                subject: "[Web-Observatory] Dataset Access Request", // Subject line
+                html: req.user.firstName +" "+req.user.lastName +" ("+req.user.email +") would like to access your dataset listed on Web Observatory. Please <a href='https://"+req.headers.host+"/profile#requests'>login</a> to Grant or Deny this request. " // html body
+            };
+            smtpTransport.sendMail(mailOptions, function (err) {
+                if (err) {
+                    return next(err);
+                }
+
+            });
+
+
+        })
+        });//map end
+
             }
 
             res.render('includes/flash-banner', {

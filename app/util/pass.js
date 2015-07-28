@@ -4,7 +4,7 @@ var User = require('../../app/models/user'),
     crypto = require('crypto'),
     hash = require('./hash');
 
-var smtpTransport = nodemailer.createTransport("SMTP", config.smtp);
+var smtpTransport = nodemailer.createTransport(config.smtp);
 
 module.exports.forgotPass = function (req, res, next) {
 
