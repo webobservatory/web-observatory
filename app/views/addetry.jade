@@ -24,7 +24,7 @@ block content
             label.col-md-4.control-label(for='url') URL
             .col-md-3
                 input.form-control.input-xlarge(name='url' type='text', placeholder='The address of your entry', required='')
-                p.help-block= (type === 'dataset' ? 'Leave this field blank if you want to upload a file' : 'If you want us to host your application, leave this field blank and provide a Github address below')
+                p.help-block= (type === 'dataset' ? 'Leave this field blank if you want to upload a file' : 'If you want us to host your application, leave this empty and upload a zip file containing an index.html file below')
         if type === 'dataset'
             // Text input
             .form-group.dsfields
@@ -66,7 +66,7 @@ block content
                     .ui-widget
                         input#dsTils.form-control.input-xlarge(name='basedOn' type='text' required='')
                         p.help-block The dataset based on which this visualisation is produced. You must give the name of a dataset that is already listed in this portal. You should add the dataset first if it's not registered in this portal.
-            #upload
+            #uploadzip
                 .form-group
                     label.col-md-4.control-label(for='file') Upload Zip
                     .col-md-2

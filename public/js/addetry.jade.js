@@ -90,6 +90,7 @@ $(document).ready(function () {
             },
             url: {
                 validators: {
+
                     notEmpty: {
                         message: 'The url is required and cannot be empty'
                     }
@@ -230,6 +231,39 @@ $(document).ready(function () {
             processData: false
         });
     });
+
+    //zip file uploading 
+    $('#uploadzip button').click(function (event) {
+        event.preventDefault();
+        var formData = new FormData($('form')[0]);
+        $.ajax({
+            url: '/uploadzip',  //Server script to process data
+            type: 'POST',
+            xhr: function () {  // Custom XMLHttpRequest
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) { // Check if upload property exists
+                    myXhr.upload.addEventListener('progress', progressHandlingFunction, false); // For handling the progress of the upload
+                }
+                return myXhr;
+            },
+            //Ajax events
+            beforeSend: beforeSendHandler,
+            success: completeHandler,
+            error: errorHandler,
+            // Form data
+            data: formData,
+            //Options to tell jQuery not to process data or worry about content-type.
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    });
+
+
+
+
+
+
 
     //show progress bar
     function beforeSendHandler() {

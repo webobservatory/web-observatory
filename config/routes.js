@@ -158,6 +158,8 @@ module.exports = function (app, passport) {
 
     //data file uploading
     app.post('/upload', ensureLoggedIn('/login'), file.fileUpload);
+    //uploading zip and unzip
+    app.post('/uploadzip', ensureLoggedIn('/login'), file.fileUploadzip);
 
     //data file download
     app.get('/download/:eid', ensureLoggedIn('/login'), Auth.hasAccToDB, file.fileDownload);

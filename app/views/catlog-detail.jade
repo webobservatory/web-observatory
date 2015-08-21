@@ -13,8 +13,13 @@ table.xedit.table.table-bordered.table-striped
         if etry.isOwner
             tr
                 td URL
-                td
-                    span#url(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-title='Edit URL')=etry.url
+                if etry.type === 'visualisation'
+                    td
+                        a#url(href="/vis/"+etry.url)=etry.url
+                else
+                    
+                    td
+                        span#url(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-title='Edit URL')=etry.url
         tr
             td Creator
             td
