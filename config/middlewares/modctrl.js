@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
 //TODO read licenses stub
 module.exports.licenses = function(req, res, next) {
     License.find({}, function(err, licenses) {
-//        console.log(licenses);
+        //        console.log(licenses);
 
         if (err) {
             return next(err);
@@ -164,6 +164,8 @@ module.exports.editEtry = function(etry_id, update, cb) {
                 entry[key] = update[key];
             }
         }
+        entry.modified = Date.now();
+
         entry.save(function(err) {
             if (err) {
                 logger.error(err);
