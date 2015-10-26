@@ -108,6 +108,12 @@ block content
                     .col-md-3
                         textarea.form-control(name='queryinfo' placeholder='')
                         p.help-block Information required to query the dataset, e.g. schema, SQL table name, MongoDB collections etc.
+        .form-group
+                label.col-md-4.control-label(for='lice') License
+                .col-md-3
+                    select.form-control(name='lice')
+                        each license in licenses
+                                option(value=license.name)=license.name
         // Security
         .form-group
             label.col-md-4.control-label(for='access') Security Settings
@@ -137,6 +143,10 @@ block footer
     script(src='/js/jquery-ui-1.10.3.min.js')
     script.
         var type = !{JSON.stringify(type)};
+        console.log(type);
+        var licenses = !{JSON.stringify(licenses)};
+        console.log(licenses[0].name);
+        console.log(licenses[0].URL);
     script(src='/js/rdfi.js')
     script(src='/js/rdf-ext.js')
     script(src='/js/addetry.jade.js')
