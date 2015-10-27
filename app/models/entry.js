@@ -6,34 +6,38 @@ var EntrySchema = mongoose.Schema({
     //legacy usage: a dataset and its distribution are not distinguished; url is the accessURL. 
     url: String,
     name: String,
-    type: String, //dataset? visualisation? etc.
+    type: String, //dataset? app? etc.
+    //category: alias to type
 
     imported: {
         type: Boolean,
         default: false
     },
-    distribution: [{
-        title: String,
-        description: String,
-        issued: {
-            type: Date,
-            default: Date.now()
-        },
-        modified: {
-            type: Date,
-            default: Date.now()
-        },
-        accessURL: {
-            type: String
-        },
-        mediaType: {
-            type: String
-        },
-        format: String
-    }],
+
+    //   not used yet
+    //
+    //   distribution: [{
+    //       title: String,
+    //       description: String,
+    //       issued: {
+    //           type: Date,
+    //           default: Date.now()
+    //       },
+    //       modified: {
+    //           type: Date,
+    //           default: Date.now()
+    //       },
+    //       accessURL: {
+    //           type: String
+    //       },
+    //       mediaType: {
+    //           type: String
+    //       },
+    //       format: String
+    //   }],
 
     querytype: String, //query interface tyep. e.g. sparql, mysql, mongodb
-    mediaType: String, //to replace querytype
+    //mediatype: alias to querytype
     creator: String, //creator of this entry
     publisher: String, //email of the publisher. use email in case user._id goes wrong it's easier to recover
     publisher_name: String, //name of the publisher
@@ -77,6 +81,41 @@ var EntrySchema = mongoose.Schema({
         default: true
     } //entry connection alive? updated periodically
 });
+
+//Attribute alias using virtuals 
+
+//mediaType == querytype
+EntrySchema.virtual('mediatype')
+    .get(function() {
+
+        //imported items : HTML
+        //no querytype items are visualisations : HTML
+        //otherwise equals to querytype
+        var mType = this.imported || this.type === 'visualisatioin' ? 'HTML' : this.querytype || 'HTML';
+
+        return mType;
+    })
+    .set(function(mediatype) {
+        this.set('querytype', mediatype);
+    });
+
+//category == type
+EntrySchema.virtual('category')
+    .get(function() {
+        return this.type;
+    })
+    .set(function(category) {
+        this.set('type', category);
+    });
+
+EntrySchema.set('toJSON', {
+    virtuals: true
+});
+
+EntrySchema.set('toObject', {
+    virtuals: true
+});
+
 EntrySchema.index({
     "$**": "text"
 });

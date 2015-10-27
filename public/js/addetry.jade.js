@@ -282,7 +282,7 @@ $(document).ready(function () {
             url += '.rdf';
         }
 
-        $('#adddata select[name=querytype]').replaceWith('<p name=querytype class="input-xlarge form-control-static" value="Imported">Imported</p>');
+        $('#adddata select[name=querytype]').replaceWith('<p name=querytype class="input-xlarge form-control-static" value="Imported">HTML</p>');
 
         rdf.defaultRequest('get', url,
             {}, null, function (status, header, data) {

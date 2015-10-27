@@ -25,41 +25,76 @@ module.exports.licenses = function(req, res, next) {
 module.exports.visibleEtry = function(req, res, next) {
 
     var user = req.user,
-        typ = req.param('typ'),
-        match = req.query.query,
-        id = req.query.id,
+        query = req.query,
+        q,
         visOption = [],
         aggregate = Entry.aggregate();
 
-    //normalise params
-    match = match ? match.trim() : match;
-    id = id ? id.trim() : id;
-    typ = typ ? typ.trim().toLowerCase() : typ;
+    query.cat = req.params.typ;
 
-    if (match) {
-        aggregate.append({
-            $match: {
-                $text: {
-                    $search: match
-                }
-            }
-        });
-    }
+    //construct aggregation pipeline
+    for (q in query) {
+        if (query.hasOwnProperty(q)) {
+            var v = query[q];
 
-    if (id) {
-        aggregate.append({
-            $match: {
-                _id: id
-            }
-        });
-    }
+            //normalise
+            v = v ? v.trim() : v;
 
-    if (typ) {
-        aggregate.append({
-            $match: {
-                type: typ
+            switch (q) {
+
+                //***********************
+                //special cases
+                //***********************
+
+                //q or query for freetext search
+                case 'q':
+                case 'query':
+                    aggregate.append({
+                        $match: {
+                            $text: {
+                                $search: v
+                            }
+                        }
+                    });
+
+                    break;
+
+                    //typ or cat or category for category 
+                case 'typ':
+                case 'cat':
+                case 'category':
+                    aggregate.append({
+                        $match: {
+                            type: v
+                        }
+                    });
+                    break;
+
+                    //matching id
+                case 'id':
+                    aggregate.append({
+                        $match: {
+                            _id: v
+                        }
+                    });
+                    break;
+
+                case 'mediatype':
+                    aggregate.append({
+                        $match: {
+                            querytype: v
+                        }
+                    });
+                    break;
+
+                default:
+                    var match = {};
+                    match[q] = v;
+                    aggregate.append({
+                        $match: match
+                    });
             }
-        });
+        }
     }
 
     //filter entries that are either publicly visible or visible to this user
@@ -164,6 +199,7 @@ module.exports.editEtry = function(etry_id, update, cb) {
                 entry[key] = update[key];
             }
         }
+
         entry.modified = Date.now();
 
         entry.save(function(err) {

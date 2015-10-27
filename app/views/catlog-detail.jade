@@ -1,66 +1,65 @@
+//mixin declaration
+
+mixin search(attr)
+  td
+    span(id = attr data-type = 'text' data-pk = etry._id data-url = '/detail/' + etry._id data-placeholder = attr + ' of the entry' data-title = attr + ' of the entry')= etry[attr]
+    if((attr === 'creator' || attr === 'publisher_name' || attr === 'mediatype' || attr === 'lice') && etry[attr])
+      |  
+      a(data-toggle='tooltip' title='Search for the same attribute' href='/wo/' + etry.category + '/?' + attr + '=' + etry[attr])
+        span.glyphicon.glyphicon-search
+
+//end mixin declaration
+
 table.xedit.table.table-bordered.table-striped
     thead
         tr
     tbody
         tr
-            td.col-md-1 ID
-            td
-                span#id(data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='The entry ID' data-title='Edit ID')=etry._id
+          td.col-md-1 ID
+          +search('_id')
         tr
-            td.col-md-1 Name
-            td
-                span#name(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Name of the entry' data-title='Edit name')=etry.name
+          td.col-md-1 Name
+          +search(name)
+
         if etry.isOwner
-            tr
-                td URL
-                td
-                    span#url(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-title='Edit URL')=etry.url
+          tr
+            td URL
+            +search('url')
         tr
-            td Creator
-            td
-                span#creator(data-type='text' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Creator of the entry' data-title='Edit creator')=etry.creator
+          td Creator
+          +search('creator')
         tr
             td Publisher
-            td
-                span#publisher(data-type='text' data-pk=etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.publisher_name
-
+            +search('publisher_name')
         tr
             td Related dataset
-            td
-                span#related(data-type='select2' data-pk=etry._id data-url='/detail/' + etry._id data-title='Edit related dataset')=etry.related
+            +search('related')
+
         if etry.type === 'visualisation'
             tr
-                td Github address
-                td
-                    span#git(data-type='url' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Git address of the entry' data-title='Edit git address')=etry.git
+              td Github address
+              +search('git')
+
+        tr
+          td MediaType
+          +search('mediatype')
+
+        tr
+          td Keywords
+          +search('kw')
+
+        tr
+          td Description
+          +search('des')
+
+        tr
+          td License
+          +search('lice')
 
         if etry.type === 'dataset'
-            tr
-                td Query
-                td
-                    span#querytype(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query protocol of the entry' data-title='Edit query protocol')=etry.querytype
-
-        tr
-            td Keywords
-            td
-                span#kw(data-type='select2' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Keywords and tags' data-title='Edit keywords')=etry.kw
-
-        tr
-            td Description
-            td
-                span#des(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Description of the entry' data-title='Edit description')=etry.des
-        tr
-            td License
-            td
-                span#lice(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='License of the entry' data-title='Edit License')=etry.lice
-                //TODO not working atm 
-
-
-        if etry.type === 'dataset'
-            tr
-                td QueryInfo
-                td
-                    span#queryinfo(data-type='textarea' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Query interface of the entry' data-title='Edit query information')=etry.queryinfo
+          tr
+            td QueryInfo
+            +search('queryinfo')
 
         tr
             td Shown to
@@ -76,5 +75,8 @@ table.xedit.table.table-bordered.table-striped
 span.hidden(name='owner' value=etry.isOwner.toString())
 span.hidden(name='acc' value=etry.haveAcc.toString())
 span.hidden(name='type' value=etry.type)
-if etry.type === 'visualisation' || etry.querytype === 'Imported'
+if etry.category === 'visualisation' || etry.mediatype === 'HTML'
     span#url.hidden(value=etry.url)
+
+script.
+  $('[data-toggle="tooltip"]').tooltip();

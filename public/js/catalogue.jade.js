@@ -52,7 +52,7 @@ $(document).ready(function() {
                 xeditable();
                 var isOwner = detail_elt.children('span[name="owner"]').attr('value') === 'true',
                     opAcc = detail_elt.children('span[name="acc"]').attr('value') === 'true';
-                var qtypelt = detail_elt.find('#querytype');
+                var qtypelt = detail_elt.find('#mediatype');
                 var querytype = qtypelt ? qtypelt.text().toLowerCase() : null;
 
                 if (isOwner) {
