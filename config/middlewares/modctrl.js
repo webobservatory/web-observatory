@@ -2,7 +2,7 @@
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Entry = mongoose.model('Entry'),
-    License = mongoose.model('License'), //TODO match model name
+    License = mongoose.model('License'),
     async = require('async'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
@@ -10,7 +10,17 @@ var mongoose = require('mongoose'),
 //TODO read licenses stub
 module.exports.licenses = function(req, res, next) {
     License.find({}, function(err, licenses) {
-        //        console.log(licenses);
+        if (err) {
+            return next(err);
+        }
+
+        req.attach = req.attach || {};
+        req.attach.licenses = licenses;
+        next();
+    })
+}
+
+module.exports.visibleEtry = function(req, res, next) {
 
         if (err) {
             return next(err);

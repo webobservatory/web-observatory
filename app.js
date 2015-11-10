@@ -101,6 +101,7 @@ app.use(morganLogger(':remote-addr - :remote-user :email [:date[clf]] ":method :
 app.use(methodOverride());
 app.use(flash());
 app.use('/git', servestatic(path.join(__dirname, 'git')));
+app.use('/vis', servestatic(path.join(__dirname, 'vis')));
 app.use(servestatic(path.join(__dirname, 'public')));
 
 var options = {
