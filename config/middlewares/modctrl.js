@@ -134,11 +134,11 @@ module.exports.addEtry = function(user, etry, cb) {
     var email = user.email;
     //TODO use unique instead
     Entry.findOne({
-        $or: [{
-            name: etry.name
-        }, {
-            url: etry.url
-        }]
+        // $or: [{
+             name: etry.name
+        // }, {
+            // url: etry.url
+        // }]
     }, function(err, entry) {
         var key, enc_alg, pwd, encrypted, cipher;
 
@@ -149,7 +149,7 @@ module.exports.addEtry = function(user, etry, cb) {
         if (entry) {
             logger.warn('Existing entry; user: ' + email + '; entry: ' + (entry.url || entry.name) + ';');
             return cb({
-                message: 'Existing entry name or url'
+                message: 'Existing entry name'
             });
         }
 
