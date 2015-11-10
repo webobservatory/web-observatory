@@ -273,6 +273,7 @@ var tests = {
     mongodb: passDecodeWrapper(mgdbTest),
     amqp: passDecodeWrapper(amqpTest),
     visualisation: webPageTest,
+    html: webPageTest,
     imported: webPageTest
 };
 

@@ -34,7 +34,8 @@ block content
                                         meta(itemprop='http://schema.org/isBasedOnUrl' content=val.related)
                                         meta(itemprop='http://schema.org/description' content=val.des)
 
-                                    td= val.querytype
+                                    - var mediatype = val.type === 'visualisation' || val.imported ? 'HTML' : val.querytype //be consist with "mediatype" virtual in Entry model
+                                    td= mediatype
                                     //display no more than 50 characters of description
                                     - var des=val.des?val.des:''
                                     - if(des.length>47) {

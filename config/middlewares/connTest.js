@@ -11,47 +11,30 @@ var mongoose = require('mongoose'),
 
 tester = function () {
     'use strict';
-    Entry.find({type: 'visualisation'}, function (err, vises) {
-        var tester = queries.tests.visualisation;
+    Entry.find({}, function (err, datasets) {
         if (err) {
             return logger.error(err);
         }
 
-        vises.forEach(function (vis) {
-            tester(vis, function (msg) {
+        datasets.forEach(function (entry) {
+            var test = queries.tests[entry.mediatype.toLowerCase()];
 
-                if (msg) {
-                    logger.warn('visualisation connTest ' + vis.url + ' ' + msg.toString());
-                }
-                var alive = true;
-                if (msg) {
-                    alive = false;
-                }
-                vis.alive = alive;
-                vis.save();
-            });
-        });
-    });
-
-    Entry.find({type: 'dataset'}, function (err, datasets) {
-        if (err) {
-            return logger.error(err);
-        }
-        datasets.forEach(function (ds) {
-            var test = queries.tests[ds.querytype.toLowerCase()];
             if (!test) {
-                return logger.error('No testers available for ' + ds.querytype);
+                return logger.error('No testers available for ' + entry.querytype);
             }
-            test(ds, function (msg) {
+
+            test(entry, function (msg) {
                 if (msg) {
-                    logger.warn('dataset connTest ' + ds.url + ' ' + msg.toString());
+                    logger.warn('dataset connTest ' + entry.url + ' ' + msg.toString());
                 }
+
                 var alive = true;
                 if (msg) {
                     alive = false;
                 }
-                ds.alive = alive;
-                ds.save();
+
+                entry.alive = alive;
+                entry.save();
             });
 
         });
