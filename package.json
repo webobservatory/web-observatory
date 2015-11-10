@@ -30,6 +30,7 @@
     "morgan": "*",
     "mysql": "*",
     "nodemailer": "*",
+    "nodemailer-smtp-transport": "^1.0.4",
     "nodemon": "*",
     "oauth2orize": "*",
     "oauth2orize-openid": "git://github.com/jaredhanson/oauth2orize-openid.git",
@@ -46,6 +47,7 @@
     "serve-favicon": "^2.1.7",
     "serve-static": "^1.7.1",
     "socket.io": "^1.1.0",
+    "unzip": "^0.1.11",
     "winston": "*"
   }
 }

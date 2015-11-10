@@ -7,21 +7,8 @@ var mongoose = require('mongoose'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
 
-//TODO read licenses stub
 module.exports.licenses = function(req, res, next) {
     License.find({}, function(err, licenses) {
-        if (err) {
-            return next(err);
-        }
-
-        req.attach = req.attach || {};
-        req.attach.licenses = licenses;
-        next();
-    })
-}
-
-module.exports.visibleEtry = function(req, res, next) {
-
         if (err) {
             return next(err);
         }
