@@ -26,12 +26,7 @@ var mongoose = require('mongoose'),
     smtpTransport = require('nodemailer-smtp-transport'),
     git = require('./middlewares/github/github');
 
-<<<<<<< HEAD
-module.exports = function(app, passport) {
-=======
-
 module.exports = function (app, passport) {
->>>>>>> dev_jd
 
     app.options('*', cors()); //for pre-flight cors
 
