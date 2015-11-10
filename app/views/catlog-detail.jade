@@ -10,66 +10,73 @@ mixin search(attr)
 
 //end mixin declaration
 
-table.xedit.table.table-bordered.table-striped
-    thead
-        tr
-    tbody
-        tr
-          td.col-md-1 ID
-          +search('_id')
-        tr
-          td.col-md-1 Name
-          +search(name)
+.col-sm-6
 
-        if etry.isOwner
-          tr
-            td URL
-            +search('url')
-        tr
-          td Creator
-          +search('creator')
-        tr
-            td Publisher
-            +search('publisher_name')
-        tr
-            td Related dataset
-            +search('related')
-
-        if etry.type === 'visualisation'
+    table.xedit.table.table-bordered.table-striped
+        thead
             tr
-              td Github address
-              +search('git')
+        tbody
+            tr
+              td.col-md-1 ID
+              +search('_id')
+            tr
+              td.col-md-1 Name
+              +search(name)
 
-        tr
-          td MediaType
-          +search('mediatype')
+            if etry.isOwner
+              tr
+                td URL
+                +search('url')
+            tr
+              td Creator
+              +search('creator')
+            tr
+                td Publisher
+                +search('publisher_name')
+            tr
+                td Related dataset
+                +search('related')
 
-        tr
-          td Keywords
-          +search('kw')
+            if etry.type === 'visualisation'
+                tr
+                  td Github address
+                  +search('git')
 
-        tr
-          td Description
-          +search('des')
+            tr
+              td MediaType
+              +search('mediatype')
 
-        tr
-          td License
-          +search('lice')
+            tr
+              td Keywords
+              +search('kw')
 
-        if etry.type === 'dataset'
-          tr
-            td QueryInfo
-            +search('queryinfo')
+            tr
+              td Description
+              +search('des')
 
-        tr
-            td Shown to
-            td
-                span#opVis(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can see this entry?' data-title='Edit visibility permision' data-value=etry.opVis ? 1 : 0)
+            tr
+              td License
+              +search('lice')
 
-        tr
-            td Access
-            td
-                span#opAcc(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can access this entry?' data-title='Edit access permision' data-value=etry.opAcc ? 1 : 0)
+            if etry.type === 'dataset'
+              tr
+                td QueryInfo
+                +search('queryinfo')
+
+            tr
+                td Shown to
+                td
+                    span#opVis(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can see this entry?' data-title='Edit visibility permision' data-value=etry.opVis ? 1 : 0)
+
+            tr
+                td Access
+                td
+                    span#opAcc(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can access this entry?' data-title='Edit access permision' data-value=etry.opAcc ? 1 : 0)
+
+.col-sm-6
+    if etry.haveAcc || etry.isOwner
+        |!{qrypanl}
+
 
 
 span.hidden(name='owner' value=etry.isOwner.toString())

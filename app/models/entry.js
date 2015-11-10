@@ -91,7 +91,7 @@ EntrySchema.virtual('mediatype')
         //imported items : HTML
         //no querytype items are visualisations : HTML
         //otherwise equals to querytype
-        var mType = this.imported || this.type === 'visualisatioin' ? 'HTML' : this.querytype || 'HTML';
+        var mType = this.imported || this.type === 'visualisation' ? 'HTML' : this.querytype || 'HTML';
 
         return mType;
     })

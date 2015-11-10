@@ -85,8 +85,41 @@ module.exports = function(app, passport) {
                 }
             }
 
-            res.render('catlog-detail', {
-                etry: entry
+
+            var qtype = entry.mediatype.toLowerCase();
+            switch (qtype) {
+                case 'mysql':
+                    qtype = 'sql';
+                    break;
+                case 'postgressql':
+                    qtype = 'sql';
+                    break;
+            }
+
+            async.waterfall([
+                function(cb) {
+                    if (qtype === 'mongodb') {
+                        Entry.findById(req.params.eid, function(err, ds) {
+                            if (err) {
+                                return cb(err);
+                            }
+                            queries.mongodbschema(ds, cb);
+                        });
+                    } else {
+                        cb(null, null);
+                    }
+                }
+            ], function(err, result) {
+                res.render('query/' + qtype, {
+                    eid: entry._id,
+                    url: entry.url,
+                    tags: err ? null : result
+                }, function(err, qrypanl) {
+                    res.render('catlog-detail', {
+                        qrypanl: qrypanl,
+                        etry: entry
+                    });
+                });
             });
         });
     });
@@ -113,7 +146,8 @@ module.exports = function(app, passport) {
 
     //statistics of listed entries
     app.get('/stats', function(req, res) {
-        var sequence = {}, i;
+        var sequence = {},
+            i;
 
         Entry.find({}, function(err, entries) {
             if (err) {

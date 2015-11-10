@@ -35,18 +35,14 @@ $(document).ready(function() {
     }
 
     function panel(id) {
-        return '<div class="details col-sm-6"></div>' +
-            '<div class="querypan col-sm-6"></div>';
+        return '<div class="details"></div>';
     }
 
     function display(id) {
         if (id) {
             resetToolBar();
             var target = $('tr.' + id),
-                detail_elt = target.find('.details'),
-                query_elt = target.find('.querypan');
-
-            //if (detail_elt.html() === '') {
+                detail_elt = target.find('.details');
 
             detail_elt.load('/wo/' + id, function() {
                 xeditable();
@@ -59,13 +55,12 @@ $(document).ready(function() {
                     $('#edit').removeClass('hidden');
                 }
 
-                if (opAcc) {
-                    if (querytype && querytype !== 'imported') { //display query panel for datasets
-                        query_elt.load('/query/' + querytype + '/' + id);
-                    } else {
-                        $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
-                    }
-                } else {
+                if (!opAcc) {
+                    // if (querytype && querytype !== 'imported') { //display query panel for datasets
+                    //     query_elt.load('/query/' + querytype + '/' + id);
+                    // } else {
+                    //     $('#explore').removeClass('hidden').attr('href', $('#url').attr('value'));
+                    // }
                     $('#request').removeClass('hidden').attr('href', '/reqacc/' + id).click(function(event) {
                         event.preventDefault();
                         $.get($(this).attr('href'), function(data) {
