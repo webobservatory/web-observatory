@@ -1,0 +1,43 @@
+extends main
+block append nav
+    include includes/toolbar-top
+block jumbotron
+block content
+    .row
+        #display.panel-group.table-responsive
+            if table
+                table.table.table-hover.header-fixed
+                    thead
+                        tr
+                            th Name
+                            th Description
+                    tbody
+                        each val in table
+                            if val
+                                - val.url = '/wo/project/'+val._id
+                                tr.entry(id=val._id)
+                                    - var name=val.name || '';
+                                    td
+                                        a(data-toggle='tooltip' title=val.url href=val.url address='true')
+                                            = name
+                                    td
+                                        .tp(data-toggle='tooltip' title=val.des)
+                                            =val.des
+block footer
+    link(href='/css/typeahead.js-bootstrap.css', rel='stylesheet')
+    link(href='/css/bootstrap-editable.css', rel='stylesheet')
+    link(href='/css/select2.css', rel='stylesheet')
+    link(href='/css/select2-bootstrap.css', rel='stylesheet')
+    link(href='/css/dataTables.bootstrap.css', rel='stylesheet')
+    style.
+      table .collapse.in {
+        display: table-row !important;
+      }
+    script(src='/js/jquery.dataTables.min.js')
+    script(src='/js/dataTables.bootstrap.js')
+    script(src='/js/jquery.address-1.6.js')
+    script(src='/js/bootstrap-editable.min.js')
+    script(src='/js/inputs-ext/typeaheadjs/lib/typeahead.js')
+    script(src='/js/inputs-ext/typeaheadjs/typeaheadjs.js')
+    script(src='/js/select2.js')
+    script(src='/js/catalogue.jade.js')

@@ -26,7 +26,7 @@ var mongoose = require('mongoose'),
     smtpTransport = require('nodemailer-smtp-transport'),
     git = require('./middlewares/github/github');
 
-module.exports = function (app, passport) {
+module.exports = function(app, passport) {
 
     app.options('*', cors()); //for pre-flight cors
 
@@ -45,8 +45,33 @@ module.exports = function (app, passport) {
         }
     });
 
+    //TODO
+    app.get('/wo/project/:id', modctrl.getProj, function(req, res) {
+        res.render('proj-detail', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user,
+            type: 'project',
+            etry: req.attach.proj
+        });
+    });
+
+    app.get('/wo/:typ(project)', modctrl.search, function(req, res) {
+        res.render('proj', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user,
+            type: 'project',
+            table: req.attach.search
+        });
+    });
+
+    app.post('/wo/project', ensureLoggedIn('/login'), modctrl.addProj, function(req, res) {
+        res.redirect('/wo/project');
+    });
+
     //listing entries
-    app.get('/wo/:typ(dataset|visualisation)', connTest, modctrl.visibleEtry, function(req, res) {
+    app.get('/wo/:typ(dataset|visualisation)', connTest, modctrl.search, function(req, res) {
         var baseUrl = req.protocol + '://' + req.get('host');
 
         res.render('catlg', {
@@ -54,7 +79,7 @@ module.exports = function (app, passport) {
             error: req.flash('error'),
             baseUrl: baseUrl,
             user: req.user,
-            table: req.attach.visibleEntries,
+            table: req.attach.search,
             type: req.params.typ
         });
     });
@@ -176,6 +201,15 @@ module.exports = function (app, passport) {
                 user: req.user,
                 seq: sequence
             });
+        });
+    });
+
+    app.get('/add/project', ensureLoggedIn('/login'), function(req, res) {
+        res.render('addproj', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user,
+            type: 'project'
         });
     });
 
@@ -480,31 +514,33 @@ module.exports = function (app, passport) {
                 req.flash('error', [err.message]);
             } else {
                 req.flash('info', ['Request sent']); //TODO add send mail
-        
-        async.map(eids, function (eid, next) {
-        Entry.findById(eid, function (err, entry) {
-            if (err) {
-                return next(err);
-            }
-            if (!entry) {
-                return next({message: 'Entry not found'});
-            }
-            var mailOptions = {
-                from: req.user.email, // sender address
-                to: entry.publisher,
-                subject: "[Web-Observatory] Access Request", // Subject line
-                html: req.user.firstName +" "+req.user.lastName +" ("+req.user.email +") would like to access your dataset/visualisation listed on Web Observatory. Please <a href='https://"+req.headers.host+"/profile#requests'>login</a> to Grant or Deny this request. " // html body
-            };
-            smtpTransport.sendMail(mailOptions, function (err) {
-                if (err) {
-                    return next(err);
-                }
 
-            });
+                async.map(eids, function(eid, next) {
+                    Entry.findById(eid, function(err, entry) {
+                        if (err) {
+                            return next(err);
+                        }
+                        if (!entry) {
+                            return next({
+                                message: 'Entry not found'
+                            });
+                        }
+                        var mailOptions = {
+                            from: req.user.email, // sender address
+                            to: entry.publisher,
+                            subject: "[Web-Observatory] Access Request", // Subject line
+                            html: req.user.firstName + " " + req.user.lastName + " (" + req.user.email + ") would like to access your dataset/visualisation listed on Web Observatory. Please <a href='https://" + req.headers.host + "/profile#requests'>login</a> to Grant or Deny this request. " // html body
+                        };
+                        smtpTransport.sendMail(mailOptions, function(err) {
+                            if (err) {
+                                return next(err);
+                            }
+
+                        });
 
 
-        })
-        });//map end
+                    })
+                }); //map end
 
             }
 
@@ -998,8 +1034,8 @@ module.exports = function (app, passport) {
         res.send('This is not implemented yet');
     });
 
-    app.get('/api/wo/:typ(dataset|visualisation)', cors(), modctrl.visibleEtry, function(req, res) {
-        var entries = req.attach.visibleEntries;
+    app.get('/api/wo/:typ(dataset|visualisation)', cors(), modctrl.search, function(req, res) {
+        var entries = req.attach.search;
         res.send(entries);
     });
 

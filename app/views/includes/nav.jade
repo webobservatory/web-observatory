@@ -10,18 +10,13 @@ nav.navbar.navbar-inverse.navbar-fixed-top
             ul.navbar-nav.nav
                 li#0
                     a(href='/') Home
-                //li.disabled
-                  a(href='#about') About
-                //li.dropdown
-                  a.dropdown-toggle(href='#', data-toggle='dropdown')
-                    | Quick Menu
-                    b.caret
-                  ul.dropdown-menu(role='menu')
                 li#1
                     a(href='/wo/dataset') Datasets
                 li#2
                     a(href='/wo/visualisation') Apps
                 li#3
+                    a(href='/wo/project') Projects
+                li#4
                     a(href='/howto') Tutorials
             ul.navbar-right.nav.navbar-nav
                 if user == null
@@ -33,3 +28,32 @@ nav.navbar.navbar-inverse.navbar-fixed-top
                             =(user.firstName ? user.firstName : user.email) + "'s Profile"
                     li
                         a(href="/logout") Logout
+script(src='/js/jquery-1.10.2.min.js')
+script.
+  //for nav bar highlight
+  $(document).ready(function () {
+    var pathname = window.location.pathname;
+    $('#0').removeClass('active');
+    $('#1').removeClass('active');
+    $('#2').removeClass('active');
+    $('#3').removeClass('active');
+
+    switch (pathname) {
+      case '/':
+        $('#0').addClass('active');
+        break;
+      case '/wo/dataset':
+        $('#1').addClass('active');
+        break;
+      case '/wo/visualisation':
+        $('#2').addClass('active');
+        break;
+      case '/wo/project':
+        $('#3').addClass('active');
+        break;
+      case '/howto':
+        $('#4').addClass('active');
+        break;
+    }
+  });
+

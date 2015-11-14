@@ -2,40 +2,68 @@
 var mongoose = require('mongoose'),
     User = mongoose.model('User'),
     Entry = mongoose.model('Entry'),
+    Project = mongoose.model('Project'),
     License = mongoose.model('License'),
     async = require('async'),
     crypto = require('crypto'),
     logger = require('../../app/util/logger');
 
-module.exports.licenses = function(req, res, next) {
-    License.find({}, function(err, licenses) {
-        if (err) {
-            return next(err);
-        }
+function search(col, query, user, cb) {
+    var aggregate,
+        visOption = [];
 
-        req.attach = req.attach || {};
-        req.attach.licenses = licenses;
-        next();
-    })
-}
+    switch (col) {
+        case 'license':
+            aggregate = License.aggregate();
+            break;
 
-module.exports.visibleEtry = function(req, res, next) {
+        case 'project':
+            aggregate = Project.aggregate();
 
-    var user = req.user,
-        query = req.query,
-        q,
-        visOption = [],
-        aggregate = Entry.aggregate();
+            visOption.push({
+                opVis: true
+            });
 
-    query.cat = req.params.typ;
+            if (user) {
+                visOption.push({
+                    creator: user.email
+                }, {
+                    member: user.email
+                });
+            }
+            break;
+
+        case 'dataset':
+        case 'app':
+        case 'visualisation':
+            aggregate = Entry.aggregate();
+
+            query.type = col;
+
+            visOption.push({
+                opVis: true
+            });
+
+            if (user) {
+                visOption.push({
+                    publisher: user.email
+                }, {
+                    canView: user.email
+                });
+            }
+
+            query.vis = visOption;
+            break;
+    }
 
     //construct aggregation pipeline
+    var q;
     for (q in query) {
         if (query.hasOwnProperty(q)) {
             var v = query[q];
 
             //normalise
-            v = v ? v.trim() : v;
+            v = typeof v === 'string' ? v.trim() : v;
 
             switch (q) {
 
@@ -45,6 +73,7 @@ module.exports.visibleEtry = function(req, res, next) {
 
                 //q or query for freetext search
                 case 'q':
+                case 'text':
                 case 'query':
                     aggregate.append({
                         $match: {
@@ -84,6 +113,20 @@ module.exports.visibleEtry = function(req, res, next) {
                     });
                     break;
 
+                case 'mongodb':
+                    aggregate.append({
+                        $match: JSON.parse(v)
+                    });
+                    break;
+
+                case 'vis':
+                    aggregate.append({
+                        $match: {
+                            $or: v
+                        }
+                    });
+                    break;
+
                 default:
                     var match = {};
                     match[q] = v;
@@ -94,39 +137,81 @@ module.exports.visibleEtry = function(req, res, next) {
         }
     }
 
-    //filter entries that are either publicly visible or visible to this user
-    visOption.push({
-        opVis: true
-    });
-    if (user) {
-        visOption.push({
-            publisher: user.email
-        }, {
-            canView: user.email
-        });
-    }
-
-    aggregate
-        .append({
-            $match: {
-                $or: visOption
-            }
-        })
-        .append({
+    aggregate.append({
             $sort: {
-                alive: -1,
+                modified: -1,
                 name: 1
             }
         })
-        .exec(function(err, entries) {
+        .exec(cb);
+}
+
+module.exports.search = function(req, res, next) {
+    var user = req.user,
+        query = req.query,
+        visOption = [];
+
+    search(req.params.typ, query, user, function(err, results) {
+        if (err) {
+            return next(err);
+        }
+
+        req.attach = req.attach || {};
+        req.attach.search = results;
+        next();
+    });
+};
+
+module.exports.licenses = function(req, res, next) {
+    License.find({}, function(err, licenses) {
+        if (err) {
+            return next(err);
+        }
+
+        req.attach = req.attach || {};
+        req.attach.licenses = licenses;
+        next();
+    })
+};
+
+module.exports.getProj = function(req, res, next) {
+    Project.findById(req.params.id, function(err, proj){
+        //TODO
+
+    });
+};
+
+module.exports.addProj = function(req, res, next) {
+    var user = req.user,
+        email = user.emial,
+        etry = req.body;
+
+    etry.creator = user._id;
+    etry.member = [user._id];
+    etry.opVis = etry.vis !== 'false';
+
+    Project.findOne({
+        name: etry.name
+    }, function(err, entry) {
+        if (entry) {
+            logger.warn('Existing project; user: ' + email + '; entry: ' + (entry.url || entry.name) + ';');
+            return next(new Error('Existing project; user: ' + email + '; entry: ' + (entry.url || entry.name) + ';'));
+        }
+
+        Project.create(etry, function(err, entry) {
             if (err) {
+                logger.error(err);
                 return next(err);
             }
-
-            req.attach = req.attach || {};
-            req.attach.visibleEntries = entries;
-            next();
+            user.ownproj.push(entry._id);
+            user.save(function(err) {
+                if (err) {
+                    return next(err);
+                }
+                next();
+            });
         });
+    });
 };
 
 module.exports.addEtry = function(user, etry, cb) {
@@ -135,10 +220,10 @@ module.exports.addEtry = function(user, etry, cb) {
     //TODO use unique instead
     Entry.findOne({
         // $or: [{
-             name: etry.name
-        // }, {
+        name: etry.name
+            // }, {
             // url: etry.url
-        // }]
+            // }]
     }, function(err, entry) {
         var key, enc_alg, pwd, encrypted, cipher;
 
@@ -196,8 +281,6 @@ module.exports.editEtry = function(etry_id, update, cb) {
                 entry[key] = update[key];
             }
         }
-
-        entry.modified = Date.now();
 
         entry.save(function(err) {
             if (err) {

@@ -116,6 +116,11 @@ EntrySchema.set('toObject', {
     virtuals: true
 });
 
+EntrySchema.pre('save', function(next) {
+    this.modified = new Date();
+    next();
+});
+
 EntrySchema.index({
     "$**": "text"
 });

@@ -130,6 +130,9 @@ $(document).ready(function() {
                 }, {
                     value: 'MongoDB',
                     text: 'MongoDB'
+                }, {
+                    value: 'HTML',
+                    text: 'HTML'
                 }]
             });
         }

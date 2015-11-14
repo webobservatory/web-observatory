@@ -1,0 +1,50 @@
+extends main
+
+block jumbotron
+block content
+    form#adddata.form-horizontal(action='/wo/project/' method='post')
+        // Text input
+        .form-group
+            label.col-md-4.control-label(for='name') Title
+            .col-md-3
+                input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the project', required='')
+        .form-group
+            label.col-md-4.control-label(for='git') Project Github 
+            .col-md-3
+                input.form-control.input-xlarge(name='git' type='text', placeholder='https://github.com/:user/:reponame')
+                p.help-block The Github url of this project
+        // Textarea
+        .form-group
+            label.col-md-4.control-label(for='des') Description
+            .col-md-3
+                textarea.form-control(name='des' placeholder='')
+                p.help-block A brief description of your project
+        .form-group
+            label.col-md-4.control-label(for='kw') Tags
+            .col-md-3
+                textarea.form-control(name='kw' placeholder='')
+                p.help-block Comma separated tags
+        // Security
+        .form-group
+            label.col-md-4.control-label(for='access') Security Settings
+            .col-md-3
+                label.checkbox(for='visible')
+                    input(type='checkbox', name='vis', value='false')
+                    | Do not list my project in the catalogue
+        .form-group
+            .col-md-3.col-md-offset-4
+                button.btn.btn-primary(type='submit' disabled) Submit
+
+block footer
+    link(href='/css/ui-lightness/jquery-ui-1.10.3.custom.css', rel='stylesheet')
+    link(href='/css/bootstrapValidator.css', rel='stylesheet')
+    style(type='text/css').
+        #adddata .form-control-feedback {
+            top: 0;
+            right: -15px;
+        }
+    script(src='/js/bootstrapValidator.min.js')
+    script(src='/js/jquery-ui-1.10.3.min.js')
+    script.
+        var type = !{JSON.stringify(type)};
+    script(src='/js/addetry.jade.js')
