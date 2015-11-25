@@ -176,7 +176,13 @@ module.exports.licenses = function(req, res, next) {
 
 module.exports.getProj = function(req, res, next) {
     Project.findById(req.params.id, function(err, proj){
-        //TODO
+    
+    if (err) {
+            return next(err);
+        }
+    req.attach = req.attach || {};
+    req.attach.proj = proj;
+    next();
 
     });
 };

@@ -47,6 +47,7 @@ module.exports = function(app, passport) {
 
     //TODO
     app.get('/wo/project/:id', modctrl.getProj, function(req, res) {
+        console.log(req.attach.proj);
         res.render('proj-detail', {
             info: req.flash('info'),
             error: req.flash('error'),

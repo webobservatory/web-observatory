@@ -76,6 +76,7 @@ var EntrySchema = mongoose.Schema({
     kw: [String], //keywords
     des: String, //description
     queryinfo: String, //information required to access/query this entry
+    filter: [String], // relationship to project.
     alive: {
         type: Boolean,
         default: true
