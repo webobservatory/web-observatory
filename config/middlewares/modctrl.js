@@ -175,11 +175,20 @@ module.exports.licenses = function(req, res, next) {
 };
 
 module.exports.getProj = function(req, res, next) {
+    var userid = req.user ? req.user._id : null;
     Project.findById(req.params.id, function(err, proj){
     
     if (err) {
             return next(err);
         }
+
+    proj.isOwner = false;
+    if (useruserid == proj.creator.toString()) {
+        //short cut fields for display
+        proj.isOwner = true;
+        proj.haveAcc = true;
+        }
+
     req.attach = req.attach || {};
     req.attach.proj = proj;
     next();

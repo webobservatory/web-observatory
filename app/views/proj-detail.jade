@@ -74,11 +74,14 @@ block content
         if etry.haveAcc || etry.isOwner
             |!{qrypanl}
 
-
-
     span.hidden(name='type' value=etry.type)
     if etry.category === 'visualisation' || etry.mediatype === 'HTML'
         span#url.hidden(value=etry.url)
+
+    if etry.isOwner
+        script.
+            $('#edit').removeClass('hidden');
+
 
     script.
         $('[data-toggle="tooltip"]').tooltip()
