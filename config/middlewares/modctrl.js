@@ -183,7 +183,7 @@ module.exports.getProj = function(req, res, next) {
         }
 
     proj.isOwner = false;
-    if (useruserid == proj.creator.toString()) {
+    if (userid == proj.creator.toString()) {
         //short cut fields for display
         proj.isOwner = true;
         proj.haveAcc = true;
