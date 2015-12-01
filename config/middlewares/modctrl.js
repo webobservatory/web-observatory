@@ -229,6 +229,45 @@ module.exports.addProj = function(req, res, next) {
     });
 };
 
+
+
+module.exports.editProj = function(proj_id, update, cb) {
+
+    Project.findById(proj_id, function(err, entry) {
+        var key;
+        if (err) {
+            logger.error(err);
+            return cb(err);
+        }
+        if (!entry) {
+            logger.warn('Project not found' + ' project: ' + proj_id + ';');
+            return cb({
+                message: 'Project not found'
+            });
+        }
+
+        for (key in update) {
+            if (update.hasOwnProperty(key)) {
+                entry[key] = update[key];
+            }
+        }
+
+        entry.save(function(err) {
+            if (err) {
+                logger.error(err);
+                return cb(err);
+            }
+            cb(err);
+        });
+    });
+};
+
+
+
+
+
+
+
 module.exports.addEtry = function(user, etry, cb) {
 
     var email = user.email;

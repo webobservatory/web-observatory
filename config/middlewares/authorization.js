@@ -84,7 +84,7 @@ exports.isOwner = function (req, res, next) {
         return res.status(401).send('Unauthorised');
     }
 
-    if (user.own.indexOf(eid) !== -1 || user.clients.indexOf(eid) !== -1) {
+    if (user.own.indexOf(eid) !== -1 || user.ownproj.indexOf(eid) !== -1   ||    user.clients.indexOf(eid) !== -1) {
         return next();
     }
 

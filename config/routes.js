@@ -47,7 +47,7 @@ module.exports = function(app, passport) {
 
     //TODO
     app.get('/wo/project/:id', modctrl.getProj, function(req, res) {
-        console.log(req.attach.proj);
+//        console.log(req.attach.proj);
         res.render('proj-detail', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -356,6 +356,44 @@ module.exports = function(app, passport) {
                 etry: entry
             });
         });
+    });
+
+
+    app.post('/proj-detail/:eid', Auth.isOwner, function(req, res, next) {
+        var eid = req.params.eid,
+            name = req.body.name,
+            value = req.body.value.trim(),
+            etry = {};
+
+
+        switch (name) {
+
+            case 'opAcc':
+                etry.opAcc = value === '1';
+                break;
+
+            case 'opVis':
+                etry.opVis = value === '1';
+                break;
+
+            default:
+                etry[name] = value;
+        }
+
+        modctrl.editProj(eid, etry, function(err) {
+            if (err) {
+                console.error(err);
+                res.send(400, err.message);
+            } else {
+                if (etry.git) {
+                    req.body.git = etry.git;
+                    return next();
+                }
+                res.status(200).end();
+            }
+        });
+    }, git, function(req, res) {
+        res.status(200).end();
     });
 
     app.post('/detail/:eid', Auth.isOwner, function(req, res, next) {

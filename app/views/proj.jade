@@ -15,7 +15,7 @@ block content
                         each val in table
                             if val
                                 - val.url = '/wo/project/'+val._id
-                                tr.entry(id=val._id)
+                                tr.proj(id=val._id)
                                     - var name=val.name || '';
                                     td
                                         a(data-toggle='tooltip' title=val.url href=val.url address='true')

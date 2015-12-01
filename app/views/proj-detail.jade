@@ -8,7 +8,7 @@ block content
 
     mixin search(attr)
       td
-        span(id = attr data-type = 'text' data-pk = etry._id data-url = '/detail/' + etry._id data-placeholder = attr + ' of the entry' data-title = attr + ' of the entry')= etry[attr]
+        span(id = attr data-type = 'text' data-pk = etry._id data-url = '/proj-detail/' + etry._id data-placeholder = attr + ' of the entry' data-title = attr + ' of the entry')= etry[attr]
         if((attr === 'creator' || attr === 'publisher_name' || attr === 'mediatype' || attr === 'lice') && etry[attr])
           |  
           a(data-toggle='tooltip' title='Search for the same attribute' href='/wo/' + etry.category + '/?' + attr + '=' + etry[attr])
@@ -63,12 +63,12 @@ block content
                 tr
                     td Shown to
                     td
-                        span#opVis(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can see this entry?' data-title='Edit visibility permision' data-value=etry.opVis ? 1 : 0)
+                        span#opVis(data-type='select' data-pk=etry._id data-url='/proj-detail/' + etry._id data-placeholder='Who can see this entry?' data-title='Edit visibility permision' data-value=etry.opVis ? 1 : 0)
 
                 tr
                     td Access
                     td
-                        span#opAcc(data-type='select' data-pk=etry._id data-url='/detail/' + etry._id data-placeholder='Who can access this entry?' data-title='Edit access permision' data-value=etry.opAcc ? 1 : 0)
+                        span#opAcc(data-type='select' data-pk=etry._id data-url='/proj-detail/' + etry._id data-placeholder='Who can access this entry?' data-title='Edit access permision' data-value=etry.opAcc ? 1 : 0)
 
     .col-sm-6
         if etry.haveAcc || etry.isOwner
@@ -86,5 +86,6 @@ block content
     script.
         $('[data-toggle="tooltip"]').tooltip()
     
+    script(src='/js/bootstrap-editable.min.js')
     script(src='/js/proj-detail.jade.js')
 
