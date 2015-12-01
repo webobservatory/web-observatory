@@ -1173,7 +1173,7 @@ module.exports = function(app, passport) {
         res.json({
             user_id: req.user._id,
             email: req.user.email,
-            scope: req.authInfo.scope
+            scope: req.authInfo?req.authInfo.scope:null
         });
     });
 
@@ -1182,7 +1182,7 @@ module.exports = function(app, passport) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,
-            scope: req.authInfo.scope,
+            scope: req.authInfo?req.authInfo.scope:null,
             client: req.oauth2.client
         });
     });
