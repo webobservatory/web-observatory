@@ -212,7 +212,6 @@ module.exports.addProj = function(req, res, next) {
             logger.warn('Existing project; user: ' + email + '; entry: ' + (entry.url || entry.name) + ';');
             return next(new Error('Existing project; user: ' + email + '; entry: ' + (entry.url || entry.name) + ';'));
         }
-
         Project.create(etry, function(err, entry) {
             if (err) {
                 logger.error(err);

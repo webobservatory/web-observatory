@@ -33,6 +33,12 @@ var ProjectSchema = mongoose.Schema({
     git: String, //github url if applicable
     kw: [String], //keywords
     des: String, //description
+    youtube: String, 
+    url: String, 
+    publication: [String], 
+    publicationurl: [String], 
+    relatedApp: String, 
+    relatedDataset: String, 
 });
 
 ProjectSchema.pre('save', function(next) {

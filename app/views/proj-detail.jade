@@ -24,51 +24,48 @@ block content
                   td.col-md-1 ID
                   +search('_id')
                 tr
-                  td.col-md-1 Name
+                  td.col-md-1 Project title
                   +search('name')
+                tr
+                  td Homepage
+                  +search('url')
+                tr
+                  td YouTube
+                  +search('youtube')
+                tr
+                  td Github address
+                  +search('git')
 
-                if etry.isOwner
-                  tr
-                    td URL
-                    +search('url')
                 tr
-                  td Creator
-                  +search('creator')
+                  td Related dataset
+                  +search('relatedDataset')
                 tr
-                    td Publisher
-                    +search('publisher_name')
-                tr
-                    td Related dataset
-                    +search('related')
+                  td Related app
+                  +search('relatedApp')
 
-                if etry.type === 'visualisation'
-                    tr
-                      td Github address
-                      +search('git')
+                tr
+                  td Description
+                  +search('des')
+
+                tr
+                  td Publications
+                  td
+ 
 
                 tr
                   td Keywords
                   +search('kw')
 
                 tr
-                  td Description
-                  +search('des')
+                  td Creator
+                  +search('creator')
 
 
-                if etry.type === 'dataset'
-                  tr
-                    td QueryInfo
-                    +search('queryinfo')
 
                 tr
-                    td Shown to
+                    td Security
                     td
-                        span#opVis(data-type='select' data-pk=etry._id data-url='/proj-detail/' + etry._id data-placeholder='Who can see this entry?' data-title='Edit visibility permision' data-value=etry.opVis ? 1 : 0)
-
-                tr
-                    td Access
-                    td
-                        span#opAcc(data-type='select' data-pk=etry._id data-url='/proj-detail/' + etry._id data-placeholder='Who can access this entry?' data-title='Edit access permision' data-value=etry.opAcc ? 1 : 0)
+                        span#opVis(data-type='select' data-pk=etry._id data-url='/proj-detail/' + etry._id data-placeholder='Who can join the project?' data-title='Edit access permision' data-value=etry.opVis ? 1 : 0)
 
     .col-sm-6
         if etry.haveAcc || etry.isOwner

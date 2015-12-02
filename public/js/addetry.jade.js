@@ -34,6 +34,18 @@ $(document).ready(function () {
         },
         source: '/nametags/dataset'
     });
+    $('#appTils').autocomplete({
+        change: function (event, ui) {
+            if (ui.item) {
+                related_ds = 1;
+            } else {
+                related_ds = -1;
+            }
+        },
+        source: '/nametags/visualisation'
+    });
+
+
 
     //dataset connection validator
     function contest(value) {
@@ -96,14 +108,14 @@ $(document).ready(function () {
                     }
                 }
             },
-            des: {
-                validators: {
-                    stringLength: {
-                        message: 'Description must be more than 100 characters',
-                        min: 100
-                    }
-                }
-            },
+//            des: {
+//                validators: {
+//                    stringLength: {
+//                        message: 'Description must be more than 50 characters',
+//                        min: 50
+//                    }
+//                }
+//            },
             file: {
                 validators: {
                     file: {
@@ -136,7 +148,7 @@ $(document).ready(function () {
             git: {
                 validators: {
                     callback: {
-                        enabled: 'visualisation' === type,
+                        enabled: 'visualisation' === type || 'project'===type,
                         message: 'Invalid Github address',
                         callback: function (value, validator) {
                             var valid = false;

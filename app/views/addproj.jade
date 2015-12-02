@@ -9,6 +9,16 @@ block content
             .col-md-3
                 input.form-control.input-xlarge(name='name' type='text', placeholder='Title of the project', required='')
         .form-group
+            label.col-md-4.control-label(for='url') Homepage
+            .col-md-3
+                input.form-control.input-xlarge(name='url' type='text', placeholder='Project Homepage URL', required='')
+                //p.help-block= (type === 'dataset' ? 'Leave this field blank if you want to upload a file' : 'If you want us to host your application, leave this empty and upload a zip file containing an index.html file below')
+        .form-group
+            label.col-md-4.control-label(for='youtube') YouTube
+            .col-md-3
+                input.form-control.input-xlarge(name='youtube' type='text', placeholder='Project YouTube Video URL', required='')
+                //p.help-block Related YouTube Video
+        .form-group
             label.col-md-4.control-label(for='git') Project Github 
             .col-md-3
                 input.form-control.input-xlarge(name='git' type='text', placeholder='https://github.com/:user/:reponame')
@@ -19,6 +29,37 @@ block content
             .col-md-3
                 textarea.form-control(name='des' placeholder='')
                 p.help-block A brief description of your project
+
+
+        .form-group
+            label.col-md-4.control-label(for='publication') Publications
+            .col-md-2
+                input.form-control(name='publication' placeholder='Publication title')
+            .col-md-2
+                input.form-control(name='publicationurl' placeholder='URL')
+        .form-group
+            label.col-md-4.control-label
+            .col-md-2
+                input.form-control(name='publication' placeholder='Publication title')
+            .col-md-2                
+                input.form-control(name='publicationurl' placeholder='URL')
+
+           
+        .form-group
+            label.col-md-4.control-label(for='relatedDataset') Related dataset
+            .col-md-3
+                .ui-widget
+                    input#dsTils.form-control.input-xlarge(name='relatedDataset' type='text')
+                    p.help-block Select the dataset that related to the project.
+        .form-group
+            label.col-md-4.control-label(for='relatedApp') Related apps
+            .col-md-3
+                .ui-widget
+                    input#appTils.form-control.input-xlarge(name='relatedApp' type='text')
+                    p.help-block Select the app that related to the project.
+
+
+
         .form-group
             label.col-md-4.control-label(for='kw') Tags
             .col-md-3
