@@ -47,7 +47,7 @@ module.exports = function(app, passport) {
 
     //TODO
     app.get('/wo/project/:id', modctrl.getProj, function(req, res) {
-//        console.log(req.attach.proj);
+        //        console.log(req.attach.proj);
         res.render('proj-detail', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -1173,7 +1173,7 @@ module.exports = function(app, passport) {
         res.json({
             user_id: req.user._id,
             email: req.user.email,
-            scope: req.authInfo?req.authInfo.scope:null
+            scope: req.authInfo ? req.authInfo.scope : null
         });
     });
 
@@ -1182,7 +1182,7 @@ module.exports = function(app, passport) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,
-            scope: req.authInfo?req.authInfo.scope:null,
+            scope: req.authInfo ? req.authInfo.scope : null,
             client: req.oauth2.client
         });
     });
