@@ -216,7 +216,7 @@ server.grant(oauth2orize_ext.grant.codeIdTokenToken(
 
 //Authorization Code Grant
 server.grant(oauth2orize.grant.code(function(client, redirectURI, user, ares, done) {
-    codeGen(client, user, redirect_uri, done);
+    codeGen(client, user, redirectURI, done);
 }));
 
 //Implicit Grant

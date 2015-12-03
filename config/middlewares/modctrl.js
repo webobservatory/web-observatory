@@ -100,7 +100,7 @@ function search(col, query, user, cb) {
                 case 'id':
                     aggregate.append({
                         $match: {
-                            _id: v
+                            _id: mongoose.Types.ObjectId(v)
                         }
                     });
                     break;

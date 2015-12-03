@@ -45,9 +45,7 @@ module.exports = function(app, passport) {
         }
     });
 
-    //TODO
     app.get('/wo/project/:id', modctrl.getProj, function(req, res) {
-//        console.log(req.attach.proj);
         res.render('proj-detail', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -95,7 +93,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    //catalogue right panel
+    //catalogue accordion panel
     app.get('/wo/:eid', function(req, res) {
         var email = req.user ? req.user.email : null,
             eid = req.params.eid;
@@ -392,7 +390,6 @@ module.exports = function(app, passport) {
 
         modctrl.editProj(eid, etry, function(err) {
             if (err) {
-                console.error(err);
                 res.send(400, err.message);
             } else {
                 if (etry.git) {
@@ -429,7 +426,6 @@ module.exports = function(app, passport) {
 
         modctrl.editEtry(eid, etry, function(err) {
             if (err) {
-                console.error(err);
                 res.send(400, err.message);
             } else {
                 if (etry.git) {
@@ -1183,7 +1179,7 @@ module.exports = function(app, passport) {
         res.json({
             user_id: req.user._id,
             email: req.user.email,
-            scope: req.authInfo.scope
+            scope: req.authInfo ? req.authInfo.scope : null
         });
     });
 
@@ -1192,7 +1188,7 @@ module.exports = function(app, passport) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,
-            scope: req.authInfo.scope,
+            scope: req.authInfo ? req.authInfo.scope : null,
             client: req.oauth2.client
         });
     });
