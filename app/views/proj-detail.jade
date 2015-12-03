@@ -9,7 +9,7 @@ block content
     mixin search(attr)
       td
         span(id = attr data-type = 'text' data-pk = etry._id data-url = '/proj-detail/' + etry._id data-placeholder = attr + ' of the entry' data-title = attr + ' of the entry')= etry[attr]
-        if((attr === 'creator' || attr === 'publisher_name' || attr === 'mediatype' || attr === 'lice') && etry[attr])
+        if(( attr === 'publisher_name' || attr === 'mediatype' || attr === 'lice') && etry[attr])
           |  
           a(data-toggle='tooltip' title='Search for the same attribute' href='/wo/' + etry.category + '/?' + attr + '=' + etry[attr])
             span.glyphicon.glyphicon-search
@@ -49,7 +49,10 @@ block content
 
                 tr
                   td Publications
-                  td
+                  td 
+                      each pub,index in etry.publication
+                          div
+                              a(href=etry.publicationurl[index]) #{pub}
  
 
                 tr
@@ -58,7 +61,7 @@ block content
 
                 tr
                   td Creator
-                  +search('creator')
+                  +search('creator_name')
 
 
 
@@ -68,8 +71,8 @@ block content
                         span#opVis(data-type='select' data-pk=etry._id data-url='/proj-detail/' + etry._id data-placeholder='Who can join the project?' data-title='Edit access permision' data-value=etry.opVis ? 1 : 0)
 
     .col-sm-6
-        if etry.haveAcc || etry.isOwner
-            |!{qrypanl}
+        a.btn.btn-primary(href="/wo/j/project/"+etry._id) Join
+
 
     span.hidden(name='type' value=etry.type)
     if etry.category === 'visualisation' || etry.mediatype === 'HTML'

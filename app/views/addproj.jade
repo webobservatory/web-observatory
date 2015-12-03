@@ -30,20 +30,15 @@ block content
                 textarea.form-control(name='des' placeholder='')
                 p.help-block A brief description of your project
 
-
-        .form-group
-            label.col-md-4.control-label(for='publication') Publications
-            .col-md-2
-                input.form-control(name='publication' placeholder='Publication title')
-            .col-md-2
-                input.form-control(name='publicationurl' placeholder='URL')
-        .form-group
-            label.col-md-4.control-label
-            .col-md-2
-                input.form-control(name='publication' placeholder='Publication title')
-            .col-md-2                
-                input.form-control(name='publicationurl' placeholder='URL')
-
+        .publicationlist
+            .form-group
+                label.col-md-4.control-label(for='publication') Publications
+                button.add_field_button Add more
+                .col-md-2
+                    input.form-control(name='publication' placeholder='Publication title')
+                .col-md-2
+                    input.form-control(name='publicationurl' placeholder='URL')
+        
            
         .form-group
             label.col-md-4.control-label(for='relatedDataset') Related dataset

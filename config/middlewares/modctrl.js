@@ -176,25 +176,70 @@ module.exports.licenses = function(req, res, next) {
 
 module.exports.getProj = function(req, res, next) {
     var userid = req.user ? req.user._id : null;
-    Project.findById(req.params.id, function(err, proj){
-    
+    Project.findOne({_id:req.params.id})
+        .populate('creator')
+        .exec(function(err, proj){
+
     if (err) {
             return next(err);
         }
 
     proj.isOwner = false;
-    if (userid == proj.creator.toString()) {
+    if (userid == proj.creator._id.toString()) {
         //short cut fields for display
         proj.isOwner = true;
         proj.haveAcc = true;
         }
-
+    proj.creator_name = proj.creator.firstName +' '+ proj.creator.lastName;
     req.attach = req.attach || {};
     req.attach.proj = proj;
     next();
 
     });
+
 };
+
+module.exports.joinProj = function(req, res, next) {
+    var userid = req.user ? req.user._id : null;
+    Project.findOne({_id:req.params.id})
+        .populate('creator')
+        .exec(function(err, proj){
+
+    if (err) {
+            return next(err);
+        }
+
+
+
+    //user not already a member:
+    if (proj.member.indexOf(userid) == -1 )
+    {
+        if (proj.opVis)
+        {
+            proj.member.push(userid);
+            req.flash('info', 'You have successfully joined the project.');
+        }
+        else{
+            //TODO 
+            req.flash('info', 'Your request for joining the project has been sent.');
+        }
+    }
+    else{
+        req.flash('error', 'You are already a member of the project.');
+    }
+
+    proj.save(function(err) {
+            if (err) {
+                logger.error(err);
+                return cb(err);
+            }
+        });
+    next();
+
+    });
+};
+
+
 
 module.exports.addProj = function(req, res, next) {
     var user = req.user,
@@ -204,6 +249,13 @@ module.exports.addProj = function(req, res, next) {
     etry.creator = user._id;
     etry.member = [user._id];
     etry.opVis = etry.vis !== 'false';
+
+    for (var i in etry.publicationurl){
+        if (etry.publicationurl[i].substring(0,4) != "http")
+        {
+            etry.publicationurl[i] = 'http://'+etry.publicationurl[i];
+        }
+    }
 
     Project.findOne({
         name: etry.name

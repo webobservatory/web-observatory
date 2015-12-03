@@ -57,6 +57,16 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.get('/wo/j/project/:id',ensureLoggedIn('/login'), modctrl.getProj, modctrl.joinProj,  function(req, res) {
+        res.render('proj-detail', {
+            info: req.flash('info'),
+            error: req.flash('error'),
+            user: req.user,
+            type: 'project',
+            etry: req.attach.proj
+        });
+    });
+
     app.get('/wo/:typ(project)', modctrl.search, function(req, res) {
         res.render('proj', {
             info: req.flash('info'),
