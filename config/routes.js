@@ -45,9 +45,7 @@ module.exports = function(app, passport) {
         }
     });
 
-    //TODO
     app.get('/wo/project/:id', modctrl.getProj, function(req, res) {
-        //        console.log(req.attach.proj);
         res.render('proj-detail', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -382,7 +380,6 @@ module.exports = function(app, passport) {
 
         modctrl.editProj(eid, etry, function(err) {
             if (err) {
-                console.error(err);
                 res.send(400, err.message);
             } else {
                 if (etry.git) {
@@ -419,7 +416,6 @@ module.exports = function(app, passport) {
 
         modctrl.editEtry(eid, etry, function(err) {
             if (err) {
-                console.error(err);
                 res.send(400, err.message);
             } else {
                 if (etry.git) {
