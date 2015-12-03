@@ -83,7 +83,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    //catalogue right panel
+    //catalogue accordion panel
     app.get('/wo/:eid', function(req, res) {
         var email = req.user ? req.user.email : null,
             eid = req.params.eid;
