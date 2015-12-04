@@ -82,10 +82,15 @@ block content
         script.
             $('#edit').removeClass('hidden');
 
+    link(href='/css/bootstrap-editable.css', rel='stylesheet')
+    link(href='/css/select2.css', rel='stylesheet')
+    link(href='/css/select2-bootstrap.css', rel='stylesheet')
+
 
     script.
         $('[data-toggle="tooltip"]').tooltip()
     
     script(src='/js/bootstrap-editable.min.js')
     script(src='/js/proj-detail.jade.js')
+    script(src='/js/select2.js')
 
