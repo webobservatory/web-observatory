@@ -21,8 +21,9 @@ block content
                 tr
             tbody
                 tr
-                  td.col-md-1 ID
-                  +search('_id')
+                    td.col-md-1 ID
+                    td
+                       span(id = '_id' data-pk = etry._id data-url = '/proj-detail/' + etry._id data-placeholder ='_id' + ' of the entry' data-title = '_id' + ' of the entry')= etry['_id'] 
                 tr
                   td.col-md-1 Project title
                   +search('name')
