@@ -180,8 +180,8 @@ module.exports.getProj = function(req, res, next) {
             _id: req.params.id
         })
         .populate('creator')
+        .populate('member')
         .exec(function(err, proj) {
-
             if (err) {
                 return next(err);
             }
@@ -193,6 +193,17 @@ module.exports.getProj = function(req, res, next) {
                 proj.haveAcc = true;
             }
             proj.creator_name = proj.creator.firstName + ' ' + proj.creator.lastName;
+            proj.member_name = '';
+            for (var i=0;i<proj.member.length;i++)
+            {
+                if(proj.member_name)
+                {
+                    proj.member_name = proj.member_name + ', ' +proj.member[i].firstName+' '+proj.member[i].lastName;
+                }
+                else{
+                    proj.member_name = proj.member[i].firstName+' '+proj.member[i].lastName;
+                }
+            }
             req.attach = req.attach || {};
             req.attach.proj = proj;
             next();
