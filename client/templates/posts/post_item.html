@@ -1,0 +1,15 @@
+<template name="postItem">
+  <div class="post grid-item">
+    <a href="#" class="upvote btn btn-default {{upvotedClass}}">⬆</a>
+    <div class="post-content">
+      <h3><a href="{{url}}">{{name}}</a><span>{{domain}}</span></h3>
+      <p>
+        {{pluralize votes "Vote"}},
+        submitted by {{publisherObj.profile.name}},
+        <a href="{{pathFor 'datasetPage'}}">{{pluralize commentsCount "comment"}}</a>
+        {{#if ownPost}}<a href="{{pathFor 'datasetEdit'}}">Edit</a>{{/if}}
+      </p>
+    </div>
+    <a href="{{pathFor 'datasetPage'}}" class="discuss btn btn-default">Discuss</a>
+  </div>
+</template>

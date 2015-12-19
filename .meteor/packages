@@ -1,0 +1,27 @@
+# Meteor packages used by this project, one per line.
+#
+# 'meteor add' and 'meteor remove' will edit this file for you,
+# but you can also edit it by hand.
+
+standard-app-packages
+twbs:bootstrap
+underscore
+iron:router@1.0.0-rc.1
+sacha:spin
+accounts-password
+ian:accounts-ui-bootstrap-3
+audit-argument-checks
+
+orionjs:core
+fortawesome:fontawesome
+orionjs:bootstrap
+orionjs:summernote
+orionjs:relationships
+orionjs:image-attribute
+cfs:standard-packages
+cfs:gridfs
+cfs:autoform
+orionjs:filesystem
+orionjs:s3
+orionjs:file-attribute
+standard-minifiers
