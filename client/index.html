@@ -1,0 +1,19 @@
+<template name="home">
+    <div class="row">
+
+    </div>
+    <div class="row">
+        <div class="col-md-6">
+            <h2>
+                <a href="{{pathFor dataset.routes.latest}}">Datasets</a>
+            </h2>
+            {{> entryList dataset}}
+        </div>
+        <div class="col-md-6">
+            <h2>
+                <a href="{{pathFor app.routes.latest}}">Apps</a>
+            </h2>
+            {{> entryList app}}
+        </div>
+    </div>
+</template>
