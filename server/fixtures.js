@@ -26,7 +26,6 @@ if (Meteor.users.find().count() === 0) {
     tom = Meteor.users.findOne(tomId);
 
 }
-;
 
 // Fixture data
 if (Datasets.find().count() === 0) {
@@ -47,7 +46,7 @@ if (Datasets.find().count() === 0) {
     });
 
     Comments.insert({
-        datasetId: telescopeId,
+        entryId: telescopeId,
         userId: tom._id,
         author: tom.profile.name,
         submitted: new Date(now - 5 * 3600 * 1000),
@@ -55,7 +54,7 @@ if (Datasets.find().count() === 0) {
     });
 
     Comments.insert({
-        datasetId: telescopeId,
+        entryId: telescopeId,
         userId: sacha._id,
         author: sacha.profile.name,
         submitted: new Date(now - 3 * 3600 * 1000),

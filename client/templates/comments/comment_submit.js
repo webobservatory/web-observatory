@@ -18,7 +18,7 @@ Template.commentSubmit.events({
     var $body = $(e.target).find('[name=body]');
     var comment = {
       body: $body.val(),
-      datasetId: template.data._id
+      entryId: template.data._id
     };
     
     var errors = {};

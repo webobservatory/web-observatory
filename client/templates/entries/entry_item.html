@@ -1,0 +1,15 @@
+<template name="entryItem">
+    <div class="post grid-item">
+        <a href="#" class="upvote btn btn-default {{upvotedClass}}">⬆</a>
+        <div class="post-content">
+            <h3><a href="{{url}}">{{name}}</a><span>{{domain}}</span></h3>
+            <p>
+                {{pluralize votes "Vote"}},
+                submitted by {{publisher.profile.name}},
+                <a href="{{pathFor ../routes.page}}">{{pluralize commentsCount "comment"}}</a>
+                {{#if ownEntry}}<a href="{{pathFor ../routes.edit}}">Edit</a>{{/if}}
+            </p>
+        </div>
+        <a href="{{pathFor ../routes.page}}" class="discuss btn btn-default">Discuss</a>
+    </div>
+</template>

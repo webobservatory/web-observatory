@@ -1,43 +1,45 @@
 <template name="header">
-  <nav class="navbar navbar-default" role="navigation">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="{{pathFor 'home'}}">
+    <nav class="navbar navbar-default" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navigation">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{pathFor 'home'}}">
 
-<!-- The third argument, `Microscope`, is the default value that will be shown if `mainPage.title` doesn't have a value set. -->
-        {{ dict 'mainPage.title' 'Microscope' }}
+                <!-- The third argument, `Microscope`, is the default value that will be shown if `mainPage.title` doesn't have a value set. -->
+                {{ dict 'mainPage.title' 'Web Observatory' }}
 
-        {{#if dict 'mainPage.description'}}
-         - {{{ dict 'mainPage.description' }}}
-        {{/if}}
+                {{#if dict 'mainPage.description'}}
+                    - {{{ dict 'mainPage.description' }}}
+                {{/if}}
 
-      </a>
-    </div>
-    <div class="collapse navbar-collapse" id="navigation">
-      <ul class="nav navbar-nav">
-        <li class="{{activeRouteClass 'home' 'newEntries'}}">
-          <a href="{{pathFor 'newEntries'}}">New</a>
-        </li>
-        <li class="{{activeRouteClass  'bestEntries'}}">
-          <a href="{{pathFor 'bestEntries'}}">Best</a>
-        </li>
-        {{#if currentUser}}
-          <li class="{{activeRouteClass 'datasetSubmit'}}">
-            <a href="{{pathFor 'datasetSubmit'}}">Submit Post</a>
-          </li>
-          <li class="dropdown">
-            {{> notifications}}
-          </li>
-        {{/if}}
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        {{> loginButtons}}
-      </ul>
-    </div>
-  </nav>
+            </a>
+        </div>
+        <div class="collapse navbar-collapse" id="navigation">
+            <ul class="nav navbar-nav">
+                <li class="{{activeRouteClass 'dataset.latest'}}">
+                    <a href="{{pathFor 'dataset.latest'}}">Datasets</a>
+                </li>
+                <li class="{{activeRouteClass 'app.latest'}}">
+                    <a href="{{pathFor 'app.latest'}}">Apps</a>
+                </li>
+                {{#if currentUser}}
+                    {{#if category}}
+                        <li class="{{activeRouteClass routes.submit}}">
+                            <a href="{{pathFor routes.submit}}">{{addItem}}</a>
+                        </li>
+                        <li class="dropdown">
+                            {{> notifications}}
+                        </li>
+                    {{/if}}
+                {{/if}}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                {{> loginButtons}}
+            </ul>
+        </div>
+    </nav>
 </template>

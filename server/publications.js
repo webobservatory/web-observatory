@@ -12,9 +12,23 @@ Meteor.publish('singleDataset', function (id) {
     return Datasets.find(id);
 });
 
+Meteor.publish('apps', function (options) {
+    check(options, {
+        fields: Match.Optional(Object),
+        sort: Object,
+        limit: Number
+    });
+    return Apps.find({}, options);
+});
+
+Meteor.publish('singleApp', function (id) {
+    check(id, String);
+    return Apps.find(id);
+});
+
 Meteor.publish('comments', function (entryId) {
     check(entryId, String);
-    return Comments.find({datasetId: entryId});
+    return Comments.find({entryId: entryId});
 });
 
 Meteor.publish('notifications', function () {
