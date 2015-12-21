@@ -1,9 +1,12 @@
 <template name="layout">
-  <div class="container">
-    {{> header}}
-    {{> errors}}
-    <div id="main">
-      {{> yield}}
+    <head>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    </head>
+    <div id="content">
+        {{> nav}}
+        {{> errors}}
+        <div class="container" id="main">
+            {{> yield}}
+        </div>
     </div>
-  </div>
 </template>

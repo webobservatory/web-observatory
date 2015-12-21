@@ -1,4 +1,4 @@
-Template.header.helpers({
+Template.nav.helpers({
     activeRouteClass: function (/* route names */) {
         var args = Array.prototype.slice.call(arguments, 0);
         args.pop();
@@ -13,3 +13,7 @@ Template.header.helpers({
         return "Add " + this.category;
     }
 });
+Template.nav.rendered = function () {
+    $(".dropdown-button").dropdown();
+    $(".button-collapse").sideNav();
+};

@@ -4,17 +4,12 @@
 # but you can also edit it by hand.
 
 standard-app-packages
-twbs:bootstrap
 underscore
 iron:router@1.0.0-rc.1
 sacha:spin
-accounts-password
-ian:accounts-ui-bootstrap-3
 audit-argument-checks
 
 orionjs:core
-fortawesome:fontawesome
-orionjs:bootstrap
 orionjs:summernote
 orionjs:relationships
 orionjs:image-attribute
@@ -25,3 +20,12 @@ orionjs:filesystem
 orionjs:s3
 orionjs:file-attribute
 standard-minifiers
+materialize:materialize
+orionjs:materialize
+useraccounts:materialize
+useraccounts:iron-routing
+accounts-password
+accounts-google
+service-configuration
+accounts-ui
+accounts-github

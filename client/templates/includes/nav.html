@@ -1,0 +1,44 @@
+<template name="nav">
+    <nav>
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="{{pathFor 'home'}}" class="brand-logo">
+                    <!-- The second argument is the default value that will be shown if `mainPage.title` doesn't have a value set. -->
+                    {{ dict 'mainPage.title' 'Web Observatory' }}
+
+                    {{#if dict 'mainPage.description'}}
+                        - {{{ dict 'mainPage.description' }}}
+                    {{/if}}
+                </a>
+                <ul id="nav-mobile" class="right fixed">
+                    {{#if currentUser}}
+                        {{#if category}}
+                            <li class="{{activeRouteClass routes.submit}}">
+                                <a class="btn-floating btn-large waves-effect waves-light amber lighten-1" href="{{pathFor routes.submit}}" title="{{addItem}}"><i class="material-icons">add</i></a>
+
+                                <!--<a href="{{pathFor routes.submit}}">{{addItem}}</a>-->
+                            </li>
+                            <li>
+                                {{> notifications}}
+                            </li>
+                        {{/if}}
+                    {{/if}}
+                    <li>
+                        {{> atNavButton }}
+                    </li>
+                </ul>
+                <ul id="nav-mobile" class="right side-nav fixed">
+                    <li class="{{activeRouteClass 'home'}}">
+                        <a href="{{pathFor 'home'}}">Home</a></li>
+                    <li class="{{activeRouteClass 'dataset.latest'}}">
+                        <a href="{{pathFor 'dataset.latest'}}">Datasets</a>
+                    </li>
+                    <li class="{{activeRouteClass 'app.latest'}}">
+                        <a href="{{pathFor 'app.latest'}}">Apps</a>
+                    </li>
+                </ul>
+                <a class="button-collapse" href="#" data-activates="nav-mobile"><i class="mdi-navigation-menu"></i></a>
+            </div>
+        </div>
+    </nav>
+</template>

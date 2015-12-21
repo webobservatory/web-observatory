@@ -16,7 +16,7 @@ Template.entryItem.helpers({
     upvotedClass: function () {
         var userId = Meteor.userId();
         if (userId && !_.include(this.upvoters, userId)) {
-            return 'btn-primary upvotable';
+            return 'upvotable';
         } else {
             return 'disabled';
         }
@@ -26,6 +26,6 @@ Template.entryItem.helpers({
 Template.entryItem.events({
     'click .upvotable': function (e) {
         e.preventDefault();
-        Meteor.call('upvote', this._id, this.category);
+        Meteor.call('upvote', this._id, Template.parentData(1).category);
     }
 });
