@@ -42,6 +42,8 @@ if (Datasets.find().count() === 0) {
         license: "MIT",
         description: "test 1",
         commentsCount: 2,
+        aclContent: false,
+        online: false,
         upvoters: [], votes: 0
     });
 
@@ -73,18 +75,25 @@ if (Datasets.find().count() === 0) {
         license: "MIT",
         description: "test 2",
         commentsCount: 0,
+        online: false,
         upvoters: [], votes: 0
     });
 
-    // for (var i = 0; i < 10; i++) {
-    //   Datasets.insert({
-    //     title: 'Test post #' + i,
-    //     userId: sacha._id,
-    //     url: 'http://google.com/?q=test-' + i,
-    //     commentsCount: 0,
-    //     upvoters: [], votes: 0
-    //   });
-    // }
+    for (var i = 0; i < 10; i++) {
+        Datasets.insert({
+            name: 'Test post #' + i,
+            publisher: tom._id,
+            distribution: [{
+                url: 'http://themeteorbook.com',
+                fileFormat: "MySQL",
+                online: false
+            }, {url: 'http://themeteorbook.com', fileFormat: "SPARQL"}],
+            license: "MIT",
+            description: "test test test test test test 2",
+            commentsCount: 0,
+            upvoters: [], votes: 0
+        });
+    }
 }
 ;
 

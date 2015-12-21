@@ -1,7 +1,8 @@
 <template name="entryList">
-    <div class="posts">
-        <div class="wrapper js-isotope"
-             data-isotope-options='{ "itemSelector": ".grid-item", "layoutMode": "fitRows" }'>
+    <div class="row">
+        <h4></h4>
+        <div class="row js-isotope"
+             data-isotope-options='{ "itemSelector": ".grid-item", "layoutMode": "packery" }'>
             {{#each entries}}
                 {{> entryItem}}
             {{/each}}

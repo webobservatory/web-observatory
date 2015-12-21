@@ -13,7 +13,7 @@ Template.nav.helpers({
         return "Add " + this.category;
     }
 });
+
 Template.nav.rendered = function () {
-    $(".dropdown-button").dropdown();
     $(".button-collapse").sideNav();
 };

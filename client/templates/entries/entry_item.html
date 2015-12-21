@@ -1,14 +1,43 @@
 <template name="entryItem">
-    <div class="post grid-item">
-        <a href="#" class="upvote btn {{upvotedClass}}">⬆</a>
-        <div class="post-content">
-            <h3><a href="{{pathFor ../routes.page}}">{{name}}</a><span> submitted by {{publisher.profile.name}} </span>
-            </h3>
-            <p>
-                {{pluralize votes "Vote"}},
-                <a href="{{pathFor ../routes.page}}">{{pluralize commentsCount "comment"}}</a>
-                {{#if ownEntry}}<a href="{{pathFor ../routes.edit}}">Edit</a>{{/if}}
-            </p>
+    <div class="grid-item">
+        <div class="card blue-grey darken-1">
+            <div class="card-content white-text">
+                <a class="card-title white-text" title="{{name}}"
+                   href="{{pathFor ../routes.page}}">{{blurb name 15}}</a>
+                <div class="red-text text-lighten-2">
+                    {{#if aclContent}}
+                        <span class="green-text"><i class="material-icons" title="Access allowed">visibility</i></span>
+                    {{else}}
+                        <span><i class="material-icons" title="Access denied">visibility_off</i></span>
+                    {{/if}}
+                    {{#if offline}}
+                        <span><i class="material-icons" title="Distribution offline">error</i></span>
+                    {{/if}}
+                </div>
+                <div>
+                    {{#each this.distribution}}
+                        {{> distribution}}
+                    {{/each}}
+                </div>
+                <!--<p> submitted by {{publisher.profile.name}} </p>-->
+                <p title="{{description}}">{{blurb description 32}}</p>
+            </div>
+            <div class="card-action">
+                <a href="#" class="upvote {{upvotedClass}}" title="Votes">
+                    <i class="material-icons">thumb_up</i>{{votes}}
+                </a>
+                <a href="{{pathFor ../routes.page}}" title="Comments">
+                    <i class="material-icons">comment</i>{{commentsCount}}
+                </a>
+                {{#if ownEntry}}<a href="{{pathFor ../routes.edit}}" title="Edit">
+                    <i class="material-icons">settings</i>
+                </a>{{/if}}
+            </div>
         </div>
     </div>
+</template>
+<template name="distribution">
+    <span class="chip {{offlineClass}} lighten-1 white-text">
+        {{this.fileFormat}}
+    </span>
 </template>
