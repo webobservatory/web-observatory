@@ -17,3 +17,10 @@ Template.nav.helpers({
 Template.nav.rendered = function () {
     $(".button-collapse").sideNav();
 };
+
+Template.nav.events({
+    "keyup #search": _.throttle(function(e) {
+        var text = $(e.target).val().trim();
+        this.search(text);
+    }, 200)
+});

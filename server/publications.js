@@ -1,10 +1,12 @@
-Meteor.publish('datasets', function (options) {
+Meteor.publish('datasets', function (options, selector = {}) {
     check(options, {
         fields: Match.Optional(Object),
+        skip: Match.Optional(Object),
         sort: Object,
         limit: Number
     });
-    return Datasets.find({}, options);
+    check(selector, Object);
+    return Datasets.find(selector, options);
 });
 
 Meteor.publish('singleDataset', function (id) {
@@ -12,13 +14,15 @@ Meteor.publish('singleDataset', function (id) {
     return Datasets.find(id);
 });
 
-Meteor.publish('apps', function (options) {
+Meteor.publish('apps', function (options, selector = {}) {
     check(options, {
         fields: Match.Optional(Object),
+        skip: Match.Optional(Object),
         sort: Object,
         limit: Number
     });
-    return Apps.find({}, options);
+    check(selector, Object);
+    return Apps.find(selector, options);
 });
 
 Meteor.publish('singleApp', function (id) {

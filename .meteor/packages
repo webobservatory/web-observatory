@@ -29,3 +29,5 @@ accounts-google
 service-configuration
 accounts-ui
 accounts-github
+ecmascript
+meteorhacks:search-source
