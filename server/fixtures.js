@@ -4,6 +4,15 @@ var tom = {};
 if (Meteor.users.find().count() === 0) {
     // create two users
 
+    var xgfdId = Accounts.createUser({
+        profile: {
+            name: 'Xgfd'
+        },
+        username: "xgfd",
+        email: "xgfd@example.com",
+        password: "123456",
+    });
+
     var sachaId = Accounts.createUser({
         profile: {
             name: 'Sacha Greif'
@@ -24,7 +33,11 @@ if (Meteor.users.find().count() === 0) {
 
     sacha = Meteor.users.findOne(sachaId);
     tom = Meteor.users.findOne(tomId);
+    xgfd = Meteor.users.findOne(xgfdId);
+}
 
+if (Groups.find().count() === 0) {
+    var g1 = Groups.insert({name: "Group 1", description: "Testing group 1"});
 }
 
 // Fixture data
@@ -49,7 +62,7 @@ if (Datasets.find().count() === 0) {
 
     Comments.insert({
         entryId: telescopeId,
-        userId: tom._id,
+        publisher: tom._id,
         author: tom.profile.name,
         submitted: new Date(now - 5 * 3600 * 1000),
         body: 'Interesting project Sacha, can I get involved?'
@@ -57,7 +70,7 @@ if (Datasets.find().count() === 0) {
 
     Comments.insert({
         entryId: telescopeId,
-        userId: sacha._id,
+        publisher: sacha._id,
         author: sacha.profile.name,
         submitted: new Date(now - 3 * 3600 * 1000),
         body: "<p><span style=\"font-family: 'Comic Sans MS';\"><span style=\"font-size: 18px; background-color: rgb(255, 0, 0);\">You</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(255, 156, 0);\">sure</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(255, 255, 0);\">can</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(0, 255, 0);\">Tom</span><span style=\"font-size: 18px; background-color: rgb(0, 0, 255);\">!!!</span></span></p>"
