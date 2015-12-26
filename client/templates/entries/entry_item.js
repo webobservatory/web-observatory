@@ -40,7 +40,15 @@ Template.entryItem.helpers({
 Template.entryItem.events({
     'click .upvotable': function (e) {
         e.preventDefault();
-        Meteor.call('upvote', this._id, Template.parentData(1).category);
+        var parentData = Template.parentData(1);
+        Meteor.call('upvote', this._id, parentData.category);
+
+        var searchSource = parentData.searchSource;
+        if (searchSource) {
+            var searchText = searchSource.getCurrentQuery();
+            searchSource.cleanHistory();
+            parentData.search(searchText);
+        }
     }
 });
 

@@ -1,43 +1,62 @@
-var sacha = {};
-var tom = {};
+/* testing cases
+ *               ds1 (all)     ds2 (none)     ds3 (group)
+ * admin           y               y            y
+ * individual      y               n            n
+ * member          y               n            y
+ * group           y               n            y
+ * */
 
-if (Meteor.users.find().count() === 0) {
-    // create two users
+function addAdmin(name) {
 
     var xgfdId = Accounts.createUser({
         profile: {
-            name: 'Xgfd'
+            name: name
         },
-        username: "xgfd",
-        email: "xgfd@example.com",
+        username: name,
+        email: name + "@example.com",
         password: "123456",
     });
 
-    var sachaId = Accounts.createUser({
-        profile: {
-            name: 'Sacha Greif'
-        },
-        username: "sacha",
-        email: "sacha@example.com",
-        password: "123456",
-    });
+    Roles.removeUserFromRoles(xgfdId, ["individual"]);
+    Roles.addUserToRoles(xgfdId, ["admin"]);
 
-    var tomId = Accounts.createUser({
-        profile: {
-            name: 'Tom Coleman'
-        },
-        username: "tom",
-        email: "tom@example.com",
-        password: "123456",
-    });
-
-    sacha = Meteor.users.findOne(sachaId);
-    tom = Meteor.users.findOne(tomId);
-    xgfd = Meteor.users.findOne(xgfdId);
+    return xgfdId;
 }
 
-if (Groups.find().count() === 0) {
-    var g1 = Groups.insert({name: "Group 1", description: "Testing group 1"});
+function addIndividual(name) {
+    return Accounts.createUser({
+        profile: {
+            name: name
+        },
+        username: name,
+        email: name + "@example.com",
+        password: "123456",
+    });
+}
+
+function addGroup(name) {
+    var xgfdId = Accounts.createUser({
+        profile: {
+            name: name,
+            isgroup: true
+        },
+        username: name,
+        email: name + "@example.com",
+        password: "123456",
+    });
+
+    Roles.removeUserFromRoles(xgfdId, ["individual"]);
+    Roles.addUserToRoles(xgfdId, ["group"]);
+
+    return xgfdId;
+}
+
+if (Meteor.users.find().count() === 0) {
+    var xgfdId = addAdmin('xgfd');
+    var individualId = addIndividual('individual');
+    var groupId = addGroup('group');
+    var memberId = addIndividual('member');
+    Meteor.call('addToGroup', memberId, groupId);
 }
 
 // Fixture data
@@ -50,7 +69,6 @@ if (Datasets.find().count() === 0) {
         distribution: [{
             url: 'http://sachagreif.com/introducing-telescope/',
             fileFormat: "MongoDB"
-
         }],
         license: "MIT",
         description: "test 1",
