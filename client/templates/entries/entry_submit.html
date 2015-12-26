@@ -1,30 +1,9 @@
-<template name="datasetSubmit">
+<template name="entrySubmit">
 
-{{> quickForm collection="Datasets" id="postSubmitForm" type="insert" omitFields="publisher, comments, commentsCount, datePublished, dateModified, upvoters, votes"}}
+    {{> quickForm collection=col id="postSubmitForm" type="insert" omitFields="publisher, comments, commentsCount, datePublished, dateModified, upvoters, votes, online, distribution.$.online"}}
 
-<!--   {{#autoForm validation="submit" id="postSubmitForm" collection="Datasets"}}
-
-  {{/autoForm}} -->
-<!--   <form class="main form page">
-    <div class="form-group {{errorClass 'url'}}">
-      <label class="control-label" for="url">URL</label>
-      <div class="controls">
-          <input name="url" id="url" type="text" value="" placeholder="Your URL" class="form-control"/>
-          <span class="help-block">{{errorMessage 'url'}}</span>
-      </div>
-    </div>
-    <div class="form-group {{errorClass 'title'}}">
-      <label class="control-label" for="title">Title</label>
-      <div class="controls">
-          <input name="title" id="title" type="text" value="" placeholder="Name your post" class="form-control"/>
-          <span class="help-block">{{errorMessage 'title'}}</span>
-      </div>
-    </div>
-    <input type="submit" value="Submit" class="btn btn-primary"/>
-  </form>
-  -->
-  {{#if dict 'submitPostPage.termsAndConditions'}}
-  <div>TERMS AND CONDITIONS</div>
-  <div>{{{ dict 'submitPostPage.termsAndConditions' }}}</div>
-  {{/if}}
+    {{#if dict 'submitPostPage.termsAndConditions'}}
+        <div>TERMS AND CONDITIONS</div>
+        <div>{{{ dict 'submitPostPage.termsAndConditions' }}}</div>
+    {{/if}}
 </template>

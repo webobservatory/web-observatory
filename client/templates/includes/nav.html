@@ -10,7 +10,7 @@
                         - {{{ dict 'mainPage.description' }}}
                     {{/if}}
                 </a>
-                {{#if category}}
+                {{#if showSearch}}
                     <form class="right">
                         <div class="input-field">
                             <input id="search" type="search" required>
@@ -42,7 +42,7 @@
         </div>
     </nav>
     {{#if currentUser}}
-        {{#if category}}
+        {{#if showAdd}}
             <div class="fixed-action-btn" style="bottom: 45px; right: 24px;">
                 <a class="btn-floating btn-large waves-effect waves-light amber"
                    href="{{pathFor routes.submit}}" title="{{addItem}}"><i class="material-icons">add</i></a>

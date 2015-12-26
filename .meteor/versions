@@ -55,8 +55,10 @@ ecmascript-runtime@0.2.6
 ejson@1.0.7
 email@1.0.8
 fastclick@1.0.7
+fortawesome:fontawesome@4.2.0_2
+froala:editor@1.2.8
 geojson-utils@1.0.4
-gildaspk:autoform-materialize@0.0.25
+gildaspk:autoform-materialize@0.0.26
 github@1.1.4
 google@1.1.7
 hot-code-push@1.0.0
@@ -75,13 +77,13 @@ iron:url@1.0.11
 jeremy:selectize@0.12.1_4
 jquery@1.11.4
 launch-screen@1.0.4
-lepozepo:s3@5.1.5
+lepozepo:s3@5.1.6
 less@2.5.1
 livedata@1.0.15
 localstorage@1.0.5
 logging@1.0.8
 matb33:collection-hooks@0.7.15
-materialize:materialize@0.97.3
+materialize:materialize@0.97.5
 meteor@1.1.10
 meteor-base@1.0.1
 meteor-platform@1.2.3
@@ -115,6 +117,7 @@ orionjs:core@1.7.0
 orionjs:dictionary@1.7.0
 orionjs:file-attribute@1.7.0
 orionjs:filesystem@1.7.0
+orionjs:froala@1.7.0
 orionjs:image-attribute@1.7.0
 orionjs:lang-en@1.7.0
 orionjs:materialize@1.7.0

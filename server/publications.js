@@ -65,7 +65,7 @@ publish({singleDataset: Datasets, singleApp: Apps}, Meteor.publish, function (co
         check(id, String);
 
         var selector = {_id: id},
-            userId = options.userId || Meteor.userId();
+            userId = this.userId;
 
         extendOr(selector, visibleDocumentPublish(userId));
 
