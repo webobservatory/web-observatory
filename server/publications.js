@@ -40,8 +40,13 @@ function buildRegExp(searchText) {
 //}
 
 /*collection publication*/
-publish({datasets: Datasets, apps: Apps, userNames: Meteor.users}, Meteor.publish, function (collection) {
-    return function (options, selector = {}) {
+publish({
+    datasets: Datasets,
+    apps: Apps,
+    groups: Groups,
+    userNames: Meteor.users
+}, Meteor.publish, function (collection) {
+    return function (options = {}, selector = {}) {
         check(options, {
             fields: Match.Optional(Object),
             skip: Match.Optional(Object),

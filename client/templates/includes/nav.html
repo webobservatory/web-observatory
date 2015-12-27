@@ -10,16 +10,29 @@
                         - {{{ dict 'mainPage.description' }}}
                     {{/if}}
                 </a>
-                {{#if showSearch}}
-                    <form class="right">
-                        <div class="input-field">
-                            <input id="search" type="search" required>
-                            <label for="search"><i class="material-icons">search</i></label>
-                            <i class="material-icons">close</i>
-                        </div>
-                    </form>
+                {{#if currentUser}}
+                    <ul class="right">
+                        <li class="blue-grey-text text-lighten-2">
+                            <a href="/admin"><i
+                                    class="material-icons left">perm_identity</i>{{currentUser.profile.name}}</a>
+                        </li>
+                        <li>
+                            {{> notifications}}
+                        </li>
+                    </ul>
                 {{/if}}
                 <ul id="nav-mobile" class="right side-nav fixed">
+                    {{#if showSearch}}
+                        <li>
+                            <form>
+                                <div class="input-field" title="Search">
+                                    <input id="search" type="search">
+                                    <i class="material-icons amber-text">search</i>
+                                    <!--<i class="material-icons">close</i>-->
+                                </div>
+                            </form>
+                        </li>
+                    {{/if}}
                     <li class="{{activeRouteClass 'home'}}">
                         <a href="{{pathFor 'home'}}">Home</a></li>
                     <li class="{{activeRouteClass 'dataset.latest'}}">
@@ -28,11 +41,6 @@
                     <li class="{{activeRouteClass 'app.latest'}}">
                         <a href="{{pathFor 'app.latest'}}">Apps</a>
                     </li>
-                    {{#if currentUser}}
-                        <li>
-                            {{> notifications}}
-                        </li>
-                    {{/if}}
                     <li>
                         {{> atNavButton }}
                     </li>

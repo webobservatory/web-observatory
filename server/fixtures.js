@@ -1,7 +1,7 @@
 /* testing cases
  *               ds1 (all)     ds2 (none)     ds3 (group)
- * admin           y               y            y
- * individual      y               n            n
+ * admin           own             y            own
+ * individual      y               own          n
  * member          y               n            y
  * group           y               n            y
  * */
@@ -65,31 +65,30 @@ if (Datasets.find().count() === 0) {
 
     var telescopeId = Datasets.insert({
         name: 'Introducing Telescope',
-        publisher: sacha._id,
+        publisher: xgfdId,
         distribution: [{
             url: 'http://sachagreif.com/introducing-telescope/',
-            fileFormat: "MongoDB"
+            fileFormat: "MongoDB",
+            online: true
         }],
         license: "MIT",
-        description: "test 1",
+        description: "Vestibulum scelerisque auctor massa. In lectus arcu, eleifend quis faucibus malesuada, vulputate in lectus. Curabitur ut venenatis ligula, sit amet lacinia velit. Ut euismod libero sed odio efficitur tincidunt. Vestibulum a lacinia erat. Nulla pretium ante id fringilla pharetra. Aliquam varius, purus sed euismod ullamcorper, eros elit maximus magna, eu dignissim turpis leo in arcu. Nullam magna leo, blandit eu sollicitudin et, efficitur eget nibh. Etiam tempus mi eleifend commodo molestie.",
         commentsCount: 2,
         aclContent: false,
-        online: false,
+        online: true,
         upvoters: [], votes: 0
     });
 
     Comments.insert({
         entryId: telescopeId,
-        publisher: tom._id,
-        author: tom.profile.name,
+        publisher: individualId,
         submitted: new Date(now - 5 * 3600 * 1000),
         body: 'Interesting project Sacha, can I get involved?'
     });
 
     Comments.insert({
         entryId: telescopeId,
-        publisher: sacha._id,
-        author: sacha.profile.name,
+        publisher: xgfdId,
         submitted: new Date(now - 3 * 3600 * 1000),
         body: "<p><span style=\"font-family: 'Comic Sans MS';\"><span style=\"font-size: 18px; background-color: rgb(255, 0, 0);\">You</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(255, 156, 0);\">sure</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(255, 255, 0);\">can</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(0, 255, 0);\">Tom</span><span style=\"font-size: 18px; background-color: rgb(0, 0, 255);\">!!!</span></span></p>"
 
@@ -97,34 +96,49 @@ if (Datasets.find().count() === 0) {
 
     Datasets.insert({
         name: 'The Meteor Book',
-        publisher: tom._id,
+        publisher: individualId,
         distribution: [{
             url: 'http://themeteorbook.com',
-            fileFormat: "MySQL"
+            fileFormat: "MySQL",
+            online: false
 
         }],
         license: "MIT",
-        description: "test 2",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pharetra augue eget hendrerit bibendum. Vivamus quis laoreet magna. Quisque eu mi sit amet lorem vestibulum rhoncus. Donec lacus est, sodales convallis urna nec, condimentum accumsan ligula. Nullam maximus a sem ac laoreet. In hac habitasse platea dictumst. Pellentesque porttitor ex orci, sed suscipit ante pretium eget. Nam vestibulum metus a libero ultricies molestie sed vel est. Maecenas porta tempus purus, sed pharetra nibh sodales vitae. Nullam in erat tristique, posuere enim laoreet, suscipit erat. Sed quis efficitur enim. 2",
         commentsCount: 0,
         online: false,
+        aclMeta: false,
+        upvoters: [], votes: 0
+    });
+
+    Datasets.insert({
+        name: 'Group visible dataset',
+        publisher: xgfdId,
+        distribution: [{
+            url: 'http://sachagreif.com/introducing-telescope/',
+            fileFormat: "HTML",
+            online: true
+        }],
+        license: "MIT",
+        description: "Vestibulum scelerisque auctor massa. In lectus arcu, eleifend quis faucibus malesuada, vulputate in lectus. Curabitur ut venenatis ligula, sit amet lacinia velit. Ut euismod libero sed odio efficitur tincidunt. Vestibulum a lacinia erat. Nulla pretium ante id fringilla pharetra. Aliquam varius, purus sed euismod ullamcorper, eros elit maximus magna, eu dignissim turpis leo in arcu. Nullam magna leo, blandit eu sollicitudin et, efficitur eget nibh. Etiam tempus mi eleifend commodo molestie. ",
+        commentsCount: 0,
+        aclMeta: false,
+        aclContent: false,
+        metaWhiteList: [groupId],
+        online: true,
         upvoters: [], votes: 0
     });
 
     for (var i = 0; i < 10; i++) {
-        Datasets.insert({
-            name: 'Test post #' + i,
-            publisher: tom._id,
-            distribution: [{
-                url: 'http://themeteorbook.com',
-                fileFormat: "MySQL",
-                online: false
-            }, {url: 'http://themeteorbook.com', fileFormat: "SPARQL"}],
+        Apps.insert({
+            name: 'Test app #' + i,
+            url: 'http://sachagreif.com/introducing-telescope/#' + i,
+            publisher: groupId,
             license: "MIT",
-            description: "test test test test test test 2",
+            aclContent: !!(i % 2),
+            description: "Etiam porttitor purus et mollis malesuada. Nulla tempor orci id ex tincidunt consectetur. Praesent et dignissim lectus, in posuere ante. Curabitur nunc dolor, interdum a ornare eget, laoreet eu metus. Ut tempor lacinia eros nec finibus. Maecenas quis felis non mi euismod consectetur quis at leo. Nullam porta tempus ullamcorper. Phasellus et nibh feugiat, iaculis massa eget, blandit quam. Aliquam dolor justo, feugiat et sem ut, fermentum elementum arcu. Aliquam quis tincidunt tortor. Suspendisse potenti. Duis congue sapien ac purus iaculis pharetra. Donec hendrerit lacus leo, non ultricies purus accumsan nec. Nulla vel suscipit quam. Interdum et malesuada fames ac ante ipsum primis in faucibus. ",
             commentsCount: 0,
             upvoters: [], votes: 0
         });
     }
 }
-;
-

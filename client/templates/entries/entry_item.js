@@ -1,11 +1,11 @@
 Template.entryItem.helpers({
-    blurb: function (text, limit) {
+    blurb (text, limit) {
         var blurb = jQuery.truncate(text, {
             length: limit
         });
         return blurb
     },
-    offline: function () {
+    offline () {
         if (this.distribution) {
             return this.distribution.some(function (dist) {
                 return !dist.online;
@@ -13,32 +13,48 @@ Template.entryItem.helpers({
         }
         return !this.online;
     },
-    dataContex: function () {
+    dataContex () {
         console.log(this);
     },
-    ownEntry: function () {
-        return this.publisher == Meteor.userId();
+    ownEntry () {
+        return this.publisher == Meteor.userId() || Roles.userHasRole(Meteor.userId(), "admin");
     },
-    publisher: function () {
+    publisher() {
         return Meteor.users.findOne(this.publisher);
     },
-    //domain: function () {
+    //domain () {
     //    var a = document.createElement('a');
     //    a.href = this.url;
     //    return a.hostname;
     //},
-    upvotedClass: function () {
+    upvotedClass() {
         var userId = Meteor.userId();
         if (userId && !_.include(this.upvoters, userId)) {
             return 'upvotable';
         } else {
             return 'disabled';
         }
+    },
+    canAccess() {
+        return Roles.userHasPermission(Meteor.userId(), 'collections.entries.access', this);
+    },
+    showInNewTab() {
+        //permitted to access
+        if (Roles.userHasPermission(Meteor.userId(), 'collections.entries.access', this)) {
+            // app
+            if (this.url) {
+                return this.url;
+            }
+            //dataset with only one html distribution
+            if (this.distribution && this.distribution.length === 1 && this.distribution[0].fileFormat === 'HTML') {
+                return this.distribution[0].url;
+            }
+        }
     }
 });
 
 Template.entryItem.events({
-    'click .upvotable': function (e) {
+    'click .upvotable' (e) {
         e.preventDefault();
         var parentData = Template.parentData(1);
         Meteor.call('upvote', this._id, parentData.category);
@@ -53,7 +69,7 @@ Template.entryItem.events({
 });
 
 Template.distribution.helpers({
-    offlineClass: function () {
+    offlineClass () {
         if (this.online) {
             return "teal";
         } else {
