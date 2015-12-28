@@ -59,6 +59,8 @@ publish({
         if (collection !== Meteor.users) {
             var userId = options.userId || this.userId;
             extendOr(selector, visibleDocumentPublish(userId));
+        } else {
+            options.fields = {username: 1};
         }
 
         return collection.find(selector, options);
@@ -84,7 +86,7 @@ Meteor.publish('comments', function (entryId) {
 });
 
 Meteor.publish('notifications', function () {
-    return Notifications.find({publisher: this.publisher, read: false});
+    return Notifications.find({userId: this.userId, read: false});
 });
 
 Meteor.publish('images', function () {

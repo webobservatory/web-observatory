@@ -9,7 +9,7 @@ Template.notifications.helpers({
 
 Template.notificationItem.helpers({
     notificationPostPath: function () {
-        return Router.routes.datasetPage.path({_id: this.entryId});
+        return Router.routes[this.category + '.page'].path({_id: this.entryId});
     }
 });
 
