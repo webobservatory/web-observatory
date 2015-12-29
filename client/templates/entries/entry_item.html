@@ -5,7 +5,7 @@
                 <a class="card-title white-text" title="{{name}}"
                    href="{{pathFor ../routes.page}}">{{{blurb name 15}}}</a>
                 <div class="red-text text-lighten-2">
-                    {{#if canAccess}}
+                    {{#if canAccess this}}
                         <span class="green-text"><i class="material-icons" title="Access allowed">visibility</i></span>
                     {{else}}
                         <span><i class="material-icons" title="Access denied">visibility_off</i></span>
@@ -26,7 +26,7 @@
                 <a href="#" class="upvote {{upvotedClass}}" title="Votes">
                     <i class="material-icons">thumb_up</i>{{votes}}
                 </a>
-                <a href="{{pathFor ../routes.page}}" title="Comments">
+                <a href="{{pathFor ../routes.page hash='comments'}}" title="Comments">
                     <i class="material-icons">comment</i>{{commentsCount}}
                 </a>
                 {{#if ownEntry}}

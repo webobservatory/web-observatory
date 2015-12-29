@@ -5,8 +5,12 @@ AutoForm.hooks({
             //console.log(this.updateDoc);
         },
         after: {
-            update: function () {
-                Router.go(this.collection.singularName + '.page', {_id: this.docId});
+            update: function (error, result) {
+                if (!error) {
+                    Router.go(this.collection.singularName + '.page', {_id: this.docId});
+                } else {
+                    console.log(error);
+                }
             }
         },
     }

@@ -16,7 +16,7 @@ Template.entryItem.helpers({
     dataContex () {
         console.log(this);
     },
-    ownEntry () {
+    ownEntry (entry = this) {
         return this.publisher == Meteor.userId() || Roles.userHasRole(Meteor.userId(), "admin");
     },
     publisher() {
@@ -34,9 +34,6 @@ Template.entryItem.helpers({
         } else {
             return 'disabled';
         }
-    },
-    canAccess() {
-        return Roles.userHasPermission(Meteor.userId(), 'collections.entries.access', this);
     },
     showInNewTab() {
         //permitted to access

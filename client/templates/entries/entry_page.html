@@ -1,17 +1,54 @@
 <template name="entryPage">
-  <div class="post-page page">
-    {{> entryItem entry}}
-  
-    <ul class="comments">
-      {{#each comments}}
-        {{> commentItem}}
-      {{/each}}
-    </ul>
-  
-    {{#if currentUser}}
-      {{> commentSubmit}}
-    {{else}}
-      <p>Please log in to leave a comment.</p>
-    {{/if}}
-  </div>
+    <div class="post-page page">
+        <div class="row">
+            <div class="col s12">
+                <ul class="tabs">
+                    <li class="tab col s3"><a href="#metadata">Metadata</a></li>
+                    <li class="tab col s3"><a href="#comments">Comments</a></li>
+                    {{#if canAccess entry}}
+                        {{#each entry.distribution}}
+                            <li class="tab col s3"><a href="{{appendHash _id}}">{{fileFormat}}</a></li>
+                        {{/each}}
+                    {{else}}
+                        <li class="tab col s3"><a href="#request_access">Request access</a></li>
+                    {{/if}}
+                </ul>
+            </div>
+
+            <div id="metadata" class="col s12">
+                {{> quickForm collection=category id="metadataForm" type="readonly" doc=entry omitFields="comments, commentsCount, upvoters, votes"}}
+            </div>
+
+            <div id="comments" class="col s12">
+                <ul id="comments" class="comments">
+                    {{#each comments}}
+                        {{> commentItem}}
+                    {{/each}}
+                </ul>
+
+                {{#if currentUser}}
+                    {{> commentSubmit}}
+                {{else}}
+                    <p>Please log in to leave a comment.</p>
+                {{/if}}
+            </div>
+
+            {{#if canAccess entry}}
+                {{#each entry.distribution}}
+                    {{>distItem}}
+                {{/each}}
+            {{else}}
+                <div id="request_access">
+                    Fill the following form to request access
+                    <form>
+                        <input>
+                    </form>
+                </div>
+            {{/if}}
+        </div>
+    </div>
+</template>
+
+<template name="distItem">
+    <div id="{{_id}}" class="col s12">{{url}}</div>
 </template>
