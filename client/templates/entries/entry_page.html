@@ -1,54 +1,91 @@
 <template name="entryPage">
-    <div class="post-page page">
-        <div class="row">
-            <div class="col s12">
-                <ul class="tabs">
-                    <li class="tab col s3"><a href="#metadata">Metadata</a></li>
-                    <li class="tab col s3"><a href="#comments">Comments</a></li>
-                    {{#if canAccess entry}}
-                        {{#each entry.distribution}}
-                            <li class="tab col s3"><a href="{{appendHash _id}}">{{fileFormat}}</a></li>
-                        {{/each}}
-                    {{else}}
-                        <li class="tab col s3"><a href="#request_access">Request access</a></li>
-                    {{/if}}
-                </ul>
-            </div>
-
-            <div id="metadata" class="col s12">
-                {{> quickForm collection=category id="metadataForm" type="readonly" doc=entry omitFields="comments, commentsCount, upvoters, votes"}}
-            </div>
-
-            <div id="comments" class="col s12">
-                <ul id="comments" class="comments">
-                    {{#each comments}}
-                        {{> commentItem}}
+    {{>entryItem entry}}
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+                <li class="tab col s3"><a href="#metadata">Metadata</a></li>
+                <li class="tab col s3"><a href="#comments">Comments</a></li>
+                {{#if canAccess entry}}
+                    {{#each entry.distribution}}
+                        <li class="tab col s3"><a href="{{appendHash _id}}">{{fileFormat}}</a></li>
                     {{/each}}
-                </ul>
-
-                {{#if currentUser}}
-                    {{> commentSubmit}}
                 {{else}}
-                    <p>Please log in to leave a comment.</p>
+                    <li class="tab col s3"><a href="#request_access">Request access</a></li>
                 {{/if}}
-            </div>
+            </ul>
+        </div>
 
-            {{#if canAccess entry}}
-                {{#each entry.distribution}}
-                    {{>distItem}}
+        <div id="metadata" class="col s12">
+            {{> quickForm collection=category id="metadataForm" type="readonly" doc=entry omitFields="comments, commentsCount, upvoters, votes"}}
+        </div>
+
+        <div id="comments" class="col s12">
+            <ul id="comments" class="comments">
+                {{#each comments}}
+                    {{> commentItem}}
                 {{/each}}
+            </ul>
+
+            {{#if currentUser}}
+                {{> commentSubmit}}
             {{else}}
-                <div id="request_access">
-                    Fill the following form to request access
-                    <form>
-                        <input>
-                    </form>
-                </div>
+                <p>Please log in to leave a comment.</p>
             {{/if}}
         </div>
+
+        {{#if canAccess entry}}
+            {{#each entry.distribution}}
+                {{>distItem}}
+            {{/each}}
+        {{else}}
+            <div id="request_access">
+                {{>requestFrom}}
+            </div>
+        {{/if}}
     </div>
 </template>
 
 <template name="distItem">
     <div id="{{_id}}" class="col s12">{{url}}</div>
+</template>
+
+<template name="requestFrom">
+    {{#autoForm id="requestForm" schema=requestSchema}}
+        <div class="row">
+            <div class="input-field col s6">
+                {{> afQuickField name="name" value=currentUser.profile.name}}
+            </div>
+            <div class="input-field col s6">
+                {{> afQuickField name="username" value=currentUser.username}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="organisation"}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="email" value=currentUser.emails.[0].address}}
+            </div>
+        </div>
+        <div class="row">
+            <ul class="collapsible" data-collapsible="accordion">
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">info</i>Show license</div>
+                    <div class="collapsible-body"><p>{{entry.license}}</p></div>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="acceptTerms" class="filled-in"}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input class="btn" type="submit" value="Request access"/>
+            </div>
+        </div>
+    {{/autoForm}}
 </template>

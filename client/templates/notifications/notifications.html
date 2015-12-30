@@ -20,8 +20,17 @@
 
 <template name="notificationItem">
     <li>
-        <a href="{{notificationPostPath}}">
-            <strong>{{commenterName}}</strong> commented on your post
-        </a>
+        <div class="card red lighten-2">
+            <div class="card-content white-text">
+                <p>{{{message}}}</p>
+            </div>
+            {{#if actions}}
+                <div class="card-action">
+                    {{#each actions}}
+                        <a class="amber-text text-accent-2" href="#" notification-action="{{this}}">{{this}}</a>
+                    {{/each}}
+                </div>
+            {{/if}}
+        </div>
     </li>
 </template>

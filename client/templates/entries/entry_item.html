@@ -1,12 +1,12 @@
 <template name="entryItem">
     <div class="grid-item">
-        <div class="card blue-grey darken-1">
+        <div class="card blue-grey accent-1 z-depth-2">
             <div class="card-content white-text">
                 <a class="card-title white-text" title="{{name}}"
                    href="{{pathFor ../routes.page}}">{{{blurb name 15}}}</a>
-                <div class="red-text text-lighten-2">
+                <div class="red-text text-accent-2">
                     {{#if canAccess this}}
-                        <span class="green-text"><i class="material-icons" title="Access allowed">visibility</i></span>
+                        <span class="teal-text text-accent-2"><i class="material-icons" title="Access allowed">visibility</i></span>
                     {{else}}
                         <span><i class="material-icons" title="Access denied">visibility_off</i></span>
                     {{/if}}
