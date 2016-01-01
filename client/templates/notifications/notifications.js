@@ -51,8 +51,8 @@ var actions = {
 
         if (entry) {
             var path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
-            var message = '<a href="' + path + '">Access granted</a>';
-            Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.initiatorId, notification.category, message);
+            var message = '<a href="' + path + '">Access to ' + notification.entryName + ' granted</a>';
+            Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.entryName, notification.initiatorId, notification.category, message);
         }
 
         return !!entry;
@@ -60,8 +60,8 @@ var actions = {
     Deny: function (notification) {
         //console.log(notification);
         var path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
-        var message = '<a href="' + path + '">Access request declined</a>';
-        Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.initiatorId, notification.category, message);
+        var message = '<a href="' + path + '">Access to ' + notification.entryName + ' declined</a>';
+        Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.entryName, notification.initiatorId, notification.category, message);
         return true;
     }
 };

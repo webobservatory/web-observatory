@@ -1,0 +1,40 @@
+<template name="requestFrom">
+    {{#autoForm id="requestForm" schema=requestSchema}}
+        <div class="row">
+            <div class="input-field col s6">
+                {{> afQuickField name="name" value=currentUser.profile.name}}
+            </div>
+            <div class="input-field col s6">
+                {{> afQuickField name="username" value=currentUser.username}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="email" value=currentUser.emails.[0].address}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="organisation"}}
+            </div>
+        </div>
+        <div class="row">
+            <ul class="collapsible" data-collapsible="accordion">
+                <li>
+                    <div class="collapsible-header"><i class="material-icons">info</i>Show license</div>
+                    <div class="collapsible-body"><p>{{entry.license}}</p></div>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="acceptTerms" class="filled-in"}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input class="btn" type="submit" value="Request access"/>
+            </div>
+        </div>
+    {{/autoForm}}
+</template>
