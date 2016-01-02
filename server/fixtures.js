@@ -129,7 +129,7 @@ if (Datasets.find().count() === 0) {
         upvoters: [], votes: 0
     });
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 50; i++) {
         Apps.insert({
             name: 'Test app #' + i,
             url: 'http://sachagreif.com/introducing-telescope/#' + i,

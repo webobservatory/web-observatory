@@ -35,7 +35,7 @@
 
         {{#if canAccess entry}}
             {{#each entry.distribution}}
-                {{>distItem}}
+                {{>UI.dynamic template=fileFormat}}
             {{/each}}
         {{else}}
             <div id="request_access">
@@ -44,8 +44,3 @@
         {{/if}}
     </div>
 </template>
-
-<template name="distItem">
-    <div id="{{_id}}" class="col s12">{{url}}</div>
-</template>
-

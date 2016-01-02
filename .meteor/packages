@@ -7,7 +7,6 @@ standard-app-packages
 underscore
 iron:router@1.0.0-rc.1
 sacha:spin
-audit-argument-checks
 
 orionjs:core
 orionjs:summernote
@@ -33,3 +32,4 @@ ecmascript
 meteorhacks:search-source
 orionjs:froala
 matb33:collection-hooks
+vsivsi:orion-file-collection

@@ -15,6 +15,10 @@ AutoForm.hooks({
         },
     }
 });
+
+Template.entryEdit.events({
+    'change .fileUpload input[type=file]': fileUpload
+});
 //Template.entryEdit.onCreated(function() {
 //  Session.set('postEditErrors', {});
 //});

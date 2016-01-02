@@ -20,7 +20,8 @@
                     {{/each}}
                 </div>
                 <!--<p> submitted by {{publisher.profile.name}} </p>-->
-                <p title="{{description}}">{{{blurb description 50}}}</p>
+                <p class="tooltipped" data-position="bottom" data-delay="50"
+                   data-tooltip="{{description}}">{{{blurb description 50}}}</p>
             </div>
             <div class="card-action">
                 <a href="#" class="upvote {{upvotedClass}}" title="Votes">
