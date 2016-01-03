@@ -44,11 +44,11 @@
 </template>
 
 <template name="File">
-    <a href="{{url}}" id="{{url}}" target="_blank"> Download file</a>
+    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn center-align"> Download file</a>
 </template>
 
 <template name="MongoDB">
-    <form class="col s12" action="{{pathFor 'dataset.query'}}" method="get">
+    <form id="{{_id}}" class="col s12" action="{{pathFor 'dataset.query'}}" method="get">
         <input class="hide" value="mongodbQuery" name="method">
         <div class="row">
             <div class="input-field col s12">

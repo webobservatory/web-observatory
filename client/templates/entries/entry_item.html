@@ -1,9 +1,9 @@
 <template name="entryItem">
     <div class="grid-item">
-        <div class="card blue-grey accent-1 z-depth-2">
+        <div class="card blue-grey accent-1 hoverable">
             <div class="card-content white-text">
-                <a class="card-title white-text" title="{{name}}"
-                   href="{{pathFor ../routes.page}}">{{{blurb name 15}}}</a>
+                <a class="card-title white-text truncate" title="{{name}}"
+                   href="{{pathFor ../routes.page}}">{{name}}</a>
                 <div class="red-text text-accent-2">
                     {{#if canAccess this}}
                         <span class="teal-text text-accent-2"><i class="material-icons" title="Access allowed">visibility</i></span>
