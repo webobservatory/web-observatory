@@ -36,14 +36,14 @@ Template.entryEdit.events({
 //  'submit form': function(e) {
 //    e.preventDefault();
 //
-//    var currentPostId = this._id;
+//    let currentPostId = this._id;
 //
-//    var postProperties = {
+//    let postProperties = {
 //      url: $(e.target).find('[name=url]').val(),
 //      title: $(e.target).find('[name=title]').val()
 //    }
 //
-//    var errors = validatePost(postProperties);
+//    let errors = validatePost(postProperties);
 //    if (errors.title || errors.url)
 //      return Session.set('postEditErrors', errors);
 //
@@ -61,7 +61,7 @@ Template.entryEdit.events({
 //    e.preventDefault();
 //
 //    if (confirm("Delete this post?")) {
-//      var currentPostId = this._id;
+//      let currentPostId = this._id;
 //      Datasets.remove(currentPostId);
 //      Router.go('home');
 //    }

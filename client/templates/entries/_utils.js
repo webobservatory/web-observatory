@@ -3,7 +3,7 @@
  */
 
 fileUpload = function (e, template) {
-    var target = $(e.target),
+    let target = $(e.target),
         $fileUpload = target.closest('.fileUpload'),
         session = $fileUpload.attr('data-schema-key'),
         $urlInput = target.closest('.row').prev().find('input[type=url]'),
@@ -12,17 +12,17 @@ fileUpload = function (e, template) {
         isDataset = template && template.data && template.data.category && template.data.category.singularName === 'dataset';
 
     if (isDataset) {
-        var $formatInput = target.closest('.row').siblings().has('input.select-dropdown').find('input.select-dropdown'),
+        let $formatInput = target.closest('.row').siblings().has('input.select-dropdown').find('input.select-dropdown'),
             $formatUl = target.closest('.row').siblings().has('ul.dropdown-content').find('ul.dropdown-content'),
             $formatFile = $formatUl.find('li:contains("File")'),
             $formatNone = $formatUl.find('li:contains("(Select One)")');
     }
 
     Tracker.autorun(function () {
-            var file = Session.get('file' + session);
+            let file = Session.get('file' + session);
 
             if (file && file.url) {
-                var url = $('<a href="' + file.url + '"></a>').prop('href');
+                let url = $('<a href="' + file.url + '"></a>').prop('href');
                 $urlInput.val(url);
                 $urlInput.attr('readonly', '');
                 $urlLable.addClass('active');

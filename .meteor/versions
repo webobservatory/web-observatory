@@ -86,7 +86,9 @@ materialize:materialize@0.97.5
 meteor@1.1.10
 meteor-base@1.0.1
 meteor-platform@1.2.3
+meteorhacks:async@1.0.0
 meteorhacks:inject-initial@1.0.3
+meteorhacks:npm@1.5.0
 meteorhacks:picker@1.0.3
 meteorhacks:search-source@1.4.2
 minifiers@1.1.7
@@ -102,6 +104,7 @@ nicolaslopezj:roles@1.5.3
 nicolaslopezj:router-layer@0.0.11
 nicolaslopezj:tabular-materialize@1.2.1
 npm-bcrypt@0.7.8_2
+npm-container@1.2.0
 npm-mongo@1.4.39_1
 oauth@1.1.6
 oauth2@1.1.5
@@ -137,6 +140,7 @@ sacha:spin@2.3.1
 service-configuration@1.0.5
 session@1.1.1
 sha@1.0.4
+simple:reactive-method@1.0.2
 softwarerero:accounts-t9n@1.1.7
 spacebars@1.0.7
 spacebars-compiler@1.0.7

@@ -2,16 +2,16 @@
  * Created by xgfd on 25/12/2015.
  */
 Meteor.users.after.insert(function (userId, user) {
-    var profile = user.profile;
+    let profile = user.profile;
     if (profile && profile.isgroup) {
-        var group = Groups.insert({publisher: user._id, name: profile.name});
+        let group = Groups.insert({publisher: user._id, name: profile.name});
         Meteor.users.update(user._id, {$set: {isGroup: group}, $unset: {'profile.isgroup': ''}});
         Roles.removeUserFromRoles(user._id, ["individual"]);
         Roles.addUserToRoles(user._id, ["group"]);
     }
 });
 //Accounts.onCreateUser(function (options, user) {
-//    var profile = options.profile;
+//    let profile = options.profile;
 //    if (profile) {
 //        if (profile.isgroup) {
 //            delete profile.isgroup;

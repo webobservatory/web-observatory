@@ -24,7 +24,7 @@ Template.notificationItem.events({
     },
     'click .card-action a': function (e, template) {
         //e.preventDefault();
-        var $target = $(e.target),
+        let $target = $(e.target),
             action = $target.attr('notification-action');
 
         //dismiss notification only if the action succeed
@@ -34,10 +34,10 @@ Template.notificationItem.events({
     }
 });
 
-var actions = {
+let actions = {
     Allow: function (notification) {
         //console.log(notification);
-        var category;
+        let category;
 
         if (notification.category === 'dataset') {
             category = Datasets;
@@ -47,11 +47,11 @@ var actions = {
             category = Apps;
         }
 
-        var entry = category.update(notification.entryId, {$addToSet: {contentWhiteList: notification.initiatorId}});
+        let entry = category.update(notification.entryId, {$addToSet: {contentWhiteList: notification.initiatorId}});
 
         if (entry) {
-            var path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
-            var message = '<a href="' + path + '">Access to ' + notification.entryName + ' granted</a>';
+            let path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
+            let message = `<a href="${path}">Access to ${notification.entryName} granted</a>`;
             Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.entryName, notification.initiatorId, notification.category, message);
         }
 
@@ -59,8 +59,8 @@ var actions = {
     },
     Deny: function (notification) {
         //console.log(notification);
-        var path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
-        var message = '<a href="' + path + '">Access to ' + notification.entryName + ' declined</a>';
+        let path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
+        let message = `<a href="${path}">Access to ${notification.entryName} declined</a>`;
         Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.entryName, notification.initiatorId, notification.category, message);
         return true;
     }

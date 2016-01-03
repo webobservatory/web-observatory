@@ -15,13 +15,13 @@ Template.commentSubmit.events({
     'submit form': function (e, template) {
         e.preventDefault();
 
-        var $body = $(e.target).find('[name=body]');
-        var comment = {
+        let $body = $(e.target).find('[name=body]');
+        let comment = {
             body: $body.val(),
             entryId: template.data.entry._id
         };
 
-        var errors = {};
+        let errors = {};
         if (!comment.body) {
             errors.body = "Please write some content";
             return Session.set('commentSubmitErrors', errors);

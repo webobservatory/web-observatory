@@ -9,14 +9,14 @@ publish({dataset: Datasets, app: Apps}, SearchSource.defineSource, function (col
             };
         }
 
-        var selector = options.selector;
+        let selector = options.selector;
 
         if (searchText) {
-            var regExp = buildRegExp(searchText);
+            let regExp = buildRegExp(searchText);
             extendOr(selector, {$or: [{name: regExp}, {description: regExp}]});
         }
 
-        var userId = options.userId || this.userId;
+        let userId = options.userId || this.userId;
         extendOr(selector, visibleDocumentPublish(userId));
 
         return collection.find(selector, options.options).fetch();
@@ -25,17 +25,17 @@ publish({dataset: Datasets, app: Apps}, SearchSource.defineSource, function (col
 
 //any position
 function buildRegExp(searchText) {
-    var parts = searchText.trim().split(/[ \-\:]+/);
+    let parts = searchText.trim().split(/[ \-\:]+/);
     return new RegExp("(" + parts.join('|') + ")", "ig");
 }
 
 //type ahead
 //function buildRegExp(searchText) {
-//    var words = searchText.trim().split(/[ \-\:]+/);
-//    var exps = _.map(words, function (word) {
+//    let words = searchText.trim().split(/[ \-\:]+/);
+//    let exps = _.map(words, function (word) {
 //        return "(?=.*" + word + ")";
 //    });
-//    var fullExp = exps.join('') + ".+";
+//    let fullExp = exps.join('') + ".+";
 //    return new RegExp(fullExp, "i");
 //}
 
@@ -57,7 +57,7 @@ publish({
         check(selector, Object);
 
         if (collection !== Meteor.users) {
-            var userId = options.userId || this.userId;
+            let userId = options.userId || this.userId;
             extendOr(selector, visibleDocumentPublish(userId));
         } else {
             options.fields = {username: 1};
@@ -71,7 +71,7 @@ publish({singleDataset: Datasets, singleApp: Apps}, Meteor.publish, function (co
     return function (id) {
         check(id, String);
 
-        var selector = {_id: id},
+        let selector = {_id: id},
             userId = this.userId;
 
         extendOr(selector, visibleDocumentPublish(userId));

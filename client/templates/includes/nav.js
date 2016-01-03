@@ -1,9 +1,9 @@
 Template.nav.helpers({
     activeRouteClass: function (/* route names */) {
-        var args = Array.prototype.slice.call(arguments, 0);
+        let args = Array.prototype.slice.call(arguments, 0);
         args.pop();
 
-        var active = _.any(args, function (name) {
+        let active = _.any(args, function (name) {
             return Router.current() && Router.current().route.getName() === name
         });
 
@@ -20,7 +20,7 @@ Template.nav.rendered = function () {
 
 Template.nav.events({
     "keyup #search": _.throttle(function(e) {
-        var text = $(e.target).val().trim();
+        let text = $(e.target).val().trim();
         this.search(text);
     }, 200)
 });

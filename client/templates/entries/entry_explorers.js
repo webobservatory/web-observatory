@@ -43,10 +43,10 @@ Template.requestFrom.events({
     'submit form': function (e, template) {
         e.preventDefault();
 
-        var user = Meteor.user(),
+        let user = Meteor.user(),
             $target = $(e.target);
 
-        var initiatorId = user._id,
+        let initiatorId = user._id,
             name = user.profile.name || $target.find('[name=name]').val(),
             username = user.username,
             email = user.email || $target.find('[name=email]').val(),
@@ -60,4 +60,37 @@ Template.requestFrom.events({
             Materialize.toast('Request sent!', 4000) // 4000 is the duration of the toast
         }
     }
+});
+
+/*
+ MongoDB functions
+ */
+
+let mongoDep;
+Template.MongoDB.helpers({
+        getCollectionNames() {
+            Meteor.call('mongodbConnect', this._id);
+            let collectionNames = ReactiveMethod.call('mongodbCollectionNames', this._id);
+            //console.log(collectionNames);
+            //change mongoDep after this function return
+            Meteor.defer(function () {
+                mongoDep.changed(); //feels like coding in Java
+            });
+            return collectionNames;
+        }
+    }
+);
+
+Template.MongoDB.onCreated(function () {
+    mongoDep = new Tracker.Dependency();
+});
+
+Template.MongoDB.onRendered(function () {
+    //only run at the first time it's rendered, by when collection names are not ready yet
+    //use autorun and Tracker.Dependency to sync with getCollectionNames
+    //ugly solution
+    this.autorun(function () {
+        mongoDep.depend();
+        $('#collection').material_select();
+    });
 });

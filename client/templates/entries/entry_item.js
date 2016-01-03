@@ -1,6 +1,6 @@
 Template.entryItem.helpers({
     blurb (text, limit) {
-        var blurb = jQuery.truncate(text, {
+        let blurb = jQuery.truncate(text, {
             length: limit
         });
         return blurb
@@ -23,12 +23,12 @@ Template.entryItem.helpers({
         return Meteor.users.findOne(this.publisher);
     },
     //domain () {
-    //    var a = document.createElement('a');
+    //    let a = document.createElement('a');
     //    a.href = this.url;
     //    return a.hostname;
     //},
     upvotedClass() {
-        var userId = Meteor.userId();
+        let userId = Meteor.userId();
         if (userId && !_.include(this.upvoters, userId)) {
             return 'upvotable';
         } else {
@@ -53,12 +53,12 @@ Template.entryItem.helpers({
 Template.entryItem.events({
     'click .upvotable' (e) {
         e.preventDefault();
-        var parentData = Template.parentData(1);
+        let parentData = Template.parentData(1);
         Meteor.call('upvote', this._id, parentData.category);
 
-        var searchSource = parentData.searchSource;
+        let searchSource = parentData.searchSource;
         if (searchSource) {
-            var searchText = searchSource.getCurrentQuery();
+            let searchText = searchSource.getCurrentQuery();
             searchSource.cleanHistory();
             parentData.search(searchText);
         }

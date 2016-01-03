@@ -7,7 +7,7 @@
  * The callback of @publisher is constricted by @cbGen(@name, @collection)->function
  */
 publish = function (sources, publisher, cbGen) {
-    for (var name in sources) {
+    for (let name in sources) {
         if(sources.hasOwnProperty(name)) {
             publisher(name, cbGen(sources[name], name));
         }

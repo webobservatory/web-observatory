@@ -8,7 +8,7 @@
 
 function addAdmin(name) {
 
-    var xgfdId = Accounts.createUser({
+    let xgfdId = Accounts.createUser({
         profile: {
             name: name
         },
@@ -35,7 +35,7 @@ function addIndividual(name) {
 }
 
 function addGroup(name) {
-    var xgfdId = Accounts.createUser({
+    let xgfdId = Accounts.createUser({
         profile: {
             name: name,
             isgroup: true
@@ -52,18 +52,18 @@ function addGroup(name) {
 }
 
 if (Meteor.users.find().count() === 0) {
-    var xgfdId = addAdmin('xgfd');
-    var individualId = addIndividual('individual');
-    var groupId = addGroup('group');
-    var memberId = addIndividual('member');
+    let xgfdId = addAdmin('xgfd');
+    let individualId = addIndividual('individual');
+    let groupId = addGroup('group');
+    let memberId = addIndividual('member');
     Meteor.call('addToGroup', memberId, groupId);
 }
 
 // Fixture data
 if (Datasets.find().count() === 0) {
-    var now = new Date().getTime();
+    let now = new Date().getTime();
 
-    var telescopeId = Datasets.insert({
+    let telescopeId = Datasets.insert({
         name: 'Introducing Telescope',
         publisher: xgfdId,
         distribution: [{
@@ -129,7 +129,7 @@ if (Datasets.find().count() === 0) {
         upvoters: [], votes: 0
     });
 
-    for (var i = 0; i < 50; i++) {
+    for (let i = 0; i < 50; i++) {
         Apps.insert({
             name: 'Test app #' + i,
             url: 'http://sachagreif.com/introducing-telescope/#' + i,

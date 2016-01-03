@@ -35,7 +35,7 @@
 
         {{#if canAccess entry}}
             {{#each entry.distribution}}
-                {{>UI.dynamic template=fileFormat}}
+                {{>Template.dynamic template=fileFormat data=distData}}
             {{/each}}
         {{else}}
             <div id="request_access">

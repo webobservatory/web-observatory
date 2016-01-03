@@ -1,7 +1,7 @@
 (function($) {
 
   // Matches trailing non-space characters.
-  var chop = /(\s*\S+|\s)$/;
+  let chop = /(\s*\S+|\s)$/;
 
   // Return a truncated html string.  Delegates to $.fn.truncate.
   $.truncate = function(html, options) {
@@ -11,15 +11,15 @@
   // Truncate the contents of an element in place.
   $.fn.truncate = function(options) {
     if ($.isNumeric(options)) options = {length: options};
-    var o = $.extend({}, $.truncate.defaults, options);
+    let o = $.extend({}, $.truncate.defaults, options);
 
     return this.each(function() {
-      var self = $(this);
+      let self = $(this);
 
       if (o.noBreaks) self.find('br').replaceWith(' ');
 
-      var text = self.text();
-      var excess = text.length - o.length;
+      let text = self.text();
+      let excess = text.length - o.length;
 
       if (o.stripTags) self.text(text);
 
@@ -32,9 +32,9 @@
 
       // Iterate over each child node in reverse, removing excess text.
       $.each(self.contents().get().reverse(), function(i, el) {
-        var $el = $(el);
-        var text = $el.text();
-        var length = text.length;
+        let $el = $(el);
+        let text = $el.text();
+        let length = text.length;
 
         // If the text is longer than the excess, remove the node and continue.
         if (length <= excess) {

@@ -4,7 +4,7 @@
 
 
 Template.entryList.rendered = function () {
-    var options = [
+    let options = [
         {
             selector: 'a.load-more',
             offset: 15,

@@ -48,7 +48,61 @@
 </template>
 
 <template name="MongoDB">
-    <a href="{{url}}" id="{{_id}}" target="_blank">Open in new tab</a>
+    <form class="col s12" action="{{pathFor 'dataset.query'}}" method="get">
+        <input class="hide" value="mongodbQuery" name="method">
+        <div class="row">
+            <div class="input-field col s12">
+                <select class="validate" required aria-required="true" id="collection" name="collection">
+                    <option value="" disabled selected>Choose a collection</option>
+                    {{#each getCollectionNames}}
+                        <option>{{name}}</option>
+                    {{/each}}
+                </select>
+                <label for="collection">Select a collection</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input class="validate" required aria-required="true" id="selector" name="selector" type="text"
+                       placeholder="A MongoDB query, e.g. {}. Double quote field names."
+                       value="{}">
+                <label for="selector" class="active">MongoDB query</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="project" name="project" type="text"
+                       placeholder='Return only selected fields e.g. {"_id": 0}. Double quote field names.'
+                       value='{"_id": 0}'>
+                <label for="project" class="active">Project</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="skip" name="skip" type="text" placeholder="Skip the first n results, e.g. 5" value="0">
+                <label for="skip" class="active">Skip</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="limit" name="limit" type="text" placeholder="Return up to n results, e.g. 10" value="10">
+                <label for="limit" class="active">Limit</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="sort" name="sort" type="text"
+                       placeholder='Sort by selected fields, e.g. {"_id": -1}. Double quote field names.'
+                       value='{"_id": -1}'>
+                <label for="sort" class="active">Sort</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input type="submit" class="btn" value="Query">
+            </div>
+        </div>
+    </form>
 </template>
 
 <template name="MySQL">
