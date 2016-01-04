@@ -1,3 +1,4 @@
 {
-  "mongodb": "2.1.2"
+  "mongodb": "2.1.2",
+  "JSONStream": "1.0.7"
 }

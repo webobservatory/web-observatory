@@ -97,7 +97,10 @@ Meteor.methods({
                     }
                 }
 
-                query.toArray(done);
+                let stream = query.stream({transform: JSON.stringify});//transform doesn't work somehow
+
+                done(null, stream);
+                //query.toArray(done);
             });
         });
 

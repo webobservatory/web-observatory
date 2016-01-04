@@ -76,5 +76,5 @@ Template.distribution.helpers({
 });
 
 Template.entryItem.rendered = function () {
-    $('.tooltipped').tooltip({delay: 100});
+    $('.tooltipped').tooltip({delay: 300});
 };

@@ -1,5 +1,16 @@
 {
   "dependencies": {
+    "JSONStream": {
+      "version": "1.0.7",
+      "dependencies": {
+        "jsonparse": {
+          "version": "1.2.0"
+        },
+        "through": {
+          "version": "2.3.8"
+        }
+      }
+    },
     "mongodb": {
       "version": "2.1.2",
       "dependencies": {
