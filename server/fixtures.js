@@ -51,23 +51,24 @@ function addGroup(name) {
     return xgfdId;
 }
 
+let xgfdId, individualId, groupId, memberId;
 if (Meteor.users.find().count() === 0) {
-    let xgfdId = addAdmin('xgfd');
-    let individualId = addIndividual('individual');
-    let groupId = addGroup('group');
-    let memberId = addIndividual('member');
+    xgfdId = addAdmin('xgfd');
+    individualId = addIndividual('individual');
+    groupId = addGroup('group');
+    memberId = addIndividual('member');
     Meteor.call('addToGroup', memberId, groupId);
 }
-
 // Fixture data
+let telescopeId;
 if (Datasets.find().count() === 0) {
     let now = new Date().getTime();
 
-    let telescopeId = Datasets.insert({
+    telescopeId = Datasets.insert({
         name: 'Introducing Telescope',
         publisher: xgfdId,
         distribution: [{
-            url: 'http://sachagreif.com/introducing-telescope/',
+            url: 'mongodb://localhost:3001/meteor',
             fileFormat: "MongoDB",
             online: true
         }],
@@ -120,7 +121,7 @@ if (Datasets.find().count() === 0) {
             online: true
         }],
         license: "MIT",
-        description: "Vestibulum scelerisque auctor massa. In lectus arcu, eleifend quis faucibus malesuada, vulputate in lectus. Curabitur ut venenatis ligula, sit amet lacinia velit. Ut euismod libero sed odio efficitur tincidunt. Vestibulum a lacinia erat. Nulla pretium ante id fringilla pharetra. Aliquam varius, purus sed euismod ullamcorper, eros elit maximus magna, eu dignissim turpis leo in arcu. Nullam magna leo, blandit eu sollicitudin et, efficitur eget nibh. Etiam tempus mi eleifend commodo molestie. ",
+        description: "Vestibulum scelerisque auctor massa. In lectus arcu, eleifend quis faucibus malesuada, vulputate in lectus. Curabitur ut venenatis ligula, sit amet lacinia velit. Ut euismod libero sed odio efficitur tincidunt. Vestibulum a lacinia erat. Nulla pretium ante id fringilla pharetra. Aliquam varius, purus sed euismod ullamcorper, eros elit maximus magna, eu dignissim turpis leo in arcu. Nullam magna leo, blandit eu sollicitudin et, efficitur eget nibh. Etiam tempus mi eleifend commodo molestie.",
         commentsCount: 0,
         aclMeta: false,
         aclContent: false,
@@ -136,7 +137,7 @@ if (Datasets.find().count() === 0) {
             publisher: groupId,
             license: "MIT",
             aclContent: !!(i % 2),
-            description: "Etiam porttitor purus et mollis malesuada. Nulla tempor orci id ex tincidunt consectetur. Praesent et dignissim lectus, in posuere ante. Curabitur nunc dolor, interdum a ornare eget, laoreet eu metus. Ut tempor lacinia eros nec finibus. Maecenas quis felis non mi euismod consectetur quis at leo. Nullam porta tempus ullamcorper. Phasellus et nibh feugiat, iaculis massa eget, blandit quam. Aliquam dolor justo, feugiat et sem ut, fermentum elementum arcu. Aliquam quis tincidunt tortor. Suspendisse potenti. Duis congue sapien ac purus iaculis pharetra. Donec hendrerit lacus leo, non ultricies purus accumsan nec. Nulla vel suscipit quam. Interdum et malesuada fames ac ante ipsum primis in faucibus. ",
+            description: "Etiam porttitor purus et mollis malesuada. Nulla tempor orci id ex tincidunt consectetur. Praesent et dignissim lectus, in posuere ante. Curabitur nunc dolor, interdum a ornare eget, laoreet eu metus. Ut tempor lacinia eros nec finibus. Maecenas quis felis non mi euismod consectetur quis at leo. Nullam porta tempus ullamcorper. Phasellus et nibh feugiat, iaculis massa eget, blandit quam. Aliquam dolor justo, feugiat et sem ut, fermentum elementum arcu. Aliquam quis tincidunt tortor. Suspendisse potenti. Duis congue sapien ac purus iaculis pharetra. Donec hendrerit lacus leo, non ultricies purus accumsan nec. Nulla vel suscipit quam. Interdum et malesuada fames ac ante ipsum primis in faucibus.",
             commentsCount: 0,
             upvoters: [], votes: 0
         });

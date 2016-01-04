@@ -8,7 +8,7 @@
  */
 publish = function (sources, publisher, cbGen) {
     for (let name in sources) {
-        if(sources.hasOwnProperty(name)) {
+        if (sources.hasOwnProperty(name)) {
             publisher(name, cbGen(sources[name], name));
         }
     }
@@ -29,3 +29,4 @@ extendOr = function (query, or) {
         _.extend(query, or);
     }
 };
+JSONStream = Meteor.npmRequire('JSONStream');
