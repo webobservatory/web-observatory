@@ -17,7 +17,7 @@ publish({dataset: Datasets, app: Apps}, SearchSource.defineSource, function (col
         }
 
         let userId = options.userId || this.userId;
-        extendOr(selector, visibleDocumentPublish(userId));
+        extendOr(selector, viewsDocumentQuery(userId));
 
         return collection.find(selector, options.options).fetch();
     };
@@ -58,7 +58,7 @@ publish({
 
         if (collection !== Meteor.users) {
             let userId = options.userId || this.userId;
-            extendOr(selector, visibleDocumentPublish(userId));
+            extendOr(selector, viewsDocumentQuery(userId));
         } else {
             options.fields = {username: 1};
         }
@@ -74,7 +74,7 @@ publish({singleDataset: Datasets, singleApp: Apps}, Meteor.publish, function (co
         let selector = {_id: id},
             userId = this.userId;
 
-        extendOr(selector, visibleDocumentPublish(userId));
+        extendOr(selector, viewsDocumentQuery(userId));
 
         return collection.find(selector, options);
     }

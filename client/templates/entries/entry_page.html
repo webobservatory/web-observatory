@@ -34,12 +34,18 @@
         </div>
 
         {{#if canAccess entry}}
+            <!--show query interface-->
             {{#each entry.distribution}}
                 {{>Template.dynamic template=fileFormat data=distData}}
             {{/each}}
         {{else}}
-            <div id="request_access">
-                {{>requestFrom}}
+            <!--show request access form if logged in-->
+            <div id="request_access" class="col s12">
+                {{#if currentUser}}
+                    {{>requestFrom}}
+                {{else}}
+                    <p>Please log in to request access.</p>
+                {{/if}}
             </div>
         {{/if}}
     </div>

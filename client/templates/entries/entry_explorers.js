@@ -55,8 +55,6 @@ Template.requestFrom.events({
 
         if (initiatorId && acceptTerms) {
             Meteor.call('createRequestNotification', username, organisation, initiatorId, template.data.entry, template.data.category.singularName);
-            //alert("Request sent");
-            // Materialize.toast(message, displayLength, className, completeCallback);
             Materialize.toast('Request sent!', 4000) // 4000 is the duration of the toast
         }
     }
