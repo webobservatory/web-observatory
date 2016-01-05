@@ -16,7 +16,7 @@
         </div>
 
         <div id="metadata" class="col s12">
-            {{> quickForm collection=category id="metadataForm" type="readonly" doc=entry omitFields="comments, commentsCount, upvoters, votes"}}
+            {{> quickForm collection=category id="metadataForm" type="readonly" doc=entry omitFields="comments, commentsCount, upvoters, votes, distribution.$.url, distribution.$.file, distribution.$.username, distribution.$.pass"}}
         </div>
 
         <div id="comments" class="col s12">

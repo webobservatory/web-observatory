@@ -68,7 +68,7 @@ publish({
 });
 
 publish({singleDataset: Datasets, singleApp: Apps}, Meteor.publish, function (collection) {
-    return function (id) {
+    return function (id, options = {}) {
         check(id, String);
 
         let selector = {_id: id},
@@ -76,7 +76,7 @@ publish({singleDataset: Datasets, singleApp: Apps}, Meteor.publish, function (co
 
         extendOr(selector, visibleDocumentPublish(userId));
 
-        return collection.find(selector);
+        return collection.find(selector, options);
     }
 });
 

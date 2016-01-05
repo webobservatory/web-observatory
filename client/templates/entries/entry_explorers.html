@@ -49,7 +49,7 @@
 
 <template name="MongoDB">
     <form id="{{_id}}" class="col s12" action="{{pathFor 'dataset.query'}}" method="get">
-        <input class="hide" value="mongodbQuery" name="method">
+        <input class="hide" value="mongodb" name="method">
         <div class="row">
             <div class="input-field col s12">
                 <select class="validate" required aria-required="true" id="collection" name="collection">
@@ -106,7 +106,22 @@
 </template>
 
 <template name="MySQL">
-    <a href="{{url}}" id="{{_id}}" target="_blank">Open in new tab</a>
+    <form id="{{_id}}" class="col s12" action="{{pathFor 'dataset.query'}}" method="get">
+        <input class="hide" value="mysql" name="method">
+        <div class="row">
+            <div class="input-field col s12">
+                <textarea id="query" name="query" class="materialize-textarea"
+                          placeholder='Input a MySQL query e.g. SELECT 1 + 1 AS solution.'
+                          value='SELECT 1 + 1 AS solution'></textarea>
+                <label for="query" class="active">Query</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input type="submit" class="btn" value="Query">
+            </div>
+        </div>
+    </form>
 </template>
 
 <template name="SPARQL">
