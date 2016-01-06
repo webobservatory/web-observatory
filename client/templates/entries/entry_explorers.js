@@ -92,3 +92,49 @@ Template.MongoDB.onRendered(function () {
         $('#collection').material_select();
     });
 });
+
+Template.MongoDB.events({
+    'click a.btn.modal-trigger': function (e, template) {
+
+        let distId = template.data._id,
+            $target = $(`#${distId}`),
+            collection = $target.find('[name=collection]')[0].value;
+
+        let options = {};
+
+        selector = JSON.parse($target.find('[name=selector]')[0].value);
+
+        options.limit = parseInt($target.find('[name=limit]')[0].value) || 100;
+
+        if (skip = $target.find('[name=skip]')[0].value) {
+            options.skip = parseInt(skip);
+        }
+
+        if (sort = $target.find('[name=sort]')[0].value) {
+            options.sort = JSON.parse(sort);
+        }
+
+        if (project = $target.find('[name=project]')[0].value) {
+            options.project = JSON.parse(project);
+        }
+
+        Meteor.call('mongodbQuery', distId, collection, selector, options, function (error, result) {
+            result = error || result;
+            Session.set('queryResult', JSON.stringify(result));
+        });
+    }
+});
+
+Template.MySQL.events({
+    'click a.btn.modal-trigger': function (e, template) {
+
+        let distId = template.data._id,
+            $target = $(`#${distId}`),
+            query = $target.find('[name=query]')[0].value;
+
+        Meteor.call('mysqlQuery', distId, query, function (error, result) {
+            result = error || result;
+            Session.set('queryResult', JSON.stringify(result));
+        });
+    }
+});

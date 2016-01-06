@@ -145,7 +145,6 @@ Meteor.methods({
                 if (error) {
                     throw new Meteor.Error(error.name, error.message);
                 }
-                //console.log(col);
                 let query = col.find(selector);
 
                 for (let key in options) {
@@ -154,14 +153,9 @@ Meteor.methods({
                     }
                 }
 
-                let stream = query.stream({transform: JSON.stringify});//transform doesn't work somehow
-
-                done(null, stream);
-                //query.toArray(done);
+                query.toArray(done);
             });
         });
-
-        //console.log(result);
 
         if (error) {
             throw new Meteor.Error(error.name, error.message);
@@ -184,29 +178,6 @@ Meteor.methods({
 
         let {error, result} = Async.runSync(function (done) {
             db.query(query, done);// db.query returns a third argument @fields which is discarded
-
-            //db.getConnection(function (error, connection) {
-            //    if (error) {
-            //        done(error);
-            //    } else {
-            //        // Use the connection
-            //        let queryConn = connection.query(query);
-            //
-            //        queryConn.once('end', function () {
-            //            connection.release();
-            //        });
-            //
-            //        let stream = queryConn.stream();//.pipe(JSONStream.stringify()).pipe(process.stdout);
-            //        console.log(typeof stream.pipe);
-            //        done(null, stream);
-            //        //, function(err, rows) {
-            //        //    // And done with the connection.
-            //        //    connection.release();
-            //        //
-            //        //    // Don't use the connection here, it has been returned to the pool.
-            //        //});
-            //    }
-            //});
         });
 
         if (error) {

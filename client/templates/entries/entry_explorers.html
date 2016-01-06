@@ -40,16 +40,16 @@
 </template>
 
 <template name="HTML">
-    <a href="{{url}}" id="{{_id}}" target="_blank">Open in new tab</a>
+    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn"><i class="material-icons right">open_in_new</i>Open in
+        new tab</a>
 </template>
 
 <template name="File">
-    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn center-align"> Download file</a>
+    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn"><i class="material-icons right">get_app</i>Download file</a>
 </template>
 
 <template name="MongoDB">
-    <form id="{{_id}}" class="col s12" action="{{pathFor 'dataset.query'}}" method="get">
-        <input class="hide" value="mongodb" name="method">
+    <form id="{{_id}}" class="col s12">
         <div class="row">
             <div class="input-field col s12">
                 <select class="validate" required aria-required="true" id="collection" name="collection">
@@ -99,15 +99,14 @@
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <input type="submit" class="btn" value="Query">
+                <a class="waves-effect waves-light btn modal-trigger" href="#queryResult">Query</a>
             </div>
         </div>
     </form>
 </template>
 
 <template name="MySQL">
-    <form id="{{_id}}" class="col s12" action="{{pathFor 'dataset.query'}}" method="get">
-        <input class="hide" value="mysql" name="method">
+    <form id="{{_id}}" class="col s12">
         <div class="row">
             <div class="input-field col s12">
                 <textarea id="query" name="query" class="materialize-textarea"
@@ -118,7 +117,7 @@
         </div>
         <div class="row">
             <div class="input-field col s12">
-                <input type="submit" class="btn" value="Query">
+                <a class="waves-effect waves-light btn modal-trigger" href="#queryResult">Query</a>
             </div>
         </div>
     </form>

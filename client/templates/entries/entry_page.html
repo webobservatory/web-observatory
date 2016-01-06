@@ -38,6 +38,20 @@
             {{#each entry.distribution}}
                 {{>Template.dynamic template=fileFormat data=distData}}
             {{/each}}
+            <!-- Modal Structure -->
+            <div id="queryResult" class="modal modal-fixed-footer">
+                <div class="modal-content">
+                    <h4>Query Results</h4>
+                    {{#if queryResult}}
+                        <p>{{queryResult}}</p>
+                    {{else}}
+                        {{> loading}}
+                    {{/if}}
+                </div>
+                <div class="modal-footer">
+                    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat ">Dismiss</a>
+                </div>
+            </div>
         {{else}}
             <!--show request access form if logged in-->
             <div id="request_access" class="col s12">

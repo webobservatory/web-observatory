@@ -6,9 +6,9 @@
                    href="{{pathFor ../routes.page}}">{{name}}</a>
                 <div class="red-text text-accent-2">
                     {{#if canAccess this}}
-                        <span class="teal-text text-accent-2"><i class="material-icons" title="Access allowed">visibility</i></span>
+                        <span class="teal-text text-accent-2"><i class="material-icons" title="Access allowed">check</i></span>
                     {{else}}
-                        <span><i class="material-icons" title="Access denied">visibility_off</i></span>
+                        <span><i class="material-icons" title="Access denied">block</i></span>
                     {{/if}}
                     {{#if offline}}
                         <span><i class="material-icons" title="Distribution offline">error</i></span>
