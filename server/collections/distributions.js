@@ -1,7 +1,7 @@
 /**
  * Created by xgfd on 02/01/2016.
  */
-let dbPool = {};
+let connPool = {};
 
 function augsTrans(url, username, pass) {
 
@@ -36,16 +36,46 @@ function connectorFactory(connect) {
         if (error) {
             throw new Meteor.Error(error.name, error.message);
         } else {
-            dbPool[originUrl] = result;
+            connPool[originUrl] = result;
             return true;
         }
     }
 }
 
+/*
+ * @connector(distId) create an db connection and save it to dbPool
+ * @queryExec(db, done, ...args) query execution function. result is passed to done(error, result)
+ * */
+function queryerFactory(connector, queryExec) {
+    return function (distId, ...args) {
+        let conn = connPool[distId];
 
-//TODO deconstruct connections using settimeout
+        if (!conn) {
+            connector(distId);
+        }
+
+        conn = connPool[distId];
+
+        if (!conn) {
+            throw new Meteor.Error('not-found', `Distribution ${distId} not initialised`);
+        }
+
+        let {error, result} = Async.runSync(function (done) {
+            queryExec(conn, done, ...args);
+        });
+
+        if (error) {
+            throw new Meteor.Error(error.name, error.message);
+        } else {
+            return result;
+        }
+    }
+}
+
+//TODO close connections using settimeout
+
 /*MongoDB*/
-let mongoclient = Meteor.npmRequire("mongodb").MongoClient;//TODO use Npm.depends and Npm.require instead?
+let mongoclient = Meteor.npmRequire("mongodb").MongoClient;
 
 /*
  call with one parameter @distId or three parameters @url @username @pass
@@ -58,31 +88,82 @@ let mongodbConnect = connectorFactory(function (url, username, pass, done) {
 });
 
 /* MySQL */
-let mysqlCon = Meteor.npmRequire('mysql');
+let mysql = Meteor.npmRequire('mysql');
 
 let mysqlConnect = connectorFactory(function (url, username, pass, done) {
-    let pool = mysqlCon.createPool({
+    url = url.match(/(mysql:\/\/)?(.*)/)[2];//strip off mysql://
+
+    let options = {
         connectionLimit: 20,
-        host: url,
-        user: username,
-        password: pass
-    });
+        host: url
+    };
+
+    if (username) {
+        options.user = username;
+    }
+
+    if (pass) {
+        options.pass = pass;
+    }
+
+    let pool = mysql.createPool(options);
+
     done(null, pool);
+});
+
+/*RabbitMQ*/
+let amqp = Meteor.npmRequire('amqplib/callback_api');
+let amqpConnect = connectorFactory(function (url, username, pass, done) {
+    let parts = url.match(/(amqps?:\/\/)?([^\?]*)\??(\S*)/),
+        query = parts[3],
+        params = query.split(/[=,&]/),
+        exchanges = params[params.indexOf('exchange') + 1].split(',');//value of query exchange can be a comma separate list
+
+    if (username) {
+        url = parts[1] + `${username}:${pass}@` + parts[2] + (query ? `?${query}` : '');
+    }
+    console.log(url);
+    console.log(exchanges);
+
+    amqp.connect(url, function (error, conn) {
+        if (conn && !conn.exchanges) {
+            conn.exchanges = exchanges;
+        }
+        done(error, conn);
+    });
 });
 
 Meteor.methods({
     //connect
     mongodbConnect,
     mysqlConnect,
+    amqpConnect,
+
+    //query
+    mongodbQuery: queryerFactory(mongodbConnect, (conn, done, collection, selector = {}, options = {})=> {
+        conn.collection(collection, function (error, col) {
+            if (error) {
+                throw new Meteor.Error(error.name, error.message);
+            }
+            let query = col.find(selector);
+
+            for (let key in options) {
+                if (options.hasOwnProperty(key)) {
+                    query = query[key](options[key]);
+                }
+            }
+            query.toArray(done);
+        })
+    }),
     //utils
     mongodbCollectionNames(distId){
-        let db = dbPool[distId];
+        let db = connPool[distId];
 
         if (!db) {
             mongodbConnect(distId);
         }
 
-        db = dbPool[distId];
+        db = connPool[distId];
 
         if (!db) {
             throw new Meteor.Error('not-found', `Distribution ${distId} not initialised`);
@@ -102,29 +183,13 @@ Meteor.methods({
             return result;
         }
     },
-    //query
-    mongodbQuery: queryerFactory(mongodbConnect, (db, done, collection, selector = {}, options = {})=> {
-        db.collection(collection, function (error, col) {
-            if (error) {
-                throw new Meteor.Error(error.name, error.message);
-            }
-            let query = col.find(selector);
-
-            for (let key in options) {
-                if (options.hasOwnProperty(key)) {
-                    query = query[key](options[key]);
-                }
-            }
-            query.toArray(done);
-        })
-    }),
-    mysqlQuery: queryerFactory(mysqlConnect, (db, done, query)=> {
-        db.query(query, done);// db.query returns a third argument @fields which is discarded
+    mysqlQuery: queryerFactory(mysqlConnect, (conn, done, query)=> {
+        conn.query(query, done);// db.query returns a third argument @fields which is discarded
     }),
     sparqlQuery: queryerFactory(connectorFactory((url, username, pass, done)=> {
         done(null, url);
-    }), (db, done, query)=> {
-        HTTP.get(db, {
+    }), (url, done, query)=> {
+        HTTP.get(url, {
             params: {query}, timeout: 30000, headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Accept': 'application/sparql-results+json'
@@ -139,31 +204,68 @@ Meteor.methods({
             }
             done(error, result);
         });
+    }),
+    amqpQuery: queryerFactory(amqpConnect, (conn, done, ex, sId)=> {
+        let exchanges = conn.exchanges;
+        if (_.contains(exchanges, ex)) {
+            conn.createChannel(function (err, ch) {
+                //keep the channel associate with a client (socket) to close it later
+                if (channels[sId]) {
+                    closeCh(channels[sId]);
+                }
+                channels[sId] = ch;
+                ch.assertExchange(ex, 'fanout', {durable: false});
+                ch.assertQueue('', {exclusive: true}, function (err, q) {
+                    done(err, q.queue);
+
+                    console.log(" [*] Waiting for messages in %s", q.queue);
+                    ch.bindQueue(q.queue, ex, '');
+                    ch.consume(q.queue, function (msg) {
+                        console.log(" [x] %s", msg.content.toString());
+                        let content = msg.content.toString();
+                        Streamy.emit(q.queue, data_object, [socket]);
+                    }, {noAck: true});
+                });
+            });
+        } else {
+            return done(new Error('Unrecognised exchange'));
+        }
     })
 });
 
-function queryerFactory(connector, queryExec) {
-    return function (distId, ...args) {
-        let db = dbPool[distId];
-
-        if (!db) {
-            connector(distId);
+let channels = {};//socketId:channel, each socket only allows for one channels
+function closeCh(ch) {
+    if (ch) {
+        try {
+            ch.close();
         }
-
-        db = dbPool[distId];
-
-        if (!db) {
-            throw new Meteor.Error('not-found', `Distribution ${distId} not initialised`);
+        catch (e) {
+            console.log(e.stackAtStateChange);
         }
-
-        let {error, result} = Async.runSync(function (done) {
-            queryExec(db, done, ...args);
-        });
-
-        if (error) {
-            throw new Meteor.Error(error.name, error.message);
-        } else {
-            return result;
+        finally {
+            delete channels[sId];
         }
     }
 }
+/**
+ * Upon disconnect, clear the client database
+ */
+Streamy.onDisconnect(function (socket) {
+    let sId = Streamy.id(socket),
+        ch = channels[sId];
+
+    closeCh(ch);
+    Streamy.broadcast('__leave__', {
+        'sid': Streamy.id(socket)
+    });
+});
+
+Streamy.on('amqp_end', function (socket) {
+    let sId = Streamy.id(socket),
+        ch = channels[sId];
+
+    closeCh(ch);
+    Streamy.broadcast('__leave__', {
+        'sid': Streamy.id(socket)
+    });
+});

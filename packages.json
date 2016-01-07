@@ -1,5 +1,6 @@
 {
   "mongodb": "2.1.2",
   "mysql": "2.10.0",
+  "amqplib": "0.4.0",
   "JSONStream": "1.0.7"
 }

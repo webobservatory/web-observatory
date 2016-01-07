@@ -115,17 +115,17 @@ function syntaxHighlight(json) {
     });
 }
 /*query event handling*/
-function queryHandlerFactory(argGen, method) {
+function queryHandlerFactory(argGen, method, transform = (error, result)=> {
+    result = error || result;
+    result = syntaxHighlight(result);
+    Session.set('queryResult', result);
+}) {
     return function (e, template) {
         Session.set('queryResult', null);
 
         let args = argGen(e, template);
 
-        Meteor.apply(method, args, function (error, result) {
-            result = error || result;
-            result = syntaxHighlight(result);
-            Session.set('queryResult', result);
-        });
+        Meteor.apply(method, args, transform);
     }
 }
 
@@ -154,7 +154,7 @@ Template.MongoDB.events({
         }
 
         return [distId, collection, selector, options];
-    }, 'mongodbQuery'),
+    }, 'mongodbQuery')
 });
 
 Template.MySQL.events({
@@ -173,4 +173,27 @@ Template.SPARQL.events({
             query = $target.find('[name=query]')[0].value;
         return [distId, query];
     }, 'sparqlQuery')
+});
+
+Template.AMQP.events({
+    'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
+        let distId = template.data._id,
+            $target = $(`#${distId}`),
+            query = $target.find('[name=query]')[0].value;
+        return [distId, query, Streamy.id()];
+    }, 'amqpQuery', (error, queue)=> {
+        if (error) {
+            Session.set('queryResult', error);
+        } else {
+            Streamy.on(queue, function (data) {
+                data = syntaxHighlight(data);
+                data = data + '\n' + Session.get('queryResult');
+                Session.set('queryResult', data);
+            });
+        }
+    }),
+    'click a.modal-action.modal-close': function (e) {
+        console.log(e);
+        Streamy.emit('amqp_end');
+    }
 });
