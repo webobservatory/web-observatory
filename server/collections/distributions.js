@@ -122,8 +122,6 @@ let amqpConnect = connectorFactory(function (url, username, pass, done) {
     if (username) {
         url = parts[1] + `${username}:${pass}@` + parts[2] + (query ? `?${query}` : '');
     }
-    console.log(url);
-    console.log(exchanges);
 
     amqp.connect(url, function (error, conn) {
         if (conn && !conn.exchanges) {
@@ -209,32 +207,51 @@ Meteor.methods({
         let exchanges = conn.exchanges;
         if (_.contains(exchanges, ex)) {
             conn.createChannel(function (err, ch) {
+                let socket = Streamy.sockets(sId);
                 //keep the channel associate with a client (socket) to close it later
                 if (channels[sId]) {
-                    closeCh(channels[sId]);
+                    closeCh(channels[sId], sId);
                 }
                 channels[sId] = ch;
                 ch.assertExchange(ex, 'fanout', {durable: false});
                 ch.assertQueue('', {exclusive: true}, function (err, q) {
+                    ch.on('close', function () {
+                        console.log(`${sId} channel closed`);
+                        Streamy.emit(q.queue, {content: `${sId} channel closed`}, socket);
+                    });
                     done(err, q.queue);
-
-                    console.log(" [*] Waiting for messages in %s", q.queue);
+                    Streamy.emit(q.queue, {content: " [*] Waiting for messages"}, socket);
                     ch.bindQueue(q.queue, ex, '');
                     ch.consume(q.queue, function (msg) {
-                        console.log(" [x] %s", msg.content.toString());
+                        //console.log(" [x] %s", msg.content.toString());
                         let content = msg.content.toString();
-                        Streamy.emit(q.queue, data_object, [socket]);
+                        Streamy.emit(q.queue, {content}, socket);
                     }, {noAck: true});
                 });
             });
         } else {
             return done(new Error('Unrecognised exchange'));
         }
-    })
+    }),
+    amqpCollectionNames(distId){
+        let conn = connPool[distId];
+
+        if (!conn) {
+            amqpConnect(distId);
+        }
+
+        conn = connPool[distId];
+
+        if (!conn) {
+            throw new Meteor.Error('not-found', `Distribution ${distId} not initialised`);
+        }
+
+        return conn.exchanges;
+    }
 });
 
 let channels = {};//socketId:channel, each socket only allows for one channels
-function closeCh(ch) {
+function closeCh(ch, sId) {
     if (ch) {
         try {
             ch.close();
@@ -254,7 +271,7 @@ Streamy.onDisconnect(function (socket) {
     let sId = Streamy.id(socket),
         ch = channels[sId];
 
-    closeCh(ch);
+    closeCh(ch, sId);
     Streamy.broadcast('__leave__', {
         'sid': Streamy.id(socket)
     });
@@ -264,7 +281,7 @@ Streamy.on('amqp_end', function (socket) {
     let sId = Streamy.id(socket),
         ch = channels[sId];
 
-    closeCh(ch);
+    closeCh(ch, sId);
     Streamy.broadcast('__leave__', {
         'sid': Streamy.id(socket)
     });

@@ -60,39 +60,6 @@ Template.requestFrom.events({
     }
 });
 
-/*
- MongoDB functions
- */
-
-let mongoDep;
-Template.MongoDB.helpers({
-        getCollectionNames() {
-            Meteor.call('mongodbConnect', this._id);
-            let collectionNames = ReactiveMethod.call('mongodbCollectionNames', this._id);
-            //console.log(collectionNames);
-            //change mongoDep after this function return
-            Meteor.defer(function () {
-                mongoDep.changed(); //feels like coding in Java
-            });
-            return collectionNames;
-        }
-    }
-);
-
-Template.MongoDB.onCreated(function () {
-    mongoDep = new Tracker.Dependency();
-});
-
-Template.MongoDB.onRendered(function () {
-    //only run at the first time it's rendered, by when collection names are not ready yet
-    //use autorun and Tracker.Dependency to sync with getCollectionNames
-    //ugly solution
-    this.autorun(function () {
-        mongoDep.depend();
-        $('#collection').material_select();
-    });
-});
-
 function syntaxHighlight(json) {
     if (typeof json != 'string') {
         json = JSON.stringify(json, undefined, 2);
@@ -114,6 +81,40 @@ function syntaxHighlight(json) {
         return '<span class="' + cls + '">' + match + '</span>';
     });
 }
+
+/*
+ MongoDB functions
+ */
+
+let mongoDep;
+Template.MongoDB.helpers({
+        getMongoDBCollectionNames() {
+            Meteor.call('mongodbConnect', this._id);
+            let collectionNames = ReactiveMethod.call('mongodbCollectionNames', this._id);
+            //change mongoDep after this function return
+            Meteor.defer(function () {
+                mongoDep.changed(); //feels like coding in Java
+            });
+            console.log(collectionNames);
+            return collectionNames;
+        }
+    }
+);
+
+Template.MongoDB.onCreated(function () {
+    mongoDep = new Tracker.Dependency();
+});
+
+Template.MongoDB.onRendered(function () {
+    //only run at the first time it's rendered, by when collection names are not ready yet
+    //use autorun and Tracker.Dependency to sync with getCollectionNames
+    //ugly solution
+    this.autorun(function () {
+        mongoDep.depend();
+        $('#collection').material_select();
+    });
+});
+
 /*query event handling*/
 function queryHandlerFactory(argGen, method, transform = (error, result)=> {
     result = error || result;
@@ -175,25 +176,52 @@ Template.SPARQL.events({
     }, 'sparqlQuery')
 });
 
+let amqpDep;
+Template.AMQP.helpers({
+        getAMQPExchanges() {
+            let exchanges = ReactiveMethod.call('amqpCollectionNames', this._id);
+            //change mongoDep after this function return
+            Meteor.defer(function () {
+                amqpDep.changed(); //feels like coding in Java
+            });
+            return exchanges;
+        }
+    }
+);
+
+Template.AMQP.onCreated(function () {
+    amqpDep = new Tracker.Dependency();
+});
+
+Template.AMQP.onRendered(function () {
+    //only run at the first time it's rendered, by when collection names are not ready yet
+    //use autorun and Tracker.Dependency to sync with getCollectionNames
+    //ugly solution
+    this.autorun(function () {
+        amqpDep.depend();
+        $('#exchange').material_select();
+    });
+});
+
 Template.AMQP.events({
     'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
         let distId = template.data._id,
             $target = $(`#${distId}`),
-            query = $target.find('[name=query]')[0].value;
+            query = $target.find('[name=exchange]')[0].value;
         return [distId, query, Streamy.id()];
     }, 'amqpQuery', (error, queue)=> {
         if (error) {
             Session.set('queryResult', error);
         } else {
+            let msgs = [];
             Streamy.on(queue, function (data) {
-                data = syntaxHighlight(data);
-                data = data + '\n' + Session.get('queryResult');
-                Session.set('queryResult', data);
+                data = syntaxHighlight(data.content);
+                let length = msgs.unshift(data);
+                if (length % 60 === 0) {
+                    let msg = msgs.join('\n') + '\n' + Session.get('queryResult');
+                    Session.set('queryResult', msg);
+                }
             });
         }
-    }),
-    'click a.modal-action.modal-close': function (e) {
-        console.log(e);
-        Streamy.emit('amqp_end');
-    }
+    })
 });

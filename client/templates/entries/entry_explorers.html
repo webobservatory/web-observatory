@@ -54,7 +54,7 @@
             <div class="input-field col s12">
                 <select class="validate" required aria-required="true" id="collection" name="collection">
                     <option value="" disabled selected>Choose a collection</option>
-                    {{#each getCollectionNames}}
+                    {{#each getMongoDBCollectionNames}}
                         <option>{{name}}</option>
                     {{/each}}
                 </select>
@@ -145,10 +145,13 @@
     <form id="{{_id}}" class="col s12">
         <div class="row">
             <div class="input-field col s12">
-                <textarea id="query" name="query" class="materialize-textarea"
-                          placeholder='Input a SPARQL query e.g. SELECT * WHERE{?S ?P ?O} LIMIT 10'
-                          value='SELECT * WHERE{?S ?P ?O} LIMIT 10'></textarea>
-                <label for="query" class="active">Exchange name</label>
+                <select class="validate" required aria-required="true" id="exchange" name="exchange">
+                    <option value="" disabled selected>Choose an exchange</option>
+                    {{#each getAMQPExchanges}}
+                        <option>{{this}}</option>
+                    {{/each}}
+                </select>
+                <label for="exchange">Select an exchange</label>
             </div>
         </div>
         <div class="row">

@@ -230,8 +230,8 @@ footer {
 }
 
 /*.posts .spinner-container {*/
-    /*position: relative;*/
-    /*height: 100px;*/
+/*position: relative;*/
+/*height: 100px;*/
 /*}*/
 
 .jumbotron {
@@ -301,9 +301,3 @@ footer {
     /*height: 300px;*/
     display: inline-block;
 }
-
-.string { color: green; }
-.number { color: darkorange; }
-.boolean { color: blue; }
-.null { color: magenta; }
-.key { color: red; }
