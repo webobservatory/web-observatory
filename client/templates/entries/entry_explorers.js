@@ -93,9 +93,44 @@ Template.MongoDB.onRendered(function () {
     });
 });
 
-Template.MongoDB.events({
-    'click a.btn.modal-trigger': function (e, template) {
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+        json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'orange-text text-lighten-2';//number
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'red-text text-lighten-2';//key
+            } else {
+                cls = 'teal-text text-lighten-2';//string
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'blue-text text-lighted-2';//boolean
+        } else if (/null/.test(match)) {
+            cls = 'pink-text text-lighten-2';//null
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
+}
+/*query event handling*/
+function queryHandlerFactory(argGen, method) {
+    return function (e, template) {
+        Session.set('queryResult', null);
 
+        let args = argGen(e, template);
+
+        Meteor.apply(method, args, function (error, result) {
+            result = error || result;
+            result = syntaxHighlight(result);
+            Session.set('queryResult', result);
+        });
+    }
+}
+
+Template.MongoDB.events({
+    'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
         let distId = template.data._id,
             $target = $(`#${distId}`),
             collection = $target.find('[name=collection]')[0].value;
@@ -118,23 +153,24 @@ Template.MongoDB.events({
             options.project = JSON.parse(project);
         }
 
-        Meteor.call('mongodbQuery', distId, collection, selector, options, function (error, result) {
-            result = error || result;
-            Session.set('queryResult', JSON.stringify(result));
-        });
-    }
+        return [distId, collection, selector, options];
+    }, 'mongodbQuery'),
 });
 
 Template.MySQL.events({
-    'click a.btn.modal-trigger': function (e, template) {
-
+    'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
         let distId = template.data._id,
             $target = $(`#${distId}`),
             query = $target.find('[name=query]')[0].value;
+        return [distId, query];
+    }, 'mysqlQuery')
+});
 
-        Meteor.call('mysqlQuery', distId, query, function (error, result) {
-            result = error || result;
-            Session.set('queryResult', JSON.stringify(result));
-        });
-    }
+Template.SPARQL.events({
+    'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
+        let distId = template.data._id,
+            $target = $(`#${distId}`),
+            query = $target.find('[name=query]')[0].value;
+        return [distId, query];
+    }, 'sparqlQuery')
 });

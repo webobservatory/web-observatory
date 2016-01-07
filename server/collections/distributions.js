@@ -23,7 +23,7 @@ function augsTrans(url, username, pass) {
     return {url, username, pass};
 }
 
-function connectorGen(connect) {
+function connectorFactory(connect) {
     return function (url, username, pass) {
         let originUrl = url;
 
@@ -42,6 +42,7 @@ function connectorGen(connect) {
     }
 }
 
+
 //TODO deconstruct connections using settimeout
 /*MongoDB*/
 let mongoclient = Meteor.npmRequire("mongodb").MongoClient;//TODO use Npm.depends and Npm.require instead?
@@ -49,7 +50,7 @@ let mongoclient = Meteor.npmRequire("mongodb").MongoClient;//TODO use Npm.depend
 /*
  call with one parameter @distId or three parameters @url @username @pass
  */
-let mongodbConnect = connectorGen(function (url, username, pass, done) {
+let mongodbConnect = connectorFactory(function (url, username, pass, done) {
     if (username) {
         url = `mongodb://${username}:${pass}@${url.slice('mongodb://'.length)}`;
     }
@@ -59,7 +60,7 @@ let mongodbConnect = connectorGen(function (url, username, pass, done) {
 /* MySQL */
 let mysqlCon = Meteor.npmRequire('mysql');
 
-let mysqlConnect = connectorGen(function (url, username, pass, done) {
+let mysqlConnect = connectorFactory(function (url, username, pass, done) {
     let pool = mysqlCon.createPool({
         connectionLimit: 20,
         host: url,
@@ -68,31 +69,6 @@ let mysqlConnect = connectorGen(function (url, username, pass, done) {
     });
     done(null, pool);
 });
-
-//function mysqlConnect(url, username, pass) {
-//
-//    let originUrl = url;
-//
-//    ({url, username, pass} = augsTrans.apply(null, arguments));
-//
-//
-//    let {error, result} = Async.runSync(function (done) {
-//        let pool = mysqlCon.createPool({
-//            connectionLimit: 20,
-//            host: url,
-//            user: username,
-//            password: pass
-//        });
-//        pool.getConnection(done);
-//    });
-//
-//    if (error) {
-//        throw new Meteor.Error(error.name, error.message);
-//    } else {
-//        mysql[originUrl] = result;
-//        return true;
-//    }
-//}
 
 Meteor.methods({
     //connect
@@ -127,47 +103,51 @@ Meteor.methods({
         }
     },
     //query
-    mongodbQuery(distId, collection, selector = {}, options = {}){
-        let db = dbPool[distId];
+    mongodbQuery: queryerFactory(mongodbConnect, (db, done, collection, selector = {}, options = {})=> {
+        db.collection(collection, function (error, col) {
+            if (error) {
+                throw new Meteor.Error(error.name, error.message);
+            }
+            let query = col.find(selector);
 
-        if (!db) {
-            mongodbConnect(distId);
-        }
-
-        db = dbPool[distId];
-
-        if (!db) {
-            throw new Meteor.Error('not-found', `Distribution ${distId} not initialised`);
-        }
-
-        let {error, result} = Async.runSync(function (done) {
-            db.collection(collection, function (error, col) {
-                if (error) {
-                    throw new Meteor.Error(error.name, error.message);
+            for (let key in options) {
+                if (options.hasOwnProperty(key)) {
+                    query = query[key](options[key]);
                 }
-                let query = col.find(selector);
-
-                for (let key in options) {
-                    if (options.hasOwnProperty(key)) {
-                        query = query[key](options[key]);
-                    }
+            }
+            query.toArray(done);
+        })
+    }),
+    mysqlQuery: queryerFactory(mysqlConnect, (db, done, query)=> {
+        db.query(query, done);// db.query returns a third argument @fields which is discarded
+    }),
+    sparqlQuery: queryerFactory(connectorFactory((url, username, pass, done)=> {
+        done(null, url);
+    }), (db, done, query)=> {
+        HTTP.get(db, {
+            params: {query}, timeout: 30000, headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/sparql-results+json'
+            }
+        }, function (error, result) {
+            if (typeof result === 'object' && result.content) {
+                try {
+                    result = result.content;
+                } catch (e) {
+                    console.log(e);
                 }
-
-                query.toArray(done);
-            });
+            }
+            done(error, result);
         });
+    })
+});
 
-        if (error) {
-            throw new Meteor.Error(error.name, error.message);
-        } else {
-            return result;
-        }
-    },
-    mysqlQuery(distId, query){
+function queryerFactory(connector, queryExec) {
+    return function (distId, ...args) {
         let db = dbPool[distId];
 
         if (!db) {
-            mysqlConnect(distId);
+            connector(distId);
         }
 
         db = dbPool[distId];
@@ -177,7 +157,7 @@ Meteor.methods({
         }
 
         let {error, result} = Async.runSync(function (done) {
-            db.query(query, done);// db.query returns a third argument @fields which is discarded
+            queryExec(db, done, ...args);
         });
 
         if (error) {
@@ -186,4 +166,4 @@ Meteor.methods({
             return result;
         }
     }
-});
+}

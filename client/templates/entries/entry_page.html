@@ -43,7 +43,7 @@
                 <div class="modal-content">
                     <h4>Query Results</h4>
                     {{#if queryResult}}
-                        <p>{{queryResult}}</p>
+                        <pre>{{{queryResult}}}</pre>
                     {{else}}
                         {{> loading}}
                     {{/if}}
