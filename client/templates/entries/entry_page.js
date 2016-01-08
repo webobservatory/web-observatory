@@ -19,6 +19,15 @@ Template.entryPage.rendered = function () {
             Session.set('queryResult', null);
         }
     });
+
+    //transform type=url to link
+    $('[type=url]').after(function () {
+        let url = this.value;
+        if (url) {
+            $(this).hide();
+            return "<a href='" + url + "'>" + url + "</a>";
+        }
+    });
 };
 
 Template.entryPage.events({

@@ -17,11 +17,8 @@ Template.entryItem.helpers({
         }
         return !this.online;
     },
-    dataContex () {
-        console.log(this);
-    },
     ownEntry (entry = this) {
-        return this.publisher == Meteor.userId() || Roles.userHasRole(Meteor.userId(), "admin");
+        return entry.publisher == Meteor.userId() || Roles.userHasRole(Meteor.userId(), "admin");
     },
     publisher() {
         return Meteor.users.findOne(this.publisher);
@@ -41,8 +38,8 @@ Template.entryItem.helpers({
     },
     showInNewTab() {
         //permitted to access
-        if (Roles.userHasPermission(Meteor.userId(), 'collections.entries.access', this)) {
-            // app
+        if (accessesDocument(Meteor.userId(), this)) {
+            // app, group
             if (this.url) {
                 return this.url;
             }

@@ -4,7 +4,12 @@
 Meteor.users.after.insert(function (userId, user) {
     let profile = user.profile;
     if (profile && profile.isgroup) {
-        let group = Groups.insert({publisher: user._id, name: profile.name});
+        let group = Groups.insert({
+            publisher: user._id,
+            name: profile.name,
+            description: profile.description,
+            url: profile.url
+        });
         Meteor.users.update(user._id, {$set: {isGroup: group}, $unset: {'profile.isgroup': ''}});
         Roles.removeUserFromRoles(user._id, ["individual"]);
         Roles.addUserToRoles(user._id, ["group"]);

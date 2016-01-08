@@ -38,7 +38,9 @@ function addGroup(name) {
     let xgfdId = Accounts.createUser({
         profile: {
             name: name,
-            isgroup: true
+            isgroup: true,
+            description: "Vestibulum scelerisque auctor massa. In lectus arcu, eleifend quis faucibus malesuada, vulputate in lectus. Curabitur ut venenatis ligula, sit amet lacinia velit. Ut euismod libero sed odio efficitur tincidunt. Vestibulum a lacinia erat. Nulla pretium ante id fringilla pharetra. Aliquam varius, purus sed euismod ullamcorper, eros elit maximus magna, eu dignissim turpis leo in arcu. Nullam magna leo, blandit eu sollicitudin et, efficitur eget nibh. Etiam tempus mi eleifend commodo molestie.",
+            url: "https://www.google.co.uk"
         },
         username: name,
         email: name + "@example.com",
@@ -57,7 +59,7 @@ if (Meteor.users.find().count() === 0) {
     individualId = addIndividual('individual');
     groupId = addGroup('group');
     memberId = addIndividual('member');
-    Meteor.call('addToGroup', memberId, groupId);
+    let tmp = Meteor.call('addToGroup', memberId, Groups.findOne({publisher: groupId})._id);
 }
 // Fixture data
 let telescopeId;
@@ -70,6 +72,10 @@ if (Datasets.find().count() === 0) {
         distribution: [{
             url: 'mongodb://localhost:3001/meteor',
             fileFormat: "MongoDB",
+            online: true
+        }, {
+            url: 'amqp://wsi-h1.soton.ac.uk?exchange=logs',
+            fileFormat: "AMQP",
             online: true
         }],
         license: "MIT",
@@ -92,7 +98,6 @@ if (Datasets.find().count() === 0) {
         publisher: xgfdId,
         submitted: new Date(now - 3 * 3600 * 1000),
         body: "<p><span style=\"font-family: 'Comic Sans MS';\"><span style=\"font-size: 18px; background-color: rgb(255, 0, 0);\">You</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(255, 156, 0);\">sure</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(255, 255, 0);\">can</span><span style=\"font-size: 18px;\"> </span><span style=\"font-size: 18px; background-color: rgb(0, 255, 0);\">Tom</span><span style=\"font-size: 18px; background-color: rgb(0, 0, 255);\">!!!</span></span></p>"
-
     });
 
     Datasets.insert({
@@ -102,7 +107,10 @@ if (Datasets.find().count() === 0) {
             url: 'http://themeteorbook.com',
             fileFormat: "MySQL",
             online: false
-
+        }, {
+            url: 'http://dbpedia.org/sparql',
+            fileFormat: "SPARQL",
+            online: true
         }],
         license: "MIT",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi pharetra augue eget hendrerit bibendum. Vivamus quis laoreet magna. Quisque eu mi sit amet lorem vestibulum rhoncus. Donec lacus est, sodales convallis urna nec, condimentum accumsan ligula. Nullam maximus a sem ac laoreet. In hac habitasse platea dictumst. Pellentesque porttitor ex orci, sed suscipit ante pretium eget. Nam vestibulum metus a libero ultricies molestie sed vel est. Maecenas porta tempus purus, sed pharetra nibh sodales vitae. Nullam in erat tristique, posuere enim laoreet, suscipit erat. Sed quis efficitur enim. 2",
@@ -126,6 +134,7 @@ if (Datasets.find().count() === 0) {
         aclMeta: false,
         aclContent: false,
         metaWhiteList: [groupId],
+        contentWhiteList: [groupId],
         online: true,
         upvoters: [], votes: 0
     });
