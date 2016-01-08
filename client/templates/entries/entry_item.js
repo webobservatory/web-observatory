@@ -6,6 +6,10 @@ Template.entryItem.helpers({
         return blurb
     },
     offline () {
+        if (Template.parentData().category.singularName === 'group') {
+            return false;
+        }
+
         if (this.distribution) {
             return this.distribution.some(function (dist) {
                 return !dist.online;

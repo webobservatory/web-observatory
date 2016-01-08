@@ -1,5 +1,5 @@
 /*SearchSource publication*/
-publish({dataset: Datasets, app: Apps}, SearchSource.defineSource, function (collection) {
+publish({dataset: Datasets, app: Apps, group: Groups}, SearchSource.defineSource, function (collection) {
     return function (searchText, options) {
         if (!options) {
             options = {
@@ -67,7 +67,7 @@ publish({
     };
 });
 
-publish({singleDataset: Datasets, singleApp: Apps}, Meteor.publish, function (collection) {
+publish({singleDataset: Datasets, singleApp: Apps, singleGroup: Groups}, Meteor.publish, function (collection) {
     return function (id, options = {}) {
         check(id, String);
 

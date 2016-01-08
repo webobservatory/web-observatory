@@ -82,6 +82,21 @@ function syntaxHighlight(json) {
     });
 }
 
+/*query event handling*/
+function queryHandlerFactory(argGen, method, transform = (error, result)=> {
+    result = error || result;
+    result = syntaxHighlight(result);
+    Session.set('queryResult', result);
+}) {
+    return function (e, template) {
+        Session.set('queryResult', null);
+
+        let args = argGen(e, template);
+
+        Meteor.apply(method, args, transform);
+    }
+}
+
 /*
  MongoDB functions
  */
@@ -95,7 +110,6 @@ Template.MongoDB.helpers({
             Meteor.defer(function () {
                 mongoDep.changed(); //feels like coding in Java
             });
-            console.log(collectionNames);
             return collectionNames;
         }
     }
@@ -114,21 +128,6 @@ Template.MongoDB.onRendered(function () {
         $('#collection').material_select();
     });
 });
-
-/*query event handling*/
-function queryHandlerFactory(argGen, method, transform = (error, result)=> {
-    result = error || result;
-    result = syntaxHighlight(result);
-    Session.set('queryResult', result);
-}) {
-    return function (e, template) {
-        Session.set('queryResult', null);
-
-        let args = argGen(e, template);
-
-        Meteor.apply(method, args, transform);
-    }
-}
 
 Template.MongoDB.events({
     'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
@@ -158,6 +157,9 @@ Template.MongoDB.events({
     }, 'mongodbQuery')
 });
 
+/*
+ * MySQL functions
+ * */
 Template.MySQL.events({
     'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
         let distId = template.data._id,
@@ -167,6 +169,9 @@ Template.MySQL.events({
     }, 'mysqlQuery')
 });
 
+/*
+ * SPARQL functions
+ * */
 Template.SPARQL.events({
     'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
         let distId = template.data._id,
@@ -175,6 +180,17 @@ Template.SPARQL.events({
         return [distId, query];
     }, 'sparqlQuery')
 });
+
+/*
+ * AMQP functions
+ * */
+// Override Meteor._debug to filter for custom msgs
+Meteor._debug = (function (super_meteor_debug) {
+    return function (error, info) {
+        if (!(info && _.has(info, 'msg')))
+            super_meteor_debug(error, info);
+    }
+})(Meteor._debug);
 
 let amqpDep;
 Template.AMQP.helpers({
