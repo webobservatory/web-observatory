@@ -8,6 +8,13 @@ Template.entryPage.helpers({
     },
     queryResult() {
         return Session.get('queryResult');
+    },
+    requestFormTitle() {
+        if (this.category === Groups) {
+            return "Join the group"
+        } else {
+            return "Request access"
+        }
     }
 });
 

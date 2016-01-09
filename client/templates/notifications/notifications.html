@@ -3,8 +3,8 @@
         <!--Notifications-->
         {{#if notificationCount}}
             <i class="material-icons left">announcement</i>
-            Notification
-            <!--<span class="badge">{{notificationCount}}</span>-->
+            Notifications
+            <span class="badge orange lighten-2 white-text">{{notificationCount}}</span>
         {{/if}}
     </a>
     <ul id='dropdown1' class='dropdown-content'>
@@ -20,9 +20,9 @@
 
 <template name="notificationItem">
     <li>
-        <div class="card red lighten-2">
-            <div class="card-content white-text">
-                <p>{{{message}}}</p>
+        <div class="card">
+            <div class="card-content teal-text">
+                {{{message}}}
             </div>
             {{#if actions}}
                 <div class="card-action">

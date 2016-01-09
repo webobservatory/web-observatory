@@ -51,7 +51,7 @@ let actions = {
 
         if (entry) {
             let path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
-            let message = `<a href="${path}">Access to ${notification.entryName} granted</a>`;
+            let message = `Access to <a class="blue-text" href="${path}">${notification.entryName}</a> granted`;
             Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.entryName, notification.initiatorId, notification.category, message);
         }
 
@@ -60,7 +60,7 @@ let actions = {
     Deny: function (notification) {
         //console.log(notification);
         let path = Router.routes[notification.category + '.page'].path({_id: notification.entryId});
-        let message = `<a href="${path}">Access to ${notification.entryName} declined</a>`;
+        let message = `Access to <a class="blue-text" href="${path}">${notification.entryName}</a> declined`;
         Meteor.call('createNotification', Meteor.userId(), notification.entryId, notification.entryName, notification.initiatorId, notification.category, message);
         return true;
     }

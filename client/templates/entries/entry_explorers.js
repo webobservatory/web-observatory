@@ -11,31 +11,34 @@ Template.requestFrom.rendered = function () {
     });
 };
 
+let request = new SimpleSchema({
+    name: {type: String, label: 'Name', autoform: {readonly: true}},
+    username: {
+        type: String,
+        label: 'Username',
+        autoform: {readonly: true}
+    },
+    email: {
+        type: String,
+        autoform: {readonly: true}
+    },
+    organisation: {type: String, label: 'Organisation', optional: true},
+    message: {type: String, label: 'Leave a message', optional: true},
+    acceptTerms: {
+        type: Boolean,
+        optional: true,
+        label: 'Accept the license of this item',
+        custom: function () {
+            if (!this.value) {
+                return "acceptTerms";
+            }
+        }
+    }
+});
+
 Template.requestFrom.helpers({
     requestSchema(){
-        return new SimpleSchema({
-            name: {type: String, label: 'Name', autoform: {readonly: true}},
-            username: {
-                type: String,
-                label: 'Username',
-                autoform: {readonly: true}
-            },
-            email: {
-                type: String,
-                autoform: {readonly: true}
-            },
-            organisation: {type: String, label: 'Organisation', optional: true},
-            acceptTerms: {
-                type: Boolean,
-                optional: true,
-                label: 'Accept the license of this item',
-                custom: function () {
-                    if (!this.value) {
-                        return "acceptTerms";
-                    }
-                }
-            }
-        });
+        return request;
     }
 });
 
@@ -51,10 +54,11 @@ Template.requestFrom.events({
             username = user.username,
             email = user.email || $target.find('[name=email]').val(),
             organisation = $target.find('[name=organisation]').val(),
+            message = $target.find('[name=message]').val(),
             acceptTerms = $target.find('[name=acceptTerms]').prop('checked');
 
         if (initiatorId && acceptTerms) {
-            Meteor.call('createRequestNotification', username, organisation, initiatorId, template.data.entry, template.data.category.singularName);
+            Meteor.call('createRequestNotification', username, organisation, initiatorId, template.data.entry, template.data.category.singularName, message);
             Materialize.toast('Request sent!', 4000) // 4000 is the duration of the toast
         }
     }
