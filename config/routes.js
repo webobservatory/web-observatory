@@ -26,11 +26,11 @@ var mongoose = require('mongoose'),
     smtpTransport = require('nodemailer-smtp-transport'),
     git = require('./middlewares/github/github');
 
-module.exports = function(app, passport) {
+module.exports = function (app, passport) {
 
     app.options('*', cors()); //for pre-flight cors
 
-    app.get("/", function(req, res) {
+    app.get("/", function (req, res) {
         if (req.isAuthenticated()) {
             res.render("index", {
                 info: req.flash('info'),
@@ -45,7 +45,7 @@ module.exports = function(app, passport) {
         }
     });
 
-    app.get('/wo/project/:id', modctrl.getProj, function(req, res) {
+    app.get('/wo/project/:id', modctrl.getProj, function (req, res) {
         res.render('proj-detail', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -55,7 +55,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/wo/j/project/:id',ensureLoggedIn('/login'), modctrl.getProj, modctrl.joinProj,  function(req, res) {
+    app.get('/wo/j/project/:id', ensureLoggedIn('/login'), modctrl.getProj, modctrl.joinProj, function (req, res) {
         res.render('proj-detail', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -65,7 +65,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/wo/:typ(project)', modctrl.search, function(req, res) {
+    app.get('/wo/:typ(project)', modctrl.search, function (req, res) {
         res.render('proj', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -75,12 +75,12 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/wo/project', ensureLoggedIn('/login'), modctrl.addProj, function(req, res) {
+    app.post('/wo/project', ensureLoggedIn('/login'), modctrl.addProj, function (req, res) {
         res.redirect('/wo/project');
     });
 
     //listing entries
-    app.get('/wo/:typ(dataset|visualisation)', connTest, modctrl.search, function(req, res) {
+    app.get('/wo/:typ(dataset|visualisation)', connTest, modctrl.search, function (req, res) {
         var baseUrl = req.protocol + '://' + req.get('host');
 
         res.render('catlg', {
@@ -94,10 +94,10 @@ module.exports = function(app, passport) {
     });
 
     //catalogue accordion panel
-    app.get('/wo/:eid', function(req, res) {
+    app.get('/wo/:eid', function (req, res) {
         var email = req.user ? req.user.email : null,
             eid = req.params.eid;
-        Entry.findById(eid, function(err, entry) {
+        Entry.findById(eid, function (err, entry) {
             entry.isOwner = false;
             entry.haveAcc = entry.opAcc;
 
@@ -133,9 +133,9 @@ module.exports = function(app, passport) {
             }
 
             async.waterfall([
-                function(cb) {
+                function (cb) {
                     if (qtype === 'mongodb') {
-                        Entry.findById(req.params.eid, function(err, ds) {
+                        Entry.findById(req.params.eid, function (err, ds) {
                             if (err) {
                                 return cb(err);
                             }
@@ -145,12 +145,12 @@ module.exports = function(app, passport) {
                         cb(null, null);
                     }
                 }
-            ], function(err, result) {
+            ], function (err, result) {
                 res.render('query/' + qtype, {
                     eid: entry._id,
                     url: entry.url,
                     tags: err ? null : result
-                }, function(err, qrypanl) {
+                }, function (err, qrypanl) {
                     res.render('catlog-detail', {
                         qrypanl: qrypanl,
                         etry: entry
@@ -162,8 +162,8 @@ module.exports = function(app, passport) {
 
     //display vis
     //TODO use pipe?
-    app.get('/wo/show/:eid', noneSSL, function(req, res, next) {
-        Entry.findById(req.params.eid, function(err, entry) {
+    app.get('/wo/show/:eid', noneSSL, function (req, res, next) {
+        Entry.findById(req.params.eid, function (err, entry) {
             if (err) {
                 return next(err);
             }
@@ -181,11 +181,11 @@ module.exports = function(app, passport) {
     });
 
     //statistics of listed entries
-    app.get('/stats', function(req, res) {
+    app.get('/stats', function (req, res) {
         var sequence = {},
             i;
 
-        Entry.find({}, function(err, entries) {
+        Entry.find({}, function (err, entries) {
             if (err) {
                 logger.error(err);
             }
@@ -213,7 +213,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/add/project', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/add/project', ensureLoggedIn('/login'), function (req, res) {
         res.render('addproj', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -222,7 +222,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/add/:typ(dataset|visualisation)', noneSSL, modctrl.licenses, ensureLoggedIn('/login'), function(req, res) {
+    app.get('/add/:typ(dataset|visualisation)', noneSSL, modctrl.licenses, ensureLoggedIn('/login'), function (req, res) {
         res.render('addetry', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -242,7 +242,7 @@ module.exports = function(app, passport) {
 
 
     //searching
-    app.get('/search', function(req, res) {
+    app.get('/search', function (req, res) {
         var term = req.query.keyword;
 
         if (!term) {
@@ -259,7 +259,7 @@ module.exports = function(app, passport) {
                 $regex: term,
                 $options: 'i'
             }
-        }, function(err, entries) {
+        }, function (err, entries) {
             if (err) {
                 req.flash('error', [err.message]);
             }
@@ -276,7 +276,7 @@ module.exports = function(app, passport) {
     });
 
     //howto guide of the portal
-    app.get('/howto', function(req, res) {
+    app.get('/howto', function (req, res) {
         res.render('howto', {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -285,7 +285,7 @@ module.exports = function(app, passport) {
     });
 
     //dataset names autocompletion
-    app.get('/nametags/:typ(dataset|visualisation)', function(req, res) {
+    app.get('/nametags/:typ(dataset|visualisation)', function (req, res) {
         var term = req.query.term;
         Entry.find({
             type: req.params.typ,
@@ -293,11 +293,11 @@ module.exports = function(app, passport) {
                 $regex: term,
                 $options: 'i'
             }
-        }, 'name', function(err, etries) {
+        }, 'name', function (err, etries) {
             if (err) {
                 logger.error(err);
             }
-            var names = etries.map(function(etry) {
+            var names = etries.map(function (etry) {
                 return etry.name;
             });
             res.json(names);
@@ -305,7 +305,7 @@ module.exports = function(app, passport) {
     });
 
     //add an entry
-    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), git, function(req, res) {
+    app.post('/add/:typ(dataset|visualisation)', ensureLoggedIn('/login'), git, function (req, res) {
         var etry, user = req.user,
             body = req.body;
         etry = {
@@ -333,7 +333,7 @@ module.exports = function(app, passport) {
             opVis: body.vis !== 'false'
         };
 
-        modctrl.addEtry(user, etry, function(err) {
+        modctrl.addEtry(user, etry, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 res.redirect('/add/' + req.params.typ);
@@ -344,15 +344,15 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/detail/:eid', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/detail/:eid', ensureLoggedIn('/login'), function (req, res) {
         Entry.findOne({
             _id: req.params.eid,
             publisher: req.user.email
-        }, function(err, entry) {
+        }, function (err, entry) {
             if (err || !entry) {
                 logger.error(err || {
-                    message: 'Entry not found under the current user'
-                });
+                        message: 'Entry not found under the current user'
+                    });
                 req.flash('error', ["Entry not found under the current user"]);
                 return res.redirect(req.get('referer'));
             }
@@ -367,7 +367,7 @@ module.exports = function(app, passport) {
     });
 
 
-    app.post('/proj-detail/:eid', Auth.isOwner, function(req, res, next) {
+    app.post('/proj-detail/:eid', Auth.isOwner, function (req, res, next) {
         var eid = req.params.eid,
             name = req.body.name,
             value = req.body.value.trim(),
@@ -388,7 +388,7 @@ module.exports = function(app, passport) {
                 etry[name] = value;
         }
 
-        modctrl.editProj(eid, etry, function(err) {
+        modctrl.editProj(eid, etry, function (err) {
             if (err) {
                 res.send(400, err.message);
             } else {
@@ -399,11 +399,11 @@ module.exports = function(app, passport) {
                 res.status(200).end();
             }
         });
-    }, git, function(req, res) {
+    }, git, function (req, res) {
         res.status(200).end();
     });
 
-    app.post('/detail/:eid', Auth.isOwner, function(req, res, next) {
+    app.post('/detail/:eid', Auth.isOwner, function (req, res, next) {
         var eid = req.params.eid,
             name = req.body.name,
             value = req.body.value.trim(),
@@ -424,7 +424,7 @@ module.exports = function(app, passport) {
                 etry[name] = value;
         }
 
-        modctrl.editEtry(eid, etry, function(err) {
+        modctrl.editEtry(eid, etry, function (err) {
             if (err) {
                 res.send(400, err.message);
             } else {
@@ -435,7 +435,7 @@ module.exports = function(app, passport) {
                 res.status(200).end();
             }
         });
-    }, git, function(req, res) {
+    }, git, function (req, res) {
         res.status(200).end();
     });
 
@@ -515,7 +515,7 @@ module.exports = function(app, passport) {
     //    });
 
     //remove entries
-    app.get('/remove/:eid', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/remove/:eid', ensureLoggedIn('/login'), function (req, res) {
         var ids = req.params.eid.split(','),
             user = req.user;
 
@@ -528,17 +528,17 @@ module.exports = function(app, passport) {
             ids = [ids];
         }
 
-        async.map(ids, function(eid, cb) {
+        async.map(ids, function (eid, cb) {
             if (-1 !== user.own.indexOf(eid)) {
                 Entry.findByIdAndRemove(eid, cb);
                 user.own.pull(eid);
             }
-        }, function(err) {
+        }, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
             }
-            user.save(function(err) {
+            user.save(function (err) {
                 if (err) {
                     req.flash('error', [err.message]);
                 } else {
@@ -550,18 +550,18 @@ module.exports = function(app, passport) {
     });
 
     //request access of datasets
-    app.get('/reqacc/:eid', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/reqacc/:eid', ensureLoggedIn('/login'), function (req, res) {
         var eids = [req.params.eid];
         var smtpTransport = nodemailer.createTransport(config.smtp);
 
-        modctrl.reqAccToEtry(eids, req.user, function(err) {
+        modctrl.reqAccToEtry(eids, req.user, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
             } else {
                 req.flash('info', ['Request sent']); //TODO add send mail
 
-                async.map(eids, function(eid, next) {
-                    Entry.findById(eid, function(err, entry) {
+                async.map(eids, function (eid, next) {
+                    Entry.findById(eid, function (err, entry) {
                         if (err) {
                             return next(err);
                         }
@@ -576,7 +576,7 @@ module.exports = function(app, passport) {
                             subject: "[Web-Observatory] Access Request", // Subject line
                             html: req.user.firstName + " " + req.user.lastName + " (" + req.user.email + ") would like to access your dataset/visualisation listed on Web Observatory. Please <a href='https://" + req.headers.host + "/profile#requests'>login</a> to Grant or Deny this request. " // html body
                         };
-                        smtpTransport.sendMail(mailOptions, function(err) {
+                        smtpTransport.sendMail(mailOptions, function (err) {
                             if (err) {
                                 return next(err);
                             }
@@ -596,7 +596,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/reqacc', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/reqacc', ensureLoggedIn('/login'), function (req, res) {
         var user = req.user,
             eids = req.body.ids;
         if (!eids) {
@@ -607,7 +607,7 @@ module.exports = function(app, passport) {
             eids = [eids];
         }
 
-        modctrl.reqAccToEtry(eids, user, function(err) {
+        modctrl.reqAccToEtry(eids, user, function (err) {
             if (err) {
                 req.flash('error', [err.message]);
             } else {
@@ -618,7 +618,7 @@ module.exports = function(app, passport) {
     });
 
     //approve access to datasets
-    app.post('/aprvacc', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/aprvacc', ensureLoggedIn('/login'), function (req, res) {
         var deny = req.body.deny === 'true',
             user = req.user,
             reqids = req.body.reqids;
@@ -626,7 +626,7 @@ module.exports = function(app, passport) {
             reqids = [reqids];
         }
 
-        modctrl.aprvAccToEtry(deny, reqids, user, function(err) {
+        modctrl.aprvAccToEtry(deny, reqids, user, function (err) {
 
             if (err) {
                 req.flash('error', [err.message]);
@@ -639,12 +639,12 @@ module.exports = function(app, passport) {
 
     //mongodb schema names autocompletion
     //TODO deprecated route?
-    app.get('/schematags', ensureLoggedIn('/login'), function(req, res) {
-        Entry.findById(req.query.dsId, function(err, ds) {
+    app.get('/schematags', ensureLoggedIn('/login'), function (req, res) {
+        Entry.findById(req.query.dsId, function (err, ds) {
             if (err) {
                 logger.error(err);
             }
-            queries.mongodbschema(ds, function(err, names) {
+            queries.mongodbschema(ds, function (err, names) {
                 if (err) {
                     logger.error(err);
                 }
@@ -654,7 +654,7 @@ module.exports = function(app, passport) {
     });
 
     //execute user queries
-    app.get('/query/:format/:eid', function(req, res) {
+    app.get('/query/:format/:eid', function (req, res) {
         var qtype = '';
         switch (req.params.format.toLowerCase()) {
             case 'mysql':
@@ -669,9 +669,9 @@ module.exports = function(app, passport) {
 
         async.waterfall([
 
-            function(cb) {
+            function (cb) {
                 if (qtype === 'mongodb') {
-                    Entry.findById(req.params.eid, function(err, ds) {
+                    Entry.findById(req.params.eid, function (err, ds) {
                         if (err) {
                             return cb(err);
                         }
@@ -681,7 +681,7 @@ module.exports = function(app, passport) {
                     cb(null, null);
                 }
             }
-        ], function(err, result) {
+        ], function (err, result) {
             res.render('query/' + qtype, {
                 eid: req.params.eid,
                 tags: err ? null : result
@@ -691,7 +691,7 @@ module.exports = function(app, passport) {
 
     app.get('/endpoint/:eid/:typ', Auth.hasAccToDB, accessdata);
 
-    app.get('/contest', ensureLoggedIn('/login'), function(req, res) {
+    app.get('/contest', ensureLoggedIn('/login'), function (req, res) {
         var test = queries.tests[req.query.typ];
         if (!test) {
             return res.json({
@@ -702,12 +702,12 @@ module.exports = function(app, passport) {
             url: req.query.url,
             user: req.query.user,
             password: req.query.pwd
-        }, function(msg) {
+        }, function (msg) {
             res.json(msg ? msg.toString() : null);
         });
     });
 
-    app.get('/git/:uid/:repo', function(req, res) {
+    app.get('/git/:uid/:repo', function (req, res) {
         var uid = req.params.uid,
             repo = req.params.repo;
         res.render(uid + '/' + repo);
@@ -715,7 +715,7 @@ module.exports = function(app, passport) {
 
     //authentication
 
-    app.get("/login", forceSSL, function(req, res) {
+    app.get("/login", forceSSL, function (req, res) {
         if (!req.session.returnTo) {
             req.session.returnTo = req.get('referer');
         }
@@ -731,7 +731,7 @@ module.exports = function(app, passport) {
         //successReturnToOrRedirect: '/',
         failureRedirect: "/login",
         failureFlash: true
-    }), Auth.rememberMe, function(req, res) {
+    }), Auth.rememberMe, function (req, res) {
         var url = '/';
         if (req.session && req.session.returnTo) {
             url = req.session.returnTo;
@@ -740,7 +740,7 @@ module.exports = function(app, passport) {
         return res.redirect(url);
     });
 
-    app.get("/signup", forceSSL, function(req, res) {
+    app.get("/signup", forceSSL, function (req, res) {
         var recaptcha = new Recaptcha(pbk, prk, req.secure);
         res.render('signup', {
             layout: false,
@@ -748,7 +748,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post("/signup", Auth.userExist, function(req, res, next) {
+    app.post("/signup", Auth.userExist, function (req, res, next) {
         var data, recaptcha;
         data = {
             remoteip: req.connection.remoteAddress,
@@ -757,13 +757,13 @@ module.exports = function(app, passport) {
         };
 
         recaptcha = new Recaptcha(pbk, prk, data);
-        recaptcha.verify(function(success) {
+        recaptcha.verify(function (success) {
             if (success) {
-                User.signup(req.body.fn, req.body.ln, req.body.org, req.body.email, req.body.password, function(err, user) {
+                User.signup(req.body.fn, req.body.ln, req.body.org, req.body.email, req.body.password, function (err, user) {
                     if (err) {
                         return next(err);
                     }
-                    req.login(user, function(err) {
+                    req.login(user, function (err) {
                         if (err) {
                             return next(err);
                         }
@@ -794,9 +794,9 @@ module.exports = function(app, passport) {
     }), Auth.rememberMe);
 
     //profile
-    app.get("/profile", forceSSL, ensureLoggedIn('/login'), function(req, res) {
+    app.get("/profile", forceSSL, ensureLoggedIn('/login'), function (req, res) {
 
-        req.user.populate('own').populate('accreq').populate('clients').populate('pendingreq.entry', function(err, user) {
+        req.user.populate('own').populate('accreq').populate('clients').populate('pendingreq.entry', function (err, user) {
             var parameter, errmsg;
             parameter = {
                 'user': user
@@ -818,7 +818,7 @@ module.exports = function(app, passport) {
     });
 
     //update user profile
-    app.post("/profile", ensureLoggedIn('/login'), function(req, res) {
+    app.post("/profile", ensureLoggedIn('/login'), function (req, res) {
         var oldpw = req.body.oldpw,
             newpw = req.body.newpw,
             fn = req.body.fn,
@@ -828,7 +828,7 @@ module.exports = function(app, passport) {
             email = user.email;
 
         if (newpw) {
-            User.isValidUserPassword(email, oldpw, function(err, user, msg) {
+            User.isValidUserPassword(email, oldpw, function (err, user, msg) {
                 if (err) {
                     req.flash('error', [err.message]);
                     return res.redirect(req.get('referer'));
@@ -839,7 +839,7 @@ module.exports = function(app, passport) {
                     return res.redirect(req.get('referer'));
                 }
 
-                User.updateProfile(user, newpw, fn, ln, org, function(err) {
+                User.updateProfile(user, newpw, fn, ln, org, function (err) {
                     if (err) {
                         req.flash('error', [err.message]);
                         res.redirect(req.get('referer'));
@@ -850,7 +850,7 @@ module.exports = function(app, passport) {
                 });
             });
         } else {
-            User.updateProfile(user, null, fn, ln, org, function(err) {
+            User.updateProfile(user, null, fn, ln, org, function (err) {
                 if (err) {
                     req.flash('error', [err.message]);
                     res.redirect(req.get('referer'));
@@ -863,7 +863,7 @@ module.exports = function(app, passport) {
     });
 
     //remove messages
-    app.post('/profile/message', ensureLoggedIn('/login'), function(req, res) {
+    app.post('/profile/message', ensureLoggedIn('/login'), function (req, res) {
         var msgid = req.body.msgid,
             user = req.user;
 
@@ -871,11 +871,11 @@ module.exports = function(app, passport) {
             msgid = [msgid];
         }
 
-        msgid.forEach(function(mid) {
+        msgid.forEach(function (mid) {
             user.msg.remove(msgid[mid]);
         });
 
-        user.save(function(err) {
+        user.save(function (err) {
             if (err) {
                 req.flash('error', [err.message]);
                 return res.redirect(req.get('referer'));
@@ -886,7 +886,7 @@ module.exports = function(app, passport) {
     });
 
     //reseting password
-    app.get('/profile/reset-pass', function(req, res) {
+    app.get('/profile/reset-pass', function (req, res) {
         var tk = req.query.tk;
         if (!tk) {
             req.flash('error', ['Password reset token is missing, please request again.']);
@@ -898,7 +898,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.post('/profile/reset-pass', function(req, res) {
+    app.post('/profile/reset-pass', function (req, res) {
         var tk = req.body.tk,
             confpass = req.body.confirm,
             newpass = req.body.password;
@@ -908,12 +908,12 @@ module.exports = function(app, passport) {
             return res.redirect(req.get('referer'));
         }
 
-        pass.resetPass(tk, newpass, function(err, user) {
+        pass.resetPass(tk, newpass, function (err, user) {
             if (err || !user) {
                 req.flash('error', [err.message || 'User not found']);
                 return res.redirect('/login');
             }
-            req.login(user, function(err) {
+            req.login(user, function (err) {
                 if (err) {
                     req.flash('error', [err.message]);
                     req.flash('error', ['An error occured, please login manually.']);
@@ -924,7 +924,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/profile/forgot-pass', function(req, res) {
+    app.get('/profile/forgot-pass', function (req, res) {
         res.render('forgot-pass', {
             'info': req.flash('info'),
             'error': req.flash('error')
@@ -933,13 +933,13 @@ module.exports = function(app, passport) {
 
     app.post('/profile/forgot-pass', pass.forgotPass);
 
-    app.get('/logout', function(req, res) {
+    app.get('/logout', function (req, res) {
         res.clearCookie('remember_me');
         req.logout();
         res.redirect('/');
     });
 
-    app.get('/version', function(req, res) {
+    app.get('/version', function (req, res) {
         res.render("version", {
             info: req.flash('info'),
             error: req.flash('error'),
@@ -949,7 +949,7 @@ module.exports = function(app, passport) {
 
     //application management
 
-    app.get('/client/create', ensureLoggedIn('/login'), function(req, res, next) {
+    app.get('/client/create', ensureLoggedIn('/login'), function (req, res, next) {
         var client, user, secret;
 
         user = req.user;
@@ -963,13 +963,13 @@ module.exports = function(app, passport) {
             redirectURI: req.query.callback
         });
 
-        client.save(function(err) {
+        client.save(function (err) {
             if (err) {
                 return next(err);
             }
 
             user.clients.push(client._id);
-            user.save(function(err) {
+            user.save(function (err) {
                 if (err) {
                     return next(err);
                 }
@@ -979,18 +979,18 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/client/:eid/delete', Auth.isOwner, function(req, res, next) {
+    app.get('/client/:eid/delete', Auth.isOwner, function (req, res, next) {
         var user = req.user,
             cid = req.params.eid;
 
-        Client.findByIdAndRemove(cid, function(err) {
+        Client.findByIdAndRemove(cid, function (err) {
             if (err) {
                 next(err);
             }
         });
 
         user.clients.pull(cid);
-        user.save(function(err) {
+        user.save(function (err) {
             if (err) {
                 next(err);
             }
@@ -1014,7 +1014,7 @@ module.exports = function(app, passport) {
     //        next();
     //    };
 
-    app.get('/api', cors(), function(req, res) {
+    app.get('/api', cors(), function (req, res) {
         var base, apiRes, links; // use base instead of baseUrl to prevent confusion with req.baseUrl
         base = req.protocol + '://' + req.get('host');
         links = [{
@@ -1051,7 +1051,7 @@ module.exports = function(app, passport) {
         res.send(apiRes);
     });
 
-    app.get('/oauth', cors(), function(req, res) {
+    app.get('/oauth', cors(), function (req, res) {
         var base, apiRes, links; // use base instead of baseUrl to prevent confusion with req.baseUrl
         base = req.protocol + '://' + req.get('host');
 
@@ -1075,11 +1075,11 @@ module.exports = function(app, passport) {
         res.send(apiRes);
     });
 
-    app.get('/api/info', cors(), function(req, res) {
+    app.get('/api/info', cors(), function (req, res) {
         res.send('This is not implemented yet');
     });
 
-    app.get('/api/wo/:typ(dataset|visualisation)', cors(), modctrl.search, function(req, res) {
+    app.get('/api/wo/:typ(dataset|visualisation)', cors(), modctrl.search, function (req, res) {
         var entries = req.attach.search;
         res.send(entries);
     });
@@ -1088,7 +1088,7 @@ module.exports = function(app, passport) {
     //legacy entry, kept for backward compatibility
     app.get('/api/query', cors(), passport.authenticate('bearer', {
         session: false
-    }), Auth.hasAccToDB, function(req, res) {
+    }), Auth.hasAccToDB, function (req, res) {
 
         var queryDriver, qlog, ds, query;
 
@@ -1117,7 +1117,7 @@ module.exports = function(app, passport) {
         } else {
             //TODO implement queryDriver as middlelayer
             queryDriver(query, '', ds,
-                function(err, result) {
+                function (err, result) {
                     //qlog.result = JSON.stringify(result);
                     logger.info(qlog);
                     if (err) {
@@ -1141,12 +1141,18 @@ module.exports = function(app, passport) {
         session: false
     }), Auth.hasAccToDB, accessdata);
 
+    app.get('/api/wo/:typ(dataset|app)', cors(), passport.authenticate('bearer', {
+        session: false
+    }), modctrl.search, function (req, res) {
+        res.end(req.attach.search);
+    });
+
     app.get('/api/stats', cors(), passport.authenticate('bearer', {
         session: false
-    }), function(req, res) {
+    }), function (req, res) {
         var i, sequence = {};
 
-        Entry.find({}, function(err, entries) {
+        Entry.find({}, function (err, entries) {
             if (err) {
                 logger.error(err);
             }
@@ -1172,7 +1178,7 @@ module.exports = function(app, passport) {
 
     app.get('/api/userInfo', cors(), passport.authenticate('bearer', {
         session: false
-    }), function(req, res) {
+    }), function (req, res) {
         // req.authInfo is set using the `info` argument supplied by
         // `BearerStrategy`.  It is typically used to indicate scope of the token,
         // and used in access control checks.
@@ -1184,7 +1190,7 @@ module.exports = function(app, passport) {
     });
 
     //Oauth
-    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function(req, res) {
+    app.get('/oauth/authorise', ensureLoggedIn('/login'), oauth2.authorise, function (req, res) {
         res.render('oauth-authorise', {
             transactionID: req.oauth2.transactionID,
             user: req.user,
