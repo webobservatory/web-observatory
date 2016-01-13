@@ -15,6 +15,21 @@ Template.entryPage.helpers({
         } else {
             return "Request access"
         }
+    },
+    showRequestForm(){
+        let {entry, category} = this,
+            userId = Meteor.userId();
+
+        if (category === Groups) {
+            return entry.aclContent && //everyone can join
+                !_.contains(entry.contentWhiteList, userId);//and not a member already
+        } else {
+            if (category === Datasets || category === Apps) {
+                return !accessesDocument(userId, entry);
+            } else {
+                return false;
+            }
+        }
     }
 });
 

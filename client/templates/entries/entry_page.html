@@ -9,7 +9,9 @@
                     {{#each entry.distribution}}
                         <li class="tab col s3"><a href="{{appendHash _id}}">{{fileFormat}}</a></li>
                     {{/each}}
-                {{else}}
+                {{/if}}
+
+                {{#if showRequestForm}}
                     <li class="tab col s3"><a href="#request_access">{{requestFormTitle}}</a></li>
                 {{/if}}
             </ul>
@@ -52,7 +54,9 @@
                     <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat ">Dismiss</a>
                 </div>
             </div>
-        {{else}}
+        {{/if}}
+
+        {{#if showRequestForm}}
             <!--show request access form if logged in-->
             <div id="request_access" class="col s12">
                 {{#if currentUser}}
