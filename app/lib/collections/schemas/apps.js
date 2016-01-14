@@ -13,7 +13,7 @@ let App = {
         }
     },
     file: orion.attribute('file', {
-        label: 'Upload app source as a zip file. Only support apps written in JS and HTML',
+        label: 'Upload app source as a zip file. Only support apps written in client-side JS and HTML',
         optional: true
     }),
     github: {

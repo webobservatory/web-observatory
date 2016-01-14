@@ -49,6 +49,14 @@ MongoClient.connect(from, function (err, fromDb) {
         console.log('exporting apps ...');
         let apps = syncFind(Entries, {type: 'visualisation'});
 
+        apps = apps.map(appTrans);
+
+        fs.writeFile(path + 'apps', JSON.stringify(apps, null, 2), (err)=> {
+            if (err) {
+                throw err;
+            }
+        });
+
         fromDb.close();
     });
 });
@@ -111,10 +119,20 @@ function datasetTrans(dataset) {
     meteorDataset.datePublished = dataset.pubdate;
     meteorDataset.dateModified = dataset.modified;
     meteorDataset.keywords = dataset.kw;
+
+    if (Array.isArray(dataset.canView)) {
+        dataset.canView.shift();
+    }
+
+    if (Array.isArray(dataset.canAccess)) {
+        dataset.canAccess.shift();
+    }
+
     meteorDataset.aclMeta = dataset.opVis;
     meteorDataset.aclContent = dataset.opAcc;
     meteorDataset.metaWhiteList = dataset.canView;
     meteorDataset.contentWhiteList = dataset.canAccess;
+    meteorDataset.license = dataset.lice;
 
     let dist = {url: null, fileFormat: null, online: null};
     dist.url = dataset.url;
@@ -123,14 +141,64 @@ function datasetTrans(dataset) {
     dist.instruction = dataset.queryinfo;
 
     if (dataset.auth && dataset.auth.user) {
-        console.log(dataset);
         dist.profile = {};
         dist.profile.username = dataset.auth.user;
         let decipher = crypto.createDecipher(enc_alg, dataset.url);
-        dist.profile.pass = decipher.update(dataset.auth.encpwd, 'hex', 'utf8') + decipher.final('utf8');
+        decipher.update(dataset.auth.encpwd, 'hex', 'utf8');
+        dist.profile.pass = decipher.final('utf8');
     }
 
     meteorDataset.distribution.push(dist);
 
     return meteorDataset;
+}
+
+function appTrans(app) {
+    let meteorApp = {
+        name: null,
+        description: null,
+        url: null,
+        github: null,
+        online: true,
+        creator: null,
+        publisher: null,
+        datePublished: null,
+        dateModified: null,
+        keywords: [],
+        license: null,
+        aclMeta: true,
+        aclContent: false,
+        metaWhiteList: [],
+        contentWhiteList: []
+    };
+
+    meteorApp.name = app.name;
+    meteorApp.description = app.description;
+    meteorApp.url = app.url;
+    meteorApp.publisher = app.publisher;
+    meteorApp.license = app.lice;
+    meteorApp.github = app.git;
+    meteorApp.online = app.alive;
+    meteorApp.datePublished = app.pubdate;
+    meteorApp.dateModified = app.modified;
+    meteorApp.keywords = app.kw;
+
+    if (Array.isArray(app.canAccess)) {
+        app.canAccess.shift();
+    }
+
+    if (Array.isArray(app.canView)) {
+        app.canView.shift();
+    }
+
+    meteorApp.aclMeta = app.opVis;
+    meteorApp.aclContent = app.opAcc;
+    meteorApp.metaWhiteList = app.canView;
+    meteorApp.contentWhiteList = app.canAccess;
+
+    if (app.related) {
+        meteorApp.isBasedOnUrl = app.related.split(',');
+    }
+
+    return meteorApp;
 }
