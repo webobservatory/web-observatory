@@ -13,7 +13,7 @@ function augsTrans(url, username, pass) {
             //console.log(dist);
 
             if (dist) {
-                ({url, username, pass} = dist);
+                ({url, profile: {username, pass}} = dist);
             } else {
                 throw new Meteor.Error('not-found', `Distribution ${distId} not found`);
             }

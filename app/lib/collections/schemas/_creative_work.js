@@ -142,7 +142,6 @@ Mis = {
     online: {
         type: Boolean,
         autoform: {
-            readonly: true,
             type: 'hidden'
         },
         defaultValue: true

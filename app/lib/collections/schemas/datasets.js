@@ -33,14 +33,20 @@ let DistributionSchema = new SimpleSchema({
         optional: true
     }),
 
-    username: {
-        type: String,
-        optional: true
-    },
+    //username: {
+    //    type: String,
+    //    optional: true
+    //},
+    //
+    //pass: {
+    //    type: String,
+    //    optional: true
+    //},
 
-    pass: {
+    instruction: {
         type: String,
-        optional: true
+        optional: true,
+        label: 'Instruction to access this dataset'
     },
 
     fileFormat: {
@@ -53,19 +59,41 @@ let DistributionSchema = new SimpleSchema({
     profile: {
         type: Object,
         optional: true,
-        autoform: {
-            omit: true
+        autoValue() {
+            if (!this.isSet) {
+                return {};
+            }
         }
+    },
+    'profile.username': {
+        type: String,
+        optional: true,
+        label: 'Dataset user name'
+    },
+    'profile.pass': {
+        type: String,
+        optional: true,
+        label: 'Dataset password'
     },
     //whether this distribution is online
     online: {
         type: Boolean,
         autoform: {
             type: 'hidden',
-            readonly: true
+            //omit: true,
         },
         optional: true,
-        defaultValue: true
+        autoValue() {
+            if (this.isInsert) {
+                return true;
+            } else if (this.isUpsert) {
+                return {$setOnInsert: true};
+            } else if (!this.isSet) {
+                this.unset();
+            } else {
+                return undefined;
+            }
+        }
     }
 });
 
