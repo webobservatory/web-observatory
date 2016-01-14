@@ -12,6 +12,17 @@ let sync = require('synchronize'),
     enc_alg = 'aes256',
     fs = require('fs');
 
+try {
+    fs.mkdirSync(path);
+}
+catch (e) {
+    if (e.errno === -17) {//folder exists
+        console.log(`Folder ${e.path} already exists`);
+    } else {
+        throw e;
+    }
+}
+
 MongoClient.connect(from, function (err, fromDb) {
     if (err) {
         throw err;
@@ -114,7 +125,7 @@ function datasetTrans(dataset) {
     };
 
     meteorDataset.name = dataset.name;
-    meteorDataset.description = dataset.description;
+    meteorDataset.description = dataset.des;
     meteorDataset.publisher = dataset.publisher;
     meteorDataset.datePublished = dataset.pubdate;
     meteorDataset.dateModified = dataset.modified;
@@ -173,7 +184,7 @@ function appTrans(app) {
     };
 
     meteorApp.name = app.name;
-    meteorApp.description = app.description;
+    meteorApp.description = app.des;
     meteorApp.url = app.url;
     meteorApp.publisher = app.publisher;
     meteorApp.license = app.lice;

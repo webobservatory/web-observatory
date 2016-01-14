@@ -3,6 +3,5 @@
  */
 
 module.exports = {
-    from: 'mongodb://localhost/wo',
-    to:'mongodb://localhost:3001/meteor'
+    from: 'mongodb://localhost/wo'
 };

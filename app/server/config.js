@@ -10,8 +10,7 @@ Meteor.startup(function () {
     process.env.MAIL_URL = 'smtp://' +
             //encodeURIComponent(your_username) + ':' +
             //encodeURIComponent(your_password) + '@' +
-        encodeURIComponent('smtp.ecs.soton.ac.uk');
-    //+ ':' + your_port;
+        encodeURIComponent(Meteor.settings.smtp);
 
     // 2. Format the email
     //...
