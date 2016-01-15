@@ -186,7 +186,7 @@ GroupPageController = PageController.extend({
 HomeController = ListController.extend({
     template: 'home',
     increment: 4,
-    sort: {votes: -1, datePublished: -1, _id: -1},
+    sort: {votes: -1, downvotes: 1, datePublished: -1, _id: -1},
     subscriptions () {
         return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions())];
     },

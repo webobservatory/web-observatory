@@ -24,7 +24,10 @@
                    data-tooltip="{{description}}">{{{blurb description 50}}}</p>
             </div>
             <div class="card-action">
-                <a href="#" class="upvote {{upvotedClass}}" title="Votes">
+                <a href="#" class="{{downVotedClass}}" title="Down votes">
+                    <i class="material-icons">thumb_down</i>{{downvotes}}
+                </a>
+                <a href="#" class="{{upVotedClass}}" title="Up votes">
                     <i class="material-icons">thumb_up</i>{{votes}}
                 </a>
                 <a href="{{pathFor ../routes.page hash='comments'}}" title="Comments">

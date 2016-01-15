@@ -36,6 +36,8 @@ if (Meteor.settings.public.migrate) {
     }
 
     function datasetTrans(dataset) {
+        dataset.license = dataset.license || 'Unspecified';
+        dataset.description = dataset.description || 'Unspecified';
         //publisher email->_id
         dataset.publisher = emailToId(dataset.publisher);
 
@@ -54,14 +56,21 @@ if (Meteor.settings.public.migrate) {
 
         if (dataset.distribution[0].fileFormat !== 'File') {
             dataset = datasetTrans(dataset);
-            console.log(dataset);
-            Datasets.insert(dataset);
+            try {
+                Datasets.upsert({name: dataset.name}, {$set: dataset});
+            }
+            catch (e) {
+                console.error(dataset);
+                console.error(e);
+            }
         } else {
             return false;
         }
     }
 
     function appTrans(app) {
+        app.license = app.license || 'Unspecified';
+        app.description = app.description || 'Unspecified';
         //publisher email->_id
         app.publisher = emailToId(app.publisher);
 
@@ -73,21 +82,32 @@ if (Meteor.settings.public.migrate) {
         app.metaWhiteList = app.metaWhiteList.map(emailToId);
         app.contentWhiteList = app.contentWhiteList.map(emailToId);
 
-        app.isBasedOnUrl = app.isBasedOnUrl.map(name=> {
-            let ds = Datasets.findOne({name});
-            if (!ds) {
-                console.log(app.name);
-                console.log(name);
-            }
-            return ds._id;
-        });
+        if (app.isBasedOnUrl) {
+            app.isBasedOnUrl = app.isBasedOnUrl.map(name=> {
+                let ds = Datasets.findOne({name});
+                if (!ds) {
+                    console.error(app.name);
+                    console.error(name);
+                    return null;
+                } else {
+                    return ds._id;
+                }
+            }).filter(id=>id !== null);
+        }
         return app;
     }
 
     function importApp(app) {
         app = appTrans(app);
-        Apps.insert(app);
+        try {
+            Apps.upsert({name: app.name}, {$set: app});
+        }
+        catch (e) {
+            console.error(app);
+            console.error(e);
+        }
     }
 
     ['users', 'datasets', "apps"].forEach(importData);
+    Meteor.settings.public.migrate = false;
 }

@@ -24,7 +24,7 @@ CreativeWork = {
         label: 'Comments',
         // optional is true because you can have a post without comments
         optional: true,
-        noneditable: true,
+        noneditable: true
     }, {
         collection: Comments,
         titleField: 'body',
@@ -33,17 +33,21 @@ CreativeWork = {
 
     commentsCount: {
         type: Number,
-        defaultValue: 0,
-        autoform: {
-            readonly: true,
+        autoValue(){
+            var comments = this.field("comments");
+            return comments ? comments.length : 0;
         },
-        noneditable: true,
+        optional: true,
+        autoform: {
+            readonly: true
+        },
+        noneditable: true
     },
 
     creator: {
         type: String,
         label: 'Creator',
-        optional: true,
+        optional: true
     },
 
     publisher: orion.attribute('hasOne', {
@@ -64,21 +68,21 @@ CreativeWork = {
     // and prevent updates thereafter.
     datePublished: {
         type: Date,
-        denyUpdate: true,
         autoform: {
             readonly: true,
             type: "pickadate"
         },
         autoValue: function () {
-            if (this.isInsert) {
-                return new Date();
-            } else if (this.isUpsert) {
-                return {$setOnInsert: new Date()};
+            if (this.isSet) {
+                return this.value;
             } else {
-                this.unset(); // Prevent user from supplying their own value
+                if (this.isInsert || this.isUpsert) {
+                    return new Date();
+                } else {
+                    this.unset(); // Prevent user from supplying their own value
+                }
             }
-        },
-        noneditable: true
+        }
     },
 
     // Force value to be current date (on server) upon update
@@ -90,12 +94,13 @@ CreativeWork = {
             type: "pickadate"
         },
         autoValue: function () {
-            if (this.isUpdate || this.isInsert) {
+            if (this.isSet) {
+                return this.value;
+            } else {
                 return new Date();
             }
         },
-        noneditable: true,
-        optional: true
+        noneditable: true
     },
 
     isBasedOnUrl: orion.attribute('hasMany', {
@@ -116,7 +121,8 @@ CreativeWork = {
 
     license: {
         type: String,
-        label: 'License'
+        label: 'License',
+        defaultValue: 'Unspecified'
     }
 };
 
@@ -134,7 +140,31 @@ Mis = {
         autoform: {
             readonly: true
         },
-        optional: true
+        optional: true,
+        autoValue(){
+            let voters = this.field('upvoters');
+            return voters ? voters.length : 0;
+        }
+    },
+
+    downvoters: {
+        type: [String],
+        optional: true,
+        autoform: {
+            readonly: true
+        }
+    },
+
+    downvotes: {
+        type: Number,
+        autoform: {
+            readonly: true
+        },
+        optional: true,
+        autoValue(){
+            let voters = this.field('downvoters');
+            return voters ? voters.length : 0;
+        }
     },
 
     // whether this entry is online
@@ -142,8 +172,10 @@ Mis = {
     online: {
         type: Boolean,
         autoform: {
+            readonly: true,
             type: 'hidden'
         },
+        optional: true,
         defaultValue: true
     },
 

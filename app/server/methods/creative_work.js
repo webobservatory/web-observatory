@@ -53,5 +53,22 @@ Meteor.methods({
 
         if (!affected)
             throw new Meteor.Error('invalid', "You weren't able to upvote that entry");
+    },
+    downvote (entryId, category) {
+        check(this.userId, String);
+        check(entryId, String);
+        check(category, Mongo.Collection);
+        check(category.singularName, Match.OneOf('dataset', 'app'));
+
+        let affected = category.update({
+            _id: entryId,
+            downvoters: {$ne: this.userId}
+        }, {
+            $addToSet: {downvoters: this.userId},
+            $inc: {downvotes: 1}
+        });
+
+        if (!affected)
+            throw new Meteor.Error('invalid', "You weren't able to upvote that entry");
     }
 });

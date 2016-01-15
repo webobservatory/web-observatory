@@ -28,10 +28,18 @@ Template.entryItem.helpers({
     //    a.href = this.url;
     //    return a.hostname;
     //},
-    upvotedClass() {
+    upVotedClass() {
         let userId = Meteor.userId();
-        if (userId && !_.include(this.upvoters, userId)) {
+        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
             return 'upvotable';
+        } else {
+            return 'disabled';
+        }
+    },
+    downVotedClass() {
+        let userId = Meteor.userId();
+        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
+            return 'downvotable';
         } else {
             return 'disabled';
         }
@@ -56,6 +64,18 @@ Template.entryItem.events({
         e.preventDefault();
         let parentData = Template.parentData(1);
         Meteor.call('upvote', this._id, parentData.category);
+
+        let searchSource = parentData.searchSource;
+        if (searchSource) {
+            let searchText = searchSource.getCurrentQuery();
+            searchSource.cleanHistory();
+            parentData.search(searchText);
+        }
+    },
+    'click .downvotable' (e) {
+        e.preventDefault();
+        let parentData = Template.parentData(1);
+        Meteor.call('downvote', this._id, parentData.category);
 
         let searchSource = parentData.searchSource;
         if (searchSource) {

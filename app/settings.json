@@ -1,7 +1,9 @@
 {
   "public": {
     "environment": "dev",
-    "migrate": true
+    "migrate": false
   },
-  "smtp": "smtp.ecs.soton.ac.uk"
+  "smtp": "smtp.ecs.soton.ac.uk",
+  "github": "",
+  "facebook": ""
 }
