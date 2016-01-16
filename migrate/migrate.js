@@ -156,7 +156,15 @@ function datasetTrans(dataset) {
         dist.profile.username = dataset.auth.user;
         let decipher = crypto.createDecipher(enc_alg, dataset.url);
         decipher.update(dataset.auth.encpwd, 'hex', 'utf8');
-        dist.profile.pass = decipher.final('utf8');
+        try {
+            dist.profile.pass = decipher.final('utf8');
+        }
+        catch (e) {
+            console.log(e);
+            console.log(dataset);
+            delete dist.profile.username;
+            delete dist.profile.pass;
+        }
     }
 
     meteorDataset.distribution.push(dist);
