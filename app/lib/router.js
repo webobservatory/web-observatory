@@ -2,7 +2,7 @@ Router.configure({
     layoutTemplate: 'layout',
     loadingTemplate: 'loading',
     notFoundTemplate: 'notFound',
-    waitOn () {
+    subscriptions () { //using waitOn will cause entry_list to reload every time load-more is clicked
         return [
             Meteor.subscribe('notifications'),
             Meteor.subscribe('groups'),
@@ -13,7 +13,7 @@ Router.configure({
 
 ListController = RouteController.extend({
     template: 'entryList',
-    increment: 8,
+    increment: 12,
     //query modifier generation helper
     entriesLimit () {
         return parseInt(this.params.entriesLimit) || this.increment;
@@ -78,8 +78,9 @@ ListController = RouteController.extend({
             routes: self.routes(),
             //generate path to load next page of entries
             nextPath () {
-                if (self.category.find().count() >= self.entriesLimit())
+                if (self.category.find().count() === self.entriesLimit()) {
                     return self.nextPath();
+                }
             }
         };
     }
