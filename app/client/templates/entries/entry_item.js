@@ -64,25 +64,11 @@ Template.entryItem.events({
         e.preventDefault();
         let parentData = Template.parentData(1);
         Meteor.call('upvote', this._id, parentData.category);
-
-        let searchSource = parentData.searchSource;
-        if (searchSource) {
-            let searchText = searchSource.getCurrentQuery();
-            searchSource.cleanHistory();
-            parentData.search(searchText);
-        }
     },
     'click .downvotable' (e) {
         e.preventDefault();
         let parentData = Template.parentData(1);
         Meteor.call('downvote', this._id, parentData.category);
-
-        let searchSource = parentData.searchSource;
-        if (searchSource) {
-            let searchText = searchSource.getCurrentQuery();
-            searchSource.cleanHistory();
-            parentData.search(searchText);
-        }
     }
 });
 

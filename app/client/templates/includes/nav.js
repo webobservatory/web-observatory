@@ -19,8 +19,10 @@ Template.nav.rendered = function () {
 };
 
 Template.nav.events({
-    "keyup #search": _.throttle(function(e) {
+    "keyup #search": _.throttle(function (e) {
         let text = $(e.target).val().trim();
-        this.search(text);
+        //search(text);
+        Session.set('search', text);
     }, 200)
 });
+

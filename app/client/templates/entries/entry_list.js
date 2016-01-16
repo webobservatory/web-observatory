@@ -1,9 +1,19 @@
 /**
  * Created by xgfd on 01/01/2016.
  */
-
+Template.entryList.helpers({
+    //entries() {
+    //    return this.category.find(search(Session.get('search')), {sort: this.findOptions.sort});
+    //}
+});
 
 Template.entryList.rendered = function () {
+
+    //this.autorun(()=> {
+    //    console.log(this.data.findOptions);
+    //    this.subscribe(this.data.category.pluralName, this.data.findOptions, search(Session.get('search')));
+    //});
+
     let options = [
         {
             selector: 'a.load-more',
@@ -14,5 +24,7 @@ Template.entryList.rendered = function () {
             repeat: true
         },
     ];
-    Materialize.scrollFire(options);
+    //Materialize.scrollFire(options);
 };
+
+

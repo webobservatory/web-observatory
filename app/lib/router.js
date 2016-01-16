@@ -18,62 +18,46 @@ ListController = RouteController.extend({
     entriesLimit () {
         return parseInt(this.params.entriesLimit) || this.increment;
     },
-    fields: {
-        //'distribution.url': 0,
-        'distribution.file': 0,
-        'distribution.username': 0,
-        'distribution.pass': 0,
-    },
     //query modifier generator
     findOptions () {
-        return {sort: this.sort, limit: this.entriesLimit(), fields: this.fields};
+        return {sort: this.sort, limit: this.entriesLimit()};
     },
     //query generator
     findSelector () {
-        let query = this.params.query;
-        _.keys(query).forEach(function (key) {
+        let textFilter = search(Session.get('search'));
+        let query = {}, _query = this.params.query;
+
+        _.keys(_query).forEach(function (key) {
             switch (key) {
                 case 'online':
                 case 'aclMeta':
                 case 'aclContent':
-                    query[key] = query[key].toLowerCase() === 'true'
+                    query[key] = _query[key].toLowerCase() === 'true'
                     break;
                 default:
-                    query[key] = query[key];
+                    query[key] = _query[key];
             }
         });
 
-        //this function runs twice due to reactivity (subscriptions)
-        //set findSelector to return the computed query straight away
-        //in the second run
-        this.findSelector = function () {
-            return query;
-        }
+        _.extend(query, textFilter);
+
+        ////this function runs twice due to reactivity (subscriptions)
+        ////set findSelector to return the computed query straight away
+        ////in the second run
+        //this.findSelector = function () {
+        //    return query;
+        //}
         return query;
     },
     //collection of entries (e.g. Apps, Datasets)
     category: null, //overrided in sub controllers
-    //update SearchSource collection
-    search (text = "") {
-        this.searchSource.search(text,
-            {
-                options: this.findOptions(),
-                selector: this.findSelector(),
-            });
-    },
     //displayed entries
     entries () {
-        return this.searchSource.getData({
-            options: this.findOptions(),
-            transform (matchText, regExp) {
-                return matchText.replace(regExp, "<b>$&</b>")
-            }
-        });
+        return this.category.find({}, {sort: this.findOptions.sort});
     },
     // helper to generate route names of a given category;
     // a workaround since cannot dynamically concatenate variables in templates
-    routes (cat) {
-        check(cat, String);
+    routes (cat = this.category.singularName) {
         return ['latest', 'page', 'submit', 'edit'].reduce(function (routes, action) {
             routes[action] = cat + '.' + action;
             return routes;
@@ -83,52 +67,98 @@ ListController = RouteController.extend({
         let self = this;
         return {
             category: self.category,
-            entries: self.entries.bind(self),
-            searchSource: self.searchSource,
-            search: self.search.bind(self),
+            entries: self.entries(),
             //show search bar in top nav on entry list page
             showSearch: true,
             //show Add button if logged in
             showAdd: true,
             ready () {
-                return !self.searchSource.getStatus().loading;
+                return self.ready();
             },
-            routes: self.routes(self.category.singularName),
+            routes: self.routes(),
             //generate path to load next page of entries
             nextPath () {
-                if (self.entries().length === self.entriesLimit())
+                if (self.category.find().count() >= self.entriesLimit())
                     return self.nextPath();
             }
         };
     }
 });
 
+RegExp.prototype.toJSONValue = function () {
+    let flags = '';
+    if (this.global) {
+        flags += 'g';
+    }
+    if (this.ignoreCase) {
+        flags += 'i';
+    }
+    if (this.multiline) {
+        flags += 'm';
+    }
+    return [this.source, flags];
+};
+
+RegExp.prototype.typeName = function () {
+    return "regex";
+};
+
+EJSON.addType("regex", function (str) {
+    return new RegExp(...str);
+});
+
+function search(searchText) {
+    let selector;
+    if (searchText) {
+        let regExp = buildRegExp(searchText);
+        selector = {
+            $or: [
+                {name: regExp},
+                {description: regExp},
+                {'distribution.fileFormat': regExp}
+            ]
+        };
+    } else {
+        selector = {};
+    }
+
+    return selector;
+}
+
+//any position
+function buildRegExp(searchText) {
+    let parts = searchText.trim().split(/[ \-\:]+/);
+    return new RegExp("(" + parts.join('|') + ")", "ig");
+}
+
+//type ahead
+//function buildRegExp(searchText) {
+//    let words = searchText.trim().split(/[ \-\:]+/);
+//    let exps = _.map(words, function (word) {
+//        return "(?=.*" + word + ")";
+//    });
+//    let fullExp = exps.join('') + ".+";
+//    return new RegExp(fullExp, "i");
+//}
 /***************************
  * entry list
  **************************/
 LatestController = ListController.extend({
     subscriptions () {
-        this.searchSource = new SearchSource(this.category.singularName, ['name', 'description'], {
-            keepHistory: 1000 * 60 * 5,
-            localSearch: true
-        });
-        this.search();
+        return Meteor.subscribe(this.category.pluralName, this.findOptions(), this.findSelector());
     },
-    sort: {datePublished: -1, _id: -1},
+    sort: {datePublished: -1, votes: -1, downvotes: 1, _id: -1},
+    nextPath () {
+        return Router.routes[this.category.singularName + '.latest'].path({entriesLimit: this.entriesLimit() + this.increment})
+    }
 });
 
 DatasetLatestController = LatestController.extend({
-    category: Datasets,
-    nextPath () {
-        return Router.routes['dataset.latest'].path({entriesLimit: this.entriesLimit() + this.increment})
-    }
+    category: Datasets
 });
 
 AppLatestController = LatestController.extend({
-    category: Apps,
-    nextPath () {
-        return Router.routes['app.latest'].path({entriesLimit: this.entriesLimit() + this.increment})
-    }
+    category: Apps
 });
 
 GroupLatestController = LatestController.extend({
@@ -155,14 +185,7 @@ PageController = ListController.extend({
 DatasetPageController = PageController.extend({
     category: Datasets,
     subscriptions () {
-        return [Meteor.subscribe('singleDataset', this.params._id, {
-            fields: {
-                //'distribution.url': 0,
-                'distribution.file': 0,
-                'distribution.username': 0,
-                'distribution.pass': 0,
-            }
-        }),
+        return [Meteor.subscribe('singleDataset', this.params._id),
             Meteor.subscribe('comments', this.params._id)];
     },
 });
