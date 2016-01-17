@@ -3,10 +3,10 @@
  */
 "use strict";
 
-let path = '../app/private/';
+let path = '../import/private/';
 
 let sync = require('synchronize'),
-    {from, to} = require('./config'),
+    {from} = require('./config'),
     MongoClient = require('mongodb').MongoClient,
     crypto = require('crypto'),
     enc_alg = 'aes256',

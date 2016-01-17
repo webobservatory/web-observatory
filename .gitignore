@@ -4,6 +4,7 @@
 #meteor
 .meteor/local
 .meteor/meteorite
+private
 
 # Runtime data
 pids
