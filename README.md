@@ -1,62 +1,61 @@
-Web Observatory
-===============
-[![Build Status](https://travis-ci.org/xgfd/web-observatory.png?branch=master)](https://travis-ci.org/xgfd/web-observatory)
-## Installation
+# Web Observatory Deployment Guide
 
-#### Prerequisites
+First you need to install Nginx, MongoDB, Nodejs.
 
-  - MongoDB 2.4 or later ([download] (https://www.mongodb.org/downloads)). 
-  - nodejs 0.10 or later ([nodejs installation guide] (https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)). By following this guide you should get npm as well, which will be needed for installing dependencies of the Web Observatory.
-  - Adding the executables of both MongoDB and nodejs to $PATH environmental variable (i.e. can be directly executed in the terminal).
+## Nginx settings
 
-#### Installing the Web Observatory
+An annotated configuration file `wo` and SSL certificate `wo.pem` and key `wo.key` can be found under `nginx`. Please refer to the configurtion file for more details.
 
-The Web Observatory can be easily installed using git
-  
-    git clone https://github.com/xgfd/web-observatory.git
+On Ubuntu copy `wo` to `/etc/nginx/sites-available` and create a soft link in `/etc/nginx/sites-enabled`. Check whether the configuration is valid using `nginx -t`.
 
-Then go to the web-observatory directory and install dependencies using npm
+    sudo cp nginx/wo /etc/nginx/sites-available
+    sudo ln -s /etc/nginx/sites-available/wo /etc/nginx/sites-enabled/wo
+    sudo nginx -t
 
-    cd web-observatory
+Then copy SSL cert/key files to `/etc/nginx/ssl`
+
+    sudo cp nginx/wo.* /etc/nginx/ssl
+
+## Meteor settings
+
+Meteor settings are available in a Upstart script `wo.conf`. For security the script is run under a normal user `wo`. To make it work you need to add the user `wo` first.
+
+    sudo adduser --disabled-login wo
+    sudo cp wo.conf /etc/init
+
+In the settings given by `METEOR_SETTINGS`, if `public.environment` is dev, then some fake data will be loaded to the MongoDB database.
+
+## Start WO
+
+Extract `build/wo.tar.gz` to `/home/wo` and then start WO following `/home/wo/bundle/README`. Note that the same settings of wo.conf should be used.
+
+    cp wo.tar.gz /home/wo
+    cd /home/wo
+    tar -zxf wo.tar.gz
+    (cd programs/server && npm install)
+    export MONGO_URL='mongodb://localhost/wo'
+    export PORT=4000
+    export MAIL_URL='smtp://localhost'
+    node main.js
+
+## Upgrade from Previous WO
+
+### Export data from a previous WO
+
+Edit `migrate/config.js` and set `from` to the MongoDB address. Then do
+
+    cd migrate
     npm install
+    node --harmony_destructuring migrate.js
 
-It should be noted that a C/C++ complier is required. You should be fine on Linux/Unix/Mac. For Windows, please install any version (including the express version) of Visual Studio 2012/2013.
+Exported data can be found at `app/private`.
 
-After the installation you need to edit the configuration file at **web-observatory/config/config.js**. Each field in **config.js** is explained by comments.
+### Import
 
-#### Starting the Web Observatory
+At `migrate/import`, set `MONGO_URL` to the MongoDB address, and run the meteor app.
 
-Assuming you're in the web-observatory directory, the Web Observatory can be started by typing
+    export MONGO_URL=mongodb://localhost:27017/wo
+    meteor reset
+    meteor
 
-    node app.js
-    
-or
-
-    npm start
-
-The WO web site will be available at http://localhost:3000.
-
-To change the default port, start WO with PORT variable set to a different port.
-
-For Windows:
-
-    set PORT=8000
-    node app.js
-    
-For Windows PowerShell:
-
-    env:PORT=8000
-    node app.js
-    
-For Linux/Unix shell:
-
-    PORT=xxxx node app.js
-    
-or more permanently:
-
-    export PORT=8000
-    node app.js
-
-Now WO should be available at http://localhost:8000. Note that you can only bind a port>1024 unless node is run as root.
-
-
+After this you can start your WO normally.

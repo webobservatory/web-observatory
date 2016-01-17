@@ -1,0 +1,20 @@
+<template name="home">
+    <div class="row">
+    </div>
+    <div class="row">
+        <div class="col s12">
+            <ul class="tabs">
+                <li class="tab col s6"><a href="#datasets">Datasets</a></li>
+                <li class="tab col s6"><a href="#apps">Apps</a></li>
+            </ul>
+        </div>
+        <div id="datasets" class="col s12">
+            {{> entryList dataset}}
+            <a href="{{pathFor dataset.routes.latest}}">More</a>
+        </div>
+        <div id="apps" class="col s12">
+            {{> entryList app}}
+            <a href="{{pathFor app.routes.latest}}">More</a>
+        </div>
+    </div>
+</template>

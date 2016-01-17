@@ -1,0 +1,12 @@
+<template name="commentItem">
+  <li>
+    <h4>
+      <span class="author">{{publisher.username}}</span>
+      <span class="date">on {{submittedText}}</span>
+    </h4>
+    <p>{{{body}}}</p>
+    {{#if image }}
+    	<img src="{{image.url}}">
+    {{/if}}
+  </li>
+</template>
