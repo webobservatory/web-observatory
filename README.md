@@ -39,7 +39,7 @@ Currently Meteor (1.2.1) works with Node v0.10.x. Make sure you have the right v
     export MONGO_URL='mongodb://localhost/wo'
     export PORT=4000
     export MAIL_URL='smtp://localhost'
-    node main.js
+    sudo start wo
 
 ## Upgrade from Previous WO
 
