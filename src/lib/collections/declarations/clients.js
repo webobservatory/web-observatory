@@ -1,16 +1,15 @@
 /**
- * Created by xgfd on 19/12/2015.
+ * Created by xgfd on 20/01/2016.
  */
-Apps = new orion.collection('apps', {
-    singularName: 'app', // The name of one of these items
-    pluralName: 'apps', // The name of more than one of these items
+Clients = new orion.collection('clients', {
+    singularName: 'client', // The name of one of these items
+    pluralName: 'clients', // The name of more than one of these items
     link: {
         // *
         //  * The text that you want to show in the sidebar.
         //  * The default value is the name of the collection, so
         //  * in this case it is not necessary.
-
-        title: 'Apps'
+        title: 'Clients'
     },
     /**
      * Tabular settings for this collection
@@ -24,6 +23,14 @@ Apps = new orion.collection('apps', {
                 title: "Name"
             },
             {
+                data: "_id",
+                title: "Client Id"
+            },
+            {
+                data: "clientSecret",
+                title: "Client secret"
+            },
+            {
                 data: "publisher",
                 render: function (val, type, doc) {
                     let publisherId = val;
@@ -32,24 +39,7 @@ Apps = new orion.collection('apps', {
                 },
                 title: "Publisher"
             },
-            {
-                data: "github",
-                title: "Github"
-            },
-            orion.attributeColumn('createdAt', 'datePublished', 'Published'),
+            orion.attributeColumn('createdAt', 'datePublished', 'Created'),
         ]
     }
 });
-
-// Meteor.call requires parameters to be of EJSON, passing a collection as it is
-// causes a Maximum call stack size exceeded error
-toEJSONSingularType(Apps, Apps.singularName);
-
-//Apps.allow({
-//    update: function (userId, entry, fieldNames) {
-//        return ownsDocument(userId, entry) && _.difference(fieldNames, appWhitelist).length === 0;
-//    },
-//    remove: function (userId, entry) {
-//        return ownsDocument(userId, entry);
-//    },
-//});
