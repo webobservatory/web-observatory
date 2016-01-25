@@ -3,5 +3,5 @@
  */
 
 module.exports = {
-    from: 'mongodb://localhost/wo'
+    from: 'mongodb://web-001.ecs.soton.ac.uk/wo'
 };
