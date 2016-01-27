@@ -2,6 +2,7 @@
 var mongoose = require('mongoose'),
     LocalStrategy = require('passport-local').Strategy,
     LDAPStrategy = require('passport-ldapauth').Strategy,
+    JwtStrategy = require('passport-jwt').Strategy,
     RememberMeStrategy = require('passport-remember-me').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
     BasicStrategy = require('passport-http').BasicStrategy,
@@ -54,6 +55,60 @@ module.exports = function (passport, config) {
         User.findOrCreateSotonUser(user, done);
     }));
 
+
+    //jwt auth
+    var opts = {}
+    opts.secretOrKey = 'voiceproject';
+    //opts.issuer = "accounts.examplesoft.com";
+    //opts.audience = "yoursite.net";
+    opts.tokenQueryParameterName = 'jwt';
+
+    //var jwtExpire = 3000000; //3s
+    //function isExpired(end, start, limit) {
+    //    return (end - start) > limit;
+    //}
+
+    function isEmail(email) {
+        return /^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test(email);
+    }
+
+    function decrypt(text) {
+        var decipher = crypto.createDecipher('aes-256-ctr', 'voiceproject');
+        var dec = decipher.update(text, 'hex', 'utf8');
+        dec += decipher.final('utf8');
+        return dec;
+    }
+
+    function deciEmail(email) {
+        if (!isEmail(email)) {
+            try {
+                email = decrypt(email);
+            } catch (e) {
+                console.log(e);
+                email = null;
+            }
+        }
+        return email;
+    }
+
+    passport.use(new JwtStrategy(opts, function (jwt_payload, done) {
+        var name = jwt_payload.name,
+            mail = jwt_payload.mail,
+            time = jwt_payload.time;
+
+        //if (isExpired(new Date().getTime(), time, jwtExpire)) {
+        //    return done(new Error('JWT expired'));
+        //} else {
+        var user = {};
+
+        user.firstName = jwt_payload.firstName;
+        user.lastName = jwt_payload.lastName;
+        user.username = jwt_payload.username || jwt_payload.name;
+        user.email = deciEmail(jwt_payload.email);
+        User.findOrCreateUser(user, done);
+        //}
+    }));
+
     function consumeRememberMeToken(token, done) {
         User.findOne({
             rememberme: token
@@ -84,7 +139,7 @@ module.exports = function (passport, config) {
             });
         });
     }
-    
+
     passport.use(new RememberMeStrategy(consumeRememberMeToken, issueRememberMeToken));
 
     /*

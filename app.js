@@ -12,7 +12,7 @@ var express = require('express'),
     mongoose = require('mongoose'),
     passport = require("passport"),
     flash = require("connect-flash"),
-    //express 4.0 middlewares
+//express 4.0 middlewares
     morganLogger = require('morgan'),
     winstonLogger = require('./app/util/logger'),
     bodyParser = require('body-parser'),
@@ -39,7 +39,7 @@ if (!fs.existsSync(__dirname + '/files')) {
 }
 
 
-fs.readdirSync(models_dir).forEach(function(file) {
+fs.readdirSync(models_dir).forEach(function (file) {
     if (file[0] === '.') {
         return;
     }
@@ -71,6 +71,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.authenticate('remember-me'));
+app.use(/^\/(?!(js|fonts|css|images|img))/, passport.authenticate('jwt', {session: true}));
 
 //logging
 function skip(req, res) {
@@ -81,7 +82,7 @@ function skip(req, res) {
     }
 }
 
-morganLogger.token('email', function(req) {
+morganLogger.token('email', function (req) {
     var user = req.user || {};
     return user.email;
 });
@@ -119,13 +120,13 @@ app.set('socketioSSL', ioSSL);
 require('./config/routes')(app, passport);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
 
-app.use(function(err, req, res, __) {
+app.use(function (err, req, res, __) {
     winstonLogger.error(err.message);
     if (req.xhr) {
         res.status(500).send(err);
@@ -137,11 +138,11 @@ app.use(function(err, req, res, __) {
     }
 });
 
-secureServer.listen(config.listenOn.https, function() {
+secureServer.listen(config.listenOn.https, function () {
     console.log('Express ssl server listening on port ' + app.get('httpsPort'));
 });
 
-server.listen(config.listenOn.http, function() {
+server.listen(config.listenOn.http, function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
 

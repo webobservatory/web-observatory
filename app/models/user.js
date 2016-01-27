@@ -93,8 +93,8 @@ var UserSchema = mongoose.Schema({
 });
 
 //user control
-UserSchema.statics.signup = function(firstname, lastname, organisation, email, password, done) {
-    hash(password, function(err, salt, hash) {
+UserSchema.statics.signup = function (firstname, lastname, organisation, email, password, done) {
+    hash(password, function (err, salt, hash) {
         //if (err) throw err;
         if (err) {
             return done(err);
@@ -106,7 +106,7 @@ UserSchema.statics.signup = function(firstname, lastname, organisation, email, p
             email: email,
             salt: salt,
             hash: hash
-        }, function(err, user) {
+        }, function (err, user) {
             if (err) {
                 return done(err);
             }
@@ -115,9 +115,9 @@ UserSchema.statics.signup = function(firstname, lastname, organisation, email, p
     });
 };
 
-UserSchema.statics.updateProfile = function(user, nps, fn, ln, org, done) {
+UserSchema.statics.updateProfile = function (user, nps, fn, ln, org, done) {
     if (nps) {
-        hash(nps, function(err, salt, hash) {
+        hash(nps, function (err, salt, hash) {
             if (fn) {
                 user.firstName = fn;
             }
@@ -145,10 +145,10 @@ UserSchema.statics.updateProfile = function(user, nps, fn, ln, org, done) {
     }
 };
 
-UserSchema.statics.isValidUserPassword = function(email, password, done) {
+UserSchema.statics.isValidUserPassword = function (email, password, done) {
     User.findOne({
         email: email
-    }, function(err, user) {
+    }, function (err, user) {
         if (err) {
             return done(err);
         }
@@ -165,7 +165,7 @@ UserSchema.statics.isValidUserPassword = function(email, password, done) {
             });
         }
 
-        hash(password, user.salt, function(err, hashBuf) {
+        hash(password, user.salt, function (err, hashBuf) {
             if (err) {
                 return done(err);
             }
@@ -181,10 +181,10 @@ UserSchema.statics.isValidUserPassword = function(email, password, done) {
     });
 };
 
-UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
+UserSchema.statics.findOrCreateFaceBookUser = function (profile, done) {
     User.findOne({
         'facebook.id': profile.id
-    }, function(err, user) {
+    }, function (err, user) {
         if (err) {
             return done(err);
         }
@@ -198,7 +198,7 @@ UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
                     email: profile.emails[0].value,
                     name: profile.displayName
                 }
-            }, function(err, user) {
+            }, function (err, user) {
                 if (err) {
                     return done(err);
                 }
@@ -208,10 +208,30 @@ UserSchema.statics.findOrCreateFaceBookUser = function(profile, done) {
     });
 };
 
-UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
+UserSchema.statics.findOrCreateUser = function (profile, done) {
+    User.findOne({
+        email: profile.email
+    }, function (err, user) {
+        if (err) {
+            return done(err);
+        }
+        if (user) {
+            done(null, user);
+        } else {
+            User.create(profile, function (err, user) {
+                if (err) {
+                    return done(err);
+                }
+                done(null, user);
+            });
+        }
+    });
+};
+
+UserSchema.statics.findOrCreateSotonUser = function (profile, done) {
     User.findOne({
         'soton.id': profile.cn
-    }, function(err, user) {
+    }, function (err, user) {
         if (err) {
             return done(err);
         }
@@ -228,7 +248,7 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
                     email: profile.mail,
                     name: profile.displayName
                 }
-            }, function(err, user) {
+            }, function (err, user) {
                 if (err) {
                     return done(err);
                 }
@@ -241,7 +261,7 @@ UserSchema.statics.findOrCreateSotonUser = function(profile, done) {
 //dataset access control
 
 
-UserSchema.statics.addOwn = function(publisher, etry_id, done) {
+UserSchema.statics.addOwn = function (publisher, etry_id, done) {
     var query, update;
     query = {
         email: publisher,
@@ -256,20 +276,20 @@ UserSchema.statics.addOwn = function(publisher, etry_id, done) {
         }
     };
 
-    this.update(query, update, function(err, count) {
+    this.update(query, update, function (err, count) {
         logger.info('Entry add; user: ' + publisher + '; dataset: ' + etry_id + ';');
         done(err, count);
     });
 };
 
-UserSchema.statics.addEtry = function(eml, entry_id, cb) {
+UserSchema.statics.addEtry = function (eml, entry_id, cb) {
     this.findOne({
         email: eml
-    }, function(err, user) {
+    }, function (err, user) {
         if (err || !user) {
             err = err || {
-                message: 'User ' + eml + ' does not exist.'
-            };
+                    message: 'User ' + eml + ' does not exist.'
+                };
             logger.error(err);
             return cb(err);
         }
@@ -278,7 +298,7 @@ UserSchema.statics.addEtry = function(eml, entry_id, cb) {
     });
 };
 
-UserSchema.statics.hasAccessTo = function(email, ds_id, done) {
+UserSchema.statics.hasAccessTo = function (email, ds_id, done) {
     var query;
 
     query = {
@@ -286,7 +306,7 @@ UserSchema.statics.hasAccessTo = function(email, ds_id, done) {
         readable: ds_id
     };
 
-    this.findOne(query, function(err, user) {
+    this.findOne(query, function (err, user) {
 
         if (err) {
             return done(err);
