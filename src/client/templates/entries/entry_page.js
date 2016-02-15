@@ -83,20 +83,19 @@ function entriToLink() {
 }
 
 Template.entryPage.rendered = function () {
-    $('ul.tabs').tabs();
+    //$('ul.tabs').tabs();
     // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
 
     urlToLink();
+    //liceToLink();
 
-    liceToLink();
+    //$('.modal-trigger').leanModal();
 
-    $('.modal-trigger').leanModal();
-
-    $('#amqpModalTrigger').leanModal({
-        complete: function () {
-            Session.set('queryResult', null);
-        }
-    });
+    //$('#amqpModalTrigger').leanModal({
+    //    complete: function () {
+    //        Session.set('queryResult', null);
+    //    }
+    //});
 };
 
 Template.entryPage.events({

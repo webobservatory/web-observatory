@@ -1,6 +1,9 @@
 let schemaOrg = 'http://schema.org/';
 
 Template.entryItem.helpers({
+    prettifyDate(timestamp) {
+        return moment(new Date(timestamp)).fromNow();
+    },
     //schema.org helpers
     itemtype() {
         let parentData = Template.parentData(1),

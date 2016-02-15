@@ -82,7 +82,7 @@ CreativeWork = {
         denyUpdate: true,
         autoform: {
             readonly: true,
-            type: "pickadate"
+            type: "bootstrap-datepicker"
         },
         autoValue: function () {
             if (this.isInsert || this.isUpsert) {
@@ -99,7 +99,7 @@ CreativeWork = {
         type: Date,
         autoform: {
             readonly: true,
-            type: "pickadate"
+            type: "bootstrap-datepicker"
         },
         autoValue () {
             return new Date();
@@ -133,14 +133,14 @@ CreativeWork = {
                 let options = [];
                 defaultLicenses.forEach(name=> {
                     options.push({label: name.toUpperCase(), value: name});
-                });
+            });
 
                 addedLices.forEach(lice=> {
                     if (lice.name) {
-                        let name = lice.name;
-                        options.push({label: name.toUpperCase(), value: name});
-                    }
-                });
+                    let name = lice.name;
+                    options.push({label: name.toUpperCase(), value: name});
+                }
+            });
 
                 return options;
             }

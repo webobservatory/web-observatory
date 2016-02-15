@@ -29,6 +29,7 @@ ListController = RouteController.extend({
         let query = {}, _query = this.params.query;
 
         _.keys(_query).forEach(function (key) {
+            console.log(key);
             switch (key) {
                 case 'online':
                 case 'aclMeta':
@@ -180,6 +181,7 @@ PageController = ListController.extend({
             category: this.category,
             entry: this.category.findOne(this.params._id),
             routes: this.routes(this.category.singularName),
+            //_isTemplated:true,
         };
     }
 });
@@ -210,32 +212,65 @@ GroupPageController = PageController.extend({
 
 HomeController = ListController.extend({
     template: 'home',
-    increment: 4,
+    increment: 8,
     sort: {votes: -1, downvotes: 1, datePublished: -1, _id: -1},
     subscriptions () {
+        //return [Meteor.subscribe('datasets', this.findOptions(), this.findSearchSelector()), Meteor.subscribe('apps', this.findOptions(), this.findSearchSelector())];
         return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions())];
     },
-    datasets () {
-        return Datasets.find({}, this.findOptions());
+    datasets (options) {
+        if(!options)
+            options = this.findOptions();
+        return Datasets.find({}, options);
     },
-    apps () {
-        return Apps.find({}, this.findOptions());
+    apps (options) {
+        if(!options)
+            options = this.findOptions();
+        return Apps.find({}, options);
+    },
+    nextPath () {
+        //console.log("runnext");
+        return Router.routes['datasets.latest'].path({entriesLimit: this.entriesLimit() + this.increment});
     },
     data () {
         let self = this;
         return {
+            recentDataset: {
+                category: Datasets,
+                routes: self.routes('dataset'),
+                entries: self.datasets({sort: {datePublished: -1}, limit: 8}),
+                ready: self.ready.bind(self),
+            },
+            recentApp: {
+                category: Apps,
+                routes: self.routes('app'),
+                entries: self.apps({sort: {datePublished: -1}, limit: 8}),
+                ready: self.ready.bind(self),
+            },
             dataset: {
                 category: Datasets,
                 routes: self.routes('dataset'),
-                entries: self.datasets(),
-                ready: self.ready.bind(self)
+                entries: self.datasets({sort: {votes: -1},  limit: 8}),
+                ready: self.ready.bind(self),
+                nextPath () {
+                    if (Datasets.find().count() === self.entriesLimit()) {
+                        
+                    }
+                }
             },
             app: {
                 category: Apps,
                 routes: self.routes('app'),
-                entries: self.apps(),
-                ready: self.ready.bind(self)
+                entries: self.apps({sort: {votes: -1},  limit: 8}),
+                ready: self.ready.bind(self),
+                nextPath () {
+                    if (Apps.find().count() === self.entriesLimit()) {
+
+                    }
+                }
             },
+            _isHome:true,
+            _isTemplated:true,
         };
     }
 });

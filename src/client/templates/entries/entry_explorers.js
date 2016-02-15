@@ -149,14 +149,15 @@ Template.MongoDB.onRendered(function () {
     //only run at the first time it's rendered, by when collection names are not ready yet
     //use autorun and Tracker.Dependency to sync with getCollectionNames
     //ugly solution
-    this.autorun(function () {
-        mongoDep.depend();
-        $('#collection').material_select();
-    });
+    //this.autorun(function () {
+    //    mongoDep.depend();
+    //    $('#collection').material_select();
+    //});
 });
 
 Template.MongoDB.events({
     'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
+
         let distId = template.data._id,
             $target = $(`#${distId}`),
             collection = $target.find('[name=collection]')[0].value;
@@ -239,10 +240,10 @@ Template.AMQP.onRendered(function () {
     //only run at the first time it's rendered, by when collection names are not ready yet
     //use autorun and Tracker.Dependency to sync with getCollectionNames
     //ugly solution
-    this.autorun(function () {
-        amqpDep.depend();
-        $('#exchange').material_select();
-    });
+    //this.autorun(function () {
+    //    amqpDep.depend();
+    //    $('#exchange').material_select();
+    //});
 });
 
 Template.AMQP.events({

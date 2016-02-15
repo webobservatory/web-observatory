@@ -1,0 +1,54 @@
+$primary: #42DCA3;
+
+/* White Skin */
+$bg-skin: #fff;
+
+/* Blue-grey */
+$bg-light: #eaeaea;
+$bg-medium: #808080;
+$bg-medium-dark: #464545;
+$bg-dark: #202020;
+$bg-darker: #181818;
+$bg-darkest: #131313;
+$bg-dark-max: rgba(0,0,0,0.9);
+$bg-accent: #E84855;
+$fontcolor-regular: #fff;
+$fontcolor-medium: #999;
+$fontcolor-invert: #fff;
+$fontcolor-medium-light: #eaeaea;
+$hovercolor: #42DCA3;
+$accentcolor: #007EA7;
+
+
+// Color Classes
+.fontcolor-regular, .fontcolor-regular a {color: $fontcolor-regular;}
+.fontcolor-invert, .fontcolor-invert a {color: $fontcolor-invert;}
+.fontcolor-medium-light, .fontcolor-medium-light a {color: $fontcolor-medium-light; opacity: .5;}
+.hovercolor, .hovercolor a {color: $hovercolor !important;}
+
+.accent-color, .accent-color a {color: $accentcolor !important;}
+.accent-color a:hover {color: $hovercolor !important;}
+
+/*------------------------------------------------------------------
+[Typography]
+*/
+
+/* Headings Fonts variables */
+$font-accident-one-bold:          'Montserrat', sans-serif;
+$font-accident-one-normal:        'Montserrat', sans-serif;
+$font-accident-two:               'Dosis', sans-serif;
+$font-regular:                    'Oxygen',     sans-serif;
+
+/* Heading font one */
+.font-accident-one-bold           {  font-family: $font-accident-one-bold;  font-weight: 700;  font-style: normal;  }
+.font-accident-one-normal         {  font-family: $font-accident-one-normal;  font-weight: 400;  font-style: normal;  }
+
+/* Heading font two */
+.font-accident-two-normal         {  font-family: $font-accident-two;  font-weight: 200;  }
+.font-accident-two-bold           {  font-family: $font-accident-two;  font-weight: 500;  }
+.font-accident-two-extrabold      {  font-family: $font-accident-two;  font-weight: 700;  }
+
+/* Regular font */
+.font-regular-light               {  font-family: $font-regular;  font-weight: 400;  font-style: normal;  }
+.font-regular-normal              {  font-family: $font-regular;  font-weight: 400;  font-style: normal;  }
+.font-regular-bold                {  font-family: $font-regular;  font-weight: 700;  font-style: normal;  }

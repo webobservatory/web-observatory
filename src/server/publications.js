@@ -4,7 +4,9 @@ publish({
     apps: Apps,
     groups: Groups,
     licenses: Licenses,
-    userNames: Meteor.users
+    userNames: Meteor.users,
+    //searchDatasets: Datasets,
+    //searchApps: Apps,
 }, Meteor.publish, function (collection) {
     return function (options = {}, selector = {}) {
         //check(options, {
@@ -44,6 +46,7 @@ publish({
                 extendOr(selector, viewsDocumentQuery(userId));
                 break;
         }
+        Counts.publish(this, collection.singularName, collection.find(), {nonReactive: true});
 
         return collection.find(selector, options);
     };
@@ -73,6 +76,17 @@ Meteor.publish('comments', function (entryId) {
     return Comments.find({entryId: entryId});
 });
 
+//publish({
+//        countDatasets: Datasets,
+//        countApps: Apps,
+//        countGroups: Groups,
+//}, Meteor.publish, function (collection) {
+//    return function () {
+//        Counts.publish(this, collection.singularName, collection.find());
+//        //return collection.find();
+//    }
+//});
+
 Meteor.publish('notifications', function () {
     return Notifications.find({userId: this.userId, read: false});
 });
@@ -80,3 +94,10 @@ Meteor.publish('notifications', function () {
 Meteor.publish('images', function () {
     return Images.find();
 });
+
+//Meteor.publish("datasetsAndApps", function () {
+//    return [
+//        Datasets.find(),
+//        Apps.find()
+//    ];
+//});
