@@ -1,4 +1,5 @@
 function ldapOrUserPass(error, state) {
+    console.log({error,state});
     if (error && state === 'signIn' //user/pass login failed
         && orion.dictionary.get('ldap.ldap')
         && orion.dictionary.get('ldap.ldap').length !== 0) {
@@ -21,7 +22,7 @@ AccountsTemplates.configure({
     overrideLoginErrors: false,
     enablePasswordChange: true,
 
-    sendVerificationEmail: true,
+    sendVerificationEmail: false,
     // enforceEmailVerification: true,
     confirmPassword: true,
     //continuousValidation: false,

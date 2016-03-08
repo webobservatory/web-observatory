@@ -28,27 +28,8 @@ Meteor.startup(function () {
     //   your_server would be something like 'smtp.gmail.com'
     //   and your_port would be a number like 25
 
-    process.env.MAIL_URL = 'smtp://' +
-            //encodeURIComponent(your_username) + ':' +
-            //encodeURIComponent(your_password) + '@' +
-        encodeURIComponent(settings.smtp);
-
-    // 2. Format the email
-    //...
-
-    // 3.  Send email when account is created
-    //...
-    // Add Facebook configuration entry
-
-    // 1. Set up stmp
-    //   your_server would be something like 'smtp.gmail.com'
-    //   and your_port would be a number like 25
-
     if (settings.smtp) {
-        process.env.MAIL_URL = 'smtp://' +
-                //encodeURIComponent(your_username) + ':' +
-                //encodeURIComponent(your_password) + '@' +
-            encodeURIComponent(settings.smtp);
+        process.env.MAIL_URL = encodeURIComponent(settings.smtp);
     }
 
     // Add Facebook configuration entry
