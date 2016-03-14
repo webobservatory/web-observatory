@@ -30,7 +30,20 @@ Template.entryPage.helpers({
                 return false;
             }
         }
+    },
+    showInNewTab(entry) {
+    //permitted to access
+    if (accessesDocument(Meteor.userId(), entry)) {
+        // app, group
+        if (entry.url) {
+            return entry.url;
+        }
+        //dataset with only one html distribution
+        if (entry.distribution && entry.distribution.length === 1 && entry.distribution[0].fileFormat === 'HTML') {
+            return entry.distribution[0].url;
+        }
     }
+}
 });
 
 function urlToLink() {
