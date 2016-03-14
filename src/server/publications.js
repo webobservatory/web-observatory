@@ -39,14 +39,16 @@ publish({
                     'distribution.profile.username': 0,
                     'distribution.profile.pass': 0
                 };
+                Counts.publish(this, collection.singularName, collection.find(), {nonReactive: true});
                 break;
 
             case Apps:
                 userId = this.userId;
                 extendOr(selector, viewsDocumentQuery(userId));
+                Counts.publish(this, collection.singularName, collection.find(), {nonReactive: true});
                 break;
         }
-        Counts.publish(this, collection.singularName, collection.find(), {nonReactive: true});
+
 
         return collection.find(selector, options);
     };
