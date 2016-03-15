@@ -254,9 +254,6 @@ h5.title {
 .container-fluid {
   padding: 0 40px; }
 
-.grid-item {
-  padding: 10px; }
-
 .content-wrap {
   display: block;
   width: 100%;
@@ -450,10 +447,11 @@ h5.title {
   padding-top: 120px; }
 
 .grid-item {
-  /*float: left;*/
+  vertical-align: top;
   width: 250px;
-  /*height: 300px;*/
-  display: inline-block; }
+  height: 350px;
+  display: inline-block;
+  padding: 10px; }
 
 .download-section {
   width: 100%;
@@ -1537,9 +1535,6 @@ h5.title {
 .container-fluid {
   padding: 0 40px; }
 
-.grid-item {
-  padding: 10px; }
-
 .content-wrap {
   display: block;
   width: 100%;
@@ -1733,10 +1728,11 @@ h5.title {
   padding-top: 120px; }
 
 .grid-item {
-  /*float: left;*/
+  vertical-align: top;
   width: 250px;
-  /*height: 300px;*/
-  display: inline-block; }
+  height: 350px;
+  display: inline-block;
+  padding: 10px; }
 
 .download-section {
   width: 100%;

@@ -27,7 +27,7 @@
 
                 <div class="post-data">
                     <div class="post-date hovercolor">{{prettifyDate datePublished}}</div>
-                    <div class="post-author">by {{publisherObj.username}}</div>
+                    <div class="post-author">by {{blurb publisherObj.username 15}}</div>
                 </div>
             </div>
             <p class="small fontcolor-medium-light">
@@ -39,52 +39,6 @@
                 {{/each}}
             </div>
         </div>
-        <!--<div class="card blue-grey accent-1 hoverable">-->
-            <!--<div class="card-content white-text">-->
-                <!--<a class="card-title white-text truncate" title="{{name}}"-->
-                   <!--href="{{pathFor ../routes.page}}">{{name}}</a>-->
-
-                <!--&lt;!&ndash;<p> submitted by {{publisherObj.profile.name}} </p>&ndash;&gt;-->
-                <!--<p class="small tooltipped" data-position="bottom"-->
-                   <!--data-tooltip="{{description}}">{{#if canAccess this}}-->
-                    <!--<span class="teal-text text-accent-2"><i class="fa fa-check"></i></span>-->
-                <!--{{else}}-->
-                    <!--<span><i class="fa fa-ban"></i></span>-->
-                <!--{{/if}}-->
-                    <!--{{#if offline}}-->
-                        <!--<span><i class="material-icons" title="Distribution offline">error</i></span>-->
-                    <!--{{/if}}-->
-                    <!--{{blurb description 80}}-->
-                <!--<div>-->
-                    <!--{{#each this.distribution}}-->
-                        <!--<span class="badge">{{> distribution}}</span>-->
-                    <!--{{/each}}-->
-                <!--</div>-->
-                <!--</p>-->
-
-            <!--</div>-->
-            <!--<div class="card-action">-->
-                <!--<a href="#" class="{{upVotedClass}} btn btn-default btn-xs" title="Up votes">-->
-                    <!--<i class="fa fa-thumbs-up"></i> {{votes}}-->
-                <!--</a>-->
-                <!--<a href="#" class="{{downVotedClass}} btn btn-default btn-xs" title="Down votes">-->
-                    <!--<i class="fa fa-thumbs-down"></i> {{downvotes}}-->
-                <!--</a>-->
-                <!--<a href="{{pathFor ../routes.page hash='comments'}}" class="btn btn-default btn-xs" title="Comments">-->
-                    <!--<i class="fa fa-comment"></i> {{commentsCount}}-->
-                <!--</a>-->
-                <!--{{#if ownEntry}}-->
-                    <!--<a href="{{pathFor ../routes.edit}}" class="btn btn-default btn-xs" title="Edit">-->
-                        <!--<i class="fa fa-cog"></i>-->
-                    <!--</a>-->
-                <!--{{/if}}-->
-                <!--{{#if showInNewTab}}-->
-                    <!--<a href="{{showInNewTab}}" title="Show in new tab" class="btn btn-default btn-xs" target="_blank">-->
-                        <!--<i class="fa fa-external-link"></i>-->
-                    <!--</a>-->
-                <!--{{/if}}-->
-            <!--</div>-->
-        <!--</div>-->
     </div>
 </template>
 <template name="distribution">

@@ -162,44 +162,6 @@ h5.title {
     padding: 0 40px;
 }
 
-//.page-intro {
-//    display: table;
-//    width: 100%;
-//    height: auto;
-//    padding: 100px 0;
-//    text-align: center;
-//    color: white;
-//    background: url(tele2.jpg) no-repeat bottom center scroll;
-//    background-color: black;
-//    -webkit-background-size: cover;
-//    -moz-background-size: cover;
-//    background-size: cover;
-//    -o-background-size: cover;
-//    .intro-body {
-//        display: table-cell;
-//        vertical-align: middle;
-//        .grid-item {
-//            width:100%;
-//            .card-title {
-//                font-size: 3em;
-//                font-weight: 300;
-//            }
-//            .white-text {
-//                color: #fff;
-//            }
-//            p {
-//                color: $fontcolor-medium-light;
-//                font-size: 1.2em;
-//            }
-//        }
-//
-//    }
-//}
-
-.grid-item {
-    padding: 10px;
-}
-
 .content-wrap {
     display: block;
     width: 100%;
@@ -455,10 +417,11 @@ h5.title {
 }
 
 .grid-item {
-    /*float: left;*/
+    vertical-align: top;
     width: 250px;
-    /*height: 300px;*/
+    height: 350px;
     display: inline-block;
+    padding: 10px;
 }
 
 .download-section {
