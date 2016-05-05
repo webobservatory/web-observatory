@@ -196,50 +196,55 @@ module.exports = function (passport, config) {
 
     passport.use(new BearerStrategy(
         function (accessToken, done) {
-            AccessToken.findOne({
-                token: accessToken
-            }, function (err, token) {
-                if (err) {
-                    return done(err);
-                }
-                if (!token) {
-                    return done(null, false);
-                }
-
-                if (Math.round((Date.now() - token.created) / 1000) > config.oauth.tokenLife) {
-
-                    AccessToken.remove({
-                        token: accessToken
-                    }, function (err) {
-                        if (err) {
-                            return done(err);
-                        }
-                    });
-
-                    return done(null, false, {
-                        message: 'Token expired'
-                    });
-                }
-
-                User.findById(token.userId, function (err, user) {
-
+            if (accessToken === 'anonymous') {
+                done(null, {}, {});
+            } else {
+                AccessToken.findOne({
+                    token: accessToken
+                }, function (err, token) {
                     if (err) {
                         return done(err);
                     }
 
-                    if (!user) {
+                    if (!token) {
+                        return done(null, false);
+                    }
+
+                    if (Math.round((Date.now() - token.created) / 1000) > config.oauth.tokenLife) {
+
+                        AccessToken.remove({
+                            token: accessToken
+                        }, function (err) {
+                            if (err) {
+                                return done(err);
+                            }
+                        });
+
                         return done(null, false, {
-                            message: 'Unknown user'
+                            message: 'Token expired'
                         });
                     }
 
-                    var info = {
-                        scope: '*'
-                    };
+                    User.findById(token.userId, function (err, user) {
 
-                    done(null, user, info);
+                        if (err) {
+                            return done(err);
+                        }
+
+                        if (!user) {
+                            return done(null, false, {
+                                message: 'Unknown user'
+                            });
+                        }
+
+                        var info = {
+                            scope: '*'
+                        };
+
+                        done(null, user, info);
+                    });
                 });
-            });
+            }
         }
     ));
 };
