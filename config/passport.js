@@ -196,8 +196,9 @@ module.exports = function (passport, config) {
 
     passport.use(new BearerStrategy(
         function (accessToken, done) {
+            console.log(accessToken);
             if (accessToken === 'anonymous') {
-                done(null, {}, {});
+                done(null, {own: [], readable: []}, {});
             } else {
                 AccessToken.findOne({
                     token: accessToken
