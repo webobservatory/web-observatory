@@ -2554,9 +2554,9 @@
       }
     },
     "passport-jwt": {
-      "version": "2.0.0",
-      "from": "passport-jwt@",
-      "resolved": "https://registry.npmjs.org/passport-jwt/-/passport-jwt-2.0.0.tgz",
+      "version": "1.2.1",
+      "from": "passport-jwt@1.2.1",
+      "resolved": "https://registry.npmjs.org/passport-jwt/-/passport-jwt-1.2.1.tgz",
       "dependencies": {
         "jsonwebtoken": {
           "version": "5.7.0",

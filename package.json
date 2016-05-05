@@ -39,7 +39,7 @@
     "passport-facebook": "*",
     "passport-http": "*",
     "passport-http-bearer": "*",
-    "passport-jwt": "^2.0.0",
+    "passport-jwt": "^1.2.1",
     "passport-ldapauth": "*",
     "passport-local": "*",
     "passport-oauth2-client-password": "*",
