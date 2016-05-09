@@ -1,23 +1,22 @@
 extends main
 block jumbotron
-    include includes/slide-banner
+   .col-md-6.col-md-offset-3
+        include includes/slide-banner
 block content
-    .col-md-1
+    .col-md-5.col-md-offset-1
+        //h2 Datasets
+        //p  A page containing information regarding various datasets gathered
+        p.pull-right
+            a.biss-btn.biss-btn-primary(href='wo/dataset') Explore datasets &raquo;
     .col-md-5
-        h2 Datasets
-        p  A page containing information regarding various datasets gathered
+        //h2 Apps
+        //p  A page containing analytical apps using listed datasets
         p
-            a.btn.btn-primary.click(href='wo/dataset') View details &raquo;
-    .col-md-5
-        h2 Apps
-        p  A page containing analytical apps using listed datasets
-        p
-            a.btn.btn-primary.click(href='wo/visualisation') View details &raquo;
-    .col-md-1
+            a.biss-btn.biss-btn-primary(href='wo/visualisation') Explore analytics &raquo;
 block footer
     script(src='/js/unslider.min.js')
     link(href='/css/slide-banner.css', rel='stylesheet')
     script.
-        $(function() {
-          $('.banner').unslider({keys:true, dots:true});
+        $(function () {
+            $('.banner').unslider({dots: true});
         });
