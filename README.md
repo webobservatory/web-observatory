@@ -1,4 +1,5 @@
 # Web Observatory Deployment Guide
+Meteor apps can be deployed using [mupx](https://github.com/arunoda/meteor-up/tree/mupx). The guide below shows how to deploy web observatory manually.
 
 First you need to install Nginx, MongoDB, Nodejs.
 
