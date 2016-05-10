@@ -3,6 +3,7 @@ var mongoose = require('mongoose'),
     LocalStrategy = require('passport-local').Strategy,
     LDAPStrategy = require('passport-ldapauth').Strategy,
     JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJwt = require('passport-jwt').ExtractJwt,
     RememberMeStrategy = require('passport-remember-me').Strategy,
     FacebookStrategy = require('passport-facebook').Strategy,
     BasicStrategy = require('passport-http').BasicStrategy,
@@ -61,7 +62,7 @@ module.exports = function (passport, config) {
     opts.secretOrKey = 'voiceproject';
     //opts.issuer = "accounts.examplesoft.com";
     //opts.audience = "yoursite.net";
-    opts.tokenQueryParameterName = 'jwt';
+    opts.jwtFromRequest = ExtractJwt.fromUrlQueryParamter('jwt');
 
     //var jwtExpire = 3000000; //3s
     //function isExpired(end, start, limit) {
