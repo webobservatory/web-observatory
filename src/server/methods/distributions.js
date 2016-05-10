@@ -260,7 +260,7 @@ Meteor.methods({
     }
 });
 
-let channels = {};//socketId:channel, each socket only allows for one channels
+let channels = {};//socketId:channel, each socket only grants for one channels
 function closeCh(ch, sId) {
     if (ch) {
         try {

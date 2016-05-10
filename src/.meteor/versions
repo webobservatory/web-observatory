@@ -102,6 +102,7 @@ momentjs:moment@2.13.1
 mongo@1.1.7
 mongo-id@1.0.4
 mongo-livedata@1.0.12
+mrt:cron@0.0.1
 nicolaslopezj:options@1.0.1
 nicolaslopezj:reactive-templates@1.2.1
 nicolaslopezj:roles@1.5.3

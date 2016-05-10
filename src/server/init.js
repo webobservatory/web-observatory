@@ -61,6 +61,7 @@ Meteor.startup(function () {
         );
     }
 
+    // Set up LDAP.
     // Overwrite this function to produce settings based on the incoming request
     LDAP.generateSettings = function (request) {
         let username = request.username,
@@ -99,4 +100,15 @@ Meteor.startup(function () {
         user.profile = profile;
         return user;
     });
+
+
+    // Get remote apps and datasets
+    retrieveRemoteColls();
+
+    let cron = new Meteor.Cron({
+        events: {
+            "0 0 * * *": retrieveRemoteColls
+        }
+    });
+
 });

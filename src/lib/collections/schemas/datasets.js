@@ -74,7 +74,7 @@ let DistributionSchema = new SimpleSchema({
     online: {
         type: Boolean,
         autoform: {
-            type: 'hidden',
+            type: 'hidden'
             //omit: true,
         },
         optional: true,
@@ -88,7 +88,26 @@ let DistributionSchema = new SimpleSchema({
     }
 });
 
-let Dataset = {
+DatasetSchema = {
+
+    url: {
+        type: String,
+        label: "URL",
+        regEx: SimpleSchema.RegEx.Url,
+        autoform: {
+            type: 'hidden'
+        },
+        optional: true,
+        autoValue() {
+            if (!this.isSet) {
+                let distribution = this.field('distribution').value;
+                if (distribution && distribution.length === 1 && distribution[0].fileFormat === 'HTML') {
+                    return distribution[0].url;
+                }
+            }
+        }
+    },
+
     distribution: {
         type: [DistributionSchema],
         label: "Distribution"
@@ -142,4 +161,4 @@ let Dataset = {
  _.extend(Dataset, CreativeWork);
  Datasets.attachSchema(new SimpleSchema(Dataset));
  */
-Datasets.attachSchema(new SimpleSchema([Thing, Dataset, CreativeWork]));
+Datasets.attachSchema(new SimpleSchema([Thing, DatasetSchema, CreativeWork]));

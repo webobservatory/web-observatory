@@ -216,15 +216,15 @@ HomeController = ListController.extend({
     sort: {votes: -1, downvotes: 1, datePublished: -1, _id: -1},
     subscriptions () {
         //return [Meteor.subscribe('datasets', this.findOptions(), this.findSearchSelector()), Meteor.subscribe('apps', this.findOptions(), this.findSearchSelector())];
-        return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions())];
+        return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('remoteDatasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions()), Meteor.subscribe('remoteApps', this.findOptions())];
     },
     datasets (options) {
-        if(!options)
+        if (!options)
             options = this.findOptions();
         return Datasets.find({}, options);
     },
     apps (options) {
-        if(!options)
+        if (!options)
             options = this.findOptions();
         return Apps.find({}, options);
     },
@@ -250,18 +250,18 @@ HomeController = ListController.extend({
             dataset: {
                 category: Datasets,
                 routes: self.routes('dataset'),
-                entries: self.datasets({sort: {votes: -1},  limit: 8}),
+                entries: self.datasets({sort: {votes: -1}, limit: 8}),
                 ready: self.ready.bind(self),
                 nextPath () {
                     if (Datasets.find().count() === self.entriesLimit()) {
-                        
+
                     }
                 }
             },
             app: {
                 category: Apps,
                 routes: self.routes('app'),
-                entries: self.apps({sort: {votes: -1},  limit: 8}),
+                entries: self.apps({sort: {votes: -1}, limit: 8}),
                 ready: self.ready.bind(self),
                 nextPath () {
                     if (Apps.find().count() === self.entriesLimit()) {
@@ -269,8 +269,8 @@ HomeController = ListController.extend({
                     }
                 }
             },
-            _isHome:true,
-            _isTemplated:true,
+            _isHome: true,
+            _isTemplated: true,
         };
     }
 });

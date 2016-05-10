@@ -49,3 +49,4 @@ useraccounts:bootstrap
 meteorhacks:search-source
 standard-minifier-css
 standard-minifier-js
+mrt:cron

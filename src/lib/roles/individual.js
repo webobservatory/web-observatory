@@ -3,7 +3,7 @@ Options.set('defaultRoles', ['individual']);
  * First you must define the role
  */
 let Atom = new Roles.Role('individual'),
-    allows = {
+    grants = {
         entries: {
             access(entry) {
                 return accessesDocument(this.userId, entry);
@@ -17,7 +17,7 @@ let Atom = new Roles.Role('individual'),
         groups: ['index']
     };
 
-setCollectionGrants(Atom, allows);
+setCollectionGrants(Atom, grants);
 
 Atom.helper('collections.datasets.indexFilter', ownsDocumentQuery);
 Atom.helper('collections.apps.indexFilter', ownsDocumentQuery);

@@ -36,3 +36,5 @@ let ldapSchema = new SimpleSchema({
 });
 
 orion.dictionary.addDefinition('ldap', 'ldap', {type: [ldapSchema]});
+
+orion.dictionary.addDefinition('wo_urls', 'wo', {type: [String], label: 'WO URLs'});

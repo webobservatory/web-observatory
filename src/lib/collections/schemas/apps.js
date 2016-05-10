@@ -2,7 +2,7 @@
  * Created by xgfd on 19/12/2015.
  */
 
-let App = {
+AppSchema = {
     url: {
         type: String,
         label: "URL",
@@ -39,4 +39,4 @@ let App = {
 //
 //_.extend(appBlacklist, BlackList);
 
-Apps.attachSchema(new SimpleSchema([Thing, App, CreativeWork]));
+Apps.attachSchema(new SimpleSchema([Thing, AppSchema, CreativeWork]));

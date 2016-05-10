@@ -219,7 +219,6 @@ Mis = {
     metaWhiteList: orion.attribute('hasMany', {
         type: [String],
         label: 'Permitted to see',
-        // optional is true because you can have a post without comments
         optional: true
     }, {
         collection: Meteor.users,
@@ -231,7 +230,6 @@ Mis = {
     contentWhiteList: orion.attribute('hasMany', {
         type: [String],
         label: 'Permitted to access',
-        // optional is true because you can have a post without comments
         optional: true
     }, {
         collection: Meteor.users,

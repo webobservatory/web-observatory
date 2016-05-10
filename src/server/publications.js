@@ -5,6 +5,8 @@ publish({
     groups: Groups,
     licenses: Licenses,
     userNames: Meteor.users,
+    remoteDatasets: RemoteDatasets,
+    remoteApps: RemoteApps
     //searchDatasets: Datasets,
     //searchApps: Apps,
 }, Meteor.publish, function (collection) {
