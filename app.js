@@ -71,7 +71,13 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(passport.authenticate('remember-me'));
-app.use(/\/(?!(oauth|api|js|fonts|css|images|img))/, passport.authenticate('jwt', {session: true}));
+app.use(function (req, res, next) {
+    if (req.query.jwt) {
+        passport.authenticate('jwt', {session: true})(req, res, next);
+    } else {
+        next();
+    }
+});
 
 //logging
 function skip(req, res) {

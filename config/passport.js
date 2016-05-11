@@ -62,7 +62,7 @@ module.exports = function (passport, config) {
     opts.secretOrKey = 'voiceproject';
     //opts.issuer = "accounts.examplesoft.com";
     //opts.audience = "yoursite.net";
-    opts.jwtFromRequest = ExtractJwt.fromUrlQueryParamter('jwt');
+    opts.jwtFromRequest = ExtractJwt.fromUrlQueryParameter('jwt');
 
     //var jwtExpire = 3000000; //3s
     //function isExpired(end, start, limit) {

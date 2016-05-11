@@ -21,10 +21,7 @@ nav.navbar.navbar-fixed-top.navbar-default
                 li#4
                     a(href='/howto') Tutorials
             ul.navbar-right.nav.navbar-nav
-                if user == null
-                    li.active
-                        a(href='/login') Sign in!
-                else
+                if user
                     li
                         a(href="/profile")
                             =(user.firstName ? user.firstName : user.email) + "'s Profile"
