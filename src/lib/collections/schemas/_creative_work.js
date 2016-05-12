@@ -1,7 +1,7 @@
 /**
  * Created by xgfd on 17/12/2015.
  */
-SimpleSchema.debug = true;
+// SimpleSchema.debug = true;
 SimpleSchema.extendOptions({
     noneditable: Match.Optional(Boolean)
 });

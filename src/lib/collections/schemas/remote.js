@@ -16,13 +16,13 @@ ReleasedCreativeWork.description = {
     autoform: {type: 'textarea'}
 };
 
-ReleasedCreativeWork.metaWhiteList= {
+ReleasedCreativeWork.metaWhiteList = {
     type: [String],
     label: 'Permitted to see',
     optional: true
 };
 
-ReleasedCreativeWork.contentWhiteList= {
+ReleasedCreativeWork.contentWhiteList = {
     type: [String],
     label: 'Permitted to access',
     optional: true

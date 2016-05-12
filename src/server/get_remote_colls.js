@@ -21,7 +21,10 @@ function urlToCol(url, name, local) {
     col.find().observe({
         added(doc){
             doc.url = `${url}${name}/${doc._id}`;
+            //TODO rewrite id refs using url as prefix
             delete doc._id;
+            delete doc.isBasedOnUrl;
+            delete doc.comments;
             // console.log(doc);
             local.insert(doc);
         }
