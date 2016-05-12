@@ -5,8 +5,8 @@ publish({
     groups: Groups,
     licenses: Licenses,
     userNames: Meteor.users,
-    remoteDatasets: RemoteDatasets,
-    remoteApps: RemoteApps
+    remotedatasets: RemoteDatasets,
+    remoteapps: RemoteApps
     //searchDatasets: Datasets,
     //searchApps: Apps,
 }, Meteor.publish, function (collection) {
@@ -56,7 +56,13 @@ publish({
     };
 });
 
-publish({singleDataset: Datasets, singleApp: Apps, singleGroup: Groups}, Meteor.publish, function (collection) {
+publish({
+    singleDataset: Datasets,
+    singleRemoteDataset: RemoteDatasets,
+    singleApp: Apps,
+    singleRemoteApp: RemoteApps,
+    singleGroup: Groups
+}, Meteor.publish, function (collection) {
     return function (id, options = {}) {
         check(id, String);
 

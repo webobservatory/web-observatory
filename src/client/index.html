@@ -8,7 +8,8 @@
                         <p class="intro-text">Discover Datasets and Apps</p>
                         <div class="input-search">
                             <span class="icon-search"><i class="fa fa-search"></i></span>
-                            <a href="#search" data-toggle="modal" data-target="#search-overlay"><span class="search-field"></span></a>
+                            <a href="#search" data-toggle="modal" data-target="#search-overlay"><span
+                                    class="search-field"></span></a>
                         </div>
                         <a href="#top" class="btn btn-circle page-scroll">
                             <i class="fa fa-angle-double-down animated"></i>
@@ -69,6 +70,32 @@
                         </div>
                     </div>
 
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Remote Section -->
+    <section id="remote" class="container-fluid content-section text-center">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>From Web Observatory Network</h2>
+                <div class="port-filter port-filter-dark">
+                    <ul>
+                        <li class="active"><a href="#remoteApps" data-toggle="pill">Apps</a></li>
+                        <li><a href="#remoteDatasets" data-toggle="pill">Datasets</a></li>
+                    </ul>
+                </div>
+
+                <div class="tab-content">
+                    <div id="remoteApps" class="tab-pane active">
+                        {{> entryList remoteApp}}
+                        <a href="{{pathFor remoteApp.routes.latest}}" class="btn btn-lgr-str">More</a>
+                    </div>
+                    <div class="tab-pane" id="remoteDatasets">
+                        {{> entryList remoteDataset}}
+                        <a href="{{pathFor remoteDataset.routes.latest}}" class="btn btn-lgr-str">More</a>
+                    </div>
                 </div>
             </div>
         </div>

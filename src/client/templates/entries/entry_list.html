@@ -3,8 +3,10 @@
         {{#if showAdd}}
             <!--List Bar-->
             <div class="row">
-                <a class="btn btn-lgr-str"
-                                href="{{pathFor routes.submit}}" title="{{addItem}}">Add</a>
+                {{#if routes.submit}}
+                    <a class="btn btn-lgr-str"
+                       href="{{pathFor routes.submit}}" title="{{addItem}}">Add</a>
+                {{/if}}
             </div>
             <div class="dividewhite2"></div>
         {{/if}}

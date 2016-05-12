@@ -74,9 +74,7 @@ ListController = RouteController.extend({
             showSearch: true,
             //show Add button if logged in
             showAdd: true,
-            ready () {
-                return self.ready();
-            },
+            ready: self.ready.bind(self),
             routes: self.routes(),
             //generate path to load next page of entries
             nextPath () {
@@ -160,8 +158,16 @@ DatasetLatestController = LatestController.extend({
     category: Datasets
 });
 
+RemotedatasetLatestController = LatestController.extend({
+    category: RemoteDatasets
+});
+
 AppLatestController = LatestController.extend({
     category: Apps
+});
+
+RemoteappLatestController = LatestController.extend({
+    category: RemoteApps
 });
 
 GroupLatestController = LatestController.extend({
@@ -191,15 +197,29 @@ DatasetPageController = PageController.extend({
     subscriptions () {
         return [Meteor.subscribe('singleDataset', this.params._id),
             Meteor.subscribe('comments', this.params._id)];
-    },
+    }
+});
+
+RemotedatasetPageController = PageController.extend({
+    category: RemoteDatasets,
+    subscriptions () {
+        return [Meteor.subscribe('singleRemoteDataset', this.params._id),
+            Meteor.subscribe('comments', this.params._id)];
+    }
 });
 
 AppPageController = PageController.extend({
     category: Apps,
     subscriptions () {
-        return [Meteor.subscribe('singleApp', this.params._id),
-            Meteor.subscribe('comments', this.params._id)];
-    },
+        return [Meteor.subscribe('singleRemoteApp', this.params._id)];
+    }
+});
+
+RemoteappPageController = PageController.extend({
+    category: RemoteApps,
+    subscriptions () {
+        return [Meteor.subscribe('singleApp', this.params._id)];
+    }
 });
 
 GroupPageController = PageController.extend({
@@ -207,8 +227,17 @@ GroupPageController = PageController.extend({
     subscriptions () {
         return [Meteor.subscribe('singleGroup', this.params._id),
             Meteor.subscribe('comments', this.params._id)];
-    },
+    }
 });
+
+function templateData(router, col, option) {
+    return {
+        category: col,
+        routes: router.routes(col.singularName),
+        entries: router.getEntries(option, col),
+        ready: router.ready.bind(router)
+    };
+}
 
 HomeController = ListController.extend({
     template: 'home',
@@ -218,66 +247,35 @@ HomeController = ListController.extend({
         //return [Meteor.subscribe('datasets', this.findOptions(), this.findSearchSelector()), Meteor.subscribe('apps', this.findOptions(), this.findSearchSelector())];
         return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('remoteDatasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions()), Meteor.subscribe('remoteApps', this.findOptions())];
     },
-    datasets (options) {
+    getEntries(options, col) {
         if (!options)
             options = this.findOptions();
-        return Datasets.find({}, options);
-    },
-    apps (options) {
-        if (!options)
-            options = this.findOptions();
-        return Apps.find({}, options);
+        return col.find({}, options);
     },
     nextPath () {
-        //console.log("runnext");
         return Router.routes['datasets.latest'].path({entriesLimit: this.entriesLimit() + this.increment});
     },
     data () {
-        let self = this;
+        let homeTempData = templateData.bind(null, this);
+        let byPubData = {sort: {datePublished: -1}, limit: 8},
+            byVote = {sort: {votes: -1}, limit: 8};
+        // let self = this;
         return {
-            recentDataset: {
-                category: Datasets,
-                routes: self.routes('dataset'),
-                entries: self.datasets({sort: {datePublished: -1}, limit: 8}),
-                ready: self.ready.bind(self),
-            },
-            recentApp: {
-                category: Apps,
-                routes: self.routes('app'),
-                entries: self.apps({sort: {datePublished: -1}, limit: 8}),
-                ready: self.ready.bind(self),
-            },
-            dataset: {
-                category: Datasets,
-                routes: self.routes('dataset'),
-                entries: self.datasets({sort: {votes: -1}, limit: 8}),
-                ready: self.ready.bind(self),
-                nextPath () {
-                    if (Datasets.find().count() === self.entriesLimit()) {
-
-                    }
-                }
-            },
-            app: {
-                category: Apps,
-                routes: self.routes('app'),
-                entries: self.apps({sort: {votes: -1}, limit: 8}),
-                ready: self.ready.bind(self),
-                nextPath () {
-                    if (Apps.find().count() === self.entriesLimit()) {
-
-                    }
-                }
-            },
+            recentDataset: homeTempData(Datasets, byPubData),
+            recentApp: homeTempData(Apps, byPubData),
+            dataset: homeTempData(Datasets, byVote),
+            app: homeTempData(Apps, byVote),
+            remoteApp: homeTempData(RemoteApps, byPubData),
+            remoteDataset: homeTempData(RemoteDatasets, byPubData),
             _isHome: true,
-            _isTemplated: true,
+            _isTemplated: true
         };
     }
 });
 
 /****************************************************************
  * Routes
- * Route naming schema {{category}}.{{action}}
+ * Route naming schema {{coll.singularName}}.{{action}}
  *****************************************************************/
 
 /*
@@ -286,88 +284,57 @@ HomeController = ListController.extend({
 
 Router.route('/', {name: 'home'});
 
+function setUpRoutes(col, hasRemote = false) {
+    let sn = col.singularName, pn = col.pluralName;
+
+    Router.route(`/new/${pn}/:entriesLimit?`, {name: `${sn}.latest`});
+
+    Router.route(`/${pn}/submit`, {
+        template: `entrySubmit`,
+        name: `${sn}.submit`,
+        data() {
+            return {category: col, col: pn.substr(0, 1).toUpperCase() + pn.substr(1)};
+        }
+    });
+
+    Router.route(`/${pn}/:_id`, {name: `${sn}.page`});
+
+    Router.route(`/${pn}/:_id/edit`, {
+        name: `${sn}.edit`,
+        template: `entryEdit`,
+        waitOn () {
+            return Meteor.subscribe(`single${sn}`, this.params._id);
+        },
+        data () {
+            return {
+                category: col,
+                entry: col.findOne()
+            };
+        }
+    });
+
+    if (hasRemote) {
+        Router.route(`/new/remote_${pn}/:entriesLimit?`, {name: `remote${sn}.latest`});
+        Router.route(`/remote_${pn}/:_id`, {name: `remote${sn}.page`});
+    }
+}
+
 /*
  * Datasets routes
  */
-
-Router.route('/new/datasets/:entriesLimit?', {name: 'dataset.latest'});
-
-Router.route('/datasets/submit', {
-    template: 'entrySubmit',
-    name: 'dataset.submit',
-    data() {
-        return {category: Datasets, col: 'Datasets'};
-    }
-});
-
-Router.route('/datasets/:_id', {name: 'dataset.page'});
-
-Router.route('/datasets/:_id/edit', {
-    name: 'dataset.edit',
-    template: 'entryEdit',
-    waitOn () {
-        return Meteor.subscribe('singleDataset', this.params._id);
-    },
-    data () {
-        return {
-            category: Datasets,
-            entry: Datasets.findOne()
-        };
-    }
-});
+setUpRoutes(Datasets, true);
 
 /*
  * Apps routes
  */
-
-Router.route('/new/apps/:entriesLimit?', {name: 'app.latest'});
-
-Router.route('/apps/submit', {
-    template: 'entrySubmit',
-    name: 'app.submit',
-    data() {
-        return {category: Apps, col: 'Apps'};
-    }
-});
-
-Router.route('/apps/:_id', {name: 'app.page'});
-
-Router.route('/apps/:_id/edit', {
-    name: 'app.edit',
-    template: 'entryEdit',
-    waitOn () {
-        return Meteor.subscribe('singleApp', this.params._id);
-    },
-    data () {
-        return {category: Apps, entry: Apps.findOne()};
-    }
-});
+setUpRoutes(Apps, true);
 
 /*
  * Groups
  */
-Router.route('/new/groups/:entriesLimit?', {name: 'group.latest'});
 
-Router.route('/groups/submit', {
-    template: 'entrySubmit',
-    name: 'group.submit',
-    data() {
-        return {category: Groups, col: 'Groups'};
-    }
-});
+setUpRoutes(Groups);
 
-Router.route('/groups/:_id', {name: 'group.page'});
-
-Router.route('/groups/:_id/edit', {
-    name: 'group.edit',
-    template: 'entryEdit',
-    waitOn () {
-        return Meteor.subscribe('singleGroup', this.params._id);
-    },
-    data () {
-        return {category: Groups, entry: Groups.findOne()};
-    }
-});
 /*
  * Accounts
  */
