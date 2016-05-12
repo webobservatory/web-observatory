@@ -22,7 +22,7 @@ function urlToCol(url, name, local) {
         added(doc){
             doc.url = `${url}${name}/${doc._id}`;
             delete doc._id;
-            console.log(doc);
+            // console.log(doc);
             local.insert(doc);
         }
     });

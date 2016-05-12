@@ -12,19 +12,17 @@ function containAny(keywords) {
     return keywords ? {$or: [{name: buildRegExp(keywords)}]} : {};
 }
 
-function federateResult(colls, keywords, options = {limit: 10}) {
+function fedSearch(colls, keywords, options) {
+    options = options || {limit: 10};
 
-    let result = colls
-        .map(function fetchFromCol(col) {
-            let r = col.find(containAny(keywords), options).fetch();
-            return r;
-        })
-        .reduce([].concat);
-    return result;
+    let fedResult = colls
+        .map(col=> col.find(containAny(keywords), options).fetch())//fetch collection
+        .reduce((a, b)=>a.concat(b));//concat results
+    return fedResult;
 }
 
-let searchDatasets = federateResult.bind(null, [Datasets, RemoteDatasets]),
-    searchApps = federateResult.bind(null, [Apps, RemoteApps]);
+let searchDatasets = fedSearch.bind(null, [Datasets, RemoteDatasets]),
+    searchApps = fedSearch.bind(null, [Apps, RemoteApps]);
 
 SearchSource.defineSource('apps', searchApps /*function (keywords, options) {
  var options = {limit: 10};
