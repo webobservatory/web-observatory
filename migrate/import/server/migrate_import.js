@@ -13,13 +13,13 @@ function importData(path) {
     data.forEach(_import[path]);
 }
 
-let _import = { apps: importApp, users: importUser, datasets: importDataset };
+let _import = {apps: importApp, users: importUser, datasets: importDataset};
 
 function importUser(user) {
     let userId;
     try {
         userId = Accounts.createUser(user);
-        Roles.insert({ userId, roles: ["individual"] });
+        Roles.insert({userId, roles: ["individual"]});
     }
     catch (e) {
         if (e.error === 403) {//username already exists
@@ -35,7 +35,7 @@ function importUser(user) {
         let clients = user.profile.clients;
         clients.forEach(c => {
             let {clientId, clientSecret, name} = c;
-            Clients.upsert({ _id: clientId }, {
+            Clients.upsert({_id: clientId}, {
                 $set: {
                     _id: clientId,
                     publisher: userId,
@@ -65,22 +65,26 @@ function emailToName(email) {
     return emailToUser(email).username;
 }
 
-function datasetTrans(dataset) {
-    dataset.license = dataset.license || 'no-license';
-    dataset.description = dataset.description;
+function transform(doc) {
+    doc.license = doc.license || 'no-license';
+    doc.description = doc.description;
     //publisher email->_id
-    dataset.publisher = emailToId(dataset.publisher);
-    dataset.publisherName = emailToName(dataset.publisher);
+    let user = emailToUser(doc.publisher);
+    doc.publisher = user._id;
+    doc.publisherName = user.username;
 
     //dates String->Date
-    dataset.datePublished = new Date(dataset.datePublished);
-    dataset.dateModified = new Date(dataset.dateModified);
+    doc.datePublished = new Date(doc.datePublished);
+    doc.dateModified = new Date(doc.dateModified);
 
     //acl whitelist
-    dataset.metaWhiteList = dataset.metaWhiteList.map(emailToId);
-    dataset.contentWhiteList = dataset.contentWhiteList.map(emailToId);
-    //dataset.upvoters = [];
-    return dataset;
+    doc.metaWhiteList = doc.metaWhiteList.map(emailToId);
+    doc.contentWhiteList = doc.contentWhiteList.map(emailToId);
+    return doc;
+}
+
+function datasetTrans(dataset) {
+    return transform(dataset);
 }
 
 function importDataset(dataset) {
@@ -88,7 +92,7 @@ function importDataset(dataset) {
     if (dataset.distribution[0].fileFormat !== 'File') {
         dataset = datasetTrans(dataset);
         try {
-            Datasets.upsert({ name: dataset.name }, { $set: dataset });
+            Datasets.upsert({name: dataset.name}, {$set: dataset});
         }
         catch (e) {
             console.error(dataset);
@@ -100,23 +104,11 @@ function importDataset(dataset) {
 }
 
 function appTrans(app) {
-    app.license = app.license || 'no-license';
-    app.description = app.description;
-    //publisher email->_id
-    app.publisher = emailToId(app.publisher);
-    app.publisherName = emailToName(app.publisher);
-
-    //dates String->Date
-    app.datePublished = new Date(app.datePublished);
-    app.dateModified = new Date(app.dateModified);
-
-    //acl whitelist
-    app.metaWhiteList = app.metaWhiteList.map(emailToId);
-    app.contentWhiteList = app.contentWhiteList.map(emailToId);
+    app = transform(app);
 
     if (app.isBasedOnUrl) {
         app.isBasedOnUrl = app.isBasedOnUrl.map(name => {
-            let ds = Datasets.findOne({ name });
+            let ds = Datasets.findOne({name});
             if (!ds) {
                 console.error('App: ' + app.name + ', dataset ' + name + ' not found');
                 return null;
@@ -131,7 +123,7 @@ function appTrans(app) {
 function importApp(app) {
     app = appTrans(app);
     try {
-        Apps.upsert({ name: app.name }, { $set: app });
+        Apps.upsert({name: app.name}, {$set: app});
     }
     catch (e) {
         console.error(app);

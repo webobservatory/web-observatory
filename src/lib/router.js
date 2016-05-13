@@ -4,10 +4,10 @@ Router.configure({
     notFoundTemplate: 'notFound',
     subscriptions () { //using waitOn will cause entry_list to reload every time load-more is clicked
         return [
-            Meteor.subscribe('notifications'),
-            Meteor.subscribe('groups'),
-            Meteor.subscribe('userNames'),
-            Meteor.subscribe('licenses')
+            Meteor.subscribe(Notifications._name),
+            Meteor.subscribe(Groups._name),
+            Meteor.subscribe(Meteor.users._name),
+            Meteor.subscribe(Licenses._name)
         ]
     }
 });
@@ -146,7 +146,7 @@ function buildRegExp(searchText) {
  **************************/
 LatestController = ListController.extend({
     subscriptions () {
-        return Meteor.subscribe(this.category.pluralName, this.findOptions(), this.findSelector());
+        return Meteor.subscribe(this.category._name, this.findOptions(), this.findSelector());
     },
     sort: {datePublished: -1, votes: -1, downvotes: 1, _id: -1},
     nextPath () {
@@ -181,6 +181,10 @@ GroupLatestController = LatestController.extend({
  **************************/
 PageController = ListController.extend({
     template: 'entryPage',
+    subscriptions() {
+        return [Meteor.subscribe('comments', this.params._id),
+            Meteor.subscribe(this.category.singularName, this.params._id)]
+    },
     data () {
         return {
             comments: Comments.find({entryId: this.params._id}),
@@ -193,41 +197,23 @@ PageController = ListController.extend({
 });
 
 DatasetPageController = PageController.extend({
-    category: Datasets,
-    subscriptions () {
-        return [Meteor.subscribe('singleDataset', this.params._id),
-            Meteor.subscribe('comments', this.params._id)];
-    }
+    category: Datasets
 });
 
 RemotedatasetPageController = PageController.extend({
-    category: RemoteDatasets,
-    subscriptions () {
-        return [Meteor.subscribe('singleRemoteDataset', this.params._id),
-            Meteor.subscribe('comments', this.params._id)];
-    }
+    category: RemoteDatasets
 });
 
 AppPageController = PageController.extend({
-    category: Apps,
-    subscriptions () {
-        return [Meteor.subscribe('singleRemoteApp', this.params._id)];
-    }
+    category: Apps
 });
 
 RemoteappPageController = PageController.extend({
-    category: RemoteApps,
-    subscriptions () {
-        return [Meteor.subscribe('singleApp', this.params._id)];
-    }
+    category: RemoteApps
 });
 
 GroupPageController = PageController.extend({
-    category: Groups,
-    subscriptions () {
-        return [Meteor.subscribe('singleGroup', this.params._id),
-            Meteor.subscribe('comments', this.params._id)];
-    }
+    category: Groups
 });
 
 function templateData(router, col, option) {
@@ -244,8 +230,8 @@ HomeController = ListController.extend({
     increment: 8,
     sort: {votes: -1, downvotes: 1, datePublished: -1, _id: -1},
     subscriptions () {
-        //return [Meteor.subscribe('datasets', this.findOptions(), this.findSearchSelector()), Meteor.subscribe('apps', this.findOptions(), this.findSearchSelector())];
-        return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('remotedatasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions()), Meteor.subscribe('remoteapps', this.findOptions())];
+        return [Datasets, Apps, RemoteDatasets, RemoteApps]
+            .map(col=>Meteor.subscribe(col._name, this.findOptions()))
     },
     getEntries(options, col) {
         if (!options)

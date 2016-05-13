@@ -2,16 +2,15 @@
  * Created by xgfd on 25/12/2015.
  */
 
-/*
- * For each @name:@collection pair in @sources, publish @collection under @name using @publisher
- * The callback of @publisher is constricted by @cbGen(@name, @collection)->function
+/**
+ *
+ * @param coll A collection
+ * @param pubCBFactry A factory function that returns the publish callback
+ * @param pubAs Maps a collection to publishing name
  */
-publish = function (sources, publisher, cbGen) {
-    for (let name in sources) {
-        if (sources.hasOwnProperty(name)) {
-            publisher(name, cbGen(sources[name], name));
-        }
-    }
+publish = function (coll, pubCBFactry, pubAs = (coll)=>coll._name) {
+    let name = pubAs(coll);
+    Meteor.publish(name, pubCBFactry(coll, name));
 };
 
 JSONStream = Meteor.npmRequire('JSONStream');

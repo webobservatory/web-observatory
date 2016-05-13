@@ -17,9 +17,9 @@ function normaliseUrl(url) {
 
 function urlToCol(url, name, local) {
     let remote = DDP.connect(url),
-        col = new Mongo.Collection(name, {connection: remote});
+        col = new Mongo.Collection(name, { connection: remote });
     col.find().observe({
-        added(doc){
+        added(doc) {
             doc.url = `${url}${name}/${doc._id}`;
             //TODO rewrite id refs using url as prefix
             delete doc._id;
@@ -34,7 +34,8 @@ function urlToCol(url, name, local) {
 }
 
 function regRemoteColls(name, urls, init, local) {
-    return urls.reduce((map, url)=> {
+    return urls.reduce((map, url) => {
+        url = normaliseUrl(url);
         if (!map[url]) {
             map[url] = urlToCol(url, name, local);
         }
@@ -45,8 +46,8 @@ function regRemoteColls(name, urls, init, local) {
 function updateSub(local, remoteColls) {
     local.remove({});
     Object.keys(remoteColls)
-        .map(url=>remoteColls[normaliseUrl(url)])
-        .forEach(col=> {
+        .map(url => remoteColls[normaliseUrl(url)])
+        .forEach(col => {
             let name = col._name,
                 remote = col._connection;
 
