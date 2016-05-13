@@ -245,7 +245,7 @@ HomeController = ListController.extend({
     sort: {votes: -1, downvotes: 1, datePublished: -1, _id: -1},
     subscriptions () {
         //return [Meteor.subscribe('datasets', this.findOptions(), this.findSearchSelector()), Meteor.subscribe('apps', this.findOptions(), this.findSearchSelector())];
-        return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('remoteDatasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions()), Meteor.subscribe('remoteApps', this.findOptions())];
+        return [Meteor.subscribe('datasets', this.findOptions()), Meteor.subscribe('remotedatasets', this.findOptions()), Meteor.subscribe('apps', this.findOptions()), Meteor.subscribe('remoteapps', this.findOptions())];
     },
     getEntries(options, col) {
         if (!options)
