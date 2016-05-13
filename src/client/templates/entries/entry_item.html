@@ -3,7 +3,7 @@
     <div class="grid-item" itemscope itemtype="{{itemtype}}">
         <meta itemprop='http://schema.org/name' content={{name}}>
         <meta itemprop='http://schema.org/url' content="{{absUrl}}">
-        <meta itemprop='http://schema.org/publisher' content="{{publisherObj.name}}">
+        <meta itemprop='http://schema.org/publisher' content="{{publisherName}}">
         <meta itemprop='http://schema.org/isBasedOnUrl' content="{{isBasedOnUrl}}">
         <meta itemprop='http://schema.org/description' content="{{description}}">
         <meta itemprop='http://schema.org/keywords' content="{{keywords}}">
@@ -27,7 +27,7 @@
 
                 <div class="post-data">
                     <div class="post-date hovercolor">{{prettifyDate datePublished}}</div>
-                    <div class="post-author">by {{blurb publisherObj.username 15}}</div>
+                    <div class="post-author">by {{blurb publisherName 15}}</div>
                 </div>
             </div>
             <p class="small fontcolor-medium-light">

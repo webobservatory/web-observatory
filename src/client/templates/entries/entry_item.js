@@ -12,22 +12,19 @@ Template.entryItem.helpers({
         switch (category) {
             case Datasets:
                 return schemaOrg + 'Dataset';
-                break;
             case Apps:
                 return schemaOrg + 'Apps';
-                break;
             case Groups:
                 return schemaOrg + 'Groups';
-                break;
         }
     },
-    blurb (text, limit) {
+    blurb(text, limit) {
         let blurb = jQuery.truncate(text, {
             length: limit
         });
         return blurb
     },
-    offline () {
+    offline() {
         if (Template.parentData().category.singularName === 'group') {
             return false;
         }
@@ -39,13 +36,14 @@ Template.entryItem.helpers({
         }
         return !this.online;
     },
-    ownEntry (entry = this) {
+    ownEntry(entry = this) {
         return entry.publisher == Meteor.userId() || Roles.userHasRole(Meteor.userId(), "admin");
     },
-    publisherObj() {
-        return Meteor.users.findOne(this.publisher);
+    publisherName() {
+        return this.publisherName ||
+            Meteor.users.findOne(this.publisher).username;
     },
-    absUrl () {
+    absUrl() {
         let parentData = Template.parentData(1),
             category = parentData.category;
 
@@ -85,12 +83,12 @@ Template.entryItem.helpers({
 });
 
 Template.entryItem.events({
-    'click .upvotable' (e) {
+    'click .upvotable'(e) {
         e.preventDefault();
         let parentData = Template.parentData(1);
         Meteor.call('upvote', this._id, parentData.category);
     },
-    'click .downvotable' (e) {
+    'click .downvotable'(e) {
         e.preventDefault();
         let parentData = Template.parentData(1);
         Meteor.call('downvote', this._id, parentData.category);
@@ -98,7 +96,7 @@ Template.entryItem.events({
 });
 
 Template.distribution.helpers({
-    offlineClass () {
+    offlineClass() {
         if (this.online) {
             return "teal";
         } else {
@@ -108,5 +106,5 @@ Template.distribution.helpers({
 });
 
 Template.entryItem.rendered = function () {
-    $('.tooltipped').tooltip({delay: 300});
+    $('.tooltipped').tooltip({ delay: 300 });
 };

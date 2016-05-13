@@ -13,13 +13,13 @@ function importData(path) {
     data.forEach(_import[path]);
 }
 
-let _import = {apps: importApp, users: importUser, datasets: importDataset};
+let _import = { apps: importApp, users: importUser, datasets: importDataset };
 
 function importUser(user) {
     let userId;
     try {
         userId = Accounts.createUser(user);
-        Roles.insert({userId, roles: ["individual"]});
+        Roles.insert({ userId, roles: ["individual"] });
     }
     catch (e) {
         if (e.error === 403) {//username already exists
@@ -33,9 +33,9 @@ function importUser(user) {
 
     if (user.profile && user.profile.clients) {
         let clients = user.profile.clients;
-        clients.forEach(c=> {
+        clients.forEach(c => {
             let {clientId, clientSecret, name} = c;
-            Clients.upsert({_id: clientId}, {
+            Clients.upsert({ _id: clientId }, {
                 $set: {
                     _id: clientId,
                     publisher: userId,
@@ -48,12 +48,21 @@ function importUser(user) {
     }
 }
 
-function emailToId(email) {
+
+function emailToUser(email) {
     let user = Accounts.findUserByEmail(email);
     if (!user) {
         console.log(email);
     }
-    return user._id;
+    return user || {};
+}
+
+function emailToId(email) {
+    return emailToUser(email)._id;
+}
+
+function emailToName(email) {
+    return emailToUser(email).username;
 }
 
 function datasetTrans(dataset) {
@@ -61,6 +70,7 @@ function datasetTrans(dataset) {
     dataset.description = dataset.description;
     //publisher email->_id
     dataset.publisher = emailToId(dataset.publisher);
+    dataset.publisherName = emailToName(dataset.publisher);
 
     //dates String->Date
     dataset.datePublished = new Date(dataset.datePublished);
@@ -78,7 +88,7 @@ function importDataset(dataset) {
     if (dataset.distribution[0].fileFormat !== 'File') {
         dataset = datasetTrans(dataset);
         try {
-            Datasets.upsert({name: dataset.name}, {$set: dataset});
+            Datasets.upsert({ name: dataset.name }, { $set: dataset });
         }
         catch (e) {
             console.error(dataset);
@@ -94,6 +104,7 @@ function appTrans(app) {
     app.description = app.description;
     //publisher email->_id
     app.publisher = emailToId(app.publisher);
+    app.publisherName = emailToName(app.publisher);
 
     //dates String->Date
     app.datePublished = new Date(app.datePublished);
@@ -104,15 +115,15 @@ function appTrans(app) {
     app.contentWhiteList = app.contentWhiteList.map(emailToId);
 
     if (app.isBasedOnUrl) {
-        app.isBasedOnUrl = app.isBasedOnUrl.map(name=> {
-            let ds = Datasets.findOne({name});
+        app.isBasedOnUrl = app.isBasedOnUrl.map(name => {
+            let ds = Datasets.findOne({ name });
             if (!ds) {
                 console.error('App: ' + app.name + ', dataset ' + name + ' not found');
                 return null;
             } else {
                 return ds._id;
             }
-        }).filter(id=>id !== null);
+        }).filter(id => id !== null);
     }
     return app;
 }
@@ -120,7 +131,7 @@ function appTrans(app) {
 function importApp(app) {
     app = appTrans(app);
     try {
-        Apps.upsert({name: app.name}, {$set: app});
+        Apps.upsert({ name: app.name }, { $set: app });
     }
     catch (e) {
         console.error(app);

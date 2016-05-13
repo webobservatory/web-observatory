@@ -151,6 +151,9 @@ function datasetTrans(dataset) {
     dist._id = dataset._id;
     dist.url = dataset.url;
     dist.fileFormat = dataset.querytype;
+    if(dist.fileFormat === 'Imported') {
+        dist.fileFormat = 'HTML';
+    }
     dist.online = dataset.alive;
     dist.instruction = dataset.queryinfo;
 

@@ -43,13 +43,13 @@ Currently Meteor (1.2.1) works with Node v0.10.x. Make sure you have the right v
 
 ### Export data from a previous WO
 
-Edit `migrate/init.js` and set `from` to the source MongoDB address. Then do
+Edit `migrate/export/config.js` and set `from` to the source MongoDB address. Then do
 
     cd migrate
     npm install
     node migrate.js
 
-Exported data can be found at `app/private`.
+Exported data can be found at `import/private`.
 
 ### Import
 

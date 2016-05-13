@@ -51,7 +51,6 @@ publish({
                 break;
         }
 
-
         return collection.find(selector, options);
     };
 });

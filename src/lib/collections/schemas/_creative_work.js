@@ -16,7 +16,7 @@ Thing = {
     description: {
         type: String,
         label: 'Description',
-        autoform: {type: 'textarea'}
+        autoform: { type: 'textarea' }
     }
 };
 
@@ -28,14 +28,14 @@ CreativeWork = {
         optional: true,
         noneditable: true
     }, {
-        collection: Comments,
-        titleField: 'body',
-        publicationName: 'rel_comments'
-    }),
+            collection: Comments,
+            titleField: 'body',
+            publicationName: 'rel_comments'
+        }),
 
     commentsCount: {
         type: Number,
-        autoValue(){
+        autoValue() {
             var comments = this.field("comments");
             return comments ? comments.length : 0;
         },
@@ -69,12 +69,25 @@ CreativeWork = {
         },
         noneditable: true
     }, {
-        collection: Meteor.users,
-        // the key whose value you want to show for each post document on the update form
-        titleField: 'username',
-        publicationName: 'publisher'
-    }),
+            collection: Meteor.users,
+            // the key whose value you want to show for each post document on the update form
+            titleField: 'username',
+            publicationName: 'publisher'
+        }),
 
+    publisherName: {
+        type: String,
+        optional: true,
+        autoValue() {
+            let publisher = this.field('publisher');
+            if(publisher.isSet){
+                let pId = publisher.value;
+                return Meteor.users.findOne(pId);
+            }else{
+                this.unset();
+            }
+        }
+    },
     // Force value to be current date (on server) upon insert
     // and prevent updates thereafter.
     datePublished: {
@@ -101,7 +114,7 @@ CreativeWork = {
             readonly: true,
             type: "bootstrap-datepicker"
         },
-        autoValue () {
+        autoValue() {
             return new Date();
         },
         noneditable: true
@@ -112,10 +125,10 @@ CreativeWork = {
         label: 'Related datasets',
         optional: true
     }, {
-        collection: Datasets,
-        titleField: 'name',
-        publicationName: 'isbasedonurl'
-    }),
+            collection: Datasets,
+            titleField: 'name',
+            publicationName: 'isbasedonurl'
+        }),
 
     keywords: {
         type: [String],
@@ -131,16 +144,16 @@ CreativeWork = {
                 let addedLices = Licenses.find().fetch();
 
                 let options = [];
-                defaultLicenses.forEach(name=> {
-                    options.push({label: name.toUpperCase(), value: name});
-            });
+                defaultLicenses.forEach(name => {
+                    options.push({ label: name.toUpperCase(), value: name });
+                });
 
-                addedLices.forEach(lice=> {
+                addedLices.forEach(lice => {
                     if (lice.name) {
-                    let name = lice.name;
-                    options.push({label: name.toUpperCase(), value: name});
-                }
-            });
+                        let name = lice.name;
+                        options.push({ label: name.toUpperCase(), value: name });
+                    }
+                });
 
                 return options;
             }
@@ -163,7 +176,7 @@ Mis = {
             readonly: true
         },
         optional: true,
-        autoValue(){
+        autoValue() {
             let voters = this.field('upvoters');
             return voters ? voters.length : 0;
         }
@@ -183,7 +196,7 @@ Mis = {
             readonly: true
         },
         optional: true,
-        autoValue(){
+        autoValue() {
             let voters = this.field('downvoters');
             return voters ? voters.length : 0;
         }
@@ -221,10 +234,10 @@ Mis = {
         label: 'Permitted to see',
         optional: true
     }, {
-        collection: Meteor.users,
-        titleField: 'username',
-        publicationName: 'metawhitelist'
-    }),
+            collection: Meteor.users,
+            titleField: 'username',
+            publicationName: 'metawhitelist'
+        }),
 
     //who can access this entry disregards acl settings
     contentWhiteList: orion.attribute('hasMany', {
@@ -232,10 +245,10 @@ Mis = {
         label: 'Permitted to access',
         optional: true
     }, {
-        collection: Meteor.users,
-        titleField: 'username',
-        publicationName: 'contentwhitelist'
-    })
+            collection: Meteor.users,
+            titleField: 'username',
+            publicationName: 'contentwhitelist'
+        })
 };
 
 _.extend(CreativeWork, Thing);
