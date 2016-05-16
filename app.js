@@ -78,6 +78,10 @@ app.use(function (req, res, next) {
         next();
     }
 });
+app.use(function (req, _, next) {
+    delete req.query.jwt;
+    next();
+});
 
 //logging
 function skip(req, res) {
