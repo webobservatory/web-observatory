@@ -1,4 +1,5 @@
 # Web Observatory Deployment Guide
+Meteor apps can be deployed using [mupx](https://github.com/arunoda/meteor-up/tree/mupx). The guide below shows how to deploy web observatory manually.
 
 First you need to install Nginx, MongoDB, Nodejs.
 
@@ -42,13 +43,13 @@ Currently Meteor (1.2.1) works with Node v0.10.x. Make sure you have the right v
 
 ### Export data from a previous WO
 
-Edit `migrate/config.js` and set `from` to the source MongoDB address. Then do
+Edit `migrate/export/config.js` and set `from` to the source MongoDB address. Then do
 
     cd migrate
     npm install
     node migrate.js
 
-Exported data can be found at `app/private`.
+Exported data can be found at `import/private`.
 
 ### Import
 
