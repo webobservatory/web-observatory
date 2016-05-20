@@ -8,23 +8,23 @@ function buildRegExp(keywords) {
     return new RegExp("(" + parts.join('|') + ")", "ig");
 }
 
-function containAny(keywords) {
-    return keywords ? {$or: [{name: buildRegExp(keywords)}]} : {};
-}
+//function containAny(keywords) {
+//    return keywords ? {$or: [{name: buildRegExp(keywords)}]} : {};
+//}
 
-function fedSearch(colls, keywords, options) {
-    options = options || {limit: 10};
+//function fedSearch(colls, keywords, options) {
+//    options = options || {limit: 10};
+//
+//    let fedResult = colls
+//        .map(col=> col.find(containAny(keywords), options).fetch())//fetch collection
+//        .reduce((a, b)=>a.concat(b));//concat results
+//    return fedResult;
+//}
+//
+//let searchDatasets = fedSearch.bind(null, [Datasets, RemoteDatasets]),
+//    searchApps = fedSearch.bind(null, [Apps, RemoteApps]);
 
-    let fedResult = colls
-        .map(col=> col.find(containAny(keywords), options).fetch())//fetch collection
-        .reduce((a, b)=>a.concat(b));//concat results
-    return fedResult;
-}
-
-let searchDatasets = fedSearch.bind(null, [Datasets, RemoteDatasets]),
-    searchApps = fedSearch.bind(null, [Apps, RemoteApps]);
-
-SearchSource.defineSource('apps', searchApps /*function (keywords, options) {
+SearchSource.defineSource('apps', function (keywords, options) {
  var options = {limit: 10};
 
  if (keywords) {
@@ -39,9 +39,9 @@ SearchSource.defineSource('apps', searchApps /*function (keywords, options) {
  } else {
  return Apps.find({}, options).fetch();
  }
- }*/);
+ } );
 
-SearchSource.defineSource('datasets', searchDatasets/*function (keywords, options) {
+SearchSource.defineSource('datasets', function (keywords, options) {
  var options = {limit: 10};
 
  if (keywords) {
@@ -56,5 +56,38 @@ SearchSource.defineSource('datasets', searchDatasets/*function (keywords, option
  } else {
  return Datasets.find({}, options).fetch();
  }
- }*/);
+ });
 
+SearchSource.defineSource('remoteDatasets', function (keywords, options) {
+     var options = {limit: 10};
+
+     if (keywords) {
+         var regExp = buildRegExp(keywords);
+         var selector = {
+             $or: [
+                {name: regExp},
+             ]
+         };
+
+        return RemoteDatasets.find(selector, options).fetch();
+     } else {
+        return RemoteDatasets.find({}, options).fetch();
+     }
+ });
+
+SearchSource.defineSource('remoteApps', function (keywords, options) {
+    var options = {limit: 10};
+
+    if (keywords) {
+        var regExp = buildRegExp(keywords);
+        var selector = {
+            $or: [
+                {name: regExp},
+            ]
+        };
+
+        return RemoteApps.find(selector, options).fetch();
+    } else {
+        return RemoteApps.find({}, options).fetch();
+    }
+});
