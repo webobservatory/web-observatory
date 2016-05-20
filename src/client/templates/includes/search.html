@@ -25,17 +25,34 @@
                                         <!--<h3>{{name}}</h3>-->
                                     <!--</div>-->
                                 <!--{{/each}}-->
-                                <div class="col-lg-6" id="app-search">
-                                    <div class="row">
-                                        <h4>Apps</h4>
+                                <div class="row">
+                                    <div class="col-lg-6" id="app-search">
+                                        <div class="row">
+                                            <h4>Apps</h4>
+                                        </div>
+                                        {{> searchEntryList searchApps}}
                                     </div>
-                                    {{> searchEntryList searchApps}}
+                                    <div class="col-lg-6" id="dataset-search">
+                                        <div class="row">
+                                            <h4>Datasets</h4>
+                                        </div>
+                                        {{> searchEntryList searchDatasets}}
+                                    </div>
                                 </div>
-                                <div class="col-lg-6" id="dataset-search">
-                                    <div class="row">
-                                        <h4>Datasets</h4>
+                                <div class="dividewhite2"></div>
+                                <div class="row">
+                                    <div class="col-lg-6" id="remote-app-search">
+                                        <div class="row">
+                                            <h4>WO Network Apps</h4>
+                                        </div>
+                                        {{> searchEntryList searchRemoteApps}}
                                     </div>
-                                    {{> searchEntryList searchDatasets}}
+                                    <div class="col-lg-6" id="remote-dataset-search">
+                                        <div class="row">
+                                            <h4>WO Network Datasets</h4>
+                                        </div>
+                                        {{> searchEntryList searchRemoteDatasets}}
+                                    </div>
                                 </div>
                                 <!--<div class="row">-->
                                     <!--&lt;!&ndash;<div class="list-group">&ndash;&gt;-->

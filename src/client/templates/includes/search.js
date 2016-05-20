@@ -10,10 +10,14 @@ var fields = ['name'];
 
 AppSearch = new SearchSource('apps', fields, options);
 DatasetSearch = new SearchSource('datasets', fields, options);
+RemoteAppSearch = new SearchSource('remoteApps', fields, options);
+RemoteDatasetSearch = new SearchSource('remoteDatasets', fields, options);
 
 Template.search.rendered = function() {
     $('#app-search').hide();
     $('#dataset-search').hide();
+    $('#remote-app-search').hide();
+    $('#remote-dataset-search').hide();
 
     $('#search-overlay').on('shown.bs.modal', function () {
         $('#search-field').focus();
@@ -28,14 +32,20 @@ Template.search.events({
         if(text.length>0) {
             $('#app-search').show();
             $('#dataset-search').show();
+            $('#remote-app-search').show();
+            $('#remote-dataset-search').show();
             $('.align-box').slideUp();
         } else {
             $('#app-search').hide();
             $('#dataset-search').hide();
+            $('#remote-app-search').hide();
+            $('#remote-dataset-search').hide();
             $('.align-box').slideDown();
         }
         AppSearch.search(text);
         DatasetSearch.search(text);
+        RemoteAppSearch.search(text);
+        RemoteDatasetSearch.search(text);
         //Session.set('search', text);
     }, 200)
 });
@@ -46,6 +56,12 @@ Template.search.helpers({
     },
     searchApps: function() {
         return transformResults(AppSearch,'app');
+    },
+    searchRemoteDatasets: function() {
+        return transformResults(RemoteDatasetSearch,'remoteDataset');
+    },
+    searchRemoteApps: function() {
+        return transformResults(RemoteAppSearch,'remoteApp');
     },
     //isLoading: function() {
     //    return DatasetSearch.getStatus().loading;
