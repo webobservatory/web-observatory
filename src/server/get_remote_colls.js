@@ -17,7 +17,7 @@ function normaliseUrl(url) {
 
 function urlToCol(url, name, local) {
     let remote = DDP.connect(url),
-        col = new Mongo.Collection(name, { connection: remote });
+        col = new Mongo.Collection(name, {connection: remote});
     col.find().observe({
         added(doc) {
             doc.url = `${url}${name}/${doc._id}`;
@@ -55,7 +55,7 @@ function updateSub(local, remoteColls) {
         });
 }
 
-let woUrls = orion.dictionary.get('wo.wo_urls');
+let woUrls = orion.config.get('wo.wo_urls');
 let remoteDatasetColls = {},
     remoteAppColls = {};
 
@@ -66,9 +66,8 @@ if (woUrls) {
 
 retrieveRemoteColls = function () {
     if (woUrls) {
-        console.log('update from remote collections');
+        console.log(new Date() + ': update from remote collections');
         updateSub(RemoteDatasets, remoteDatasetColls);
         updateSub(RemoteApps, remoteAppColls);
     }
 };
-

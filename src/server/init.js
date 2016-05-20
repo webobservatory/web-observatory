@@ -101,13 +101,12 @@ Meteor.startup(function () {
         return user;
     });
 
-
     // Get remote apps and datasets
     retrieveRemoteColls();
 
     let cron = new Meteor.Cron({
         events: {
-            "0 0 * * *": retrieveRemoteColls
+            "0 * * * *": retrieveRemoteColls
         }
     });
 
