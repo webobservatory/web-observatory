@@ -31,19 +31,31 @@ Template.entryPage.helpers({
             }
         }
     },
-    showInNewTab(entry) {
-    //permitted to access
-    if (accessesDocument(Meteor.userId(), entry)) {
-        // app, group
-        if (entry.url) {
-            return entry.url;
-        }
-        //dataset with only one html distribution
-        if (entry.distribution && entry.distribution.length === 1 && entry.distribution[0].fileFormat === 'HTML') {
-            return entry.distribution[0].url;
+    showDistributions() {
+        let {entry, category} = this;
+        return category === Datasets &&
+            Blaze._globalHelpers.canAccess(entry);
+    },
+    showInNewTab() {
+        let {entry, category} = this;
+        let canAccess = Blaze._globalHelpers.canAccess.bind(this, entry);
+
+
+        //permitted to access
+        if (canAccess()) {
+            // app, group
+            if (category === Apps || category === RemoteApps) {
+                return entry.url;
+            }
+            //dataset with only one html distribution
+            if (category === Datasets &&
+                entry.distribution &&
+                entry.distribution.length === 1 &&
+                entry.distribution[0].fileFormat === 'HTML') {
+                return entry.distribution[0].url;
+            }
         }
     }
-}
 });
 
 function urlToLink() {
@@ -89,10 +101,6 @@ function liceToLink() {
     }
 
     $wrapper.append($row);
-}
-
-function entriToLink() {
-
 }
 
 Template.entryPage.rendered = function () {

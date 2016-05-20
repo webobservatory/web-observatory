@@ -15,59 +15,73 @@ function normaliseUrl(url) {
     return url;
 }
 
-function urlToCol(url, name, local) {
+function origin(url, name, doc) {
+    return `${url}${name}/${doc._id}`;
+}
+
+function linkToRemote(url, name, local) {
     let remote = DDP.connect(url),
         col = new Mongo.Collection(name, {connection: remote});
+
     col.find().observe({
         added(doc) {
-            doc.url = `${url}${name}/${doc._id}`;
+            doc.origin = origin(url, name, doc);
             //TODO rewrite id refs using url as prefix
             delete doc._id;
             delete doc.isBasedOnUrl;
             delete doc.comments;
-            // console.log(doc);
+            local.insert(doc);
+        },
+        removed(doc) {
+            let origin = origin(url, name, doc);
+            local.remove({origin});
+        },
+        changed(doc, oldDoc) {
+            let origin = origin(url, name, oldDoc);
+            local.remove({origin});
+
+            doc.origin = origin(url, name, doc);
+            delete doc._id;
+            delete doc.isBasedOnUrl;
             local.insert(doc);
         }
     });
-    remote.subscribe(name);
     return col;
 }
 
-function regRemoteColls(name, urls, init, local) {
+function regRemoteColls(remote_name, urls, local) {
     return urls.reduce((map, url) => {
         url = normaliseUrl(url);
         if (!map[url]) {
-            map[url] = urlToCol(url, name, local);
+            map[url] = linkToRemote(url, remote_name, local);
         }
         return map;
-    }, init);
+    }, {});
 }
 
-function updateSub(local, remoteColls) {
-    local.remove({});
+function updateSub(remoteColls) {
     Object.keys(remoteColls)
         .map(url => remoteColls[normaliseUrl(url)])
         .forEach(col => {
             let name = col._name,
                 remote = col._connection;
-
             remote.subscribe(name);
         });
 }
 
-let woUrls = orion.config.get('wo.wo_urls');
-let remoteDatasetColls = {},
-    remoteAppColls = {};
+let woUrls = orion.config.get('wo_urls');
+let remoteColls = {};
 
 if (woUrls) {
-    remoteDatasetColls = regRemoteColls('datasets', woUrls, remoteDatasetColls, RemoteDatasets);
-    remoteAppColls = regRemoteColls('apps', woUrls, remoteAppColls, RemoteApps);
+    RemoteApps.remove({});
+    RemoteDatasets.remove({});
+
+    remoteColls[RemoteDatasets.pluralName] = regRemoteColls('datasets', woUrls, RemoteDatasets);
+    remoteColls[RemoteApps.pluralName] = regRemoteColls('apps', woUrls, RemoteApps);
 }
 
-retrieveRemoteColls = function () {
-    if (woUrls) {
-        console.log(new Date() + ': update from remote collections');
-        updateSub(RemoteDatasets, remoteDatasetColls);
-        updateSub(RemoteApps, remoteAppColls);
-    }
+pullRemoteColls = function () {
+    [RemoteApps, RemoteDatasets]
+        .map(coll=>remoteColls[coll.pluralName])
+        .forEach(updateSub);
 };

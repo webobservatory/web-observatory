@@ -1,6 +1,14 @@
 /**
  * Created by xgfd on 11/01/2016.
  */
+SyncedCron.add({
+    name: 'Pull remote collections',
+    schedule: function(parser) {
+        // parser is a later.parse object
+        return parser.text('every 1 hour');
+    },
+    job: pullRemoteColls
+});
 
 Meteor.startup(function () {
     let settings = Meteor.settings;
@@ -102,12 +110,6 @@ Meteor.startup(function () {
     });
 
     // Get remote apps and datasets
-    retrieveRemoteColls();
-
-    let cron = new Meteor.Cron({
-        events: {
-            "0 * * * *": retrieveRemoteColls
-        }
-    });
-
+    pullRemoteColls();
+    SyncedCron.start();
 });

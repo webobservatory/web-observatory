@@ -1,12 +1,21 @@
 /**
  * Created by xgfd on 12/05/2016.
  */
+let remoteMeta = {
+    origin: {
+        type: String,
+        label: 'Origin',
+        optional: true
+    }
+};
+
 let ReleasedCreativeWork = _.clone(CreativeWork);
 
 ReleasedCreativeWork.publisher = {
     type: String,
-    label: 'Creator',
-    optional: true
+    label: 'Publisher',
+    optional: true,
+    autoform: {type: 'hidden'}
 };
 
 ReleasedCreativeWork.description = {
@@ -28,5 +37,5 @@ ReleasedCreativeWork.contentWhiteList = {
     optional: true
 };
 
-RemoteApps.attachSchema(new SimpleSchema([AppSchema, ReleasedCreativeWork]));
-RemoteDatasets.attachSchema(new SimpleSchema([DatasetSchema, ReleasedCreativeWork]));
+RemoteApps.attachSchema(new SimpleSchema([remoteMeta, AppSchema, ReleasedCreativeWork]));
+RemoteDatasets.attachSchema(new SimpleSchema([remoteMeta, DatasetSchema, ReleasedCreativeWork]));
