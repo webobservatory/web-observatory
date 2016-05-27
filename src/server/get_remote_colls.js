@@ -60,15 +60,17 @@ function regRemoteColls(remote_name, urls, local) {
 }
 
 function updateSub(remoteColls) {
-    Object.keys(remoteColls)
-        .map(url => remoteColls[normaliseUrl(url)])
-        .forEach(col => {
-            if (col) {
-                let name = col._name,
-                    remote = col._connection;
-                remote.subscribe(name);
-            }
-        });
+    if (remoteColls) {
+        Object.keys(remoteColls)
+            .map(url => remoteColls[normaliseUrl(url)])
+            .forEach(col => {
+                if (col) {
+                    let name = col._name,
+                        remote = col._connection;
+                    remote.subscribe(name);
+                }
+            });
+    }
 }
 
 let woUrls = orion.config.get('wo_urls');
