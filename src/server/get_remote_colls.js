@@ -63,9 +63,11 @@ function updateSub(remoteColls) {
     Object.keys(remoteColls)
         .map(url => remoteColls[normaliseUrl(url)])
         .forEach(col => {
-            let name = col._name,
-                remote = col._connection;
-            remote.subscribe(name);
+            if (col) {
+                let name = col._name,
+                    remote = col._connection;
+                remote.subscribe(name);
+            }
         });
 }
 
