@@ -363,10 +363,13 @@ Router.onBeforeAction(function () {
 
 Router.onBeforeAction(function () {//using named function causes an error
     let {entry, category} = this.data();
-    if (viewsDocument(Meteor.userId(), entry)) {
-        this.next();
+    if (!entry) {
+        this.render('loading');
     } else {
-        this.render('accessDenied', {data: "You cannot view this " + category.singularName});
+        if (viewsDocument(Meteor.userId(), entry)) {
+            this.next();
+        } else {
+            this.render('accessDenied', {data: "You cannot view this " + category.singularName});
+        }
     }
-
 }, {only: ['dataset.page', 'app.page']});

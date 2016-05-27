@@ -102,7 +102,6 @@ let mongodbConnect = connectorFactory(function (url, username, pass, done) {
     if (!hasCredential(url) && username) {
         url = `mongodb://${username}:${pass}@${url.slice('mongodb://'.length)}`;
     }
-    console.log(url);
     mongoclient.connect(url, done);
 });
 
