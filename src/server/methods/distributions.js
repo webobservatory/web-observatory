@@ -82,6 +82,14 @@ function queryerFactory(connector, queryExec) {
     }
 }
 
+/*
+ * check whether credentials are included in the url
+ */
+function hasCredential(url) {
+    let match = url.match(/(.*?:\/\/)?(.*:.*@).*/);
+    return match && match[2];
+}
+
 //TODO close connections using settimeout
 
 /*MongoDB*/
@@ -91,9 +99,10 @@ let mongoclient = Meteor.npmRequire("mongodb").MongoClient;
  call with one parameter @distId or three parameters @url @username @pass
  */
 let mongodbConnect = connectorFactory(function (url, username, pass, done) {
-    if (username) {
+    if (!hasCredential(url) && username) {
         url = `mongodb://${username}:${pass}@${url.slice('mongodb://'.length)}`;
     }
+    console.log(url);
     mongoclient.connect(url, done);
 });
 
