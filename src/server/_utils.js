@@ -13,4 +13,4 @@ publish = function (coll, pubCBFactry, pubAs = (coll)=>coll._name) {
     Meteor.publish(name, pubCBFactry(coll, name));
 };
 
-JSONStream = Meteor.npmRequire('JSONStream');
+//import JSONStream from 'JSONStream';

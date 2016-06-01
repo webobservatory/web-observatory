@@ -1,0 +1,17 @@
+{
+  "name": "web_observatory",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "JSONStream": "1.0.7",
+    "amqplib": "^0.4.1",
+    "mongodb": "2.1.2",
+    "mysql": "2.10.0"
+  }
+}

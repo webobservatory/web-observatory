@@ -93,7 +93,7 @@ function hasCredential(url) {
 //TODO close connections using settimeout
 
 /*MongoDB*/
-let mongoclient = Meteor.npmRequire("mongodb").MongoClient;
+let mongoclient = Npm.require("mongodb").MongoClient;
 
 /*
  call with one parameter @distId or three parameters @url @username @pass
@@ -106,7 +106,7 @@ let mongodbConnect = connectorFactory(function (url, username, pass, done) {
 });
 
 /* MySQL */
-let mysql = Meteor.npmRequire('mysql');
+let mysql = Npm.require('mysql');
 
 let mysqlConnect = connectorFactory(function (url, username, pass, done) {
     url = url.match(/(mysql:\/\/)?(.*)/)[2];//strip off mysql://
@@ -130,7 +130,7 @@ let mysqlConnect = connectorFactory(function (url, username, pass, done) {
 });
 
 /*RabbitMQ*/
-let amqp = Meteor.npmRequire('amqplib/callback_api');
+let amqp = Npm.require('amqplib/callback_api');
 let amqpConnect = connectorFactory(function (url, username, pass, done) {
     let parts = url.match(/(amqps?:\/\/)?([^\?]*)\??(\S*)/),
         query = parts[3],

@@ -27,10 +27,8 @@ accounts-github
 ecmascript
 matb33:collection-hooks
 vsivsi:orion-file-collection
-meteorhacks:npm
 
 
-npm-container
 simple:reactive-method
 http
 yuukan:streamy
@@ -50,3 +48,4 @@ meteorhacks:search-source
 standard-minifier-css
 standard-minifier-js
 percolate:synced-cron
+meteorhacks:async
