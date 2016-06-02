@@ -11,7 +11,11 @@
   "dependencies": {
     "JSONStream": "1.0.7",
     "amqplib": "^0.4.1",
+    "body-parser": "^1.15.1",
+    "express-session": "^1.13.0",
     "mongodb": "2.1.21",
-    "mysql": "2.10.0"
+    "mysql": "2.10.0",
+    "openid-connect": "^1.2.4",
+    "sails-mongo": "^0.12.0"
   }
 }

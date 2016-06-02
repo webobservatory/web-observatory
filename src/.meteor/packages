@@ -38,7 +38,6 @@ fortawesome:fontawesome
 orionjs:bootstrap
 jquery
 tmeasday:publish-counts
-meteorhacks:picker
 aldeed:autoform-bs-datepicker
 rajit:bootstrap3-datepicker
 twbs:bootstrap
@@ -49,3 +48,5 @@ standard-minifier-css
 standard-minifier-js
 percolate:synced-cron
 meteorhacks:async
+glittershark:meteor-express
+meteorhacks:picker

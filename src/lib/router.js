@@ -329,7 +329,18 @@ AccountsTemplates.configureRoute('changePwd');
 AccountsTemplates.configureRoute('enrollAccount');
 AccountsTemplates.configureRoute('forgotPwd');
 AccountsTemplates.configureRoute('resetPwd');
-AccountsTemplates.configureRoute('signIn');
+AccountsTemplates.configureRoute('signIn', {
+    redirect: ()=> {
+        let ref = RouterLayer.getQueryParam('return_url');
+        console.log(ref);
+        if (ref.indexOf('?') === -1) {
+            ref += `?user=${Meteor.userId()}`;
+        } else {
+            ref += `&user=${Meteor.userId()}`;
+        }
+        window.location.replace(ref);
+    }
+});
 AccountsTemplates.configureRoute('signUp');
 AccountsTemplates.configureRoute('verifyEmail');
 
