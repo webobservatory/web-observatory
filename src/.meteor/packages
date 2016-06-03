@@ -49,4 +49,3 @@ standard-minifier-js
 percolate:synced-cron
 meteorhacks:async
 glittershark:meteor-express
-meteorhacks:picker
