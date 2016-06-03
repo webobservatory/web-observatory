@@ -48,3 +48,4 @@ standard-minifier-css
 standard-minifier-js
 percolate:synced-cron
 meteorhacks:async
+mrt:cookies

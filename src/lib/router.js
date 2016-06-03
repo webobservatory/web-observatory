@@ -331,14 +331,13 @@ AccountsTemplates.configureRoute('forgotPwd');
 AccountsTemplates.configureRoute('resetPwd');
 AccountsTemplates.configureRoute('signIn', {
     redirect: ()=> {
-        let ref = RouterLayer.getQueryParam('return_url');
-        console.log(ref);
-        if (ref.indexOf('?') === -1) {
-            ref += `?user=${Meteor.userId()}`;
-        } else {
-            ref += `&user=${Meteor.userId()}`;
+        let ref = RouterLayer.getQueryParam('return_url'),
+            userId = Meteor.userId();
+        if (ref && userId) {
+            Cookie.set("meteor_user_id", userId);
+            Cookie.set("meteor_token", localStorage.getItem("Meteor.loginToken"));
+            window.location.replace(ref);
         }
-        window.location.replace(ref);
     }
 });
 AccountsTemplates.configureRoute('signUp');
