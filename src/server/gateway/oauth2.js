@@ -2,6 +2,7 @@
  * Created by xgfd on 02/06/2016.
  */
 
+import express from 'express'
 import bodyParser from 'body-parser'
 import session from 'express-session'
 import crypto from 'crypto'
@@ -31,7 +32,8 @@ let options = {
 };
 
 let oidc = OpenIDConnect.oidc(options);
-let app = Express();
+let app = express();
+WebApp.connectHandlers.use(Meteor.bindEnvironment(app));
 
 app.use(session({secret: 'webobservatory', resave: false, saveUninitialized: false}));
 app.use(Meteor.bindEnvironment((req, res, next)=> {
