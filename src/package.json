@@ -12,6 +12,7 @@
     "JSONStream": "1.0.7",
     "amqplib": "^0.4.1",
     "body-parser": "^1.15.1",
+    "express": "^4.13.4",
     "express-session": "^1.13.0",
     "mongodb": "2.1.21",
     "mysql": "2.10.0",
