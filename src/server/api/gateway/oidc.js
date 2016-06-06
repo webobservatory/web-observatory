@@ -56,4 +56,23 @@ oidc.userInfo = function () {
         }];
 };
 
+oidc.checkAndSetUser = function () {
+    let self = this;
+    let scopes = arguments;
+    return [
+        self.check(...scopes),
+        self.use({policies: {loggedIn: false}, models: ['access']}),
+        function (req, res, next) {
+            req.model.access.findOne({token: req.parsedParams.access_token})
+                .exec(function (err, access) {
+                    if (!err && access) {
+                        req.user = access.user;
+                        next();
+                    } else {
+                        self.errorHandle(res, null, 'unauthorized_client', 'Access token is not valid.');
+                    }
+                });
+        }];
+};
+
 export default Object.create(oidc);

@@ -7,12 +7,12 @@ import oidc from './oidc'
 
 let router = express.Router();
 
-router.get('/authorise', oidc.auth());
-router.post('/token', oidc.token());
-router.post('/decision', oidc.consent());
+router.get('/oauth/authorise', oidc.auth());
+router.post('/oauth/token', oidc.token());
+router.post('/oauth/decision', oidc.consent());
 
 //user consent form
-router.get('/decision', function (req, res, next) {
+router.get('/oauth/decision', function (req, res, next) {
     var head = '<head><title>Consent</title></head>';
     var lis = [];
     for (var i in req.session.scopes) {
