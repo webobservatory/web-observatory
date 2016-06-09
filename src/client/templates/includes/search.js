@@ -19,8 +19,10 @@ Template.search.rendered = function() {
     $('#remote-app-search').hide();
     $('#remote-dataset-search').hide();
 
-    $('#search-overlay').on('shown.bs.modal', function () {
-        $('#search-field').focus();
+    $('#search-overlay').on('show.bs.modal', function () {
+        $('#search-overlay').fadeIn(150,"swing",function() {
+            $('#search-field').focus();
+        });
     });
 };
 
