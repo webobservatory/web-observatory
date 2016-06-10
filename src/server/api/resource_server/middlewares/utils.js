@@ -16,11 +16,15 @@ function relSelf(req) {
 
 export function RESTCompose(headers, links) {
     return function (req, res) {
-        let apiRes = headers instanceof Function ? headers(req) : headers || {};
-        let linksArr = links instanceof Function ? links(req) : links || [];
-        linksArr.unshift(relSelf(req));
-        apiRes.links = linksArr;
-        res.json(apiRes);
+        try {
+            let apiRes = headers instanceof Function ? headers(req) : headers || {};
+            let linksArr = links instanceof Function ? links(req) : links || [];
+            linksArr.unshift(relSelf(req));
+            apiRes.links = linksArr;
+            res.json(apiRes);
+        } catch (err) {
+            res.json(err);
+        }
     };
 }
 

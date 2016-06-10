@@ -7,6 +7,7 @@ import express from 'express'
 import oidc from '../gateway/oidc'
 import {RESTCompose} from './middlewares/utils'
 import {getEntryLst, getEntry} from './middlewares/metadata'
+import accessData from './middlewares/content'
 
 let router = express.Router();
 
@@ -21,6 +22,8 @@ router.get('/', RESTCompose({version: '0.1', auth: 'OAuth2.0'}));
 router.get('/datasets', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnvironment(getEntryLst));
 
 router.get('/datasets/:id', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnvironment(getEntry));
+
+router.get('/datasets/:_/:id', oidc.checkAndSetUser('content'), Meteor.bindEnvironment(accessData));
 
 /**
  * Apps routes

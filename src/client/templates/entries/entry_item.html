@@ -18,11 +18,11 @@
             <h4 class="font-accident-one-bold uppercase"><a href="{{pathFor ../routes.page}}">{{blurb name 24}}</a></h4>
             <div class="post-attrib">
                 <div class="comment-baloon font-accident-one-bold">
-                {{#if canAccess this}}
-                    <span class="teal-text text-accent-2"><i class="fa fa-check"></i></span>
-                {{else}}
-                    <span><i class="fa fa-ban"></i></span>
-                {{/if}}
+                    {{#if canAccess this}}
+                        <span class="teal-text text-accent-2"><i class="fa fa-check"></i></span>
+                    {{else}}
+                        <span><i class="fa fa-ban"></i></span>
+                    {{/if}}
                 </div>
 
                 <div class="post-data">
@@ -43,7 +43,7 @@
 </template>
 <template name="distribution">
     <span itemprop="distribution" itemscope itemtype="http://schema.org/DataDownload"
-          class="chip {{offlineClass}} lighten-1 white-text">
+          class="{{offlineClass}}">
         <meta itemprop='http://schema.org/fileFormat' content="{{fileFormat}}">
         {{fileFormat}}
     </span>

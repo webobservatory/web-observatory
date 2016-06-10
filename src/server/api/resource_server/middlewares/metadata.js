@@ -31,7 +31,7 @@ function lstLinks(req) {
         selector = JSON.parse(queryString);
     }
     catch (err) {
-        console.log(err);
+        throw new Meteor.Error(500, 'Invalid query syntax', err);
     }
 
     let entries = [];
@@ -88,7 +88,7 @@ function entryLinks(req) {
         if (entry && entry.distribution) {
             let distributions = entry.distribution;
             links = links.concat(distributions.map(d=>({
-                href: `${absPath(req)}/${d._id}`,
+                href: `${thisUrl}/${d._id}?query={queryString}&collection={MongoDBCollection}&options{MongoDBQueryOptions}`,
                 rel: 'distribution',
                 method: 'GET',
                 fileFormat: d.fileFormat

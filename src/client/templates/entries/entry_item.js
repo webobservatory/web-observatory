@@ -98,9 +98,9 @@ Template.entryItem.events({
 Template.distribution.helpers({
     offlineClass() {
         if (this.online) {
-            return "teal";
+            return "white-text";
         } else {
-            return "grey";
+            return "grey-text";
         }
     }
 });

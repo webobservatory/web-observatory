@@ -156,7 +156,7 @@ Meteor.methods({
     amqpConnect,
 
     //query
-    mongodbQuery: queryerFactory(mongodbConnect, (conn, done, collection, selector = {}, options = {})=> {
+    mongodbQuery: queryerFactory(mongodbConnect, (conn, done, collection, selector = {}, options = {limit: 1000})=> {
         conn.collection(collection, function (error, col) {
             if (error) {
                 throw new Meteor.Error(error.name, error.message);
