@@ -13,8 +13,10 @@
         <meta itemprop='http://schema.org/datasetTimeInterval'
               content="{{datasetTimeInterval.startTime}} - {{datasetTimeInterval.endTime}}">
         <meta itemprop='http://schema.org/commentCount' content="{{commentCount}}">
-        <h3 class="font-accident-one-bold uppercase white">{{name}}</h3>
-        <h5 class="font-accident-one-bold title uppercase hovercolor"><span class="light">By</span> {{publisherObj.username}}, <span class="light">{{prettifyDate datePublished}}</span></h5>
+        <h3 class="font-accident-one-bold uppercase">{{name}}</h3>
+        <h5 class="font-accident-one-bold title uppercase hovercolor"><span
+                class="light">By</span> {{publisherObj.username}}, <span
+                class="light">{{prettifyDate datePublished}}</span></h5>
         <div class="dividewhite4"></div>
         <p class="small fontcolor-medium-light">
             {{description}}
@@ -28,7 +30,7 @@
                 <i class="fa fa-thumbs-down"></i> {{downvotes}}
             </a>
             <!--<a href="{{pathFor ../routes.page hash='comments'}}" class="btn btn-default btn-xs" title="Comments">-->
-                <!--<i class="fa fa-comment"></i> {{commentsCount}}-->
+            <!--<i class="fa fa-comment"></i> {{commentsCount}}-->
             <!--</a>-->
             {{#if ownEntry}}
                 <a href="{{pathFor ../routes.edit}}" class="btn btn-lgr-str" title="Edit">

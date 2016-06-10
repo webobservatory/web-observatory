@@ -40,8 +40,12 @@ Template.entryItem.helpers({
         return entry.publisher == Meteor.userId() || Roles.userHasRole(Meteor.userId(), "admin");
     },
     publisherName() {
-        return this.publisherName ||
-            Meteor.users.findOne(this.publisher).username;
+        if (this.publisherName) {
+            return this.publisherName;
+        } else {
+            let publisher = Meteor.users.findOne(this.publisher);
+            return publisher ? publisher.username : '';
+        }
     },
     absUrl() {
         let parentData = Template.parentData(1),
@@ -106,5 +110,5 @@ Template.distribution.helpers({
 });
 
 Template.entryItem.rendered = function () {
-    $('.tooltipped').tooltip({ delay: 300 });
+    $('.tooltipped').tooltip({delay: 300});
 };
