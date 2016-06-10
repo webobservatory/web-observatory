@@ -1091,6 +1091,9 @@ body {
       text-decoration: none;
       color: #42DCA3; }
 
+.remote .infoblock a {
+  color: #999; }
+
 .post-attrib {
   /* Post attributes in line */
   display: inline-block;
@@ -2370,6 +2373,9 @@ body {
     .infoblock a:hover {
       text-decoration: none;
       color: #42DCA3; }
+
+.remote .infoblock a {
+  color: #999; }
 
 .post-attrib {
   /* Post attributes in line */

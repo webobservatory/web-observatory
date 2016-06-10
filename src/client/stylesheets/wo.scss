@@ -1115,6 +1115,14 @@ body {
     }
 }
 
+.remote {
+    .infoblock {
+        a {
+            color: $fontcolor-medium;
+        }
+    }
+}
+
 .post-attrib {   /* Post attributes in line */
     display: inline-block;
     vertical-align: middle;
