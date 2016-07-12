@@ -15,14 +15,14 @@ function toREST(url, entry) {
 
 function lstHeaders(req) {
     let headers = {
-        title: req.path.slice(1),
+        title: req.path.split('/')[1],
         opensearch: `${absPath(req)}?query={queryString}`
     };
     return headers;
 }
 
 function lstLinks(req) {
-    let collName = req.path.slice(1),
+    let collName = req.path.split('/')[1],
         coll = Mongo.Collection.get(collName);
     let selector = {};
 
@@ -51,7 +51,9 @@ function entryHeaders(req) {
     let headers = {};
 
     if (coll && id) {
-        let entry = coll.findOne(id);
+        let selector = {_id: id};
+        extendOr(selector, viewsDocumentQuery(req.user));
+        let entry = coll.findOne(selector);
         let pubProperties = ['name', 'description', 'license', 'creator', 'publisherName', 'datePublished', 'dateModified', 'keywords', 'votes', 'downbvotes', 'datasetTimeInterval', 'spatial', 'github', 'url'];
 
         pubProperties.forEach(p=> {
@@ -84,7 +86,9 @@ function entryLinks(req) {
     let links = [{href: thisUrl.substring(0, thisUrl.lastIndexOf('/')), rel: 'collection', method: 'GET'}];
 
     if (coll && id) {
-        let entry = coll.findOne(id);
+        let selector = {_id: id};
+        extendOr(selector, viewsDocumentQuery(req.user));
+        let entry = coll.findOne(selector);
         if (entry && entry.distribution) {
             let distributions = entry.distribution;
             links = links.concat(distributions.map(d=>({

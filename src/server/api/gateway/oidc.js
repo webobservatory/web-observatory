@@ -34,7 +34,7 @@ oidc.userInfo = function () {
     return [
         self.check('openid', /profile|email/),
         self.use({policies: {loggedIn: false}, models: ['access', 'users']}),
-        function (req, res, next) {
+        function (req, res) {
             req.model.access.findOne({token: req.parsedParams.access_token})
                 .exec(function (err, access) {
                     if (!err && access) {
@@ -56,23 +56,58 @@ oidc.userInfo = function () {
         }];
 };
 
+function hasATK(req) {
+    let atk = req.query.access_token || req.body.access_token;
+    return !!atk;
+}
+/**
+ * Return a middleware that acts differently depending on the value of a predicate
+ * @param {function(req, res, next)} left - Called when the predicate evaluates to false.
+ * @param {function(req, res, next)} right - Called when the predicate
+ * @param {function(req)} pred - A predicate function
+ * @returns {function()} - A middleware that acts as left if pred is false, or as right if pred is true;
+ */
+function either(left, right, pred = hasATK) {
+    return (req, res, next)=> {
+        if (pred(req)) {
+            right(req, res, next);
+        } else {
+            left(req, res, next);
+        }
+    }
+};
+
+function doNothing(_, __, next) {
+    next();
+}
+
+function setUser(req, res, next) {
+    let token = req.query.access_token || req.body.access_token;
+
+    if (token) {
+        req.model.access.findOne({token})
+            .exec(function (err, access) {
+                if (!err && access) {
+                    req.user = access.user;
+                    next();
+                } else {
+                    self.errorHandle(res, null, 'unauthorized_client', 'Invalid access token.');
+                }
+            });
+    } else {
+        req.user = null;
+        next();
+    }
+}
+
 oidc.checkAndSetUser = function () {
     let self = this;
     let scopes = arguments;
     return [
-        self.check(...scopes),
-        self.use({policies: {loggedIn: false}, models: ['access']}),
-        function (req, res, next) {
-            req.model.access.findOne({token: req.parsedParams.access_token})
-                .exec(function (err, access) {
-                    if (!err && access) {
-                        req.user = access.user;
-                        next();
-                    } else {
-                        self.errorHandle(res, null, 'unauthorized_client', 'Access token is not valid.');
-                    }
-                });
-        }];
+        either(doNothing, self.check(...scopes)),
+        either(doNothing, self.use({policies: {loggedIn: false}, models: ['access']})),
+        setUser
+    ];
 };
 
 export default Object.create(oidc);
