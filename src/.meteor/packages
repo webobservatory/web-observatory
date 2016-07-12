@@ -50,3 +50,4 @@ percolate:synced-cron
 meteorhacks:async
 mrt:cookies
 dburles:mongo-collection-instances
+jparker:crypto-md5

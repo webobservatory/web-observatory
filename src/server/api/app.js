@@ -34,6 +34,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 //setting up routes
 app.use('/', oauth_routes);
 app.use('/api', api_routes);
-app.use('/client', client_routes);
+// client routes are for testing only
+// app.use('/client', client_routes);
 
 

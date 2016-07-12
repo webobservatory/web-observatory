@@ -1,6 +1,12 @@
 /**
  * Created by xgfd on 20/01/2016.
  */
+// import crypto from 'crypto'
+
+function keyGen(str) {
+    return CryptoJS.MD5(str + Math.random()).toString(CryptoJS.enc.Hex);
+}
+
 let ClientSchema = new SimpleSchema({
 
     name: {
@@ -8,35 +14,35 @@ let ClientSchema = new SimpleSchema({
         label: 'Name'
     },
 
-    publisher: orion.attribute('hasOne', {
-        type: String,
-        label: 'publisher',
-        denyUpdate: true,
-        autoValue() {
-            if (this.isInsert || this.isUpsert) {
-                return this.userId || this.value;
-            } else {
-                this.unset();
-            }
-        },
-        autoform: {
-            type: 'select',
-            omit: true,
-            readonly: true
-        },
-    }, {
-        collection: Meteor.users,
-        // the key whose value you want to show for each post document on the update form
-        titleField: 'username',
-        publicationName: 'clientpublisher'
-    }),
+    user: orion.attribute('createdBy'),
 
-    clientSecret: {
+    publisher: orion.attribute('createdBy'),
+
+    key: {
         type: String,
         denyUpdate: true,
         autoValue(){
-            if (this.isInsert || this.isUpsert) {
-                return Random.id();
+            if (this.isInsert) {
+                let user = Meteor.userId();
+                return keyGen(user + '-');
+            } else {
+                this.unset(); // Prevent user from supplying their own value
+            }
+        },
+        autoform: {
+            omit: true,
+            readonly: true
+        }
+    },
+
+    secret: {
+        type: String,
+        denyUpdate: true,
+        autoValue() {
+            let key = this.field("key");
+            if (key.isSet) {
+                let user = Meteor.userId();
+                return keyGen(key.value + user);
             } else {
                 this.unset();
             }
@@ -47,26 +53,12 @@ let ClientSchema = new SimpleSchema({
         }
     },
 
-    datePublished: {
-        type: Date,
-        denyUpdate: true,
-        autoform: {
-            readonly: true,
-            omit: true,
-            type: "bootstrap-datepicker"
-        },
-        autoValue: function () {
-            if (this.isInsert || this.isUpsert) {
-                return new Date();
-            } else {
-                this.unset(); // Prevent user from supplying their own value
-            }
-        }
-    },
+    createdAt: orion.attribute('createdAt'),
+    updatedAt: orion.attribute('updatedAt'),
 
-    callbackUrl: {
-        type: String,
-        label: 'Callback URL',
+    redirect_uris: {
+        type: [String],
+        label: 'Callback URLs',
         optional: true
     }
 });

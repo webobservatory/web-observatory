@@ -34,7 +34,9 @@ Comments.attachSchema(new SimpleSchema({
             readonly: true
         }
     },
-    body: {type: String, label: 'Body', autoform: {type: 'textarea'}},
+    body: orion.attribute('summernote', {
+        label: 'Comment body'
+    }),
     image: orion.attribute('image', {
         optional: true,
         label: 'Comment Image'

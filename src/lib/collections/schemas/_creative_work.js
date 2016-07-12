@@ -13,11 +13,10 @@ Thing = {
         label: 'Name'
     },
 
-    description: {
-        type: String,
+    description: orion.attribute('summernote', {
         label: 'Description',
-        autoform: { type: 'textarea' }
-    }
+        optional: true
+    })
 };
 
 CreativeWork = {
@@ -28,10 +27,10 @@ CreativeWork = {
         optional: true,
         noneditable: true
     }, {
-            collection: Comments,
-            titleField: 'body',
-            publicationName: 'rel_comments'
-        }),
+        collection: Comments,
+        titleField: 'body',
+        publicationName: 'rel_comments'
+    }),
 
     commentsCount: {
         type: Number,
@@ -52,83 +51,38 @@ CreativeWork = {
         optional: true
     },
 
-    publisher: orion.attribute('hasOne', {
-        type: String,
-        label: 'publisher',
-        denyUpdate: true,
-        autoValue() {
-            if (this.isInsert || this.isUpsert) {
-                return this.userId || this.value;
-            } else {
-                this.unset();
-            }
-        },
-        autoform: {
-            type: 'select'
-            //readonly: true
-        },
-        noneditable: true
-    }, {
-            collection: Meteor.users,
-            // the key whose value you want to show for each post document on the update form
-            titleField: 'username',
-            publicationName: 'publisher'
-        }),
+    publisher: orion.attribute('createdBy'),
 
     publisherName: {
         type: String,
         optional: true,
         autoValue() {
             let publisher = this.field('publisher');
-            if(publisher.isSet){
+            if (publisher.isSet) {
                 let pId = publisher.value;
                 return Meteor.users.findOne(pId);
-            }else{
+            } else {
                 this.unset();
             }
         }
     },
     // Force value to be current date (on server) upon insert
     // and prevent updates thereafter.
-    datePublished: {
-        type: Date,
-        denyUpdate: true,
-        autoform: {
-            readonly: true,
-            type: "bootstrap-datepicker"
-        },
-        autoValue: function () {
-            if (this.isInsert || this.isUpsert) {
-                return new Date();
-            } else {
-                this.unset(); // Prevent user from supplying their own value
-            }
-        }
-    },
+    datePublished: orion.attribute('createdAt'),
 
     // Force value to be current date (on server) upon update
     // and don't allow it to be set upon insert.
-    dateModified: {
-        type: Date,
-        autoform: {
-            readonly: true,
-            type: "bootstrap-datepicker"
-        },
-        autoValue() {
-            return new Date();
-        },
-        noneditable: true
-    },
+    dateModified: orion.attribute('updatedAt'),
 
     isBasedOnUrl: orion.attribute('hasMany', {
         type: [String],
         label: 'Related datasets',
         optional: true
     }, {
-            collection: Datasets,
-            titleField: 'name',
-            publicationName: 'isbasedonurl'
-        }),
+        collection: Datasets,
+        titleField: 'name',
+        publicationName: 'isbasedonurl'
+    }),
 
     keywords: {
         type: [String],
@@ -145,13 +99,13 @@ CreativeWork = {
 
                 let options = [];
                 defaultLicenses.forEach(name => {
-                    options.push({ label: name.toUpperCase(), value: name });
+                    options.push({label: name.toUpperCase(), value: name});
                 });
 
                 addedLices.forEach(lice => {
                     if (lice.name) {
                         let name = lice.name;
-                        options.push({ label: name.toUpperCase(), value: name });
+                        options.push({label: name.toUpperCase(), value: name});
                     }
                 });
 
@@ -234,10 +188,10 @@ Mis = {
         label: 'Permitted to see',
         optional: true
     }, {
-            collection: Meteor.users,
-            titleField: 'username',
-            publicationName: 'metawhitelist'
-        }),
+        collection: Meteor.users,
+        titleField: 'username',
+        publicationName: 'metawhitelist'
+    }),
 
     //who can access this entry disregards acl settings
     contentWhiteList: orion.attribute('hasMany', {
@@ -245,10 +199,10 @@ Mis = {
         label: 'Permitted to access',
         optional: true
     }, {
-            collection: Meteor.users,
-            titleField: 'username',
-            publicationName: 'contentwhitelist'
-        })
+        collection: Meteor.users,
+        titleField: 'username',
+        publicationName: 'contentwhitelist'
+    })
 };
 
 _.extend(CreativeWork, Thing);

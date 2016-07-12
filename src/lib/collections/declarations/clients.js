@@ -1,7 +1,7 @@
 /**
  * Created by xgfd on 20/01/2016.
  */
-Clients = new orion.collection('clients', {
+Clients = new orion.collection('client', {
     singularName: 'client', // The name of one of these items
     pluralName: 'clients', // The name of more than one of these items
     link: {
@@ -23,27 +23,31 @@ Clients = new orion.collection('clients', {
                 title: "Name"
             },
             {
-                data: "_id",
-                title: "Client Id"
+                data: "key",
+                title: "Client Key/ID"
             },
             {
-                data: "clientSecret",
+                data: "secret",
                 title: "Client secret"
             },
             {
-                data: "publisher",
+                data: "redirect_uris",
+                title: "Redirect/Callback URLs"
+            },
+            {
+                data: "user",
                 render: function (val, type, doc) {
                     let publisherId = val;
                     let publisherName = Meteor.users.findOne(publisherId).username;
                     return publisherName;
                 },
-                title: "Publisher"
+                title: "User"
             },
-            orion.attributeColumn('createdAt', 'datePublished', 'Created'),
+            orion.attributeColumn('createdAt', 'createdAt', 'Created')
         ]
     }
 });
 
 // Meteor.call requires parameters to be of EJSON, passing a collection as it is
 // causes a Maximum call stack size exceeded error
-toEJSONSingularType(Clients, Clients.singularName);
+// toEJSONSingularType(Clients, Clients.singularName);

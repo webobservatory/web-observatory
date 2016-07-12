@@ -11,7 +11,7 @@ let Atom = new Roles.Role('individual'),
         },
         datasets: ['index', 'insert', 'update', 'remove', 'showUpdate', 'showRemove'],
         apps: ['index', 'insert', 'update', 'remove', 'showUpdate', 'showRemove'],
-        clients: ['index', 'insert', 'update', 'remove', 'showCreate', 'showUpdate', 'showRemove'],
+        client: ['index', 'insert', 'update', 'remove', 'showCreate', 'showUpdate', 'showRemove'],
         licenses: ['index', 'insert', 'update', 'remove', 'showCreate', 'showUpdate', 'showRemove'],
         comments: ['index'],
         groups: ['index']
@@ -21,7 +21,7 @@ setCollectionGrants(Atom, grants);
 
 Atom.helper('collections.datasets.indexFilter', ownsDocumentQuery);
 Atom.helper('collections.apps.indexFilter', ownsDocumentQuery);
-Atom.helper('collections.clients.indexFilter', ownsDocumentQuery);
+Atom.helper('collections.client.indexFilter', ownsDocumentQuery);
 Atom.helper('collections.licenses.indexFilter', ownsDocumentQuery);
 Atom.helper('collections.comments.indexFilter', ownsDocumentQuery);
 Atom.helper('collections.groups.indexFilter', isMemberQuery);
@@ -30,5 +30,5 @@ Atom.helper('collections.groups.indexFilter', isMemberQuery);
 Atom.helper('collections.datasets.forbiddenFields', omitFields);
 Atom.helper('collections.apps.forbiddenFields', omitFields);
 //Atom.helper('collections.licenses.forbiddenFields', ['publisher', 'datePublished']);
-//Atom.helper('collections.clients.forbiddenFields', ['clientSecret', 'publisher', 'datePublished']);
+//Atom.helper('collections.client.forbiddenFields', ['clientSecret', 'publisher', 'datePublished']);
 //Atom.helper('collections.comments.forbiddenFields', ['publisher', 'entryId', 'submitted']);
