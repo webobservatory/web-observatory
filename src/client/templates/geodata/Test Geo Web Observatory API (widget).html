@@ -1,0 +1,98 @@
+<template name="geoapi">
+    <style>
+        .layer-switcher .panel p, .layer-switcher .panel h5 {
+            margin-left: 0.5em;
+        }
+
+        .layer-switcher .panel li.layer {
+            display: block;
+        }
+
+        .layer-switcher .panel li.layer label {
+            display: inline;
+        }
+
+        .layer-switcher .panel .controls {
+            margin-bottom: .5em;
+        }
+
+        .layer-switcher .panel .controls label {
+            font-size: 70%;
+        }
+
+        .layer-switcher .panel .controls input {
+            width: 4em;
+            display: inline;
+            vertical-align: middle;
+        }
+    </style>
+
+    <!-- template for jsfiddle -->
+    <script type="text/template" id="template">
+        function business() {
+        <%
+        var layerFactory = window.OL3LayerFactory("template");
+
+        print(_.map(layers, function (layer, id) {
+        return "  var " + id + "Layer = " +
+        layerFactory(layer.layertype, layer.sourcetype, layer.url, layer.data) +
+        ";";
+        }).join("\n  "));
+        %>
+        var baseLayer = new ol.layer.Tile({ source: new ol.source.OSM() });
+        var map = new ol.Map({
+        target: 'map',
+        view: new ol.View({ center: [0, 0], zoom: 2 }),
+        layers: [ baseLayer, <%
+        print(_.map(_.keys(layers), function (l) {
+        return l + "Layer";
+        }).join(", "))
+        %> ],
+        controls: [ new ol.control.LayerSwitcher() ]
+        });
+        map.getView().fit(ol.extent.boundingExtent(<%= extent %>), map.getSize());
+        }
+
+        (function () {
+        if (!window.hasOwnProperty("ol")) { return; }
+        // Load layerswitcher control here, as it depends on openlayers,
+        // but jsfiddle loads External Resources in arbitrary order
+        var script = document.createElement("script");
+        script.onload = business;
+        script.type = "text/javascript";
+        script.src = "https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.js";
+        document.getElementsByTagName("head")[0].appendChild(script);
+        }());
+    </script>
+
+    <h1>GeoAPIObservatory Widget test</h1>
+    <p>Render preview to a div.</p>
+    <div id="preview-map">
+        <div class="ol-viewport"
+             style="position: relative; overflow: hidden; width: 100%; height: 100%; touch-action: none;">
+            <canvas class="ol-unselectable" style="width: 100%; height: 100%;" width="2537" height="1280"></canvas>
+            <div class="ol-overlaycontainer"></div>
+            <div class="ol-overlaycontainer-stopevent">
+                <div class="ol-unselectable ol-control layer-switcher">
+                    <button title="Legend"></button>
+                    <div class="panel"><p>No data sources</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <pre id="code"></pre>
+
+    <script type="text/javascript">
+        $(function () {
+            $("#preview-map").mapPreview({
+                onChange: function () {
+                    $("#code").text(this.generateCode());
+                }
+            });
+
+            //$("#preview-map").mapPreview("addLayerById", 42);
+            //window.setTimeout(function () { $("#preview-map").mapPreview("removeLayerById", 42); }, 10000);
+
+        });
+    </script>
+</template>
