@@ -261,7 +261,7 @@ HomeController = ListController.extend({
 
 /****************************************************************
  * Routes
- * Route naming schema {{coll.singularName}}.{{action}}
+ * Route naming schema {{coll.pluralName}}.{{action}}
  *****************************************************************/
 
 /*
@@ -269,6 +269,28 @@ HomeController = ListController.extend({
  */
 
 Router.route('/', {name: 'home'});
+
+/*
+ * Geo API
+ */
+
+Router.route(`/geodata`, {
+    template: `geoapi`,
+    name: `geoapi`,
+    subscriptions() {
+        // returning a subscription handle or an array of subscription handles
+        // adds them to the wait list.
+        return Meteor.subscribe('datasets', {});
+    },
+    data() {
+        return {category: Datasets, col: 'Datasets'};
+    },
+    //default action
+    action() {
+        this.render();
+    }
+});
+
 
 function setUpRoutes(col, hasRemote = false) {
     let sn = col.singularName, pn = col.pluralName;

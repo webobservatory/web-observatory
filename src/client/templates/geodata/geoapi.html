@@ -1,4 +1,18 @@
-<template name="geoapi">
+<head>
+    <!-- ol3 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.15.0/ol-debug.js"></script>
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.15.0/ol.css">-->
+
+    <!-- ol3-layerswitcher -->
+    <script src="https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.js"></script>
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.css">-->
+
+    <!-- geoWebObservatory.preview widget deps -->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.js"></script>-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.js"></script>-->
+    <!--<link rel="stylsheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.4/jquery-ui.css">-->
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.6.1/lodash.js"></script>-->
+
     <style>
         .layer-switcher .panel p, .layer-switcher .panel h5 {
             margin-left: 0.5em;
@@ -26,6 +40,9 @@
             vertical-align: middle;
         }
     </style>
+</head>
+
+<template name="geoapi">
 
     <!-- template for jsfiddle -->
     <script type="text/template" id="template">
@@ -66,33 +83,6 @@
     </script>
 
     <h1>GeoAPIObservatory Widget test</h1>
-    <p>Render preview to a div.</p>
-    <div id="preview-map">
-        <div class="ol-viewport"
-             style="position: relative; overflow: hidden; width: 100%; height: 100%; touch-action: none;">
-            <canvas class="ol-unselectable" style="width: 100%; height: 100%;" width="2537" height="1280"></canvas>
-            <div class="ol-overlaycontainer"></div>
-            <div class="ol-overlaycontainer-stopevent">
-                <div class="ol-unselectable ol-control layer-switcher">
-                    <button title="Legend"></button>
-                    <div class="panel"><p>No data sources</p></div>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div id="preview-map"></div>
     <pre id="code"></pre>
-
-    <script type="text/javascript">
-        $(function () {
-            $("#preview-map").mapPreview({
-                onChange: function () {
-                    $("#code").text(this.generateCode());
-                }
-            });
-
-            //$("#preview-map").mapPreview("addLayerById", 42);
-            //window.setTimeout(function () { $("#preview-map").mapPreview("removeLayerById", 42); }, 10000);
-
-        });
-    </script>
 </template>
