@@ -27,7 +27,7 @@
     }
     var $ = window.jQuery;
 
-    console.log("defining geoWebObservatory");
+    // console.log("defining geoWebObservatory");
 
     $.widget("geoWebObservatory.mapPreview", {
         // defaults

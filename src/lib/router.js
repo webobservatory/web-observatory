@@ -283,7 +283,13 @@ Router.route(`/geodata`, {
         return Meteor.subscribe('datasets', {});
     },
     data() {
-        return {category: Datasets, col: 'Datasets'};
+        return {
+            category: Datasets,
+            col: 'Datasets',
+            entries () {
+                return this.category.find({});
+            }
+        };
     },
     //default action
     action() {

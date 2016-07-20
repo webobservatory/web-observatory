@@ -83,6 +83,15 @@
     </script>
 
     <h1>GeoAPIObservatory Widget test</h1>
+    <select class="selectpicker pull-left" data-live-search="true" multiple>
+        {{#each entries}}
+            {{> geodata}}
+        {{/each}}
+    </select>
     <div id="preview-map"></div>
     <pre id="code"></pre>
+</template>
+
+<template name="geodata">
+    <option value="{{_id}}">{{name}}</option>
 </template>
