@@ -1,11 +1,11 @@
 # Web Observatory Deployment Guide
 Meteor apps can be deployed using [mupx](https://github.com/arunoda/meteor-up/tree/mupx). The guide below shows how to deploy web observatory manually.
 
-First you need to install Nginx, MongoDB, Nodejs.
+First install Nginx, MongoDB and Nodejs. Currently Meteor (1.3.5) works with Node v0.10.x.
 
 ## Nginx settings
 
-An annotated configuration file `wo` and SSL certificate `wo.pem` and key `wo.key` can be found under `nginx`. Please refer to the configurtion file for more details.
+An annotated configuration file `wo` and SSL certificate `wo.pem` and key `wo.key` can be found under `nginx`. Please refer to the configuration file for more details. Set `ROOT_URL` to the public URL of your host.
 
 On Ubuntu copy `wo` to `/etc/nginx/sites-available` and create a soft link in `/etc/nginx/sites-enabled`. Check whether the configuration is valid using `nginx -t`.
 
@@ -30,13 +30,8 @@ In the settings given by `METEOR_SETTINGS`, if `public.environment` is dev, then
 
 Extract `build/wo.tar.gz` to `/home/wo` and then start WO following `/home/wo/bundle/README`. Note that the same settings of wo.conf should be used.
 
-Currently Meteor (1.2.1) works with Node v0.10.x. Make sure you have the right version of Node installed.
-
-    sudo cp build/wo.tar.gz /home/wo
-    cd /home/wo
-    sudo tar -zxf wo.tar.gz
-    cd bundle
-    (cd programs/server && sudo npm install)
+    sudo cp build/linux_64/wo.tar.gz /home/wo
+    (cd /home/wo && sudo tar -zxf wo.tar.gz && cd bundle/programs/server && sudo npm install)
     sudo start wo
 
 ## Upgrade from Previous WO
