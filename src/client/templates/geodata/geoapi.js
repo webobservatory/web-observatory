@@ -13,10 +13,19 @@ Template.geoapi.onRendered(function () {
     });
 });
 
+let selected = [];
 Template.geoapi.events({
-    'change .selectpicker': function (e) {
-        let student = $(".selectpicker").val();
-        console.log(student);
+    'change .selectpicker': (e)=> {
+
+        let previous = selected;
+
+        selected = $(e.target).val();
+        let deselected = _.difference(previous, selected);
+        let added = _.difference(selected, previous);
+        console.log(previous, selected, deselected, added);
+
+        // deselected.forEach((id)=>$("#preview-map").mapPreview("addLayerById", id));
+        // added.forEach((id)=>$("#preview-map").mapPreview("removeLayerById", id));
     }
 });
 
