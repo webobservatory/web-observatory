@@ -29,6 +29,9 @@ export function RESTCompose(headers, links) {
 }
 
 export function absPath(req) {
-    let href = req.protocol + '://' + req.get('host') + req.baseUrl + req.path;
-    return href;
+    let path = req.baseUrl + req.path;
+    if (path[0] === '/') {
+        path = path.substring(1);
+    }
+    return Meteor.absoluteUrl(path);
 }
