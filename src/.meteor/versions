@@ -58,6 +58,7 @@ ecmascript@0.4.8
 ecmascript-runtime@0.2.12
 ejson@1.0.12
 email@1.0.16
+erasaur:meteor-lodash@4.0.0
 fastclick@1.0.12
 fortawesome:fontawesome@4.5.0
 geojson-utils@1.0.9
@@ -107,7 +108,6 @@ mongo@1.1.9_1
 mongo-id@1.0.5
 mongo-livedata@1.0.12
 mrt:cookies@0.3.0
-mrt:jquery-ui@1.9.2
 nicolaslopezj:options@1.0.1
 nicolaslopezj:reactive-templates@1.2.1
 nicolaslopezj:roles@1.5.3
@@ -158,7 +158,6 @@ standard-app-packages@1.0.9
 standard-minifier-css@1.0.8
 standard-minifier-js@1.0.8
 standard-minifiers@1.0.6
-stevezhu:lodash@4.13.1
 summernote:standalone@0.6.16
 templating@1.1.14
 templating-tools@1.0.4

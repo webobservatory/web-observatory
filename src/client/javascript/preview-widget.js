@@ -381,7 +381,7 @@
         $items = $list.children("li");
         if (0 < $items.length) {
             layers = this.getMap().getLayers();
-            console.log(layers.getArray().length + " " + $items.length);
+            // console.log(layers.getArray().length + " " + $items.length);
 
             // assume dynamic layers are on top of static layers
             offset = layers.getArray().length - $items.length;
