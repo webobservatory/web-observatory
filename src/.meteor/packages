@@ -35,7 +35,6 @@ email
 babrahams:accounts-ldap
 fortawesome:fontawesome
 orionjs:bootstrap
-jquery
 tmeasday:publish-counts
 aldeed:autoform-bs-datepicker
 rajit:bootstrap3-datepicker
@@ -51,6 +50,6 @@ mrt:cookies
 dburles:mongo-collection-instances
 jparker:crypto-md5
 stevezhu:lodash
-mizzao:jquery-ui
 kookoskar:bootstrap-select
 jesperwe:bootstrap-select
+mrt:jquery-ui

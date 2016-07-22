@@ -3,6 +3,7 @@
  * Created by xgfd on 17/12/2015.
  */
 
+
 let DistributionSchema = new SimpleSchema({
 
     _id: {
@@ -10,21 +11,20 @@ let DistributionSchema = new SimpleSchema({
         denyUpdate: true,
         optional: true,
         autoValue(){
-            if (this.isInsert || this.isUpsert) {
-                return Random.id();
-            } else {
-                this.unset();
-            }
+            console.log(this);
+            setAtCreation(this, Random.id);
         },
         autoform: {
-            readonly: true
+            // type: 'hidden',
+            // readonly: true
+            // omit: true
         }
     },
 
     fileFormat: {
         type: String,
         label: 'Format',
-        allowedValues: ['MongoDB', 'MySQL', 'AMQP', 'SPARQL', 'HTML', 'File'],
+        allowedValues: ['MongoDB', 'MySQL', 'AMQP', 'SPARQL', 'HTML', 'File', 'GeoData'],
         autoform: {type: 'select'}
         //TODO custom validate
     },
@@ -43,24 +43,35 @@ let DistributionSchema = new SimpleSchema({
         optional: true
     }),
 
+    //dataset dependent information
     profile: {
         type: Object,
         optional: true,
         autoValue() {
-            if (!this.isSet) {
-                return {};
-            }
+            setAtCreation(this, ()=>({}));
         }
     },
+    //dataset username
     'profile.username': {
         type: String,
         optional: true,
         label: 'Dataset user name'
     },
+    //dataset password
     'profile.pass': {
         type: String,
         optional: true,
         label: 'Dataset password'
+    },
+    //geo data source id in case of geo data
+    'profile.geodata': {
+        type: String,
+        autoform: {
+            type: 'hidden',
+            // omit: true,
+        },
+        optional: true,
+        label: 'GeoData Id'
     },
 
     instruction: {
@@ -74,16 +85,13 @@ let DistributionSchema = new SimpleSchema({
     online: {
         type: Boolean,
         autoform: {
-            type: 'hidden'
-            //omit: true,
+            type: 'hidden',
+            // omit: true
         },
         optional: true,
         autoValue() {
-            if (this.isInsert || this.isUpsert) {
-                return this.value || true;
-            } else if (!this.isSet) {
-                this.unset();
-            }
+            console.log(this);
+            setAtCreation(this, ()=>true);
         }
     }
 });

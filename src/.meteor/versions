@@ -100,8 +100,6 @@ meteorhacks:search-source@1.4.2
 minifier-css@1.1.13
 minifier-js@1.1.13
 minimongo@1.0.17
-mizzao:build-fetcher@0.2.0
-mizzao:jquery-ui@1.11.4
 mobile-status-bar@1.0.12
 modules@0.6.5
 modules-runtime@0.6.5
@@ -110,6 +108,7 @@ mongo@1.1.9_1
 mongo-id@1.0.5
 mongo-livedata@1.0.12
 mrt:cookies@0.3.0
+mrt:jquery-ui@1.9.2
 nicolaslopezj:options@1.0.1
 nicolaslopezj:reactive-templates@1.2.1
 nicolaslopezj:roles@1.5.3

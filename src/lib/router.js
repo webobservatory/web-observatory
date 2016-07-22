@@ -317,7 +317,7 @@ function setUpRoutes(col, hasRemote = false) {
         name: `${sn}.edit`,
         template: `entryEdit`,
         waitOn () {
-            return Meteor.subscribe(`single${sn}`, this.params._id);
+            return Meteor.subscribe(sn, this.params._id);
         },
         data () {
             return {

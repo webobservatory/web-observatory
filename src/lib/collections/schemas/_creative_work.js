@@ -1,7 +1,7 @@
 /**
  * Created by xgfd on 17/12/2015.
  */
-// SimpleSchema.debug = true;
+SimpleSchema.debug = true;
 SimpleSchema.extendOptions({
     noneditable: Match.Optional(Boolean)
 });
@@ -40,7 +40,7 @@ CreativeWork = {
         },
         optional: true,
         autoform: {
-            readonly: true
+            omit: true
         },
         noneditable: true
     },
@@ -56,6 +56,9 @@ CreativeWork = {
     publisherName: {
         type: String,
         optional: true,
+        autoform: {
+            omit: true
+        },
         autoValue() {
             let publisher = this.field('publisher');
             if (publisher.isSet) {
@@ -120,14 +123,14 @@ Mis = {
         type: [String],
         optional: true,
         autoform: {
-            readonly: true
+            omit: true
         }
     },
 
     votes: {
         type: Number,
         autoform: {
-            readonly: true
+            omit: true
         },
         optional: true,
         autoValue() {
@@ -140,14 +143,14 @@ Mis = {
         type: [String],
         optional: true,
         autoform: {
-            readonly: true
+            omit: true
         }
     },
 
     downvotes: {
         type: Number,
         autoform: {
-            readonly: true
+            omit: true
         },
         optional: true,
         autoValue() {
@@ -209,3 +212,24 @@ _.extend(CreativeWork, Thing);
 _.extend(CreativeWork, Mis);
 
 omitFields = "publisher, comments, commentsCount, datePublished, dateModified, upvoters, downvoters, votes, downvotes, online, distribution.$._id".split(/\s*,\s*/);
+
+setAtCreation = function (field, val) {
+    if (field.isInsert) {
+        return val();
+    } else if (field.isUpsert) {
+        return {$setOnInsert: val()};
+    } else {
+        field.unset();
+    }
+};
+
+setAtUpdate = function (field, val) {
+    if (field.isUpdate || field.isInsert) {
+        return val();
+    } else if (field.isUpsert) {
+        return {$setOnInsert: val()};
+    } else {
+        //shouldn't reach here
+        field.unset();
+    }
+};
