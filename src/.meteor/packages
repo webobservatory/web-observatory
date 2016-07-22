@@ -50,6 +50,6 @@ mrt:cookies
 dburles:mongo-collection-instances
 jparker:crypto-md5
 stevezhu:lodash
-kookoskar:bootstrap-select
 jesperwe:bootstrap-select
 mrt:jquery-ui
+jquery

@@ -90,8 +90,8 @@ window.OL3LayerFactory = (function (_, ol) {
         if (data.hasOwnProperty("color")) {
             addProperty(layerOptions, "style", makeStyle(data.color));
         }               
-        if (data.hasOwnProperty("transparency")) {
-            addProperty(layerOptions, "opacity", makeScalar(data.transparency));
+        if (data.hasOwnProperty("opacity")) {
+            addProperty(layerOptions, "opacity", makeScalar(data.opacity));
         }
 
         // experimental code (turned off)

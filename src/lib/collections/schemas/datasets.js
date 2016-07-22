@@ -12,7 +12,7 @@ let DistributionSchema = new SimpleSchema({
         optional: true,
         autoValue(){
             console.log(this);
-            setAtCreation(this, Random.id);
+            return setAtCreation(this, Random.id);
         },
         autoform: {
             // type: 'hidden',
@@ -91,7 +91,7 @@ let DistributionSchema = new SimpleSchema({
         optional: true,
         autoValue() {
             console.log(this);
-            setAtCreation(this, ()=>true);
+            return setAtCreation(this, ()=>true);
         }
     }
 });
