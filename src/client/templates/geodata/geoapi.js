@@ -22,12 +22,20 @@ Template.geoapi.events({
         selected = $(e.target).val();
         let deselected = _.difference(previous, selected);
         let added = _.difference(selected, previous);
-        console.log(previous, selected, deselected, added);
+        // console.log(previous, selected, deselected, added);
 
-        // deselected.forEach((id)=>$("#preview-map").mapPreview("addLayerById", id));
-        // added.forEach((id)=>$("#preview-map").mapPreview("removeLayerById", id));
+        added.forEach((id)=> {
+            // console.log('text', getTitle(id));
+            let title = getTitle(id);
+            $("#preview-map").mapPreview("addLayerById", id, {title});
+        });
+        // deselected.forEach((id)=>$("#preview-map").mapPreview("removeLayerById", id));
     }
 });
+
+function getTitle(id) {
+    return $(`option[value=${id}]`).text();
+}
 
 let renderTimeout = false;
 Template.geodata.onRendered(()=> {

@@ -57,13 +57,15 @@ CreativeWork = {
         type: String,
         optional: true,
         autoform: {
-            omit: true
+            type: 'hidden'
+            // omit: true
         },
         autoValue() {
             let publisher = this.field('publisher');
+            console.log('publisher',publisher);
             if (publisher.isSet) {
                 let pId = publisher.value;
-                return Meteor.users.findOne(pId);
+                return Meteor.users.findOne(pId).username;
             } else {
                 this.unset();
             }
@@ -214,20 +216,26 @@ _.extend(CreativeWork, Mis);
 omitFields = "publisher, comments, commentsCount, datePublished, dateModified, upvoters, downvoters, votes, downvotes, online, distribution.$._id".split(/\s*,\s*/);
 
 setAtCreation = function (field, val) {
+    if (val instanceof Function) {
+        val = val();
+    }
     if (field.isInsert) {
-        return val();
+        return val;
     } else if (field.isUpsert) {
-        return {$setOnInsert: val()};
+        return {$setOnInsert: val};
     } else {
         field.unset();
     }
 };
 
 setAtUpdate = function (field, val) {
+    if (val instanceof Function) {
+        val = val();
+    }
     if (field.isUpdate || field.isInsert) {
-        return val();
+        return val;
     } else if (field.isUpsert) {
-        return {$setOnInsert: val()};
+        return {$setOnInsert: val};
     } else {
         //shouldn't reach here
         field.unset();

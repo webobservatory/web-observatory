@@ -271,4 +271,4 @@ window.OL3LayerFactory = (function (_, ol) {
 
     factory.builders = builders;
     return factory;
-}(window._, window.ol));
+}(window.lodash, window.ol));

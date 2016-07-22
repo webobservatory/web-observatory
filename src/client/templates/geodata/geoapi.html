@@ -81,9 +81,11 @@
         {{/each}}
     </select>
     <div id="preview-map"></div>
-    <pre id="code"></pre>
+    <!--<pre id="code"></pre>-->
 </template>
 
 <template name="geodata">
-    <option value="{{_id}}">{{name}}</option>
+    {{#each distribution}}
+        <option value="{{_id}}">{{../name}}</option>
+    {{/each}}
 </template>

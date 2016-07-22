@@ -287,7 +287,7 @@ Router.route(`/geodata`, {
             category: Datasets,
             col: 'Datasets',
             entries () {
-                return this.category.find({});
+                return this.category.find({'distribution.profile.geodata': {$exists: true}});
             }
         };
     },

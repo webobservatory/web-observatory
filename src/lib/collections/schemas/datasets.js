@@ -12,7 +12,7 @@ let DistributionSchema = new SimpleSchema({
         optional: true,
         autoValue(){
             console.log(this);
-            return setAtCreation(this, Random.id);
+            return setAtCreation(this, Random.id());
         },
         autoform: {
             // type: 'hidden',
@@ -48,7 +48,7 @@ let DistributionSchema = new SimpleSchema({
         type: Object,
         optional: true,
         autoValue() {
-            setAtCreation(this, ()=>({}));
+            return setAtCreation(this, ()=>({}));
         }
     },
     //dataset username
