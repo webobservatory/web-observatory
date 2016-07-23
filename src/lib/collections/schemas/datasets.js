@@ -10,15 +10,23 @@ let DistributionSchema = new SimpleSchema({
         type: String,
         denyUpdate: true,
         optional: true,
-        autoValue(){
-            console.log(this);
-            return setAtCreation(this, Random.id());
-        },
-        autoform: {
-            // type: 'hidden',
-            // readonly: true
-            // omit: true
+        regEx: SimpleSchema.RegEx.Id,
+        autoValue() {
+            console.log('subId', this);
+            if (this.isInsert) {
+                return Random.id();
+            } else if (this.isUpsert) {
+                return {$setOnInsert: Random.id()};
+            } else {
+                this.unset();  // Prevent user from supplying their own value
+            }
         }
+        // defaultValue: Random.id(),
+        // autoform: {
+        //     type: 'hidden',
+        //     // readonly: true
+        //     // omit: true
+        // }
     },
 
     fileFormat: {
@@ -47,9 +55,7 @@ let DistributionSchema = new SimpleSchema({
     profile: {
         type: Object,
         optional: true,
-        autoValue() {
-            return setAtCreation(this, ()=>({}));
-        }
+        defaultValue: {}
     },
     //dataset username
     'profile.username': {
@@ -85,14 +91,10 @@ let DistributionSchema = new SimpleSchema({
     online: {
         type: Boolean,
         autoform: {
-            type: 'hidden',
-            // omit: true
+            omit: true
         },
         optional: true,
-        autoValue() {
-            console.log(this);
-            return setAtCreation(this, ()=>true);
-        }
+        defaultValue: true
     }
 });
 
@@ -118,6 +120,9 @@ DatasetSchema = {
 
     distribution: {
         type: [DistributionSchema],
+        autoValue(){
+            return setAtCreation(this, []);
+        },
         label: "Distribution"
     },
 

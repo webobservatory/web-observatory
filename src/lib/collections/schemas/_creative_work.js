@@ -62,7 +62,6 @@ CreativeWork = {
         },
         autoValue() {
             let publisher = this.field('publisher');
-            console.log('publisher',publisher);
             if (publisher.isSet) {
                 let pId = publisher.value;
                 return Meteor.users.findOne(pId).username;
