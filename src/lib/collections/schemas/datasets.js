@@ -121,7 +121,10 @@ DatasetSchema = {
     distribution: {
         type: [DistributionSchema],
         autoValue(){
-            return setAtCreation(this, []);
+            if(this.isUpdate) {
+                this.unset();
+            }
+            // return setAtCreation(this, undefined);
         },
         label: "Distribution"
     },

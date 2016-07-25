@@ -27,10 +27,10 @@ CreativeWork = {
         optional: true,
         noneditable: true
     }, {
-        collection: Comments,
-        titleField: 'body',
-        publicationName: 'rel_comments'
-    }),
+            collection: Comments,
+            titleField: 'body',
+            publicationName: 'rel_comments'
+        }),
 
     commentsCount: {
         type: Number,
@@ -64,7 +64,12 @@ CreativeWork = {
             let publisher = this.field('publisher');
             if (publisher.isSet) {
                 let pId = publisher.value;
-                return Meteor.users.findOne(pId).username;
+                let user = Meteor.users.findOne(pId);
+                if (user) {
+                    return user.username;
+                } else {
+                    this.unset();
+                }
             } else {
                 this.unset();
             }
@@ -83,10 +88,10 @@ CreativeWork = {
         label: 'Related datasets',
         optional: true
     }, {
-        collection: Datasets,
-        titleField: 'name',
-        publicationName: 'isbasedonurl'
-    }),
+            collection: Datasets,
+            titleField: 'name',
+            publicationName: 'isbasedonurl'
+        }),
 
     keywords: {
         type: [String],
@@ -103,13 +108,13 @@ CreativeWork = {
 
                 let options = [];
                 defaultLicenses.forEach(name => {
-                    options.push({label: name.toUpperCase(), value: name});
+                    options.push({ label: name.toUpperCase(), value: name });
                 });
 
                 addedLices.forEach(lice => {
                     if (lice.name) {
                         let name = lice.name;
-                        options.push({label: name.toUpperCase(), value: name});
+                        options.push({ label: name.toUpperCase(), value: name });
                     }
                 });
 
@@ -192,10 +197,10 @@ Mis = {
         label: 'Permitted to see',
         optional: true
     }, {
-        collection: Meteor.users,
-        titleField: 'username',
-        publicationName: 'metawhitelist'
-    }),
+            collection: Meteor.users,
+            titleField: 'username',
+            publicationName: 'metawhitelist'
+        }),
 
     //who can access this entry disregards acl settings
     contentWhiteList: orion.attribute('hasMany', {
@@ -203,10 +208,10 @@ Mis = {
         label: 'Permitted to access',
         optional: true
     }, {
-        collection: Meteor.users,
-        titleField: 'username',
-        publicationName: 'contentwhitelist'
-    })
+            collection: Meteor.users,
+            titleField: 'username',
+            publicationName: 'contentwhitelist'
+        })
 };
 
 _.extend(CreativeWork, Thing);
@@ -221,7 +226,7 @@ setAtCreation = function (field, val) {
     if (field.isInsert) {
         return val;
     } else if (field.isUpsert) {
-        return {$setOnInsert: val};
+        return { $setOnInsert: val };
     } else {
         field.unset();
     }
@@ -234,7 +239,7 @@ setAtUpdate = function (field, val) {
     if (field.isUpdate || field.isInsert) {
         return val;
     } else if (field.isUpsert) {
-        return {$setOnInsert: val};
+        return { $setOnInsert: val };
     } else {
         //shouldn't reach here
         field.unset();
