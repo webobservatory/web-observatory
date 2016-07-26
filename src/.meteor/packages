@@ -3,7 +3,7 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-standard-app-packages
+standard-app-packages@1.0.9
 iron:router@1.0.0-rc.1
 sacha:spin
 
@@ -18,20 +18,20 @@ orionjs:filesystem
 orionjs:s3
 orionjs:file-attribute
 useraccounts:iron-routing
-accounts-password
-accounts-google
-service-configuration
-accounts-ui
-accounts-github
-ecmascript
+accounts-password@1.2.12
+accounts-google@1.0.10
+service-configuration@1.0.10
+accounts-ui@1.1.9
+accounts-github@1.0.10
+ecmascript@0.5.7
 matb33:collection-hooks
 vsivsi:orion-file-collection
 
 
 simple:reactive-method
-http
+http@1.2.8
 yuukan:streamy
-email
+email@1.1.16
 babrahams:accounts-ldap
 fortawesome:fontawesome
 orionjs:bootstrap
@@ -40,15 +40,15 @@ twbs:bootstrap
 momentjs:moment
 useraccounts:bootstrap
 meteorhacks:search-source
-standard-minifier-css
-standard-minifier-js
+standard-minifier-css@1.1.8
+standard-minifier-js@1.1.8
 percolate:synced-cron
 meteorhacks:async
 mrt:cookies
 dburles:mongo-collection-instances
 jparker:crypto-md5
 jesperwe:bootstrap-select
-jquery
+jquery@1.11.9
 aldeed:autoform-bs-datepicker
 erasaur:meteor-lodash
 rajit:bootstrap3-datepicker
