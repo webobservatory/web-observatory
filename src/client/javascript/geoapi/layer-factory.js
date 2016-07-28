@@ -1,4 +1,5 @@
 /*jshint browser: true, -W024 */
+window._ = lodash;
 window.OL3LayerFactory = (function (_, ol) {
     "use strict";
 
@@ -7,41 +8,47 @@ window.OL3LayerFactory = (function (_, ol) {
 
     // Director accepts data received from the GeoAPI and assembles them
     // with either the live or the template builders.
-    function director(builder, addProperty, layertype, sourcetype, url, data) {
+    function director(builder, addProperty, url, metadata) {
         var sourceOptions = new builder.ObjectLiteral(),
             sourceObj = new builder.OlObjectInstance(
-                "source." + sourcetype,
+                "source." + metadata.sourceType,
                 sourceOptions
             ),
-            layerOptions = new builder.ObjectLiteral({ source: sourceObj }),
+            layerOptions = new builder.ObjectLiteral({source: sourceObj}),
             layerObj = new builder.OlObjectInstance(
-                "layer." + layertype,
+                "layer." + metadata.layerType,
                 layerOptions
             );
 
         // honour settings from the API
-        if (data.hasOwnProperty("format")) {
+        if (metadata.hasOwnProperty("format")) {
             addProperty(sourceOptions, "format", new builder.OlObjectInstance(
-                "format." + data.format
+                "format." + metadata.format
             ));
         }
 
-        function makeScalar(v) { return new builder.ScalarLiteral(v); }
+        function makeScalar(v) {
+            return new builder.ScalarLiteral(v);
+        }
+
         function makeAttribution(attribution) {
             return new builder.OlObjectInstance(
                 "Attribution",
-                new builder.ObjectLiteral({ html: makeScalar(attribution) })
+                new builder.ObjectLiteral({html: makeScalar(attribution)})
             );
         }
-        if (data.hasOwnProperty("attributions")) {
+
+        if (metadata.hasOwnProperty("attributions")) {
             addProperty(sourceOptions, "attributions", new builder.ArrayLiteral(
-                _.map(data.attributions, makeAttribution)
+                _.map(metadata.attributions, makeAttribution)
             ));
         }
 
         _.each(
-            _.pick(data, "logo", "minZoom", "maxZoom"),
-            function (v, k) { addProperty(sourceOptions, k, makeScalar(v)); }
+            _.pick(metadata, "logo", "minZoom", "maxZoom"),
+            function (v, k) {
+                addProperty(sourceOptions, k, makeScalar(v));
+            }
         );
 
         if (_.isArray(url)) {
@@ -52,8 +59,8 @@ window.OL3LayerFactory = (function (_, ol) {
             addProperty(sourceOptions, "url", makeScalar(url));
         }
 
-        if (data.hasOwnProperty("title")) {
-            addProperty(layerOptions, "title", makeScalar(data.title));
+        if (metadata.hasOwnProperty("title")) {
+            addProperty(layerOptions, "title", makeScalar(metadata.title));
         }
 
         // honour style settings from the layerswitcher UI
@@ -61,8 +68,8 @@ window.OL3LayerFactory = (function (_, ol) {
             // circles outlined in color
 
             var fillOptions = new builder.ObjectLiteral(
-                { color: makeScalar("rgba(255,255,255,0.4)") }
-            ),
+                {color: makeScalar("rgba(255,255,255,0.4)")}
+                ),
                 fill = new builder.OlObjectInstance("style.Fill", fillOptions),
                 strokeOptions = new builder.ObjectLiteral({
                     width: makeScalar(1.25),
@@ -83,27 +90,28 @@ window.OL3LayerFactory = (function (_, ol) {
             return new builder.ArrayLiteral([
                 new builder.OlObjectInstance(
                     "style.Style",
-                    new builder.ObjectLiteral({ image: circle })
+                    new builder.ObjectLiteral({image: circle})
                 )
             ]);
         }
-        if (data.hasOwnProperty("color")) {
-            addProperty(layerOptions, "style", makeStyle(data.color));
-        }               
-        if (data.hasOwnProperty("opacity")) {
-            addProperty(layerOptions, "opacity", makeScalar(data.opacity));
+
+        if (metadata.hasOwnProperty("color")) {
+            addProperty(layerOptions, "style", makeStyle(metadata.color));
+        }
+        if (metadata.hasOwnProperty("opacity")) {
+            addProperty(layerOptions, "opacity", makeScalar(metadata.opacity));
         }
 
         // experimental code (turned off)
-        if (false && "Vector" == layertype) {
+        if (false && "Vector" == metadata.layerType) {
             addProperty(layerOptions, "style", new builder.FunctionLiteral(
                 function (feature, resolution) {
-                    var color = ol.color.toString([5,5,200,0.8]),
+                    var color = ol.color.toString([5, 5, 200, 0.8]),
                         stroke = new ol.style.Stroke({
                             color: color,
                             width: 1.2
                         }),
-                        fill = new ol.style.Fill({ color: color });
+                        fill = new ol.style.Fill({color: color});
                     return new ol.style.Style({
                         image: new ol.style.Circle({
                             stroke: stroke,
@@ -136,14 +144,19 @@ window.OL3LayerFactory = (function (_, ol) {
             return builder.getResult();
         };
     }
+
     function liveLiteral(default_value, mapFn) {
         function LiveLiteral(data) {
             this.data = 0 < arguments.length ? data : _.clone(default_value);
         }
 
         LiveLiteral.prototype.getResult = mapFn ?
-                function () { return mapFn(this.data, getResult()); } :
-                function () { return this.data; };
+            function () {
+                return mapFn(this.data, getResult());
+            } :
+            function () {
+                return this.data;
+            };
         return LiveLiteral;
     }
 
@@ -153,7 +166,9 @@ window.OL3LayerFactory = (function (_, ol) {
     builders.live.ObjectLiteral = liveLiteral({}, _.mapValues);
     builders.live.OlObjectInstance = function (typeStr) {
         var Type = _.at(ol, typeStr)[0];
-        this.Creator = function (args) { return Type.apply(this, args); };
+        this.Creator = function (args) {
+            return Type.apply(this, args);
+        };
         this.Creator.prototype = Type.prototype;
         this.data = Array.prototype.slice.call(arguments, 1);
     };
@@ -173,34 +188,39 @@ window.OL3LayerFactory = (function (_, ol) {
         // a pretty-printed, comma-separated list of this.data,
         // enclosed by open and close properties
 
-        var datalength = _.size(this.data),
-            newindent;
+        var datalength = _.size(this.data);
 
-        if (0 === datalength) { return this.open + this.close; }
+        if (0 === datalength) {
+            return this.open + this.close;
+        }
 
-        if (!indent) { indent = "\n"; }
+        if (!indent) {
+            indent = "\n";
+        }
         linedepth = linedepth || 0;
         /*console.log([
-              (indent.length-1) / 2,
-              this.open + this.close,
-              datalength
-          ].join(" "));*/
+         (indent.length-1) / 2,
+         this.open + this.close,
+         datalength
+         ].join(" "));*/
         if (1 === datalength && 2 > linedepth) {
             // Just enclose the datum, without applying or raising indent level
             // Still use map so it works with non-array objects
             return this.open + _.map(
-                this.data,
-                this.eachExpression(indent, linedepth + 1)
-            ) + this.close;
+                    this.data,
+                    this.eachExpression(indent, linedepth + 1)
+                ) + this.close;
         }
 
         // render each element of this.data, with a raised indentation level
-        newindent = indent + "  ";
-        return this.open + newindent + _.map(
-            this.data,
-            this.eachExpression(newindent)
-        ).join("," + newindent) + indent + this.close;
+        return this.open + indent + "  " +
+
+            _.map(this.data, this.eachExpression(indent + "  "))
+                .join("," + indent + "  ") +
+
+            indent + this.close;
     }
+
     function templateLiteral(default_value, open, close, eachExpression) {
         var Type = function templateConstructor(data) {
             this.data = 0 < arguments.length ? data : _.clone(default_value);
@@ -258,7 +278,7 @@ window.OL3LayerFactory = (function (_, ol) {
             function addProperty(builder, key, property) {
                 if (builder.data.hasOwnProperty(key)) {
                     console.log(
-                        logMsg({ key: key, value: property })
+                        logMsg({key: key, value: property})
                     );
                     if (flag_ignore) {
                         return;
@@ -271,4 +291,4 @@ window.OL3LayerFactory = (function (_, ol) {
 
     factory.builders = builders;
     return factory;
-}(window.lodash, window.ol));
+}(window._, window.ol));

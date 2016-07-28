@@ -31,7 +31,7 @@ let LicenseSchema = new SimpleSchema({
             readonly: true,
             omit: true
         },
-        noneditable: true
+        //noneditable: true
     }, {
         collection: Meteor.users,
         // the key whose value you want to show for each post document on the update form

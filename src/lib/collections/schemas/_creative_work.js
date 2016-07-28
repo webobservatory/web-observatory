@@ -2,9 +2,9 @@
  * Created by xgfd on 17/12/2015.
  */
 // SimpleSchema.debug = true;
-SimpleSchema.extendOptions({
-    noneditable: Match.Optional(Boolean)
-});
+// SimpleSchema.extendOptions({
+//     //noneditable: Match.Optional(Boolean)
+// });
 
 Thing = {
     name: {
@@ -25,7 +25,7 @@ CreativeWork = {
         label: 'Comments',
         // optional is true because you can have a post without comments
         optional: true,
-        noneditable: true
+        //noneditable: true
     }, {
             collection: Comments,
             titleField: 'body',
@@ -42,7 +42,7 @@ CreativeWork = {
         autoform: {
             omit: true
         },
-        noneditable: true
+        //noneditable: true
     },
 
     creator: {

@@ -4,12 +4,16 @@
 
 Template.geoapi.events({});
 
+Template.geoapi.onCreated(()=> {
+    window._ = lodash;
+});
+
 Template.geoapi.onRendered(function () {
 
     $("#preview-map").mapPreview({
-        onChange: function () {
-            $("#code").text(this.generateCode());
-        }
+        // onChange: function () {
+        //     $("#code").text(this.generateCode());
+        // }
     });
 });
 
@@ -29,7 +33,7 @@ Template.geoapi.events({
             let title = getTitle(id);
             $("#preview-map").mapPreview("addLayerById", id, {title});
         });
-        // deselected.forEach((id)=>$("#preview-map").mapPreview("removeLayerById", id));
+        deselected.forEach((id)=>$("#preview-map").mapPreview("removeLayerById", id));
     }
 });
 

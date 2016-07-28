@@ -3,7 +3,7 @@
  * depends on jquery, jquery.widget (jquery-ui), ol3, ol3-layerswitcher, and _ (lodash),
  **/
 
-(function () {
+(function iife() {
 
     "use strict";
 
@@ -13,7 +13,7 @@
         return;
     }
 
-    if (!("lodash" in window)) {
+    if (!("_" in window)) {
         console.log("lodash not loaded");
         return;
     }
@@ -25,63 +25,72 @@
         console.log("jqueryui not loaded");
         return;
     }
-    var $ = window.jQuery,
-        _ = window.lodash;
+    var $ = window.jQuery;
 
     // console.log("defining geoWebObservatory");
 
     $.widget("geoWebObservatory.mapPreview", {
         // defaults
         options: {
-            api: 'http://152.78.128.204:6050',
+            api: 'http://db.worldpop.org.uk:6050', //http://152.78.128.204:6050
             codeTemplateSelector: '#template'
         },
         _create: function createPreview() {
             // instantiate map, other data structures
+            if (!("OL3LayerFactory" in window)) {
+                console.log("OL3LayerFactory not loaded");
+                return;
+            }
+
             var id = this.element.get(0).id,
                 inUpdateView = false,
-                fitExtent = function (extent) {
+                fitExtent = function fitExtentFlagged(extent) {
                     inUpdateView = true;
                     this.map.getView().fit(extent, this.map.getSize());
                     inUpdateView = false;
                 },
-                updateViewDefault;
+                updateViewDefault,
+                map;
             if (!id) {
-                id = "geo-web-obervatory-preview-map";
-                this.element.get(0).id = id;
+                id = this.element.get(0).id = "geo-web-obervatory-preview-map";
             }
-            this.map = new ol.Map({
+            map = this.map = new ol.Map({
                 target: id,
                 view: new ol.View({center: [0, 0], zoom: 2}),
-                layers: [new ol.layer.Tile({source: new ol.source.OSM()})],
-                controls: [
+                layers: [
+                    this._baseLayerFactory(window.OL3LayerFactory.builders.live)
+                ],
+                controls: ol.control.defaults().extend([
                     new ol.control.LayerSwitcherCustom({widget: this})
-                ]
+                ])
             });
-            this.map.getLayers().item(0).set('type', 'base');
+            map.getLayers().item(0).set('type', 'base');
 
             this.dynamicLayers = {};
             this.dynamicLayersData = {};
 
-            updateViewDefault = _.bind(function (layer, zoomOutOnly) {
+            updateViewDefault = _.bind(function updateView(layer, zoomOutOnly) {
                 // zoom to accommodate all layers to give users a sporting
                 // chance to notice their own changes
                 var extent = ol.extent.createEmpty();
-                this.map.getLayers().forEach(function (layer) {
+                map.getLayers().forEach(function growExtentByLayer(layer) {
                     var src = layer.getSource(),
-                        lyrExtent;
-                    if (src && src.getExtent && (lyrExtent = src.getExtent())) {
+                        lyrExtent = src && src.getExtent && src.getExtent();
+                    if (lyrExtent) {
                         ol.extent.extend(extent, lyrExtent);
                     }
                 });
-                if (!ol.extent.isEmpty(extent) &&
-                    (!zoomOutOnly || ol.extent.containsExtent(
-                        this.map.getView().calculateExtent(this.map.getSize()),
-                        extent
-                    ))) {
-                    fitExtent.call(this, extent);
+                if (ol.extent.isEmpty(extent)) return;
+
+                if (!!zoomOutOnly) {
+                    ol.extent.extend(extent, map.getView().calculateExtent(
+                        map.getSize()
+                    ));
                 }
+
+                fitExtent.call(this, extent);
             }, this);
+
             function updateViewRespectUser(layer) {
                 // once user has set a bbox, don't zoom after remove layer,
                 // only zoom out to accommodate an added layer
@@ -92,13 +101,13 @@
 
             // .once([many events], ...) fires once for each type of a event
             // use _.once to ensure only fires once overall
-            this.map.getView().once(
+            map.getView().once(
                 ["change:resolution", "change:center"],
-                _.once(function (e) {
+                _.once(function detectFirstUserMapMove(e) {
                     if (!inUpdateView) {
                         this.updateView = updateViewRespectUser;
-                        fitExtent = function (extent) {
-                            this.map.getView().fit(extent, this.map.getSize());
+                        fitExtent = function fitExtent(extent) {
+                            map.getView().fit(extent, map.getSize());
                         };
                     }
                 }),
@@ -106,65 +115,100 @@
             );
             this.updateView = updateViewDefault;
 
+            function bbox() {
+                return map.getView().calculateExtent(map.getSize());
+            }
+
+            var prev = bbox();
+            this.map.on('moveend', function onMoveEnd() {
+                if (this.options.onChange) {
+                    this.options.onChange.call(this);
+                }
+                this._trigger("change", null, {
+                    prevExtent: prev,
+                    extent: (prev = bbox())
+                });
+            }, this);
         },
 
-        _geoApiResource: function (id) {
+        _geoApiResource: function _geoApiResource(id) {
             return this.options.api + "/datasources/" + id;
+        },
+        _baseLayerFactory: function _baseLayerFactory(builders) {
+            return (new builders.OlObjectInstance(
+                "layer.Tile",
+                new builders.ObjectLiteral(
+                    {source: new builders.OlObjectInstance("source.OSM")}
+                )
+            )).getResult();
         },
 
         // public methods
         addLayerById: function requestLayerById(id, nonspatialMetadata) {
-            // nonspatialMetadata: things like attributions, logos, title, default styling? -- these things are not returned by the API!
+            // nonspatialMetadata: things like attributions, logos (thumbnail?),
+            // title, default styling? -- these things not returned by the API!
+
+            if (this.dynamicLayers[id]) {
+                console.log("layer " + id + " already added: skipping");
+                return;
+            }
+
             $.get(
                 this._geoApiResource(id),
                 this.receiveLayerById(id, nonspatialMetadata)
             );
+        },
+        _ol3_source_formats: {
+            geojson: "GeoJSON"
         },
         receiveLayerById: function (id, metadata) {
             if (!("OL3LayerFactory" in window)) {
                 console.log("OL3LayerFactory not loaded");
                 return _.noop;
             }
+
             // build live ol3 layer, add to this.map, this.dynamicLayers etc.
             return _.bind(function receiveLayerById(data, status, xhr) {
 
-                // TODO:
-                // probably handle vector (data is geoJSON) and raster (data is a WMS resource) cases separately, separate functions?
-
                 var factory = window.OL3LayerFactory("live"),
-                    layer,
-                    layerType, sourceType, href;
+                    layer, href;
 
                 switch (data.type.toLowerCase()) {
                     case "vector":
                         _.defaults(metadata, {
-                            format: "GeoJSON"
+                            format: this._ol3_source_formats[data.format],
+                            layerType: "Vector",
+                            sourceType: "Vector"
                         });
-                        layerType = "Vector";
-                        sourceType = "Vector";
                         href = data.href;
 
-                        //layer = factory("Vector", "Vector", data.href, metadata);
                         break;
 
                     case "raster":
                         _.defaults(metadata, {
                             urltemplate: "/{z}/{x}/{y}.png",
+                            layerType: "Tile",
+                            sourceType: "XYZ"
                         });
-                        layerType = "Tile";
-                        sourceType = "XYZ";
                         href = data.href + metadata.urltemplate;
-                        //layer = factory("Tile", "XYZ", data.href + metadata.urltemplate, metadata);
                         break;
+
+                    default:
+                        console.log("failed to create layer");
+                        console.log(data);
+                        return;
                 }
 
-                layer = factory(layerType, sourceType, href, metadata);
+                _.defaults(metadata, {
+                    logo: this._geoApiResource(id) + "/thumbnail.png" +
+                    "?height=50&width=100"
+                });
+
+                layer = factory(href, metadata);
                 this.map.addLayer(layer);
                 this.dynamicLayers[id] = layer;
                 this.dynamicLayersData[id] = {
-                    data: metadata,
-                    sourcetype: sourceType,
-                    layertype: layerType,
+                    metadata: metadata,
                     url: href
                 };
                 this.updateView(layer);
@@ -179,9 +223,13 @@
             }, this);
         },
         removeLayerById: function removeLayerById(id) {
-            var data;
+            var data, lyr;
             if (this.dynamicLayers[id]) {
-                map.removeLayer(this.dynamicLayers[id]);
+                lyr = this.map.removeLayer(this.dynamicLayers[id]);
+                if (!lyr) {
+                    console.log("failed to remove " + id + ".");
+                    return;
+                }
                 delete this.dynamicLayers[id];
                 data = this.dynamicLayersData[id];
                 delete this.dynamicLayersData[id];
@@ -194,12 +242,12 @@
             }
         },
         getExtentArray: function getExtentArray() {
-            var extent = this.map.getView().calculateExtent(this.map.getSize());
+            var bbox = this.map.getView().calculateExtent(this.map.getSize());
             return JSON.stringify(_.map(
                 ["getBottomLeft", "getTopRight"],
                 function (method) {
                     return _.map(
-                        _.invokeMap(ol.extent[method](extent), 'toPrecision', 5),
+                        _.invokeMap(ol.extent[method](bbox), 'toPrecision', 5),
                         parseFloat
                     );
                 }
@@ -216,7 +264,7 @@
             ));
         },
         // keep track of dynamic style changes
-        setLayerProperty: function (lyr, property, value) {
+        setLayerProperty: function setLayerProperty(lyr, property, value) {
             var id = _.findKey(this.dynamicLayers, lyr),
                 eventHash;
             if (!id) {
@@ -228,31 +276,37 @@
                 prop: property,
                 value: value
             };
-            if (this.dynamicLayersData[id].data.hasOwnProperty(property)) {
-                eventHash.previous = this.dynamicLayersData[id].data[property];
+            if (this.dynamicLayersData[id].metadata.hasOwnProperty(property)) {
+                eventHash.prev = this.dynamicLayersData[id].metadata[property];
             }
-            this.dynamicLayersData[id].data[property] = value;
+            this.dynamicLayersData[id].metadata[property] = value;
 
             if (this.options.onChange) {
                 this.options.onChange.call(this);
             }
             this._trigger("change", null, eventHash);
         },
-        generateCode: function () {
+        generateCode: function generateCode() {
             var codeTemplate = _.template(
                 $(this.options.codeTemplateSelector).html()
             );
 
             return codeTemplate({
-                layers: _.fromPairs(this.getLayers()),
-                extent: this.getExtentArray()
+                layers: this.getLayers(),
+                extent: this.getExtentArray(),
+                baseLayer: this._baseLayerFactory(
+                    window.OL3LayerFactory.builders.template
+                )
             });
         },
-        postToJSFiddle: function () {
+        postToJSFiddle: function postToJSFiddle() {
             post("http://jsfiddle.net/api/post/library/pure/", [
-                newTextArea("css", "html, body, .fullscreen { height: 100%; width: 100%; margin: 0; padding: 0; }"),
+                newTextArea(
+                    "css",
+                    "html, body, .fullscreen " +
+                    "{ height: 100%; width: 100%; margin: 0; padding: 0; }"
+                ),
                 newTextArea("html", '<div class="full-screen" id="map"></div>'),
-                //+ '<script src="http://www.geodata.soton.ac.uk/webobservatory/ol3-layerswitcher.js"></script>'),
                 newTextArea("js", this.generateCode()),
                 newInput("panel_css", "0"),
                 newInput("panel_html", "0"),
@@ -262,7 +316,8 @@
                     "https://cdnjs.cloudflare.com/ajax/libs/ol3/3.7.0/ol.js",
                     "https://cdnjs.cloudflare.com/ajax/libs/ol3/3.7.0/ol.css",
                     //"https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.js", //jsfiddle doesn't do external resources in order, so handle loading this in codeTemplate
-                    "https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.css"
+                    "https://cdn.jsdelivr.net/openlayers.layerswitcher/" +
+                    "1.1.0/ol3-layerswitcher.css"
                 ].join(",")),
 
                 newInput("title", "Auto generated geo web observatory mash-up"),
@@ -276,16 +331,22 @@
     });
 
     var BaseLayerSwitcher = ol.control.LayerSwitcher,
+
         CustomLayerSwitcher = ol.control.LayerSwitcherCustom =
             function (options) {
                 if (options.hasOwnProperty("widget")) {
                     this.widget = options.widget;
                 }
                 BaseLayerSwitcher.call(this, options);
+
+                this.hiddenClassName += " custom";
+                this.shownClassName += " custom";
+                this.element.className = this.hiddenClassName;
             };
     ol.inherits(CustomLayerSwitcher, BaseLayerSwitcher);
 
-    CustomLayerSwitcher.prototype.renderLayer_ = function (lyr, idx) {
+    CustomLayerSwitcher.prototype.renderLayer_ = function renderLayer(lyr, idx) {
+        // append style controls to ordinary layer label
         var item = BaseLayerSwitcher.prototype.renderLayer_.call(this, lyr, idx),
             controls = document.createElement("div");
         controls.className = "controls";
@@ -299,7 +360,8 @@
         return item;
     };
 
-    CustomLayerSwitcher.prototype.renderPanel = function () {
+    CustomLayerSwitcher.prototype.renderPanel = function customRenderPanel() {
+        // make ordinary layer list sortable, add empty message
         var self = this,
             pending = null,
             $list, $items, layers, offset, sourceIndex,
@@ -338,7 +400,8 @@
             fiddlebutton.innerHTML =
                 "Generate interactive fiddle with selected sources";
             fiddlebutton.href = "#";
-            fiddlebutton.onclick = _.bind(this.widget.postToJSFiddle, this.widget);
+            fiddlebutton.onclick =
+                _.bind(this.widget.postToJSFiddle, this.widget);
             this.panel.appendChild(fiddlebutton);
             widget = this.widget;
         }
@@ -355,12 +418,12 @@
         // implement sorting
         function startFn($item) {
             // record the source index before the DOM is updated
-            sourceIndex = $item.index("li");
+            sourceIndex = $list.children("li").index($item);
             console.log("source " + sourceIndex);
         }
 
         function updateFn($item) {
-            var destinationIndex = $item.index("li"),
+            var destinationIndex = $list.children("li").index($item),
                 lyr = layers.removeAt(offset + sourceIndex);
             layers.insertAt(offset + destinationIndex, lyr);
             console.log("destination " + destinationIndex);
@@ -369,7 +432,7 @@
                     widget.options.onChange.call(widget);
                 }
                 widget._trigger("change", null, {
-                    sortLayer: _.findKey(widget.dynamicLayersData, lyr),
+                    sortLayer: _.findKey(widget.dynamicLayers, lyr),
                     index: destinationIndex,
                     prev: sourceIndex
                 });
@@ -428,6 +491,7 @@
                             .slideUp()
                             .queue(function () {
                                 $this[place]($neighbour).dequeue();
+                                updateFn($this);
                             })
                             .slideDown();
                     }
@@ -442,11 +506,17 @@
 
             // give every item a tabindex
             $items.prop("tabindex", _.identity);
+            if (fiddlebutton) {
+                fiddlebutton.tabindex = $items.length;
+            }
         }
     };
 
-    var re_color = /^rgba\(([\d]+),([\d]+),([\d]+).*$/;
-
+    var re_color = /^rgba\(([\d]+),([\d]+),([\d]+),([\d\.]+).*$/,
+        offscreen = document.createElement("div");
+    offscreen.style.cssText = "position: absolute; top: 0; left: -100px; " +
+        "width: 50px; overflow: hidden;";
+    document.body.appendChild(offscreen);
     function vectorControls(wrapper, lyr, widget, layerSwitcher) {
         var style = getStyle(),
             fill = style && style.getFill(),
@@ -459,64 +529,47 @@
         //console.log(stroke);
         picker.type = "color";
         if (color) {
-            picker.value = color.replace(re_color, function () {
-                return "#" + _.map(
-                        Array.prototype.slice.call(arguments, 1),
-                        function (n) {
+            picker.value =
+                color.replace(re_color, function colourChannelsDecToHex() {
+                    var channels = Array.prototype.slice.call(arguments, 1, 4);
+                    return "#" + _.map(channels, function decToHex(n) {
                             var hex = parseInt(n, 10).toString(16);
                             return 1 == hex.length ? "0" + hex : hex;
-                        }
-                    ).join("");
-            });
+                        }).join("");
+                });
         }
 
-        /*
-         var _hidePanel = layerSwitcher.hidePanel;
-         picker.onfocus = function (e) {
-         layerSwitcher.hidePanel = _.noop;
-         };
-         picker.onblur = function (e) {
-         layerSwitcher.hidePanel = _hidePanel;
-         };
-         */
-        var parent;
-        picker.onclick = function (e) {
-            parent = picker.parentNode;
-            document.body.appendChild(e.target);
+        picker.onclick = function movePickerOffscreen(click_event) {
+            // move picker out of panel so it still exists if panel disappears
+            var parent = picker.parentNode,
+                nextSibling = picker.nextSibling;
+            offscreen.appendChild(click_event.target);
+
+            click_event.target.onchange = function movePickerBack(change_event) {
+                if (nextSibling) {
+                    parent.insertBefore(click_event.target, nextSibling);
+                } else {
+                    parent.appendChild(click_event.target);
+                }
+
+                click_event.target.onchange = picker_onchange;
+                return picker_onchange(change_event);
+            };
         };
 
-        picker.onchange = function (e) {
-            //console.log(stroke.getWidth());
-            //var image = style.getImage(), newstyle,
-            //newfill = new ol.style.Fill({ color: color }),
-            var color = ol.color.toString(ol.color.fromString(e.target.value)),
-                newstroke = new ol.style.Stroke({
-                    color: color, width: stroke.getWidth()
-                }),
+        function picker_onchange(e) {
+            var color = "rgba(" + ol.color.asArray(e.target.value).join(",") + ")",
+                newstroke = new ol.style.Stroke(
+                    {color: color, width: stroke.getWidth()}
+                ),
                 newstyle = new ol.style.Style({
-                    //stroke: newstroke,
-                    //fill: newfill,
-                    image: new ol.style.Circle({
+                    stroke: newstroke, // for color-picker to read new color
+                    image: new ol.style.Circle({ // for actual layer render
                         radius: 5,
                         //fill: new ol.style.Fill({ color: color }),
                         stroke: newstroke
                     })
                 });
-
-            //image.fill_ = newfill;
-            //image.stroke_ = newstroke;
-
-            //style.image = image;
-
-            /*
-             newstyle = new ol.style.Style({
-             image: image
-             });
-             */
-            //lyr.setStyle(function () { return [style]; });
-            //console.log(style.getFill());
-            //console.log(newfill);
-            //lyr.redraw();
 
             lyr.getSource().forEachFeature(function (feature) {
                 feature.setStyle(newstyle);
@@ -525,8 +578,8 @@
             if (widget) {
                 widget.setLayerProperty(lyr, "color", e.target.value);
             }
-            parent.appendChild(e.target);
-        };
+        }
+
         label.innerHTML = "&nbsp;Color picker";
         label.insertBefore(picker, label.firstChild);
         wrapper.appendChild(label);
@@ -542,7 +595,7 @@
 
             features = lyr.getSource().getFeatures();
             if (0 < features.length) {
-                style = fn(features[0]);
+                style = features[0].getStyle() || fn(features[0]);
                 if (style.getFill) {
                     return style;
                 }
@@ -562,11 +615,11 @@
         slider.max = 1;
         slider.step = 0.05;
         slider.value = roundToNearestTwentieth(lyr.getOpacity());
-        slider.onchange = function (e) {
+        slider.onchange = widget ? function setLayerOpacityWithWidget(e) {
             lyr.setOpacity(e.target.value);
-            if (widget) {
-                widget.setLayerProperty(lyr, "opacity", e.target.value);
-            }
+            widget.setLayerProperty(lyr, "opacity", e.target.value);
+        } : function setLayerOpacity(e) {
+            lyr.setOpacity(e.target.value);
         };
         label.innerHTML = "&nbsp;Transparency";
         label.insertBefore(slider, label.firstChild);
@@ -607,7 +660,7 @@
         }
 
         // TODO: do this in some child iframe or something?
-        document.body.appendChild(form);
+        offscreen.appendChild(form);
         form.submit();
 
         // to debug the submission, just display the form without submiting it.

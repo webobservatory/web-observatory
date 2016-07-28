@@ -1,13 +1,10 @@
 <head>
     <!-- ol3 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.15.0/ol-debug.js"></script>
-
-    <!-- ol3-layerswitcher -->
-    <script src="https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ol3/3.15.0/ol.js"></script>
 
     <style>
-        .layer-switcher .panel p, .layer-switcher .panel h5 {
-            margin-left: 0.5em;
+        .layer-switcher .panel {
+            padding: 0 0.5em 0.5em;
         }
 
         .layer-switcher .panel li.layer {
@@ -22,7 +19,8 @@
             margin-bottom: .5em;
         }
 
-        .layer-switcher .panel .controls label {
+        .layer-switcher .panel .controls label,
+        .layer-switcher .panel a {
             font-size: 70%;
         }
 
@@ -31,47 +29,63 @@
             display: inline;
             vertical-align: middle;
         }
+
+        .layer-switcher .panel a {
+            display: inline-block;
+            width: 15em;
+        }
+
+        .layer-switcher.custom {
+            right: unset;
+            left: 0.5em;
+            top: 3.75em; /* 3.25em + 0.5em */
+            margin-top: 13px /* account for zoom-controls' borders, margins etc. */
+        }
     </style>
 </head>
 
 <template name="geoapi">
 
     <!-- template for jsfiddle -->
-    <script type="text/template" id="template">
-        function business() {
-        <%
-        var layerFactory = window.OL3LayerFactory("template");
+    <script type="text/template" id="template">function business() {
+    <%
+    var layerFactory = window.OL3LayerFactory("template");
 
-        print(_.map(layers, function (layer, id) {
-        return "  var " + id + "Layer = " +
-        layerFactory(layer.layertype, layer.sourcetype, layer.url, layer.data) +
-        ";";
-        }).join("\n  "));
-        %>
-        var baseLayer = new ol.layer.Tile({ source: new ol.source.OSM() });
-        var map = new ol.Map({
-        target: 'map',
-        view: new ol.View({ center: [0, 0], zoom: 2 }),
-        layers: [ baseLayer, <%
-        print(_.map(_.keys(layers), function (l) {
-        return l + "Layer";
-        }).join(", "))
-        %> ],
-        controls: [ new ol.control.LayerSwitcher() ]
-        });
-        map.getView().fit(ol.extent.boundingExtent(<%= extent %>), map.getSize());
-        }
+    print(_.map(layers, function (pair) {
+    var id = pair[0], layer = pair[1];
+    return "  var Layer" + id + " = " +
+    layerFactory(layer.url, layer.metadata)
+    .replace(/\n/g, "\n  ") +
+    ";";
+    }).join("\n"));
+    %>
+    var baseLayer = <%= baseLayer %>;
+    var map = new ol.Map({
+    target: 'map',
+    view: new ol.View({ center: [0, 0], zoom: 2 }),
+    layers: [ baseLayer, <%
+    print(_.map(layers, function (pair) {
+    return "Layer" + pair[0];
+    }).join(", "))
+    %> ],
+    controls: [ new ol.control.LayerSwitcher() ]
+    });
+    map.getView().fit(
+    ol.extent.boundingExtent(<%= extent %>),
+    map.getSize()
+    );
+    }
 
-        (function () {
-        if (!window.hasOwnProperty("ol")) { return; }
-        // Load layerswitcher control here, as it depends on openlayers,
-        // but jsfiddle loads External Resources in arbitrary order
-        var script = document.createElement("script");
-        script.onload = business;
-        script.type = "text/javascript";
-        script.src = "https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.js";
-        document.getElementsByTagName("head")[0].appendChild(script);
-        }());
+    (function () {
+    if (!window.hasOwnProperty("ol")) { return; }
+    // Load layerswitcher control here, as it depends on openlayers,
+    // but jsfiddle loads External Resources in arbitrary order
+    var script = document.createElement("script");
+    script.onload = business;
+    script.type = "text/javascript";
+    script.src = "https://cdn.jsdelivr.net/openlayers.layerswitcher/1.1.0/ol3-layerswitcher.js";
+    document.getElementsByTagName("head")[0].appendChild(script);
+    }());
     </script>
 
     <h1>GeoAPIObservatory Widget test</h1>
