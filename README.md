@@ -1,7 +1,7 @@
 # Web Observatory Deployment Guide
 Meteor apps can be deployed using [mupx](https://github.com/arunoda/meteor-up/tree/mupx). The guide below shows how to deploy web observatory manually.
 
-First install Nginx, MongoDB and Nodejs. Currently Meteor (1.3.5) works with Node v0.10.x.
+First install Nginx, MongoDB and Nodejs. Currently Meteor (1.4.5) works with Node v4.4.x and MongoDB v3.2.
 
 ## Nginx settings
 
