@@ -18,7 +18,7 @@
     "kerberos": "0.0.21",
     "mongodb": "2.1.21",
     "mysql": "2.10.0",
-    "openid-connect": "^1.2.4",
+    "openid-connect-wo": "^1.2.5",
     "sails-mongo": "^0.12.0"
   }
 }

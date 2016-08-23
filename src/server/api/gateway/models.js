@@ -4,8 +4,9 @@
  */
 
 const models = {
-    users: {
-        identity: 'users',
+    user: {
+        identity: 'user',
+        tableName: 'users',
         connection: 'def',
         schema: true,
         policies: 'loggedIn',

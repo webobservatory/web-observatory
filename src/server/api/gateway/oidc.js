@@ -4,7 +4,7 @@
 
 
 import mongo from 'sails-mongo'
-import OpenIDConnect from 'openid-connect'
+import OpenIDConnect from 'openid-connect-wo'
 import models from './models'
 
 let oidcOpts = {
@@ -24,6 +24,9 @@ let oidcOpts = {
             url: process.env.MONGO_URL || 'mongodb://127.0.0.1:3001/meteor'
         }
     },
+    defaults: {
+        migrate: 'safe',
+    },
     models
 };
 
@@ -33,12 +36,12 @@ oidc.userInfo = function () {
     var self = this;
     return [
         self.check('openid', /profile|email/),
-        self.use({policies: {loggedIn: false}, models: ['access', 'users']}),
+        self.use({policies: {loggedIn: false}, models: ['access', 'user']}),
         function (req, res) {
             req.model.access.findOne({token: req.parsedParams.access_token})
                 .exec(function (err, access) {
                     if (!err && access) {
-                        req.model.users.findOne({id: access.user}, function (err, user) {
+                        req.model.user.findOne({id: access.user}, function (err, user) {
                             if (req.check.scopes.indexOf('profile') != -1) {
                                 user.sub = req.session.sub || req.session.user;
                                 delete user.id;
