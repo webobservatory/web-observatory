@@ -20,7 +20,7 @@ let ClientSchema = new SimpleSchema({
 
     key: {
         type: String,
-        denyUpdate: true,
+        // denyUpdate: true,
         autoValue(){
             if (this.isInsert) {
                 let user = Meteor.userId();
@@ -30,14 +30,14 @@ let ClientSchema = new SimpleSchema({
             }
         },
         autoform: {
-            omit: true,
+            // omit: true,
             readonly: true
         }
     },
 
     secret: {
         type: String,
-        denyUpdate: true,
+        // denyUpdate: true,
         autoValue() {
             let key = this.field("key");
             if (key.isSet) {
@@ -48,7 +48,7 @@ let ClientSchema = new SimpleSchema({
             }
         },
         autoform: {
-            omit: true,
+            // omit: true,
             readonly: true
         }
     },

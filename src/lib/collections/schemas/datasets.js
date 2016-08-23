@@ -12,7 +12,7 @@ let DistributionSchema = new SimpleSchema({
         optional: true,
         regEx: SimpleSchema.RegEx.Id,
         autoValue() {
-            console.log('subId', this);
+            // console.log('subId', this);
             if (this.isInsert) {
                 return Random.id();
             } else if (this.isUpsert) {
