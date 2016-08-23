@@ -18,20 +18,20 @@ orionjs:filesystem
 orionjs:s3
 orionjs:file-attribute
 useraccounts:iron-routing
-accounts-password@1.2.12
+accounts-password@1.3.0
 accounts-google@1.0.10
 service-configuration@1.0.10
 accounts-ui@1.1.9
 accounts-github@1.0.10
-ecmascript@0.5.7
+ecmascript@0.5.8
 matb33:collection-hooks
 vsivsi:orion-file-collection
 
 
 simple:reactive-method
-http@1.2.8
+http@1.2.9
 yuukan:streamy
-email@1.1.16
+email@1.1.17
 babrahams:accounts-ldap
 fortawesome:fontawesome
 orionjs:bootstrap
@@ -40,8 +40,8 @@ twbs:bootstrap
 momentjs:moment
 useraccounts:bootstrap
 meteorhacks:search-source
-standard-minifier-css@1.1.8
-standard-minifier-js@1.1.8
+standard-minifier-css@1.2.0
+standard-minifier-js@1.2.0
 percolate:synced-cron
 meteorhacks:async
 mrt:cookies
@@ -52,3 +52,4 @@ jquery@1.11.9
 aldeed:autoform-bs-datepicker
 erasaur:meteor-lodash
 rajit:bootstrap3-datepicker
+shell-server
