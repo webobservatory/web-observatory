@@ -53,3 +53,5 @@ aldeed:autoform-bs-datepicker
 erasaur:meteor-lodash
 rajit:bootstrap3-datepicker
 shell-server
+webobservatory:accounts-wo
+webobservatory:accounts-ui-unstyled-wo
