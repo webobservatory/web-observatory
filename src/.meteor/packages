@@ -52,6 +52,6 @@ jquery@1.11.9
 aldeed:autoform-bs-datepicker
 erasaur:meteor-lodash
 rajit:bootstrap3-datepicker
-shell-server
+shell-server@0.2.1
 webobservatory:accounts-wo
 webobservatory:accounts-ui-unstyled-wo

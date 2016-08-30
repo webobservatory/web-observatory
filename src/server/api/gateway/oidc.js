@@ -44,12 +44,12 @@ oidc.userInfo = function () {
                         req.model.user.findOne({id: access.user}, function (err, user) {
                             if (req.check.scopes.indexOf('profile') != -1) {
                                 user.sub = req.session.sub || req.session.user;
-                                delete user.id;
-                                delete user.services
+                                // delete user.id;
+                                delete user.services;
                                 res.json(user);
                             } else {
                                 //console.log(user);
-                                res.json({email: user.emails && user.emails[0].address});
+                                res.json({email: user.emails && user.emails[0].address, id: user.id});
                             }
                         });
                     } else {
