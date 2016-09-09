@@ -4,14 +4,20 @@
         <div class="row page">
             <div class="port-filter port-filter-dark">
                 <ul>
-                    <li class="tab col s3 active"><a href="#metadata" data-toggle="pill">Metadata</a></li>
+                    {{#if showInNewTab}}
+                        <li class="tab col s3"><a href="#metadata" data-toggle="pill">Metadata</a></li>
+                    {{else if showDistributions}}
+                        <li class="tab col s3"><a href="#metadata" data-toggle="pill">Metadata</a></li>
+                    {{else}}
+                        <li class="tab col s3 active"><a href="#metadata" data-toggle="pill">Metadata</a></li>
+                    {{/if}}
                     <li class="tab col s3"><a href="#comments" data-toggle="pill">Comments</a></li>
                     {{#if showInNewTab}}
-                        <li class="tab col s3"><a href="#view" data-toggle="pill">App</a></li>
+                        <li class="tab col s3 active"><a href="#view" data-toggle="pill">App</a></li>
                     {{/if}}
                     {{#if showDistributions}}
                         {{#each entry.distribution}}
-                            <li class="tab col s3"><a href="{{appendHash _id}}" data-toggle="pill">{{fileFormat}}</a></li>
+                            <li class="tab col s3 active"><a href="{{appendHash _id}}" data-toggle="pill">{{fileFormat}}</a></li>
                         {{/each}}
                     {{/if}}
 
