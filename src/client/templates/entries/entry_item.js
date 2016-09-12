@@ -4,6 +4,16 @@ Template.entryItem.helpers({
     prettifyDate(timestamp) {
         return moment(new Date(timestamp)).fromNow();
     },
+    isEditorChoice(entry) {
+        let adminIds = Meteor.users.find({roles: 'admin'}).map(admin=>admin._id);
+        let upvoters = entry.upvoters;
+
+        let inter = _.intersection(adminIds, upvoters);
+
+        let editorChoice = inter.length !== 0;
+
+        return editorChoice;
+    },
     //schema.org helpers
     itemtype() {
         let parentData = Template.parentData(1),
