@@ -45,7 +45,7 @@ Datasets = new orion.collection('datasets', {
 
 // Meteor.call requires parameters to be of EJSON, passing a collection as it is
 // causes a Maximum call stack size exceeded error
-// toEJSONSingularType(Datasets, Datasets.pluralName);
+toEJSONSingularType(Datasets, Datasets.pluralName);
 
 //Datasets.allow({
 //    update: function (userId, entry, fieldNames) {

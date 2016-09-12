@@ -4,6 +4,9 @@ Template.entryItem.helpers({
     prettifyDate(timestamp) {
         return moment(new Date(timestamp)).fromNow();
     },
+    isEditorChoice(entry) {
+
+    },
     //schema.org helpers
     itemtype() {
         let parentData = Template.parentData(1),
@@ -54,22 +57,6 @@ Template.entryItem.helpers({
         let a = document.createElement('a');
         a.href = `/${category.pluralName}/${this._id}`;
         return a.host + a.pathname;
-    },
-    upVotedClass() {
-        let userId = Meteor.userId();
-        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
-            return 'upvotable';
-        } else {
-            return 'disabled';
-        }
-    },
-    downVotedClass() {
-        let userId = Meteor.userId();
-        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
-            return 'downvotable';
-        } else {
-            return 'disabled';
-        }
     },
     showInNewTab() {
         //permitted to access

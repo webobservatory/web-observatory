@@ -39,7 +39,7 @@ Template.entryPageItem.helpers({
     },
     upVotedClass() {
         let userId = Meteor.userId();
-        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
+        if (userId && !_.includes(this.downvoters, userId) && !_.includes(this.upvoters, userId)) {
             return 'upvotable';
         } else {
             return 'disabled';
@@ -47,7 +47,7 @@ Template.entryPageItem.helpers({
     },
     downVotedClass() {
         let userId = Meteor.userId();
-        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
+        if (userId && !_.includes(this.downvoters, userId) && !_.includes(this.upvoters, userId)) {
             return 'downvotable';
         } else {
             return 'disabled';
