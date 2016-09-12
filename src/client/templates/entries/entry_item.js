@@ -4,9 +4,6 @@ Template.entryItem.helpers({
     prettifyDate(timestamp) {
         return moment(new Date(timestamp)).fromNow();
     },
-    isEditorChoice(entry) {
-
-    },
     //schema.org helpers
     itemtype() {
         let parentData = Template.parentData(1),
@@ -58,19 +55,19 @@ Template.entryItem.helpers({
         a.href = `/${category.pluralName}/${this._id}`;
         return a.host + a.pathname;
     },
-    showInNewTab() {
-        //permitted to access
-        if (accessesDocument(Meteor.userId(), this)) {
-            // app, group
-            if (this.url) {
-                return this.url;
-            }
-            //dataset with only one html distribution
-            if (this.distribution && this.distribution.length === 1 && this.distribution[0].fileFormat === 'HTML') {
-                return this.distribution[0].url;
-            }
-        }
-    }
+    // showInNewTab() {
+    //     //permitted to access
+    //     if (accessesDocument(Meteor.userId(), this)) {
+    //         // app, group
+    //         if (this.url) {
+    //             return this.url;
+    //         }
+    //         //dataset with only one html distribution
+    //         if (this.distribution && this.distribution.length === 1 && this.distribution[0].fileFormat === 'HTML') {
+    //             return this.distribution[0].url;
+    //         }
+    //     }
+    // }
 });
 
 Template.entryItem.events({

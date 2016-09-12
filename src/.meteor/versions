@@ -112,7 +112,7 @@ mongo-livedata@1.0.12
 mrt:cookies@0.3.0
 nicolaslopezj:options@1.0.1
 nicolaslopezj:reactive-templates@1.2.1
-nicolaslopezj:roles@1.5.3
+nicolaslopezj:roles@2.4.0
 nicolaslopezj:router-layer@0.0.11
 npm-bcrypt@0.9.1
 npm-mongo@1.5.48
