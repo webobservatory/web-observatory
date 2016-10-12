@@ -981,7 +981,8 @@ body {
 
 /* List Block */
 .list-block .post-author {
-  font-family: "Montserrat", sans-serif; }
+  font-family: "Montserrat", sans-serif;
+  font-size: 10px; }
 .list-block .comment-baloon {
   border-right: 1px dotted #808080;
   border-radius: 0;
@@ -992,16 +993,16 @@ body {
 .list-block .post-date2 {
   font-family: "Oxygen", sans-serif;
   font-style: oblique;
-  font-size: 12px;
+  font-size: 10px;
   line-height: 14px;
   margin-top: 8px;
   margin-top: 24px;
   padding-top: 8px;
   border-top: 1px dotted #808080; }
 .list-block h4 {
-  margin-bottom: 0.5em;
+  margin-bottom: 0em;
   letter-spacing: 0px;
-  font-size: 18px; }
+  font-size: 15px; }
 
 .infoblock {
   text-align: left;
@@ -1022,11 +1023,15 @@ body {
   /* Post attributes in line */
   display: inline-block;
   vertical-align: middle;
-  min-height: 60px;
-  margin-bottom: 0; }
+  min-height: 40px;
+  margin-bottom: 0;
+  margin-top: 5px; }
 
 .post-data, .post-data0, .post-data1, .post-data2 {
-  display: inline-block !important; }
+  display: inline-block !important;
+  padding-left: 5px;
+  vertical-align: middle;
+  height: 40px; }
 
 .post-date {
   font-family: 'Oxygen', sans-serif;
@@ -1058,7 +1063,7 @@ body {
   text-align: center;
   vertical-align: middle;
   line-height: 44px;
-  margin: 6px 8px 24px 0; }
+  margin: 0; }
 
 .comment-baloon-01 {
   display: inline-block;
