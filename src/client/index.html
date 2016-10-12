@@ -24,7 +24,7 @@
     <section id="top" class="container-fluid content-section text-center">
         <div class="row">
             <div class="col-lg-12">
-                <h2>Top Rated</h2>
+                <h2>Editors' Choice</h2>
                 <div class="port-filter port-filter-dark">
                     <ul>
                         <li class="active"><a href="#topApps" data-toggle="pill">Apps</a></li>
@@ -34,11 +34,11 @@
 
                 <div class="tab-content">
                     <div id="topApps" class="tab-pane active">
-                        {{> entryList app}}
+                        {{> entryList editorChoice app}}
                         <a href="{{pathFor app.routes.latest}}" class="btn btn-lgr-str">More</a>
                     </div>
                     <div class="tab-pane" id="topDatasets">
-                        {{> entryList dataset}}
+                        {{> entryList editorChoice dataset}}
                         <a href="{{pathFor dataset.routes.latest}}" class="btn btn-lgr-str">More</a>
                     </div>
                 </div>
