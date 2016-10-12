@@ -105,4 +105,5 @@ Template.distribution.helpers({
 
 Template.entryItem.rendered = function () {
     $('.tooltipped').tooltip({delay: 300});
+    $('[data-toggle="tooltip"]').tooltip();
 };
