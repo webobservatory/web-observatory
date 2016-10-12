@@ -23,15 +23,15 @@ accounts-google@1.0.10
 service-configuration@1.0.10
 accounts-ui@1.1.9
 accounts-github@1.0.10
-ecmascript@0.5.8
+ecmascript@0.5.8_1
 matb33:collection-hooks
 vsivsi:orion-file-collection
 
 
 simple:reactive-method
-http@1.2.9
+http@1.2.9_1
 yuukan:streamy
-email@1.1.17
+email@1.1.17_1
 babrahams:accounts-ldap
 fortawesome:fontawesome
 orionjs:bootstrap
@@ -40,8 +40,8 @@ twbs:bootstrap
 momentjs:moment
 useraccounts:bootstrap
 meteorhacks:search-source
-standard-minifier-css@1.2.0
-standard-minifier-js@1.2.0
+standard-minifier-css@1.2.0_1
+standard-minifier-js@1.2.0_1
 percolate:synced-cron
 meteorhacks:async
 mrt:cookies

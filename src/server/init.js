@@ -32,6 +32,8 @@ Meteor.startup(function () {
         Roles.addUserToRoles(xgfdId, ["admin"]);
     }
 
+    Meteor.call('nicolaslopezj_roles_migrate');
+
     // 1. Set up stmp
     //   your_server would be something like 'smtp.gmail.com'
     //   and your_port would be a number like 25

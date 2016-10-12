@@ -19,9 +19,15 @@
             <div class="post-attrib">
                 <div class="comment-baloon font-accident-one-bold">
                     {{#if canAccess this}}
-                        <span class=""><i class="fa fa-check"></i></span>
+                        <span><i data-toggle="tooltip" title="Accessible" class="fa fa-unlock"></i></span>
                     {{else}}
-                        <span><i class="fa fa-ban"></i></span>
+                        <span><i data-toggle="tooltip" title="No Access" class="fa fa-lock"></i></span>
+                    {{/if}}
+                    {{#if isEditorChoice this}}
+                        <span><i data-toggle="tooltip" title="Editor Choice" class="fa fa-trophy"></i></span>
+                    {{/if}}
+                    {{#if offline this}}
+                        <span><i data-toggle="tooltip" title="Offline" class="fa fa-ban"></i></span>
                     {{/if}}
                 </div>
 
