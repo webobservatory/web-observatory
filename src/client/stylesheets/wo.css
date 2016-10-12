@@ -1106,6 +1106,7 @@ body {
 [Footer]
 */
 footer {
+  padding-bottom: 5px;
   margin-top: 48px;
   background-color: #131313;
   min-height: 150px;
