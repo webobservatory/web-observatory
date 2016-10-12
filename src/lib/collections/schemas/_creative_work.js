@@ -27,10 +27,10 @@ CreativeWork = {
         optional: true,
         //noneditable: true
     }, {
-            collection: Comments,
-            titleField: 'body',
-            publicationName: 'rel_comments'
-        }),
+        collection: Comments,
+        titleField: 'body',
+        publicationName: 'rel_comments'
+    }),
 
     commentsCount: {
         type: Number,
@@ -88,10 +88,10 @@ CreativeWork = {
         label: 'Related datasets',
         optional: true
     }, {
-            collection: Datasets,
-            titleField: 'name',
-            publicationName: 'isbasedonurl'
-        }),
+        collection: Datasets,
+        titleField: 'name',
+        publicationName: 'isbasedonurl'
+    }),
 
     keywords: {
         type: [String],
@@ -108,13 +108,13 @@ CreativeWork = {
 
                 let options = [];
                 defaultLicenses.forEach(name => {
-                    options.push({ label: name.toUpperCase(), value: name });
+                    options.push({label: name.toUpperCase(), value: name});
                 });
 
                 addedLices.forEach(lice => {
                     if (lice.name) {
                         let name = lice.name;
-                        options.push({ label: name.toUpperCase(), value: name });
+                        options.push({label: name.toUpperCase(), value: name});
                     }
                 });
 
@@ -195,23 +195,26 @@ Mis = {
     metaWhiteList: orion.attribute('hasMany', {
         type: [String],
         label: 'Permitted to see',
+        autoform: {
+            omit: true
+        },
         optional: true
     }, {
-            collection: Meteor.users,
-            titleField: 'username',
-            publicationName: 'metawhitelist'
-        }),
+        collection: Meteor.users,
+        titleField: 'username',
+        publicationName: 'metawhitelist'
+    }),
 
     //who can access this entry disregards acl settings
     contentWhiteList: orion.attribute('hasMany', {
         type: [String],
-        label: 'Permitted to access',
+        label: 'Share to',
         optional: true
     }, {
-            collection: Meteor.users,
-            titleField: 'username',
-            publicationName: 'contentwhitelist'
-        })
+        collection: Meteor.users,
+        titleField: 'username',
+        publicationName: 'contentwhitelist'
+    })
 };
 
 _.extend(CreativeWork, Thing);
@@ -226,7 +229,7 @@ setAtCreation = function (field, val) {
     if (field.isInsert) {
         return val;
     } else if (field.isUpsert) {
-        return { $setOnInsert: val };
+        return {$setOnInsert: val};
     } else {
         field.unset();
     }
@@ -239,7 +242,7 @@ setAtUpdate = function (field, val) {
     if (field.isUpdate || field.isInsert) {
         return val;
     } else if (field.isUpsert) {
-        return { $setOnInsert: val };
+        return {$setOnInsert: val};
     } else {
         //shouldn't reach here
         field.unset();

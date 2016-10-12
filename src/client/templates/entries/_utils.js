@@ -60,10 +60,10 @@ fileUpload = function (e, template) {
 formatChange = function (e) {
     let $select = $(e.target),
         val = $select.val(),
-        $root = $select.closest('div.card-content'),
-        $url = $root.find('input[name*=\\.url]'),
+        $root = $select.closest('div.panel-body'),
+        $url = $root.find('input[type=url]'),
         $file = $root.find('.fileUpload'),
-        $fileSection = $file.closest('.row');
+        $fileSection = $file.closest('.form-group');
 
     switch (val) {
         case 'HTML':
@@ -98,7 +98,7 @@ formatChange = function (e) {
 
 hideFileUpload = function () {
     let $file = $('.fileUpload'),
-        $fileSection = $file.closest('.row');
+        $fileSection = $file.closest('.form-group');
 
     $fileSection.hide();
 };

@@ -29,7 +29,7 @@ ListController = RouteController.extend({
         let query = {}, _query = this.params.query;
 
         _.keys(_query).forEach(function (key) {
-            console.log(key);
+            // console.log(key);
             switch (key) {
                 case 'online':
                 case 'aclMeta':

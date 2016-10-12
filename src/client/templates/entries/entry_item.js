@@ -54,35 +54,6 @@ Template.entryItem.helpers({
         let a = document.createElement('a');
         a.href = `/${category.pluralName}/${this._id}`;
         return a.host + a.pathname;
-    },
-    upVotedClass() {
-        let userId = Meteor.userId();
-        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
-            return 'upvotable';
-        } else {
-            return 'disabled';
-        }
-    },
-    downVotedClass() {
-        let userId = Meteor.userId();
-        if (userId && !_.include(this.downvoters, userId) && !_.include(this.upvoters, userId)) {
-            return 'downvotable';
-        } else {
-            return 'disabled';
-        }
-    },
-    showInNewTab() {
-        //permitted to access
-        if (accessesDocument(Meteor.userId(), this)) {
-            // app, group
-            if (this.url) {
-                return this.url;
-            }
-            //dataset with only one html distribution
-            if (this.distribution && this.distribution.length === 1 && this.distribution[0].fileFormat === 'HTML') {
-                return this.distribution[0].url;
-            }
-        }
     }
 });
 

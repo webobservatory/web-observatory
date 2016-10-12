@@ -6,9 +6,9 @@
 SimpleSchema.messages({acceptTerms: 'You must accept the terms and conditions of this item'});
 
 Template.requestFrom.rendered = function () {
-    $('.collapsible').collapsible({
-        accordion: false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
-    });
+    // $('.collapsible').collapsible({
+    //     accordion: false // A setting that changes the collapsible behavior to expandable instead of the default accordion style
+    // });
 };
 
 let request = new SimpleSchema({

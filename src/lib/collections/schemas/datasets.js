@@ -31,7 +31,7 @@ let DistributionSchema = new SimpleSchema({
 
     fileFormat: {
         type: String,
-        label: 'Format',
+        label: 'Dataset type',
         allowedValues: ['MongoDB', 'MySQL', 'AMQP', 'SPARQL', 'HTML', 'File', 'GeoData'],
         autoform: {type: 'select'}
         //TODO custom validate
@@ -39,7 +39,7 @@ let DistributionSchema = new SimpleSchema({
 
     url: {
         type: String,
-        label: 'Distribution URL',
+        label: 'URL',
         autoform: {
             type: 'url',
             placeholder: "Select a format"
@@ -47,7 +47,7 @@ let DistributionSchema = new SimpleSchema({
     },
 
     file: orion.attribute('file', {
-        label: 'Upload dataset as a file.',
+        label: 'Upload dataset file.',
         optional: true
     }),
 
@@ -55,6 +55,7 @@ let DistributionSchema = new SimpleSchema({
     profile: {
         type: Object,
         optional: true,
+        label: 'Dataset credential',
         defaultValue: {}
     },
     //dataset username
@@ -83,7 +84,7 @@ let DistributionSchema = new SimpleSchema({
     instruction: {
         type: String,
         optional: true,
-        label: 'Instruction to access this dataset',
+        label: 'How to access this dataset',
         autoform: {type: 'textarea'}
     },
 
@@ -121,12 +122,12 @@ DatasetSchema = {
     distribution: {
         type: [DistributionSchema],
         autoValue(){
-            if(this.isUpdate) {
+            if (this.isUpdate) {
                 this.unset();
             }
             // return setAtCreation(this, undefined);
         },
-        label: "Distribution"
+        label: "Dataset"
     },
 
     datasetTimeInterval: {
