@@ -1076,7 +1076,7 @@ body {
   border-top: 1px dotted #808080; }
 .list-block h4 {
   margin-bottom: 0.5em;
-  letter-spacing: 3px;
+  letter-spacing: 0px;
   font-size: 18px; }
 
 .infoblock {
@@ -2359,7 +2359,7 @@ body {
   border-top: 1px dotted #808080; }
 .list-block h4 {
   margin-bottom: 0.5em;
-  letter-spacing: 3px;
+  letter-spacing: 0px;
   font-size: 18px; }
 
 .infoblock {

@@ -105,9 +105,6 @@ a {
     text-decoration: none;
     color: #1d9b6c; }
 
-.well {
-  background-color: #1d9b6c; }
-
 .light {
   font-weight: 300; }
 
@@ -191,9 +188,6 @@ h5.title {
 
 .container-fluid {
   padding: 0 40px; }
-
-.grid-item {
-  padding: 10px; }
 
 .content-wrap {
   display: block;
@@ -318,6 +312,20 @@ h5.title {
   display: none;
   opacity: 0; }
 
+.results-modal .modal-dialog {
+  width: 60%;
+  padding: 0; }
+.results-modal .modal-body {
+  padding: 5px; }
+.results-modal pre {
+  margin-bottom: 0;
+  text-align: left;
+  background-color: #202020;
+  color: #999;
+  border: 0;
+  max-height: 500px;
+  overflow: scroll; }
+
 .btn-circle {
   width: 70px;
   height: 70px;
@@ -374,10 +382,10 @@ h5.title {
   padding-top: 120px; }
 
 .grid-item {
-  /*float: left;*/
+  vertical-align: top;
   width: 250px;
-  /*height: 300px;*/
-  display: inline-block; }
+  display: inline-block;
+  padding: 10px; }
 
 .download-section {
   width: 100%;
@@ -992,7 +1000,7 @@ body {
   border-top: 1px dotted #808080; }
 .list-block h4 {
   margin-bottom: 0.5em;
-  letter-spacing: 3px;
+  letter-spacing: 0px;
   font-size: 18px; }
 
 .infoblock {
@@ -1006,6 +1014,9 @@ body {
     .infoblock a:hover {
       text-decoration: none;
       color: #42DCA3; }
+
+.remote .infoblock a {
+  color: #999; }
 
 .post-attrib {
   /* Post attributes in line */
@@ -1128,5 +1139,70 @@ footer {
   background-color: #f39c12; }
 .entry-page .badge-danger {
   background-color: #e74c3c; }
+
+.port-filter {
+  display: table;
+  margin: 0 auto; }
+  .port-filter ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+    margin-bottom: 30px; }
+    .port-filter ul li {
+      display: inline-block; }
+      .port-filter ul li a {
+        position: relative;
+        padding: 6px 24px;
+        margin-right: 1px;
+        text-transform: uppercase;
+        font-size: 12px;
+        font-style: oblique;
+        letter-spacing: 3px;
+        transition: all 0.35s ease-in-out;
+        -moz-transition: all 0.35s ease-in-out;
+        -webkit-transition: all 0.35s ease-in-out;
+        -o-transition: all 0.35s ease-in-out;
+        -ms-transition: all 0.35s ease-in-out; }
+        .port-filter ul li a:after {
+          content: '';
+          position: absolute;
+          border-style: solid;
+          border-width: 8px 8px 0;
+          opacity: 0;
+          display: block;
+          width: 0;
+          z-index: 1;
+          margin-left: -8px;
+          bottom: -8px;
+          left: 50%;
+          transition: all 0.35s ease-in-out;
+          -moz-transition: all 0.35s ease-in-out;
+          -webkit-transition: all 0.35s ease-in-out;
+          -o-transition: all 0.35s ease-in-out;
+          -ms-transition: all 0.35s ease-in-out; }
+      .port-filter ul li.active a {
+        text-decoration: none;
+        background: #3AC290;
+        color: #fff; }
+        .port-filter ul li.active a:after {
+          border-color: #3AC290 transparent;
+          opacity: 1; }
+
+.port-filter-dark ul li a {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff; }
+  .port-filter-dark ul li a:after {
+    border-color: #fff transparent; }
+  .port-filter-dark ul li a:hover, .port-filter-dark ul li a:focus {
+    text-decoration: none;
+    background: #3AC290;
+    color: #fff; }
+  .port-filter-dark ul li a:hover:after, .port-filter-dark ul li a:focus:after {
+    border-color: #3AC290 transparent;
+    opacity: 1; }
+
+iframe {
+  background: url(preloader.gif) no-repeat;
+  background-position: 50% 5%; }
 
 /*# sourceMappingURL=wo.css.map */
