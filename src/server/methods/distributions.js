@@ -25,7 +25,7 @@ function augsTrans(url, username, pass) {
     return {url, username, pass};
 }
 
-function connectorFactory(connect) {
+function connectorSyncWrap(connect) {
     return function (url, username, pass) {
         let id = url;
 
@@ -89,7 +89,7 @@ let mongoclient = Npm.require("mongodb").MongoClient;
 /*
  call with one parameter @distId or three parameters @url @username @pass
  */
-let mongodbConnect = connectorFactory(function (url, username, pass, done) {
+let mongodbConnect = connectorSyncWrap(function (url, username, pass, done) {
     if (!hasCredential(url) && username) {
         url = `mongodb://${username}:${pass}@${url.slice('mongodb://'.length)}`;
     }
@@ -115,7 +115,7 @@ let mongodbQuery = queryExecFactory(mongodbConnect, (conn, done, collection, sel
 /* MySQL */
 let mysql = Npm.require('mysql');
 
-let mysqlConnect = connectorFactory(function (url, username, pass, done) {
+let mysqlConnect = connectorSyncWrap(function (url, username, pass, done) {
     url = url.match(/(mysql:\/\/)?(.*)/)[2];//strip off mysql://
 
     let options = {
@@ -142,31 +142,36 @@ let mysqlQuery = queryExecFactory(mysqlConnect, (conn, done, query)=> {
 
 // SPARQL
 
-let sparqlConnect = connectorFactory((url, _, __, done)=> {
-    done(null, url);
+let sparqlConnect = connectorSyncWrap((url, _, __, done)=> {
+    HTTP.get(url, {}, (error, _)=> {
+        done(error, url);
+    });
 });
 
 let sparqlQuery = queryExecFactory(sparqlConnect, (url, done, query)=> {
     HTTP.get(url, {
-        params: {query}, timeout: 30000, headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/sparql-results+json'
-        }
-    }, function (error, result) {
-        if (typeof result === 'object' && result.content) {
-            try {
-                result = result.content;
-            } catch (e) {
-                console.log(e);
+            params: {query},
+            timeout: 30000,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/sparql-results+json'
             }
-        }
-        done(error, result);
-    });
+        },
+        function (error, result) {
+            if (typeof result === 'object' && result.content) {
+                try {
+                    result = result.content;
+                } catch (e) {
+                    console.log(e);
+                }
+            }
+            done(error, result);
+        });
 });
 
 /*RabbitMQ*/
 let amqp = Npm.require('amqplib/callback_api');
-let amqpConnect = connectorFactory(function (url, username, pass, done) {
+let amqpConnect = connectorSyncWrap(function (url, username, pass, done) {
     let parts = url.match(/(amqps?:\/\/)?([^\?]*)\??(\S*)/),
         query = parts[3],
         params = query.split(/[=,&]/),
