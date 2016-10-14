@@ -11,8 +11,7 @@ Template.home.onRendered(function () {
 Template.home.helpers({
     editorChoice(tmpData) {
         let coll = tmpData.category;
-        let oldEntries = tmpData.entries.fetch();
-        let adminIds = Meteor.users.find({roles: 'admin'}).map(admin=>admin._id);
+        let adminIds = Meteor.users.find({username: 'admin'}).map(admin=>admin._id);
         tmpData.entries = coll.find({upvoters: {$in: adminIds}});
         return tmpData;
     }

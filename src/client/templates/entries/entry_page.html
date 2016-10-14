@@ -9,7 +9,7 @@
                     {{/if}}
                     {{#if showDistributions}}
                         {{#each entry.distribution}}
-                            <li class="tab col s3 active"><a href="{{appendHash _id}}" data-toggle="pill">{{fileFormat}}</a></li>
+                            <li class="tab col s3"><a href="{{appendHash _id}}" data-toggle="pill">{{fileFormat}}</a></li>
                         {{/each}}
                     {{/if}}
 
@@ -44,7 +44,7 @@
                 {{#if showDistributions}}
                     <!--show query interface-->
                     {{#each entry.distribution}}
-                        <div class="tab-pane active" id="{{_id}}">
+                        <div class="tab-pane" id="{{_id}}">
                             {{>Template.dynamic template=fileFormat data=distData}}
                         </div>
                     {{/each}}

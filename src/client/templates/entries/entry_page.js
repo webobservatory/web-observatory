@@ -108,6 +108,7 @@ Template.entryPage.rendered = function () {
     // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
 
     urlToLink();
+    $('ul li.tab.col a')[0].click();//active the first tab
     //liceToLink();
 
     //$('.modal-trigger').leanModal();

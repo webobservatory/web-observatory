@@ -130,17 +130,25 @@ function queryHandlerFactory(argGen, method, transform = (error, result)=> {
 let mongoDep;
 Template.MongoDB.helpers({
         getMongoDBCollectionNames() {
-            Meteor.call('mongodbConnect', this._id);
-            let collectionNames = ReactiveMethod.call('mongodbCollectionNames', this._id) || [];
-            //change mongoDep after this function return
-            Meteor.defer(function () {
-                mongoDep.changed(); //feels like coding in Java
-            });
-            //remove system collections
-            collectionNames = collectionNames.filter(obj=> {
-                let name = obj.name;
-                return name && name.indexOf('system') !== 0;
-            });
+
+            let collectionNames = [];
+            try {
+                Meteor.call('mongodbConnect', this._id);
+                let collectionNames = ReactiveMethod.call('mongodbCollectionNames', this._id);
+                //change mongoDep after this function return
+                Meteor.defer(function () {
+                    mongoDep.changed(); //feels like coding in Java
+                });
+                //remove system collections
+                collectionNames = collectionNames.filter(obj=> {
+                    let name = obj.name;
+                    return name && name.indexOf('system') !== 0;
+                });
+            }
+            catch (e) {
+                console.log(e);
+            }
+
             return collectionNames;
         }
     }

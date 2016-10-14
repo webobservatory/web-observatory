@@ -5,7 +5,7 @@ Template.entryItem.helpers({
         return moment(new Date(timestamp)).fromNow();
     },
     isEditorChoice(entry) {
-        let adminIds = Meteor.users.find({roles: 'admin'}).map(admin=>admin._id);
+        let adminIds = Meteor.users.find({username: 'admin'}).map(admin=>admin._id);
         let upvoters = entry.upvoters;
 
         let inter = _.intersection(adminIds, upvoters);
