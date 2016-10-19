@@ -1337,3 +1337,23 @@ iframe {
     background: url(preloader.gif) no-repeat;
     background-position: 50% 5%;
 }
+
+.orionSummernote {
+    .note-editor {
+        border-color: #181818;
+        .note-toolbar {
+            background-color: #181818;
+        }
+        .note-editing-area {
+            .note-editable {
+                color: #fff;
+                background-color: #202020;
+            }
+        }
+        .note-status-bar {
+            .note-resizebar {
+                background-color: #202020;
+            }
+        }
+    }
+}

@@ -1057,7 +1057,7 @@ body {
 .comment-baloon {
   display: inline-block;
   height: 44px;
-  width: 44px;
+  width: 60px;
   border-radius: 22px;
   color: #fff;
   text-align: center;
@@ -1210,5 +1210,15 @@ footer {
 iframe {
   background: url(preloader.gif) no-repeat;
   background-position: 50% 5%; }
+
+.orionSummernote .note-editor {
+  border-color: #181818; }
+  .orionSummernote .note-editor .note-toolbar {
+    background-color: #181818; }
+  .orionSummernote .note-editor .note-editing-area .note-editable {
+    color: #fff;
+    background-color: #202020; }
+  .orionSummernote .note-editor .note-status-bar .note-resizebar {
+    background-color: #202020; }
 
 /*# sourceMappingURL=wo.css.map */
