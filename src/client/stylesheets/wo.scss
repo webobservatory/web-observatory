@@ -1343,16 +1343,21 @@ iframe {
         border-color: #181818;
         .note-toolbar {
             background-color: #181818;
+            border: 0px;
         }
         .note-editing-area {
             .note-editable {
-                color: #fff;
+                color: #777;
                 background-color: #202020;
+                font-family: Raleway, "Helvetica Neue", Helvetica, Arial, sans-serif;
             }
         }
-        .note-status-bar {
+        .note-statusbar {
             .note-resizebar {
-                background-color: #202020;
+                background-color: #181818 !important;
+            }
+            .note-icon-bar {
+                border-top: 1px solid #777;
             }
         }
     }

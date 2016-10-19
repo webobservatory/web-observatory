@@ -1214,11 +1214,15 @@ iframe {
 .orionSummernote .note-editor {
   border-color: #181818; }
   .orionSummernote .note-editor .note-toolbar {
-    background-color: #181818; }
+    background-color: #181818;
+    border: 0px; }
   .orionSummernote .note-editor .note-editing-area .note-editable {
-    color: #fff;
-    background-color: #202020; }
-  .orionSummernote .note-editor .note-status-bar .note-resizebar {
-    background-color: #202020; }
+    color: #777;
+    background-color: #202020;
+    font-family: Raleway, "Helvetica Neue", Helvetica, Arial, sans-serif; }
+  .orionSummernote .note-editor .note-statusbar .note-resizebar {
+    background-color: #181818 !important; }
+  .orionSummernote .note-editor .note-statusbar .note-icon-bar {
+    border-top: 1px solid #777; }
 
 /*# sourceMappingURL=wo.css.map */
