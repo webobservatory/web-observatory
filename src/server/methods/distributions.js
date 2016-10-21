@@ -225,7 +225,7 @@ Meteor.methods({
     mongodbConnect,
     mysqlConnect,
     amqpConnect,
-    sparqlConnect,
+    htmlConnect: sparqlConnect,
 
     //query executors
     mongodbQuery,

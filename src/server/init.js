@@ -3,11 +3,20 @@
  */
 SyncedCron.add({
     name: 'Pull remote collections',
-    schedule: function(parser) {
+    schedule: function (parser) {
         // parser is a later.parse object
         return parser.text('every 1 hour');
     },
     job: pullRemoteColls
+});
+
+SyncedCron.add({
+    name: 'Datasets/Apps connection test',
+    schedule: function (parser) {
+        // parser is a later.parse object
+        return parser.text('every 12 hour');
+    },
+    job: checkCon
 });
 
 Meteor.startup(function () {
