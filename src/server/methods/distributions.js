@@ -235,7 +235,7 @@ Meteor.methods({
 
     //utils
     mongodbCollectionNames(distId){
-        let db = connPool[distId];
+        let db = null;//connPool[distId];
 
         if (!db) {
             mongodbConnect(distId);
@@ -263,7 +263,7 @@ Meteor.methods({
     },
 
     amqpCollectionNames(distId){
-        let conn = connPool[distId];
+        let conn = null;//connPool[distId];
 
         if (!conn) {
             amqpConnect(distId);
