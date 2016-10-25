@@ -127,18 +127,12 @@ function queryHandlerFactory(argGen, method, transform = (error, result)=> {
  MongoDB functions
  */
 
-let mongoDep;
 Template.MongoDB.helpers({
         getMongoDBCollectionNames() {
 
             let collectionNames = [];
             try {
-                Meteor.call('mongodbConnect', this._id);
-                let collectionNames = ReactiveMethod.call('mongodbCollectionNames', this._id);
-                //change mongoDep after this function return
-                Meteor.defer(function () {
-                    mongoDep.changed(); //feels like coding in Java
-                });
+                collectionNames = Call('mongo', 'mongodbCollectionNames', this._id).result() || collectionNames;
                 //remove system collections
                 collectionNames = collectionNames.filter(obj=> {
                     let name = obj.name;
@@ -156,16 +150,6 @@ Template.MongoDB.helpers({
 
 Template.MongoDB.onCreated(function () {
     mongoDep = new Tracker.Dependency();
-});
-
-Template.MongoDB.onRendered(function () {
-    //only run at the first time it's rendered, by when collection names are not ready yet
-    //use autorun and Tracker.Dependency to sync with getCollectionNames
-    //ugly solution
-    //this.autorun(function () {
-    //    mongoDep.depend();
-    //    $('#collection').material_select();
-    //});
 });
 
 Template.MongoDB.events({
@@ -232,32 +216,32 @@ Meteor._debug = (function (super_meteor_debug) {
     }
 })(Meteor._debug);
 
-let amqpDep;
+// let amqpDep;
 Template.AMQP.helpers({
         getAMQPExchanges() {
-            let exchanges = ReactiveMethod.call('amqpCollectionNames', this._id);
+            let exchanges = Call('amqp', 'amqpCollectionNames', this._id).result();
             //change mongoDep after this function return
-            Meteor.defer(function () {
-                amqpDep.changed(); //feels like coding in Java
-            });
+            // Meteor.defer(function () {
+            //     amqpDep.changed(); //feels like coding in Java
+            // });
             return exchanges;
         }
     }
 );
 
-Template.AMQP.onCreated(function () {
-    amqpDep = new Tracker.Dependency();
-});
+// Template.AMQP.onCreated(function () {
+//     amqpDep = new Tracker.Dependency();
+// });
 
-Template.AMQP.onRendered(function () {
-    //only run at the first time it's rendered, by when collection names are not ready yet
-    //use autorun and Tracker.Dependency to sync with getCollectionNames
-    //ugly solution
-    //this.autorun(function () {
-    //    amqpDep.depend();
-    //    $('#exchange').material_select();
-    //});
-});
+// Template.AMQP.onRendered(function () {
+//only run at the first time it's rendered, by when collection names are not ready yet
+//use autorun and Tracker.Dependency to sync with getCollectionNames
+//ugly solution
+//this.autorun(function () {
+//    amqpDep.depend();
+//    $('#exchange').material_select();
+//});
+// });
 
 Template.AMQP.events({
     'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {

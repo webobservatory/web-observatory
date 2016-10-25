@@ -28,7 +28,6 @@ matb33:collection-hooks
 vsivsi:orion-file-collection
 
 
-simple:reactive-method
 http@1.2.9_1
 yuukan:streamy
 email@1.1.17_1
@@ -55,3 +54,4 @@ rajit:bootstrap3-datepicker
 shell-server@0.2.1
 webobservatory:accounts-wo
 webobservatory:accounts-ui-unstyled-wo
+mnmtanish:call

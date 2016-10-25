@@ -4,40 +4,37 @@
 
 let connPool = {};
 
-function augsTrans(url, username, pass) {
+function expandToURL(distId) {
+    let url, username, pass;
 
-    if (arguments.length === 1) {
-        if (!url.match(/^.*:\/\//)) {
-            let distId = url,
-                dist = Datasets.findOne({'distribution._id': distId}, {fields: {distribution: {$elemMatch: {_id: distId}}}}).distribution[0];
+    let dist = Datasets.findOne({'distribution._id': distId}, {fields: {distribution: {$elemMatch: {_id: distId}}}}).distribution[0];
 
-            if (dist) {
-                url = dist.url;
-                if (dist.profile) {
-                    ({username, pass} = dist.profile);
-                }
-            } else {
-                throw new Meteor.Error('not-found', `Distribution ${distId} not found`);
-            }
+    if (dist) {
+        url = dist.url;
+        if (dist.profile) {
+            ({username, pass} = dist.profile);
         }
+    } else {
+        throw new Meteor.Error('not-found', `Distribution ${distId} not found`);
     }
 
     return {url, username, pass};
 }
 
 function connectorSyncWrap(connect) {
-    return function (url, username, pass) {
-        let id = url;
+    return function (id) {
 
-        ({url, username, pass} = augsTrans.apply(null, arguments));
+        ({url, username, pass} = expandToURL(id));
 
         let {error, result} = Async.runSync(function (done) {
             connect(url, username, pass, done);
         });
 
         if (error) {
+            Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': false}});
             throw new Meteor.Error(error.name, error.message);
         } else {
+            Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': true}});
             connPool[id] = result;
             return true;
         }

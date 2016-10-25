@@ -14,14 +14,17 @@ checkCon = function () {
 }
 
 function dbConnTest(id, format) {
-    let method = format.toLowerCase() + 'Connect';
-    Meteor.call(method, id, (err)=> {
-        if (err) {
-            Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': false}});
-        } else {
-            Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': true}});
-        }
-    });
+    let supported = ['MongoDB', 'MySQL', 'AMQP', 'SPARQL', 'HTML'];
+    if (_.includes(supported, format)) {
+        let method = format.toLowerCase() + 'Connect';
+        Meteor.call(method, id, (err)=> {
+            if (err) {
+                Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': false}});
+            } else {
+                Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': true}});
+            }
+        });
+    }
 }
 
 function appConnTest(id, format = 'html') {
