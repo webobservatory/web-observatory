@@ -42,15 +42,17 @@ function connectorSyncWrap(connect) {
                 // console.log('close', id);
                 let conn = connPool[id];
 
-                if (conn.close) {
-                    conn.close();
-                }
+                if (conn) {
+                    if (conn.close) {
+                        conn.close();
+                    }
 
-                if (conn.disconnect) {
-                    conn.disconnect();
-                }
+                    if (conn.disconnect) {
+                        conn.disconnect();
+                    }
 
-                delete connPool[id];
+                    delete connPool[id];
+                }
             }, 30000);
             return result;
         }

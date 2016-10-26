@@ -132,7 +132,7 @@ Template.MongoDB.helpers({
 
             let collectionNames = [];
             try {
-                collectionNames = Call('mongo', 'mongodbCollectionNames', this._id).result() || collectionNames;
+                collectionNames = Call(this._id, 'mongodbCollectionNames', this._id).result() || collectionNames;
                 //remove system collections
                 collectionNames = collectionNames.filter(obj=> {
                     let name = obj.name;
@@ -219,7 +219,7 @@ Meteor._debug = (function (super_meteor_debug) {
 // let amqpDep;
 Template.AMQP.helpers({
         getAMQPExchanges() {
-            let exchanges = Call('amqp', 'amqpCollectionNames', this._id).result();
+            let exchanges = Call(this._id, 'amqpCollectionNames', this._id).result();
             //change mongoDep after this function return
             // Meteor.defer(function () {
             //     amqpDep.changed(); //feels like coding in Java

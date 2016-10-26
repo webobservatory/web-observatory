@@ -17,7 +17,8 @@ Template.entryEdit.onRendered(function () {
 });
 
 Template.entryEdit.events({
-    'change .fileUpload input[type=file]': fileUpload
+    'change .fileUpload input[type=file]': fileUpload,
+    'change select[name*=\\.fileFormat]': formatChange
 });
 
 Template.entryEdit.helpers({
