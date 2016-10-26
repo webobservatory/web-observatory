@@ -233,35 +233,31 @@ Template.AMQP.helpers({
 //     amqpDep = new Tracker.Dependency();
 // });
 
-// Template.AMQP.onRendered(function () {
-//only run at the first time it's rendered, by when collection names are not ready yet
-//use autorun and Tracker.Dependency to sync with getCollectionNames
-//ugly solution
-//this.autorun(function () {
-//    amqpDep.depend();
-//    $('#exchange').material_select();
-//});
-// });
+Template.AMQP.onRendered(function () {
+    $('#queryResult').on('hide.bs.modal', function (e) {
+        Streamy.emit('amqp_end', {});
+    });
+
+    let msgs = [];
+    Streamy.on('msg', function (data) {
+        data = syntaxHighlight(data.content);
+        let length = msgs.unshift(data);
+        if (length % 1 === 0) {
+            let msg = msgs.join('\n') + '\n' + Session.get('queryResult');
+            Session.set('queryResult', msg);
+        }
+    });
+});
 
 Template.AMQP.events({
-    'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
+    'click #amqpModalTrigger': queryHandlerFactory((e, template)=> {
         let distId = template.data._id,
             $target = $(`#${distId}`),
             query = $target.find('[name=exchange]')[0].value;
         return [distId, query, Streamy.id()];
-    }, 'amqpQuery', (error, queue)=> {
+    }, 'amqpQuery', (error)=> {
         if (error) {
             Session.set('queryResult', error);
-        } else {
-            let msgs = [];
-            Streamy.on(queue, function (data) {
-                data = syntaxHighlight(data.content);
-                let length = msgs.unshift(data);
-                if (length % 60 === 0) {
-                    let msg = msgs.join('\n') + '\n' + Session.get('queryResult');
-                    Session.set('queryResult', msg);
-                }
-            });
         }
     })
 });

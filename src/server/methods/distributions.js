@@ -35,8 +35,24 @@ function connectorSyncWrap(connect) {
             throw new Meteor.Error(error.name, error.message);
         } else {
             Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': true}});
+            //add connection to pool
             connPool[id] = result;
-            return true;
+            //remove connection after a while
+            Meteor.setTimeout(function () {
+                // console.log('close', id);
+                let conn = connPool[id];
+
+                if (conn.close) {
+                    conn.close();
+                }
+
+                if (conn.disconnect) {
+                    conn.disconnect();
+                }
+
+                delete connPool[id];
+            }, 30000);
+            return result;
         }
     }
 }
@@ -47,7 +63,7 @@ function connectorSyncWrap(connect) {
  * */
 function queryExecFactory(connector, queryExec) {
     return function (distId, ...args) {
-        let conn = null;// connPool[distId]; force to reconnect every time
+        let conn = connPool[distId];
 
         try {
             connector(distId);
@@ -60,12 +76,12 @@ function queryExecFactory(connector, queryExec) {
             if (error) {
                 throw new Meteor.Error(error.name, error.message);
             } else {
-                Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': true}});
+                Datasets.update({"distribution._id": distId}, {$set: {'distribution.$.online': true}});
                 return result;
             }
         }
         catch (e) {
-            Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': false}});
+            Datasets.update({"distribution._id": distId}, {$set: {'distribution.$.online': false}});
             throw e;
         }
 
@@ -191,24 +207,24 @@ let amqpQuery = queryExecFactory(amqpConnect, (conn, done, ex, sId)=> {
     if (_.contains(exchanges, ex)) {
         conn.createChannel(function (err, ch) {
             let socket = Streamy.sockets(sId);
-            //keep the channel associate with a client (socket) to close it later
             if (channels[sId]) {
                 closeCh(channels[sId], sId);
             }
+            //keep the channel associate with a client (socket) to close it later
             channels[sId] = ch;
             ch.assertExchange(ex, 'fanout', {durable: false});
             ch.assertQueue('', {exclusive: true}, function (err, q) {
                 ch.on('close', function () {
                     console.log(`${sId} channel closed`);
-                    Streamy.emit(q.queue, {content: `${sId} channel closed`}, socket);
+                    Streamy.emit('msg', {content: `${sId} channel closed`}, socket);
                 });
                 done(err, q.queue);
-                Streamy.emit(q.queue, {content: " [*] Waiting for messages"}, socket);
+                Streamy.emit('msg', {content: " [*] Waiting for messages"}, socket);
                 ch.bindQueue(q.queue, ex, '');
                 ch.consume(q.queue, function (msg) {
-                    //console.log(" [x] %s", msg.content.toString());
+                    console.log(" [x] %s", msg.content.toString());
                     let content = msg.content.toString();
-                    Streamy.emit(q.queue, {content}, socket);
+                    Streamy.emit('msg', {content}, socket);
                 }, {noAck: true});
             });
         });
@@ -232,7 +248,7 @@ Meteor.methods({
 
     //utils
     mongodbCollectionNames(distId){
-        let db = null;//connPool[distId];
+        let db = connPool[distId];
 
         if (!db) {
             mongodbConnect(distId);
@@ -260,7 +276,7 @@ Meteor.methods({
     },
 
     amqpCollectionNames(distId){
-        let conn = null;//connPool[distId];
+        let conn = connPool[distId];
 
         if (!conn) {
             amqpConnect(distId);

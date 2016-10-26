@@ -3,7 +3,7 @@
  */
 
 checkCon = function () {
-    let apps = App.find().fetch(),
+    let apps = Apps.find().fetch(),
         datasets = Datasets.find().fetch();
 
     let dists = datasets.map(ds=>ds.distribution);
