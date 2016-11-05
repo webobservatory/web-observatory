@@ -2,6 +2,7 @@ Template.entryPage.helpers({
     appendHash(str) {
         return '#' + str;
     },
+    //add dataset id to the distribution object
     distData() {
         this.dsId = Template.parentData().entry._id;
         return this;
