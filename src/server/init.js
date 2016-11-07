@@ -20,6 +20,7 @@ SyncedCron.add({
 });
 
 Meteor.startup(function () {
+    _ = lodash;
     let settings = Meteor.settings;
 
     //create admin
@@ -122,5 +123,6 @@ Meteor.startup(function () {
 
     // Get remote apps and datasets
     pullRemoteColls();
+    checkCon();
     SyncedCron.start();
 });

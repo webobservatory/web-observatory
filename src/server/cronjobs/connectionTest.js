@@ -17,23 +17,10 @@ function dbConnTest(id, format) {
     let supported = ['MongoDB', 'MySQL', 'AMQP', 'SPARQL', 'HTML'];
     if (_.includes(supported, format)) {
         let method = format.toLowerCase() + 'Connect';
-        Meteor.call(method, id, (err)=> {
-            if (err) {
-                Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': false}});
-            } else {
-                Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': true}});
-            }
-        });
+        Meteor.call(method, id);
     }
 }
 
-function appConnTest(id, format = 'html') {
-    let method = format.toLowerCase() + 'Connect';
-    Meteor.call(method, id, (err)=> {
-        if (err) {
-            Apps.update({_id: id}, {$set: {'online': false}});
-        } else {
-            Apps.update({_id: id}, {$set: {'online': true}});
-        }
-    });
+function appConnTest(id) {
+    Meteor.call('appConnect', id);
 }

@@ -4,7 +4,7 @@
 
 let connPool = {};
 
-function expandToURL(distId) {
+function idToURL(distId) {
     let url, username, pass;
 
     let dist = Datasets.findOne({'distribution._id': distId}, {fields: {distribution: {$elemMatch: {_id: distId}}}}).distribution[0];
@@ -15,7 +15,7 @@ function expandToURL(distId) {
             ({username, pass} = dist.profile);
         }
     } else {
-        throw new Meteor.Error('not-found', `Distribution ${distId} not found`);
+        console.log(new Meteor.Error('not-found', `Distribution ${distId} not found`));
     }
 
     return {url, username, pass};
@@ -24,7 +24,7 @@ function expandToURL(distId) {
 function connectorSyncWrap(connect) {
     return function (id) {
 
-        ({url, username, pass} = expandToURL(id));
+        ({url, username, pass} = idToURL(id));
 
         let {error, result} = Async.runSync(function (done) {
             connect(url, username, pass, done);
@@ -32,7 +32,7 @@ function connectorSyncWrap(connect) {
 
         if (error) {
             Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': false}});
-            throw new Meteor.Error(error.name, error.message);
+            console.log(new Meteor.Error('connection-failed', `Distribution ${id}: ${error.message}`));
         } else {
             Datasets.update({"distribution._id": id}, {$set: {'distribution.$.online': true}});
             //add connection to pool
@@ -54,7 +54,7 @@ function connectorSyncWrap(connect) {
                     delete connPool[id];
                 }
             }, 30000);
-            return result;
+            return true;
         }
     }
 }
@@ -174,11 +174,7 @@ let sparqlQuery = queryExecFactory(sparqlConnect, (url, done, query)=> {
         },
         function (error, result) {
             if (typeof result === 'object' && result.content) {
-                try {
-                    result = result.content;
-                } catch (e) {
-                    console.log(e);
-                }
+                result = result.content;
             }
             done(error, result);
         });
@@ -240,7 +236,25 @@ Meteor.methods({
     mongodbConnect,
     mysqlConnect,
     amqpConnect,
+    sparqlConnect,
     htmlConnect: sparqlConnect,
+    appConnect(id) {
+        let url = Apps.findOne(id).url;
+        if (url) {
+            HTTP.get(url, {
+                    timeout: 30000
+                },
+                function (error) {
+                    if (error) {
+                        Apps.update({_id: id}, {$set: {'online': false}});
+                    } else {
+                        Apps.update({_id: id}, {$set: {'online': true}});
+                    }
+                });
+        } else {
+            Apps.update({_id: id}, {$set: {'online': false}});
+        }
+    },
 
     //query executors
     mongodbQuery,
