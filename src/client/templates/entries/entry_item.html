@@ -15,7 +15,7 @@
               content="{{datasetTimeInterval.startTime}} - {{datasetTimeInterval.endTime}}">
         <meta itemprop='http://schema.org/commentCount' content="{{commentCount}}">
         <div class="infoblock">
-            <h4 class="font-accident-one-bold uppercase"><a href="{{pathFor ../routes.page}}">{{blurb name 24}}</a></h4>
+            <h4 class="font-accident-one-bold uppercase"><a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}">{{blurb name 22}}</a></h4>
             <div class="post-attrib">
                 <div class="comment-baloon font-accident-one-bold">
                     {{#if canAccess this}}
@@ -38,7 +38,7 @@
                     <div class="post-author">by {{blurb publisherName 15}}</div>
                 </div>
             </div>
-            <p class="small fontcolor-medium-light">
+            <p class="blurb fontcolor-medium-light">
                 {{{blurb description 160}}}
             </p>
             <div>
