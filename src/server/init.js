@@ -20,7 +20,6 @@ SyncedCron.add({
 });
 
 Meteor.startup(function () {
-    _ = lodash;
     let settings = Meteor.settings;
 
     //create admin

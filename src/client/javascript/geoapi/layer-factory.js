@@ -1,5 +1,4 @@
 /*jshint browser: true, -W024 */
-window._ = lodash;
 window.OL3LayerFactory = (function (_, ol) {
     "use strict";
 
@@ -291,4 +290,4 @@ window.OL3LayerFactory = (function (_, ol) {
 
     factory.builders = builders;
     return factory;
-}(window._, window.ol));
+}(lodash, window.ol));

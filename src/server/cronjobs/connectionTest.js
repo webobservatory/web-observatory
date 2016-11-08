@@ -15,7 +15,7 @@ checkCon = function () {
 
 function dbConnTest(id, format) {
     let supported = ['MongoDB', 'MySQL', 'AMQP', 'SPARQL', 'HTML'];
-    if (_.includes(supported, format)) {
+    if (_.contains(supported, format)) {
         let method = format.toLowerCase() + 'Connect';
         Meteor.call(method, id);
     }

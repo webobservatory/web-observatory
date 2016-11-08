@@ -49,9 +49,9 @@ jparker:crypto-md5
 jesperwe:bootstrap-select
 jquery@1.11.10
 aldeed:autoform-bs-datepicker
-erasaur:meteor-lodash
 rajit:bootstrap3-datepicker
 shell-server@0.2.1
 webobservatory:accounts-wo
 webobservatory:accounts-ui-unstyled-wo
 mnmtanish:call
+stevezhu:lodash
