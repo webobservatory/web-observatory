@@ -23,7 +23,7 @@ Template.entryPage.helpers({
 
         if (category === Groups) {
             return entry.aclContent && //everyone can join
-                !_.includes(entry.contentWhiteList, userId);//and not a member already
+                !_.contains(entry.contentWhiteList, userId);//and not a member already
         } else {
             if (category === Datasets || category === Apps) {
                 return !accessesDocument(userId, entry);
