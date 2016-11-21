@@ -1,7 +1,7 @@
 rm ../build/osx/*
 rm ../build/linux_64/*
 
-npm install
+meteor npm install
 meteor build ../build/linux_64/ --architecture=os.linux.x86_64
 meteor build ../build/osx/ --architecture=os.osx.x86_64
 
