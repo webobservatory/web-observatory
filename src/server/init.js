@@ -110,13 +110,11 @@ Meteor.startup(function () {
     LDAP.logging = false;
 
     Accounts.onCreateUser(function (options, user) {
-        let profile = options.profile;
-        if (profile) {
-            if (profile.displayName) {
-                profile.name = profile.displayName;
-            }
-        }
+        console.log(options);
+        let profile = options.profile || {};
+        profile.name = profile.displayName || options.username;
         user.profile = profile;
+        console.log(user);
         return user;
     });
 
