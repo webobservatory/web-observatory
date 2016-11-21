@@ -130,12 +130,28 @@ let mongodbQuery = queryExecFactory(mongodbConnect, (conn, done, collection, sel
 /* MySQL */
 let mysql = Npm.require('mysql');
 
+function parseMySQL(url) {
+    url = url.match(/(mysql:\/\/)?(.*)/)[2];//strip off mysql://
+    let pathSepIndx = url.indexOf('/');
+    let host, database;
+    if (pathSepIndx !== -1) {
+        host = url.substring(0, pathSepIndx),
+            database = url.substring(pathSepIndx + 1);
+    } else {
+        host = url;
+    }
+
+    return {host, database};
+}
+
 let mysqlConnect = connectorSyncWrap(function (url, username, pass, done) {
     url = url.match(/(mysql:\/\/)?(.*)/)[2];//strip off mysql://
+    let {host, database} = parseMySQL(url);
 
     let options = {
         connectionLimit: 20,
-        host: url
+        host,
+        database
     };
 
     if (username) {
@@ -143,7 +159,7 @@ let mysqlConnect = connectorSyncWrap(function (url, username, pass, done) {
     }
 
     if (pass) {
-        options.pass = pass;
+        options.password = pass;
     }
 
     let pool = mysql.createPool(options);
