@@ -27,8 +27,9 @@ Atom.helper('collections.comments.indexFilter', ownsDocumentQuery);
 Atom.helper('collections.groups.indexFilter', isMemberQuery);
 
 //forbidden fields
-Atom.helper('collections.datasets.forbiddenFields', omitFields);
-Atom.helper('collections.apps.forbiddenFields', omitFields);
+//will cause access denied issue when creating new entries
+// Atom.helper('collections.datasets.forbiddenFields', omitFields);
+// Atom.helper('collections.apps.forbiddenFields', omitFields);
 //Atom.helper('collections.licenses.forbiddenFields', ['publisher', 'datePublished']);
 //Atom.helper('collections.client.forbiddenFields', ['clientSecret', 'publisher', 'datePublished']);
 //Atom.helper('collections.comments.forbiddenFields', ['publisher', 'entryId', 'submitted']);
