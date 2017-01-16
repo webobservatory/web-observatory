@@ -83,7 +83,10 @@ function entryLinks(req) {
     let id = req.params.id;
     let thisUrl = absPath(req);
 
-    let links = [{href: thisUrl.substring(0, thisUrl.lastIndexOf('/')), rel: 'collection', method: 'GET'}];
+    let links = [
+        { href: thisUrl.substring(0, thisUrl.lastIndexOf('/')), rel: 'collection', method: 'GET'},
+        { href: thisUrl + "/provenance", rel: "http://www.w3.org/ns/prov#has_provenance", method: 'GET', anchor: thisUrl }
+    ];
 
     if (coll && id) {
         let selector = {_id: id};
@@ -103,7 +106,55 @@ function entryLinks(req) {
     return links;
 }
 
-let getEntryLst = RESTCompose(lstHeaders, lstLinks),
-    getEntry = RESTCompose(entryHeaders, entryLinks);
+function entryProvHeaders(req) {
+    let prov = require('./prov');
+    let doc = prov.document();
 
-export {getEntryLst, getEntry}
+    // prefixes
+    let schema = doc.addNamespace('schema', 'http://schema.org/');
+    let foaf = doc.addNamespace('foaf', 'http://xmlns.com/foaf/0.1/');
+    let wo = doc.addNamespace('wo', 'http://webobvervatory.org/ns');
+    let wos = doc.addNamespace('wo-soton', 'https://webobservatory.soton.ac.uk/');
+
+    // retrieving the collection
+    let collName = req.path.split('/')[1],
+        coll = Mongo.Collection.get(collName);
+    let id = req.params.id;
+
+    if (coll && id) {
+        let selector = {_id: id};
+        extendOr(selector, viewsDocumentQuery(req.user));
+        let entry = coll.findOne(selector);
+        const schemaTypes = { datasets: 'Dataset', apps: 'WebApplication'};
+        let entry_properties = ['prov:type', `schema:${schemaTypes[collName]}`];
+        let pubProperties = ['name', 'description', 'datePublished', 'dateModified'];
+        pubProperties.forEach(p => {
+        if (entry[p]) {
+            entry_properties.push(...[`schema:${p}` , entry[p]]);
+        }
+        });
+        let entry_id = `wo-soton:${collName}/${id}`;
+        doc.entity(entry_id, entry_properties);
+
+        let agent_id = `wo-soton:accounts/${entry['publisher']}`
+        doc.agent(agent_id, ['prov:type', 'foaf:OnlineAccount', 'prov:label', entry['publisherName']]);
+        doc.wasAttributedTo(entry_id, agent_id);
+    }
+
+    return doc.scope.getProvJSON();
+}
+
+
+let getEntryLst = RESTCompose(lstHeaders, lstLinks),
+    getEntry = RESTCompose(entryHeaders, entryLinks),
+    getEntryProvenance = function (req, res) {
+        try {
+            let provenance = entryProvHeaders(req);
+            res.json(provenance);
+        }
+        catch (err) {
+            res.json(err);
+        }
+    };
+
+export {getEntryLst, getEntry, getEntryProvenance}
