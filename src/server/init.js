@@ -90,7 +90,7 @@ Meteor.startup(function () {
             ldapConfig;
 
         if (ldaps) {
-            ldapConfig = ldaps.filter(v=>v.domain === domain)[0];
+            ldapConfig = ldaps.filter(v => v.domain === domain)[0];
             ldapConfig.whiteListedFields = ldapConfig.whiteListedFields.split(/,\s*/);
             ldapConfig.autopublishFields = ldapConfig.autopublishFields ? ldapConfig.autopublishFields.split(/,\s*/) : ldapConfig.whiteListedFields;
             delete ldapConfig.domain;
@@ -110,11 +110,15 @@ Meteor.startup(function () {
     LDAP.logging = false;
 
     Accounts.onCreateUser(function (options, user) {
-        console.log(options);
+        // console.log(options, user);
         let profile = options.profile || {};
-        profile.name = profile.displayName || options.username;
+
+        if (!profile.name) {
+            profile.name = profile.displayName || options.username;
+        }
+
         user.profile = profile;
-        console.log(user);
+        // console.log(user);
         return user;
     });
 
