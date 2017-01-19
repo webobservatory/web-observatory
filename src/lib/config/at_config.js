@@ -1,5 +1,5 @@
 function ldapOrUserPass(error, state) {
-    console.log({error,state});
+    // console.log({error,state});
     if (error && state === 'signIn' //user/pass login failed
         && orion.dictionary.get('ldap.ldap')
         && orion.dictionary.get('ldap.ldap').length !== 0) {
