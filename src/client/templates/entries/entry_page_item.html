@@ -2,7 +2,7 @@
     <div class="container text-center entry-page" itemtype="{{itemtype}}">
         <meta itemprop='http://schema.org/name' content={{name}}>
         <meta itemprop='http://schema.org/url' content="{{absUrl}}">
-        <meta itemprop='http://schema.org/publisher' content="{{publisherObj.username}}">
+        <meta itemprop='http://schema.org/publisher' content="{{publisherName}}">
         <meta itemprop='http://schema.org/isBasedOnUrl' content="{{isBasedOnUrl}}">
         <meta itemprop='http://schema.org/description' content="{{description}}">
         <meta itemprop='http://schema.org/keywords' content="{{keywords}}">
@@ -15,7 +15,7 @@
         <meta itemprop='http://schema.org/commentCount' content="{{commentCount}}">
         <h3 class="font-accident-one-bold uppercase">{{name}}</h3>
         <h5 class="font-accident-one-bold title uppercase hovercolor"><span
-                class="light">By</span> {{publisherObj.username}}, <span
+                class="light">By</span> {{publisherName}}, <span
                 class="light">{{prettifyDate datePublished}}</span></h5>
         <div class="dividewhite4"></div>
         <p class="small fontcolor-medium-light">
