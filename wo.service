@@ -1,0 +1,14 @@
+[Unit]
+Description=Web Observatory
+After=mongodb.service nginx.service
+
+[Service]
+User=wo
+Group=wo
+Type=simple
+Restart=on-failure
+RestartSec=5
+ExecStart=/bin/bash -c /home/wo/launch-wo.sh
+
+[Install]
+WantedBy=multi-user.target
