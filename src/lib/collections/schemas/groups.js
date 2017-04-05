@@ -13,14 +13,43 @@ let Group = {
 
     github: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
 
-    publisher: orion.attribute('hasOne', {
+    publisher: orion.attribute('createdBy'),
+
+    publisherName: {
         type: String,
-        label: 'Founder'
-    }, {
-        collection: Meteor.users,
-        titleField: 'username',
-        publicationName: 'groupfounder'
-    }),
+        optional: true,
+        autoform: {
+            type: 'hidden'
+            // omit: true
+        },
+        autoValue() {
+            let publisher = this.field('publisher');
+            if (publisher.isSet) {
+                let pId = publisher.value;
+                let user = Meteor.users.findOne(pId);
+                if (user) {
+                    return user.username;
+                } else {
+                    this.unset();
+                }
+            } else {
+                this.unset();
+            }
+        }
+    },
+
+    // publisher: orion.attribute('hasOne', {
+    //     type: String,
+    //     label: 'Founder',
+    //     autoValue() {
+    //         return Meteor.userId();
+    //     },
+    //     optional: true
+    // }, {
+    //     collection: Meteor.users,
+    //     titleField: 'username',
+    //     publicationName: 'groupfounder'
+    // }),
 
     //who can access this entry disregards acl settings
     //used as Members field to reuse existing functions
