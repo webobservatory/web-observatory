@@ -34,7 +34,7 @@ ListController = RouteController.extend({
                 case 'online':
                 case 'aclMeta':
                 case 'aclContent':
-                    query[key] = _query[key].toLowerCase() === 'true'
+                    query[key] = _query[key].toLowerCase() === 'true';
                     break;
                 default:
                     query[key] = _query[key];
@@ -173,7 +173,7 @@ RemoteappLatestController = LatestController.extend({
 GroupLatestController = LatestController.extend({
     category: Groups,
     nextPath () {
-        return Router.routes['group.latest'].path({entriesLimit: this.entriesLimit() + this.increment})
+        return Router.routes['group.latest'].path({entriesLimit: this.entriesLimit() + this.increment});
     }
 });
 /***************************
