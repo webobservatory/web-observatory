@@ -11,7 +11,7 @@ Groups = new orion.collection('groups', {
         //  * The default value is the name of the collection, so
         //  * in this case it is not necessary.
 
-        title: 'Groups/Organisations'
+        title: 'Projects/Organisations'
     },
     /**
      * Tabular settings for this collection
@@ -57,28 +57,28 @@ Groups = new orion.collection('groups', {
 });
 
 // When there is a change to group name, update associated account name
-let query = Groups.find();
-let handle = query.observeChanges({
-    changed: function (groupId, changedField) {
-        if (changedField.name) {
-            let groupAccountId = Groups.findOne(groupId).publisher;
-            Meteor.users.update({_id: groupAccountId}, {$set: {name: changedField.name}});
-        }
-        ;
-    }
-});
-
-Meteor.users.after.insert(function (userId, user) {
-    let profile = user.profile;
-    if (profile && profile.isgroup) {
-        let group = Groups.insert({
-            publisher: user._id,
-            name: profile.name,
-            description: profile.description,
-            url: profile.url
-        });
-        Meteor.users.update(user._id, {$set: {isGroup: group}, $unset: {'profile.isgroup': ''}});
-        Roles.removeUserFromRoles(user._id, ["individual"]);
-        Roles.addUserToRoles(user._id, ["group"]);
-    }
-});
+// let query = Groups.find();
+// let handle = query.observeChanges({
+//     changed: function (groupId, changedField) {
+//         if (changedField.name) {
+//             let groupAccountId = Groups.findOne(groupId).publisher;
+//             Meteor.users.update({_id: groupAccountId}, {$set: {name: changedField.name}});
+//         }
+//         ;
+//     }
+// });
+//
+// Meteor.users.after.insert(function (userId, user) {
+//     let profile = user.profile;
+//     if (profile && profile.isgroup) {
+//         let group = Groups.insert({
+//             publisher: user._id,
+//             name: profile.name,
+//             description: profile.description,
+//             url: profile.url
+//         });
+//         Meteor.users.update(user._id, {$set: {isGroup: group}, $unset: {'profile.isgroup': ''}});
+//         Roles.removeUserFromRoles(user._id, ["individual"]);
+//         Roles.addUserToRoles(user._id, ["group"]);
+//     }
+// });

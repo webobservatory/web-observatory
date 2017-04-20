@@ -35,8 +35,8 @@ accessesDocument = function (userId, doc) {
     if (doc) {
         return doc.aclContent
             || ownsDocument(userId, doc)
-            || (doc.contentWhiteList && _.contains(doc.contentWhiteList, userId))
-            || Groups.find({contentWhiteList: userId}).fetch().some(group => accessesDocument(group.publisher, doc)); // member of white-listed groups
+            || (doc.contentWhiteList && _.contains(doc.contentWhiteList, userId));
+            // || Groups.find({contentWhiteList: userId}).fetch().some(group => accessesDocument(group.publisher, doc)); // member of white-listed groups
     } else {
         return false;
     }
@@ -55,11 +55,11 @@ viewsDocumentQuery = function (userId) {
         } else {
             //individual or group user
             query = {$or: [{aclMeta: true}, {metaWhiteList: userId}, {publisher: userId}, {contentWhiteList: userId}]};//individual permission
-            let groups = Groups.find({contentWhiteList: userId});
-            //group permission
-            groups.forEach(function (group) {
-                query.$or.push({metaWhiteList: group.publisher});
-            });
+            // let groups = Groups.find({contentWhiteList: userId});
+            // //group permission
+            // groups.forEach(function (group) {
+            //     query.$or.push({metaWhiteList: group.publisher});
+            // });
         }
     }
 

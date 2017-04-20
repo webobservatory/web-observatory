@@ -22,15 +22,15 @@ Template.entryPage.helpers({
             userId = Meteor.userId();
 
         if (category === Groups) {
-            return entry.aclContent && //everyone can join
-                !_.contains(entry.contentWhiteList, userId);//and not a member already
+            return false; // don't show request form for groups
+            // return entry.aclContent && //everyone can join
+            //     !_.contains(entry.contentWhiteList, userId);//and not a member already
+        } else if (category === Datasets || category === Apps) {
+            return !accessesDocument(userId, entry);
         } else {
-            if (category === Datasets || category === Apps) {
-                return !accessesDocument(userId, entry);
-            } else {
-                return false;
-            }
+            return false;
         }
+
     },
     showDistributions() {
         let {entry, category} = this;

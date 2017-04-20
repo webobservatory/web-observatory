@@ -27,7 +27,7 @@ let request = new SimpleSchema({
     acceptTerms: {
         type: Boolean,
         optional: true,
-        label: 'Accept the license of this item',
+        label: 'Accept Terms & Conditions',
         custom: function () {
             if (!this.value) {
                 return "acceptTerms";

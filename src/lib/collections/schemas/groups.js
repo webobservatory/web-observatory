@@ -7,11 +7,11 @@ let Group = {
 
     description: {type: String, optional: true},
 
-    url: {type: String, label: 'Home page', regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
+    // url: {type: String, label: 'Home page', regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
 
-    youtube: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
+    // youtube: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
 
-    github: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
+    // github: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
 
     publisher: orion.attribute('createdBy'),
 
@@ -37,19 +37,6 @@ let Group = {
             }
         }
     },
-
-    // publisher: orion.attribute('hasOne', {
-    //     type: String,
-    //     label: 'Founder',
-    //     autoValue() {
-    //         return Meteor.userId();
-    //     },
-    //     optional: true
-    // }, {
-    //     collection: Meteor.users,
-    //     titleField: 'username',
-    //     publicationName: 'groupfounder'
-    // }),
 
     //who can access this entry disregards acl settings
     //used as Members field to reuse existing functions

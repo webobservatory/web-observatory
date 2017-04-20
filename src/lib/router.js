@@ -171,10 +171,7 @@ RemoteappLatestController = LatestController.extend({
 });
 
 GroupLatestController = LatestController.extend({
-    category: Groups,
-    nextPath () {
-        return Router.routes['group.latest'].path({entriesLimit: this.entriesLimit() + this.increment});
-    }
+    category: Groups
 });
 /***************************
  * entry page
