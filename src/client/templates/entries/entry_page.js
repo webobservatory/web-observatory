@@ -7,9 +7,11 @@ Template.entryPage.helpers({
         this.dsId = Template.parentData().entry._id;
         return this;
     },
+
     queryResult() {
         return Session.get('queryResult');
     },
+
     requestFormTitle() {
         if (this.category === Groups) {
             return "Join the group"
@@ -17,6 +19,69 @@ Template.entryPage.helpers({
             return "Request access"
         }
     },
+
+    showProjectApps() {
+        let {entry, category} = this;
+        if (category === Groups && entry && !!entry.apps) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    showProjectDatasets() {
+        let {entry, category} = this;
+        if (category === Groups && entry && !!entry.datasets) {
+            return true;
+        } else {
+            return false;
+        }
+    },
+
+    getAppsCollection() {
+        return Apps;
+    },
+
+    getDatasetsCollection() {
+        return Datasets;
+    },
+
+    appsRoutes() {
+        return {
+            edit: "app.edit",
+            latest: "app.latest",
+            page: "app.page",
+            submit: "app.submit"
+        }
+    },
+
+    datasetsRoutes() {
+        return {
+            edit: "dataset.edit",
+            latest: "dataset.latest",
+            page: "dataset.page",
+            submit: "dataset.submit"
+        }
+    },
+
+    getProjectApps() {
+        let {entry} = this;
+        if (entry && entry.apps) {
+            return entry.apps.map(id => Apps.findOne(id));
+        } else {
+            return [];
+        }
+    },
+
+    getProjectDatasets() {
+        let {entry} = this;
+        if (entry && entry.datasets) {
+            return entry.datasets.map(id => Datasets.findOne(id));
+        } else {
+            return [];
+        }
+    },
+
     showRequestForm(){
         let {entry, category} = this,
             userId = Meteor.userId();
@@ -32,11 +97,13 @@ Template.entryPage.helpers({
         }
 
     },
+
     showDistributions() {
         let {entry, category} = this;
         return category === Datasets &&
             Blaze._globalHelpers.canAccess(entry);
     },
+
     showInNewTab() {
         let {entry, category} = this;
         let canAccess = Blaze._globalHelpers.canAccess.bind(this, entry);
