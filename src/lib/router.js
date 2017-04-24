@@ -319,7 +319,7 @@ function setUpRoutes(col, hasRemote = false) {
         data () {
             return {
                 category: col,
-                entry: col.findOne()
+                entry: col.findOne(this.params._id)
             };
         }
     });

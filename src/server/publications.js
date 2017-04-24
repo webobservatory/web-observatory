@@ -19,7 +19,7 @@ function pubSingle(coll) {
         }
     }
 
-    publish(coll, cbFactry, coll=>coll.singularName)
+    publish(coll, cbFactry, coll=>coll.singularName);
 }
 
 function pubPlural(coll) {
