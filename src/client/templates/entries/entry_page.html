@@ -112,9 +112,16 @@
                     {{/if}}
 
                     {{#if showProjectDatasets}}
-                        <div id="project-datasets" class="tab-pane active">
-                            {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
-                        </div>
+                        {{#if showProjectApps}}
+                            <div id="project-datasets" class="tab-pane">
+                                {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
+                            </div>
+                        {{else}}
+
+                            <div id="project-datasets" class="tab-pane active">
+                                {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
+                            </div>
+                        {{/if}}
                     {{/if}}
                 {{else}}
                     {{> loading}}
