@@ -104,16 +104,18 @@
                     </div>
                 {{/if}}
 
-                {{#if showProjectApps}}
-                    <div id="project-apps" class="tab-pane active">
-                        {{> project_resources entries=getProjectApps category=getAppsCollection routes=appsRoutes}}
-                    </div>
-                {{/if}}
+                {{#if Template.subscriptionsReady}}
+                    {{#if showProjectApps}}
+                        <div id="project-apps" class="tab-pane active">
+                            {{> project_resources entries=getProjectApps category=getAppsCollection routes=appsRoutes}}
+                        </div>
+                    {{/if}}
 
-                {{#if showProjectDatasets}}
-                    <div id="project-datasets" class="tab-pane active">
-                        {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
-                    </div>
+                    {{#if showProjectDatasets}}
+                        <div id="project-datasets" class="tab-pane active">
+                            {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
+                        </div>
+                    {{/if}}
                 {{/if}}
 
                 {{#if showRequestForm}}

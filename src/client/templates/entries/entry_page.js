@@ -171,6 +171,14 @@ function liceToLink() {
     $wrapper.append($row);
 }
 
+Template.entryPage.onCreated(function () {
+    let data = Template.currentData();
+    if (data.category === Groups) {
+        this.subscribe('apps');
+        this.subscribe('datasets');
+    }
+});
+
 Template.entryPage.rendered = function () {
     //$('ul.tabs').tabs();
     // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
