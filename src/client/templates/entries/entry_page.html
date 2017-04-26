@@ -116,6 +116,8 @@
                             {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
                         </div>
                     {{/if}}
+                {{else}}
+                    {{> loading}}
                 {{/if}}
 
                 {{#if showRequestForm}}
