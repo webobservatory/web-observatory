@@ -359,7 +359,7 @@ setUpRoutes(Apps, true);
  * Groups
  */
 
-Router.route(`/${Groups.pluralName}-name/:name`, {name: `${Groups.singularName}.PageByName`});
+Router.route(`/project/:name`, {name: `${Groups.singularName}.PageByName`});
 
 setUpRoutes(Groups);
 
