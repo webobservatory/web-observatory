@@ -328,7 +328,7 @@ function setUpRoutes(col, hasRemote = false) {
     Router.route(`/${pn}/:_id/edit`, {
         name: `${sn}.edit`,
         template: `entryEdit`,
-        waitOn () {
+        subscriptions () {
             return Meteor.subscribe(sn, this.params._id);
         },
         data () {
@@ -359,9 +359,9 @@ setUpRoutes(Apps, true);
  * Groups
  */
 
-Router.route(`/project/:name`, {name: `${Groups.singularName}.PageByName`});
-
 setUpRoutes(Groups);
+
+// Router.route(`/project/:name`, {name: `${Groups.singularName}.PageByName`});
 
 
 /*
