@@ -72,18 +72,18 @@ AccountsTemplates.addFields([
     pwd
 ]);
 
-AccountsTemplates.addField({
-    _id: "isgroup",
-    type: "checkbox",
-    displayName: "This is a group/organisational account",
-});
-
-AccountsTemplates.addFields([{
-    _id: "url",
-    type: "text",
-    displayName: "Home page"
-}, {
-    _id: "description",
-    type: "text",
-    displayName: "A brief description of this account"
-}]);
+// AccountsTemplates.addField({
+//     _id: "isgroup",
+//     type: "checkbox",
+//     displayName: "This is a group/organisational account",
+// });
+//
+// AccountsTemplates.addFields([{
+//     _id: "url",
+//     type: "text",
+//     displayName: "Home page"
+// }, {
+//     _id: "description",
+//     type: "text",
+//     displayName: "A brief description of this account"
+// }]);

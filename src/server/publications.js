@@ -19,7 +19,7 @@ function pubSingle(coll) {
         }
     }
 
-    publish(coll, cbFactry, coll=>coll.singularName)
+    publish(coll, cbFactry, coll => coll.singularName);
 }
 
 function pubPlural(coll) {
@@ -69,7 +69,7 @@ function pubPlural(coll) {
         };
     }
 
-    publish(coll, cbFactry);
+    publish(coll, cbFactry, coll => coll.pluralName);
 }
 
 [Datasets, Apps, RemoteApps, RemoteDatasets, Groups].forEach(pubSingle);

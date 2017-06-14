@@ -5,14 +5,18 @@ Template.entryItem.helpers({
         return moment(new Date(timestamp)).fromNow();
     },
     isEditorChoice(entry) {
-        let adminIds = Meteor.users.find({username: 'admin'}).map(admin=>admin._id);
-        let upvoters = entry.upvoters;
+        if(entry) {
+            let adminIds = Meteor.users.find({username: 'admin'}).map(admin=>admin._id);
+            let upvoters = entry.upvoters;
 
-        let inter = _.intersection(adminIds, upvoters);
+            let inter = _.intersection(adminIds, upvoters);
 
-        let editorChoice = inter.length !== 0;
+            let editorChoice = inter.length !== 0;
 
-        return editorChoice;
+            return editorChoice;
+        }else {
+            return false;
+        }
     },
     //schema.org helpers
     itemtype() {
@@ -60,6 +64,9 @@ Template.entryItem.helpers({
     absUrl() {
         let parentData = Template.parentData(1),
             category = parentData.category;
+
+        // console.log(parentData);
+
 
         let a = document.createElement('a');
         a.href = `/${category.pluralName}/${this._id}`;

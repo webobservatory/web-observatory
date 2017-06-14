@@ -14,7 +14,7 @@ let Atom = new Roles.Role('individual'),
         client: ['index', 'insert', 'update', 'remove', 'showCreate', 'showUpdate', 'showRemove'],
         licenses: ['index', 'insert', 'update', 'remove', 'showCreate', 'showUpdate', 'showRemove'],
         comments: ['index'],
-        groups: ['index']
+        groups: ['index', 'insert', 'update', 'remove', 'showCreate', 'showUpdate', 'showRemove']
     };
 
 setCollectionGrants(Atom, grants);
