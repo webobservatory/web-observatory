@@ -6,7 +6,7 @@
 import express from 'express'
 import oidc from '../gateway/oidc'
 import {RESTCompose} from './middlewares/utils'
-import {getEntryLst, getEntry} from './middlewares/metadata'
+import {getEntryLst, getEntry, getEntryProvenance} from './middlewares/metadata'
 import accessData from './middlewares/content'
 
 let router = express.Router();
@@ -23,6 +23,8 @@ router.get('/datasets', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnviron
 
 router.get('/datasets/:id', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnvironment(getEntry));
 
+router.get('/datasets/:id/provenance', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnvironment(getEntryProvenance));
+
 router.get('/datasets/:_/:id', oidc.checkAndSetUser('content'), Meteor.bindEnvironment(accessData));
 
 /**
@@ -31,6 +33,8 @@ router.get('/datasets/:_/:id', oidc.checkAndSetUser('content'), Meteor.bindEnvir
 router.get('/apps', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnvironment(getEntryLst));
 
 router.get('/apps/:id', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnvironment(getEntry));
+
+router.get('/apps/:id/provenance', oidc.checkAndSetUser(/meta|content/), Meteor.bindEnvironment(getEntryProvenance));
 
 /**
  * User profile for OIDC
