@@ -13,11 +13,11 @@
                 {{> afQuickField name="email" value=currentUser.emails.[0].address}}
             </div>
         </div>
-        <div class="row">
-            <div class="input-field col s12">
-                {{> afQuickField name="organisation"}}
-            </div>
-        </div>
+        <!--<div class="row">-->
+        <!--<div class="input-field col s12">-->
+        <!--{{> afQuickField name="organisation"}}-->
+        <!--</div>-->
+        <!--</div>-->
         <div class="row">
             <div class="input-field col s12">
                 {{> afQuickField name="message"}}
@@ -42,9 +42,19 @@
     {{/autoForm}}
 </template>
 
+<template name="project_resources">
+    <div class="list-block">
+        <div class="container js-isotope"
+             data-isotope-options='{ "itemSelector": ".grid-item", "layoutMode": "fitRows" }'>
+            {{#each entries}}
+                {{> entryItem}}
+            {{/each}}
+        </div>
+    </div>
+</template>
+
 <template name="HTML">
-    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn btn-lgr-str"><i class="fa fa-external-link"></i> Open in
-        new tab</a>
+    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn btn-lgr-str"><i class="fa fa-external-link"></i> Open in new tab</a>
 </template>
 
 <template name="File">
@@ -76,11 +86,13 @@
         </div>
         <div class="form-group">
             <label for="skip" class="control-label">Skip</label>
-            <input id="skip" name="skip" type="text"  class="form-control" placeholder="Skip the first n results, e.g. 5" value="0">
+            <input id="skip" name="skip" type="text" class="form-control" placeholder="Skip the first n results, e.g. 5"
+                   value="0">
         </div>
         <div class="form-group">
             <label for="limit" class="control-label">Limit</label>
-            <input id="limit" name="limit" type="text" class="form-control" placeholder="Return up to n results, e.g. 10" value="10">
+            <input id="limit" name="limit" type="text" class="form-control"
+                   placeholder="Return up to n results, e.g. 10" value="10">
         </div>
         <div class="form-group">
             <label for="sort" class="control-label">Sort</label>

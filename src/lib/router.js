@@ -4,10 +4,10 @@ Router.configure({
     notFoundTemplate: 'notFound',
     subscriptions () { //using waitOn will cause entry_list to reload every time load-more is clicked
         return [
-            Meteor.subscribe(Notifications._name),
-            Meteor.subscribe(Groups._name),
-            Meteor.subscribe(Meteor.users._name),
-            Meteor.subscribe(Licenses._name)
+            Meteor.subscribe(Notifications.pluralName),
+            Meteor.subscribe(Groups.pluralName),
+            Meteor.subscribe(Meteor.users.pluralName),
+            Meteor.subscribe(Licenses.pluralName)
         ]
     }
 });
@@ -29,12 +29,11 @@ ListController = RouteController.extend({
         let query = {}, _query = this.params.query;
 
         _.keys(_query).forEach(function (key) {
-            // console.log(key);
             switch (key) {
                 case 'online':
                 case 'aclMeta':
                 case 'aclContent':
-                    query[key] = _query[key].toLowerCase() === 'true'
+                    query[key] = _query[key].toLowerCase() === 'true';
                     break;
                 default:
                     query[key] = _query[key];
@@ -146,7 +145,7 @@ function buildRegExp(searchText) {
  **************************/
 LatestController = ListController.extend({
     subscriptions () {
-        return Meteor.subscribe(this.category._name, this.findOptions(), this.findSelector());
+        return Meteor.subscribe(this.category.pluralName, this.findOptions(), this.findSelector());
     },
     sort: {datePublished: -1, votes: -1, downvotes: 1, _id: -1},
     nextPath () {
@@ -171,10 +170,7 @@ RemoteappLatestController = LatestController.extend({
 });
 
 GroupLatestController = LatestController.extend({
-    category: Groups,
-    nextPath () {
-        return Router.routes['group.latest'].path({entriesLimit: this.entriesLimit() + this.increment})
-    }
+    category: Groups
 });
 /***************************
  * entry page
@@ -216,6 +212,22 @@ GroupPageController = PageController.extend({
     category: Groups
 });
 
+GroupPageByNameController = ListController.extend({
+    template: 'entryPage',
+    category: Groups,
+    subscriptions() {
+        return Meteor.subscribe(this.category.pluralName, {limit: 1}, {name: this.params.name});
+    },
+    data () {
+        return {
+            // comments: Comments.find({entryId: this.params._id}),
+            category: this.category,
+            entry: this.category.findOne({name: this.params.name}),
+            routes: this.routes(this.category.singularName)
+        };
+    }
+});
+
 function templateData(router, col, option) {
     return {
         category: col,
@@ -231,7 +243,7 @@ HomeController = ListController.extend({
     sort: {votes: -1, downvotes: 1, datePublished: -1, _id: -1},
     subscriptions () {
         return [Datasets, Apps, RemoteDatasets, RemoteApps]
-            .map(col=>Meteor.subscribe(col._name, this.findOptions()))
+            .map(col => Meteor.subscribe(col.pluralName, this.findOptions()))
     },
     getEntries(options, col) {
         if (!options)
@@ -322,7 +334,7 @@ function setUpRoutes(col, hasRemote = false) {
         data () {
             return {
                 category: col,
-                entry: col.findOne()
+                entry: col.findOne(this.params._id)
             };
         }
     });
@@ -347,7 +359,10 @@ setUpRoutes(Apps, true);
  * Groups
  */
 
+Router.route(`/project/:name`, {name: `${Groups.singularName}.PageByName`});
+
 setUpRoutes(Groups);
+
 
 /*
  * Accounts
@@ -358,7 +373,7 @@ AccountsTemplates.configureRoute('enrollAccount');
 AccountsTemplates.configureRoute('forgotPwd');
 AccountsTemplates.configureRoute('resetPwd');
 AccountsTemplates.configureRoute('signIn', {
-    redirect: ()=> {
+    redirect: () => {
         let ref = RouterLayer.getQueryParam('return_url'),
             userId = Meteor.userId();
         if (ref && userId) {

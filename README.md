@@ -22,7 +22,17 @@ Then copy SSL cert/key files to `/etc/nginx/ssl`
 Meteor settings are available in a Upstart script `wo.conf`. For security the script is run under a normal user `wo`. To make it work you need to add the user `wo` first.
 
     sudo adduser --disabled-login wo
+
+Then copy the upstart script to `/etc/init`
+
     sudo cp wo.conf /etc/init
+
+If you're on Ubuntu 15.04 or later, which uses systemd instead of Upstart, copy the following files instead of `wo.conf`.
+
+    sudo cp wo.service /etc/systemd/system
+    sudo cp launch-wo.sh /home/wo
+    sudo chmod 755 /home/wo/launch-wo.sh
+    sudo systemctl enable wo
 
 In the settings given by `METEOR_SETTINGS`, if `public.environment` is dev, then some fake data will be loaded to the MongoDB database.
 
@@ -32,7 +42,16 @@ Extract `build/wo.tar.gz` to `/home/wo` and then start WO following `/home/wo/bu
 
     sudo cp build/linux_64/wo.tar.gz /home/wo
     (cd /home/wo && sudo tar -zxf wo.tar.gz && cd bundle/programs/server && sudo npm install)
+    
+Start WO either by executing 
+    
     sudo start wo
+
+if you're using Upstart, or
+
+    sudo systemctl start wo
+
+if you're using systemd.
 
 ## Upgrade from Previous WO
 

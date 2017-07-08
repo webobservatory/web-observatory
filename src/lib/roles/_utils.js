@@ -13,6 +13,10 @@ ownsDocumentQuery = function () {
 };
 
 viewsDocument = function (userId, doc) {
+    if(!doc) {
+        return false;
+    }
+
     if (!userId) {
         return doc.aclMeta;
     }
@@ -20,14 +24,18 @@ viewsDocument = function (userId, doc) {
     if (doc) {
         return doc.aclMeta // publicly listed entries
             || ownsDocument(userId, doc) // own entries
-            || (doc.metaWhiteList && _.contains(doc.metaWhiteList, userId)) // white-listed user
-            || Groups.find({contentWhiteList: userId}).fetch().some(group => viewsDocument(group.publisher, doc)); // member of white-listed groups, for null userId returning true if group doesn't have contentWhhiteList property
+            || (doc.metaWhiteList && _.contains(doc.metaWhiteList, userId)); // white-listed user
+            // || Groups.find({contentWhiteList: userId}).fetch().some(group => viewsDocument(group.publisher, doc)); // member of white-listed groups, for null userId returning true if group doesn't have contentWhhiteList property
     } else {
         return false;
     }
 };
 
 accessesDocument = function (userId, doc) {
+    if(!doc) {
+        return false;
+    }
+
     if (!userId) {
         return doc.aclContent;
     }
@@ -35,8 +43,8 @@ accessesDocument = function (userId, doc) {
     if (doc) {
         return doc.aclContent
             || ownsDocument(userId, doc)
-            || (doc.contentWhiteList && _.contains(doc.contentWhiteList, userId))
-            || Groups.find({contentWhiteList: userId}).fetch().some(group => accessesDocument(group.publisher, doc)); // member of white-listed groups
+            || (doc.contentWhiteList && _.contains(doc.contentWhiteList, userId));
+            // || Groups.find({contentWhiteList: userId}).fetch().some(group => accessesDocument(group.publisher, doc)); // member of white-listed groups
     } else {
         return false;
     }
@@ -55,11 +63,11 @@ viewsDocumentQuery = function (userId) {
         } else {
             //individual or group user
             query = {$or: [{aclMeta: true}, {metaWhiteList: userId}, {publisher: userId}, {contentWhiteList: userId}]};//individual permission
-            let groups = Groups.find({contentWhiteList: userId});
-            //group permission
-            groups.forEach(function (group) {
-                query.$or.push({metaWhiteList: group.publisher});
-            });
+            // let groups = Groups.find({contentWhiteList: userId});
+            // //group permission
+            // groups.forEach(function (group) {
+            //     query.$or.push({metaWhiteList: group.publisher});
+            // });
         }
     }
 
