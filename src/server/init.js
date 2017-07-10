@@ -124,6 +124,6 @@ Meteor.startup(function () {
 
     // Get remote apps and datasets
     pullRemoteColls();
-    checkCon();
+    // checkCon();
     SyncedCron.start();
 });

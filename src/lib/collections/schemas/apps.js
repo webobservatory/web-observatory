@@ -19,7 +19,7 @@ AppSchema = {
     github: {
         type: String,
         optional: true,
-        label: "Github",
+        label: "Voice",
         regEx: SimpleSchema.RegEx.Url
     }
 };
