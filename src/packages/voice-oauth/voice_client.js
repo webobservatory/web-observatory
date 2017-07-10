@@ -28,13 +28,15 @@ Voice.requestCredential = function (options, credentialRequestCompleteCallback) 
     var loginUrl =
         'https://www.innovvoice.com/api/sso/access' +
         '?client_id=' + config.clientId +
-        "&response_type=code";
+        "&response_type=code" +
+        "&redirect_uri=" + OAuth._redirectUri('innovvoice', config);
+    console.log(loginUrl);
 
     OAuth.launchLogin({
         loginService: "innovvoice",
         loginStyle: loginStyle,
         loginUrl: loginUrl,
         credentialRequestCompleteCallback: credentialRequestCompleteCallback,
-        // credentialToken: credentialToken
+        credentialToken: credentialToken
     });
 };

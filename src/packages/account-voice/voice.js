@@ -16,7 +16,7 @@ if (Meteor.isClient) {
         Voice.requestCredential(options, credentialRequestCompleteCallback);
     };
     Accounts.registerClientLoginFunction('innovvoice', loginWithVoice);
-    Meteor.loginWithVoice = function () {
+    Meteor.loginWithInnovvoice = function () {
         return Accounts.applyLoginFunction('innovvoice', arguments);
     };
 } else {

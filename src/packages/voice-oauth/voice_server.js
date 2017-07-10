@@ -37,8 +37,8 @@ var getAccessToken = function (query) {
                 params: {
                     code: query.code,
                     client_id: config.clientId,
-                    client_secret: OAuth.openSecret(config.secret)
-                    // redirect_uri: OAuth._redirectUri('innovvoice', config),
+                    client_secret: OAuth.openSecret(config.secret),
+                    redirect_uri: OAuth._redirectUri('innovvoice', config),
                     // state: query.state
                 }
             });
@@ -49,6 +49,7 @@ var getAccessToken = function (query) {
     if (response.data.error) { // if the http response was a json object with an error attribute
         throw new Error("Failed to complete OAuth handshake with innovvoice. " + response.data.error);
     } else {
+        console.log(response.data);
         return response.data.access_token;
     }
 };
@@ -57,7 +58,7 @@ var getIdentity = function (accessToken) {
     try {
         return HTTP.get(
             "https://www.innovvoice.com/api/sso/userInfo", {
-                headers: {"User-Agent": userAgent}, // http://developer.innovvoice.com/v3/#user-agent-required
+                // headers: {"User-Agent": userAgent}, // http://developer.innovvoice.com/v3/#user-agent-required
                 params: {access_token: accessToken}
             }).data;
     } catch (err) {
