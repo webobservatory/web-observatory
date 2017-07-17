@@ -8,14 +8,14 @@ OAuth.registerService('innovvoice', 2, null, function (query) {
     var accessToken = getAccessToken(query);
     var profile = getIdentity(accessToken);
     console.log("voice profile:", profile);
-    var primaryEmail = _.findWhere(emails, {primary: true});
+    var primaryEmail = _.findWhere(profile, {primary: true});
 
     return {
         serviceData: {
             id: profile.id,
             accessToken: OAuth.sealSecret(accessToken),
             email: profile.email || (primaryEmail && primaryEmail.email) || '',
-            username: profile.login
+            username: profile.username || profile.email
         },
         options: {profile: {name: profile.name}}
     };

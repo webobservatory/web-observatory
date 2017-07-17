@@ -30,7 +30,6 @@ Voice.requestCredential = function (options, credentialRequestCompleteCallback) 
         '?client_id=' + config.clientId +
         "&response_type=code" +
         "&redirect_uri=" + OAuth._redirectUri('innovvoice', config);
-    console.log(loginUrl);
 
     OAuth.launchLogin({
         loginService: "innovvoice",
