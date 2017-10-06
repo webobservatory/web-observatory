@@ -77,25 +77,8 @@ let Group = {
     "publications.$.name": {type: String, optional: true},
     "publications.$.url": {type: String, optional: true, autoform: {type: 'url'}},
 
-    datePublished: {
-        type: Date,
-        label: "Created at",
-        denyUpdate: true,
-        autoform: {
-            readonly: true,
-            type: "bootstrap-datepicker"
-        },
-        autoValue: function () {
-            if (this.isInsert) {
-                return new Date();
-            } else if (this.isUpsert) {
-                return {$setOnInsert: new Date()};
-            } else {
-                this.unset(); // Prevent user from supplying their own value
-            }
-        }
-    },
-
+    datePublished: orion.attribute('createdAt'),
+    dateModified: orion.attribute('updatedAt'),
     upvoters: {
         type: [String],
         optional: true,

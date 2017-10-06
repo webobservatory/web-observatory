@@ -112,8 +112,10 @@ Template.entryPage.helpers({
         //permitted to access
         if (canAccess()) {
             // app, group
-            if (category === Apps || category === RemoteApps) {
+            if ((category === Apps || category === RemoteApps) && entry.url.indexOf("https") === 0) {
                 return entry.url;
+            } else {
+                return false;
             }
             //dataset with only one html distribution
             if (category === Datasets &&
@@ -121,7 +123,11 @@ Template.entryPage.helpers({
                 entry.distribution.length === 1 &&
                 entry.distribution[0].fileFormat === 'HTML') {
                 return entry.distribution[0].url;
+            } else {
+                return false;
             }
+        } else {
+            return false;
         }
     }
 });
