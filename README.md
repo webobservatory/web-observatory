@@ -1,4 +1,36 @@
+# Web Observatory Development Guide by Max
+
+Updated instructions from 1 March 2019, created on macOS Mojave 10.14.3. To get started, checkout `big-marine-dev` branch:
+                                                                                         
+    git checkout -b big-marine-dev origin/big-marine-dev
+
+## Using Docker
+
+
+Create development docker image **big-marine-meteor:dev**:
+
+    cd docker
+    docker build -t big-marine-meteor:dev .     
+
+Change into src folder, create a docker container with that image, and run `bash` in that container (expect a ton of warnings, it's an out of date node app after all!):
+
+    cd ../src
+    docker run -it -v "$PWD":/home/docker/src -p 3000:3000 big-marine-meteor:dev bash
+    
+Then:
+
+    cd src
+    meteor npm install
+    meteor
+    
+You should see WebObservatory on http://locahost:3000
+
+![wo-dev](docs/wo-dev-screenshot.png)
+
+## OLD DOCS:
+
 # Web Observatory Deployment Guide
+
 Meteor apps can be deployed using [mupx](https://github.com/arunoda/meteor-up/tree/mupx). The guide below shows how to deploy web observatory manually.
 
 First install Nginx, MongoDB and Nodejs. Currently Meteor (1.4.5) works with Node v4.4.x and MongoDB v3.2.
