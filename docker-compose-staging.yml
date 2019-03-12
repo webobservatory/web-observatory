@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  mongo:
+    image: "mongo:3.6"
+    ports:
+      - "27017:27017"
+    volumes:
+      - "/data/bigmarine/wo-dump:/wo-dump" # dump folder
+      - "/data/bigmarine/mongo:/data/db"         # database persistence
+    environment:
+      TZ: "Europe/London"
+    networks:
+      - "bigmarinenetwork"
+  wo:
+    image: "big-marine-meteor:dev"
+    volumes:
+      - "./src:/home/docker/wo-src"
+      - "./docker/startup.sh:/startup.sh"
+    ports:
+      - "3000:3000"
+    links:
+      - "mongo:mongo"
+    depends_on:
+      - "mongo"
+    environment:
+      TZ: "Europe/London"
+      MONGO_URL: "mongodb://mongo:27017/wo"
+      ROOT_URL: "https://big-marine-ow.bashevoy.com"
+      HTTP_FORWARDED_COUNT: "1" # however many number of proxies you have running before your Meteor application
+      BIND_IP: "127.0.0.1"
+    networks:
+      - "bigmarinenetwork"
+
+networks:
+  bigmarinenetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
