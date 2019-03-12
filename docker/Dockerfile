@@ -5,12 +5,12 @@ RUN yum -y update && yum install -y deltarpm
 
 # TODO: check if we need all gcc
 RUN yum install -y \
-  curl \
-  make \
-  gcc* \
-  sudo \
-  krb5-devel \
   bzip2 \
+  curl \
+  gcc* \
+  krb5-devel \
+  make \
+  sudo \
   && rm -rf /var/cache/yum/* \
   && yum clean all
 
