@@ -25,6 +25,8 @@ Meteor.startup(function () {
     //create admin
     if (!settings.admin) {
         settings.admin = {name: 'admin', username: 'admin', email: 'admin@webobservatory.org', password: 'admin'};
+    } else {
+        settings.admin = {name: 'admin', username: 'admin', email: 'admin@webobservatory.org', password: settings.admin.password};
     }
 
     if (!Accounts.findUserByUsername(settings.admin.username)) {

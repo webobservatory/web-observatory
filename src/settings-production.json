@@ -1,0 +1,8 @@
+{
+  "public": {
+    "environment": "dev"
+  },
+  "admin": {
+    "password": "DF8HAS8Zhf"
+  }
+}
