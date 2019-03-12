@@ -27,6 +27,16 @@ You should see WebObservatory on http://locahost:3000
 
 ![wo-dev](docs/wo-dev-screenshot.png)
 
+Deployment on Staging (big-marine-ow.bashevoy.com) - WIP:
+
+    mkdir -p /data/bigmarine/mongo
+    mkdir -p /data/bigmarine/wo-dump
+    chown -R mb4r07:mb4r07 /data
+    cd /home/mb4r07/big-marine-ow-git/web-observatory/docker
+    docker build -t big-marine-meteor:dev .
+    cd ..
+    docker-compose -f docker-compose-staging.yml up -d
+
 ## OLD DOCS:
 
 # Web Observatory Deployment Guide
