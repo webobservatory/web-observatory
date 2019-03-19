@@ -21,6 +21,12 @@ AppSchema = {
         optional: true,
         label: "Github",
         regEx: SimpleSchema.RegEx.Url
+    },
+    screenshot: {
+        type: String,
+        optional: true,
+        label: "Screenshot",
+        regEx: SimpleSchema.RegEx.Url
     }
 };
 

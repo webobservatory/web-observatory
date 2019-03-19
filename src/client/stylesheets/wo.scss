@@ -1120,6 +1120,19 @@ body {
             color: $hovercolor;
         }
     }
+
+    .entry-screenshot {
+        margin-bottom: 4px;
+        max-width: 230px;
+        max-height: 142px;
+        overflow: hidden;
+
+        img {
+            max-height: 100%;
+            width: auto !important;
+            display: block;
+        }
+    }
 }
 
 .remote {
