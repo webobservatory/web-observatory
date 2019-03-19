@@ -17,9 +17,9 @@
         <div class="infoblock">
             <div class="entry-screenshot">
                 {{#if screenshot }}
-                        <img src="{{ screenshot }}" />
+                <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img src="{{ screenshot }}" /></a>
                 {{else}}
-                    <img src="https://via.placeholder.com/230x142.png?text=Screenshot" />
+                <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img src="https://via.placeholder.com/230x142.png?text=Screenshot" /></a>
                 {{/if}}
             </div>
             <h4 class="font-accident-one-bold uppercase"><a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}">{{blurb name 22}}</a></h4>
