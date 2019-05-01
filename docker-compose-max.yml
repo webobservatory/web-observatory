@@ -21,6 +21,8 @@ services:
       - "3000:3000" # has to match environment.PORT below
     links:
       - "mongo:mongo"
+      - "bmmysql:docker_mysql"
+      - "bmpostgis:docker_postgis"
     depends_on:
       - "mongo"
     environment:
@@ -31,7 +33,31 @@ services:
       BIND_IP: "127.0.0.1"
     networks:
       - "bigmarinenetwork"
-
+  bmmysql:
+    image: "mysql:5.5"
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Europe/London
+    volumes:
+      - /Users/max/Documents/Work/BigMarine/mysql:/var/lib/mysql
+    networks:
+      - "bigmarinenetwork"
+  bmpostgis:
+    image: "kartoza/postgis"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: marine
+      POSTGRES_PASS: marine
+      POSTGRES_DBNAME: big-marine
+      ALLOW_IP_RANGE: 0.0.0.0/0
+      TZ: Europe/London
+    volumes:
+      - /Users/max/Documents/Work/BigMarine/big-marine-git/data-app/pg_data:/var/lib/postgresql
+    networks:
+      - "bigmarinenetwork"
 networks:
   bigmarinenetwork:
     driver: bridge
