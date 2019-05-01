@@ -75,7 +75,11 @@ formatChange = function (e) {
             $fileSection.hide();
             break;
         case 'MySQL':
-            $url.attr('placeholder', '"mysql://" host "/" db');
+            $url.attr('placeholder', 'mysql://host/db');
+            $fileSection.hide();
+            break;
+        case 'PostgreSQL':
+            $url.attr('placeholder', 'postgresql://host/db');
             $fileSection.hide();
             break;
         case 'MongoDB':

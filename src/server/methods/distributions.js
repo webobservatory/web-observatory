@@ -171,6 +171,51 @@ let mysqlQuery = queryExecFactory(mysqlConnect, (conn, done, query)=> {
     conn.query(query, done);// db.query returns a third argument @fields which is discarded
 });
 
+/* PostgreSQL */
+const { Pool } = Npm.require('pg');
+
+function parsePostgreSQL(url) {
+    url = url.match(/(postgresql:\/\/)?(.*)/)[2];//strip off postgresql://
+    let pathSepIndx = url.indexOf('/');
+    let host, database;
+    if (pathSepIndx !== -1) {
+        host = url.substring(0, pathSepIndx),
+            database = url.substring(pathSepIndx + 1);
+    } else {
+        host = url;
+    }
+
+    return {host, database};
+}
+
+let pgConnect = connectorSyncWrap(function (url, username, pass, done) {
+    url = url.match(/(postgresql:\/\/)?(.*)/)[2];//strip off postgresql://
+    let {host, database} = parsePostgreSQL(url);
+
+    let options = {
+        connectionLimit: 20,
+        host: host,
+        database: database,
+        ssl: false
+    };
+
+    if (username) {
+        options.user = username;
+    }
+
+    if (pass) {
+        options.password = pass;
+    }
+
+    const pool = new Pool(options);
+
+    done(null, pool);
+});
+
+let pgQuery = queryExecFactory(pgConnect, (conn, done, query)=> {
+    conn.query(query, done);// db.query returns a third argument @fields which is discarded
+});
+
 // SPARQL
 
 let sparqlConnect = connectorSyncWrap((url, _, __, done)=> {
@@ -251,6 +296,7 @@ Meteor.methods({
     //db connectors
     mongodbConnect,
     mysqlConnect,
+    pgConnect,
     amqpConnect,
     sparqlConnect,
     htmlConnect: sparqlConnect,
@@ -275,6 +321,7 @@ Meteor.methods({
     //query executors
     mongodbQuery,
     mysqlQuery,
+    pgQuery,
     sparqlQuery,
     amqpQuery,
 

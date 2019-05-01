@@ -194,6 +194,18 @@ Template.MySQL.events({
 });
 
 /*
+ * PostgreSQL functions
+ * */
+Template.PostgreSQL.events({
+    'click a.btn.modal-trigger': queryHandlerFactory((e, template)=> {
+        let distId = template.data._id,
+            $target = $(`#${distId}`),
+            query = $target.find('[name=query]')[0].value;
+        return [distId, query];
+    }, 'pgQuery')
+});
+
+/*
  * SPARQL functions
  * */
 Template.SPARQL.events({

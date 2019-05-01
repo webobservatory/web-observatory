@@ -32,7 +32,7 @@ let DistributionSchema = new SimpleSchema({
     fileFormat: {
         type: String,
         label: 'Dataset type',
-        allowedValues: ['MongoDB', 'MySQL', 'AMQP', 'SPARQL', 'HTML', 'File', 'GeoData'],
+        allowedValues: ['MongoDB', 'MySQL', 'PostgreSQL', 'AMQP', 'SPARQL', 'HTML', 'File', 'GeoData'],
         autoform: {type: 'select'}
         //TODO custom validate
     },

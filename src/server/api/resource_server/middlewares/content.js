@@ -14,7 +14,7 @@ export default function accessData(req, res) {
 
     if (dist) {
         let type = dist.fileFormat;
-        if (['MongoDB', 'MySQL', 'SPARQL'].indexOf(type) !== -1) {
+        if (['MongoDB', 'MySQL', 'PostgreSQL', 'SPARQL'].indexOf(type) !== -1) {
             type = type.toLowerCase();
             query = parseQuery(query, type);
             let args = [id];
