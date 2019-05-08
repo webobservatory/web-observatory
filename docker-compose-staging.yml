@@ -26,7 +26,7 @@ services:
     environment:
       TZ: "Europe/London"
       MONGO_URL: "mongodb://mongo:27017/wo"
-      ROOT_URL: "https://big-marine-ow.bashevoy.com"
+      ROOT_URL: "http://srv02579.soton.ac.uk/"
       HTTP_FORWARDED_COUNT: "1" # however many number of proxies you have running before your Meteor application
       BIND_IP: "127.0.0.1"
     networks:
