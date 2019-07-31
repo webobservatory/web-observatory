@@ -112,7 +112,8 @@ Template.entryPage.helpers({
         //permitted to access
         if (canAccess()) {
             // app, group
-            if ((category === Apps || category === RemoteApps) && entry.url.indexOf("https") === 0) {
+            if ((category === Apps || category === RemoteApps)) {
+            // if ((category === Apps || category === RemoteApps) && entry.url.indexOf("https") === 0) {
                 return entry.url;
             } else {
                 return false;
