@@ -50,7 +50,7 @@ Start mongo docker container:
 
     docker run --rm -it --name womongo -p 27017:27017 mongo:3.6
 
-Start node 4.4 container (you do not want to deal with fibers broken build issues, trust me):
+Start node 4.4 container with development settings (you do not want to deal with fibers broken build issues, trust me):
     
     docker run --rm -it -v "$PWD"/build:/build -p 4000:4000 --link womongo:mongo -e ROOT_URL=http://127.0.0.1 -e PORT=4000 -e MONGO_URL=mongodb://mongo:27017/wo -w /build/linux_64/bundle nodesource/jessie:4.4.4 bash
     (cd programs/server && npm install)
