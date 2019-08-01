@@ -38,7 +38,8 @@ Clients = new orion.collection('client', {
                 data: "user",
                 render: function (val, type, doc) {
                     let publisherId = val;
-                    let publisherName = Meteor.users.findOne(publisherId).username;
+                    let user = Meteor.users.findOne(publisherId);
+                    let publisherName = user ? user.username : "-";
                     return publisherName;
                 },
                 title: "User"

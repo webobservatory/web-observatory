@@ -28,7 +28,8 @@ Groups = new orion.collection('groups', {
                 data: "publisher",
                 title: "Founder",
                 render: function (val, type, doc) {
-                    let publisherName = Meteor.users.findOne(val).username;
+                    let user = Meteor.users.findOne(val);
+                    let publisherName = user ? user.username : '-';
                     return publisherName;
                 },
             },
@@ -47,7 +48,11 @@ Groups = new orion.collection('groups', {
                     }, query);
 
                     return Meteor.users.find(query).map(function (user) {
-                        return user.username;
+                        if (user) {
+                            return user.username;
+                        } else {
+                            return "-";
+                        }
                     });
                 }
             },

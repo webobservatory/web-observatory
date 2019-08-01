@@ -20,7 +20,8 @@ Comments = new orion.collection('comments', {
                 data: "publisher",
                 title: "Author",
                 render: function (val, type, doc) {
-                    let username = Meteor.users.findOne(val).username;
+                    let user = Meteor.users.findOne(val);
+                    let username = user ? user.username : "-";
                     return username;
                 }
             }, {
