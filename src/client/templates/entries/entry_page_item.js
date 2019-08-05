@@ -83,11 +83,18 @@ Template.entryPageItem.events({
 
 Template.entryPageItem.rendered = function () {
     $('.tooltipped').tooltip({delay: 300});
+    $(".custom-bg-support").css('background-image', 'none');
 
-    let data = Template.currentData();
-    // console.log(data);
-    if (data.hasOwnProperty('bgcustom')) {
-        // console.log(data.bgcustom);
-        $(".custom-bg-support").css('background-image', 'url(' + data.bgcustom + ')');
+    try {
+        // not all views have orion connected
+        // temporarily suppress those exceptions
+        let data = Template.currentData();
+        // console.log(data);
+        if (data.hasOwnProperty('bgcustom')) {
+            // console.log(data.bgcustom);
+            $(".custom-bg-support").css('background-image', 'url(' + data.bgcustom + ')');
+        }
+    } catch (err) {
+
     }
 };
