@@ -25,6 +25,10 @@ Groups = new orion.collection('groups', {
                 title: "Name"
             },
             {
+                data: "screenshot",
+                title: "Screenshot"
+            },
+            {
                 data: "publisher",
                 title: "Founder",
                 render: function (val, type, doc) {

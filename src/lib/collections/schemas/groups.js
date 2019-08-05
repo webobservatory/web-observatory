@@ -7,6 +7,13 @@ let Group = {
 
     description: {type: String, optional: true},
 
+    screenshot: {
+        type: String,
+        optional: true,
+        label: "Screenshot",
+        regEx: SimpleSchema.RegEx.Url
+    },
+
     // url: {type: String, label: 'Home page', regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
 
     // youtube: {type: String, regEx: SimpleSchema.RegEx.Url, optional: true, autoform: {type: 'url'}},
