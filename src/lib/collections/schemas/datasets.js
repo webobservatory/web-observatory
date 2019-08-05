@@ -119,6 +119,13 @@ DatasetSchema = {
         }
     },
 
+    screenshot: {
+        type: String,
+        optional: true,
+        label: "Screenshot",
+        regEx: SimpleSchema.RegEx.Url
+    },
+
     distribution: {
         type: [DistributionSchema],
         autoValue(){
