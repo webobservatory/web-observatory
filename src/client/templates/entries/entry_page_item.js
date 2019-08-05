@@ -83,4 +83,11 @@ Template.entryPageItem.events({
 
 Template.entryPageItem.rendered = function () {
     $('.tooltipped').tooltip({delay: 300});
+
+    let data = Template.currentData();
+    // console.log(data);
+    if (data.hasOwnProperty('bgcustom')) {
+        // console.log(data.bgcustom);
+        $(".custom-bg-support").css('background-image', 'url(' + data.bgcustom + ')');
+    }
 };
