@@ -16,13 +16,32 @@
         <meta itemprop='http://schema.org/commentCount' content="{{commentCount}}">
         <div class="infoblock">
             <div class="entry-screenshot">
-                {{#if screenshot }}
-                <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img src="{{ screenshot }}" /></a>
+                {{#if canAccess this}}
+                    {{#if screenshot }}
+                        <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img
+                                src="{{ screenshot }}"/></a>
+                    {{else}}
+                        <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img
+                                src="https://via.placeholder.com/230x142.png?text=Screenshot"/></a>
+                    {{/if}}
                 {{else}}
-                <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img src="https://via.placeholder.com/230x142.png?text=Screenshot" /></a>
+                    {{#if screenshot }}
+                        <a href="#" data-toggle="tooltip" title="{{name}}"><img
+                                src="{{ screenshot }}"/></a>
+                    {{else}}
+                        <a href="#" data-toggle="tooltip" title="{{name}}"><img
+                                src="https://via.placeholder.com/230x142.png?text=Screenshot"/></a>
+                    {{/if}}
                 {{/if}}
             </div>
-            <h4 class="font-accident-one-bold uppercase"><a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}">{{blurb name 22}}</a></h4>
+
+            {{#if canAccess this}}
+                <h4 class="font-accident-one-bold uppercase"><a href="{{pathFor ../routes.page}}" data-toggle="tooltip"
+                                                                title="{{name}}">{{blurb name 22}}</a></h4>
+            {{else}}
+                <h4 class="font-accident-one-bold uppercase"><a href="#" data-toggle="tooltip"
+                                                                title="{{name}}">{{blurb name 22}}</a></h4>
+            {{/if}}
             <div class="post-attrib">
                 <div class="comment-baloon font-accident-one-bold">
                     {{#if canAccess this}}
@@ -36,7 +55,8 @@
                     {{#if offline this}}
                         <span><i data-toggle="tooltip" title="Offline" class="fa fa-ban"></i></span>
                     {{else}}
-                        <span><i data-toggle="tooltip" title="Online" class="fa fa-check" style="color:#1fa67a"></i></span>
+                        <span><i data-toggle="tooltip" title="Online" class="fa fa-check"
+                                 style="color:#1fa67a"></i></span>
                     {{/if}}
                 </div>
 
