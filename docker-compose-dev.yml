@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+  nginx:
+    image: "nginx"
+    volumes:
+      - "./nginx/nginx-docker-dev.conf:/etc/nginx/nginx.conf"
+    ports:
+      - "80:80"
+    links:
+      - "wo:wo" # runs as wo.com
+    environment:
+      TZ: "Europe/London"
+    networks:
+      - "bigmarinenetwork"
+  wo:
+    image: "big-marine-meteor:dev"
+    volumes:
+      - "./src:/home/docker/wo-src"
+      - "./build:/home/docker/build"
+      - "./docker/startup-dev.sh:/startup.sh"
+    ports:
+      - "3100:3000" # has to match environment.PORT below
+    environment:
+      TZ: "Europe/London"
+    networks:
+      - "bigmarinenetwork"
+networks:
+  bigmarinenetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.18.0.0/16
