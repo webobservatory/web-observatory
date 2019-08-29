@@ -37,10 +37,6 @@ Apps = new orion.collection('apps', {
                 data: "github",
                 title: "Github"
             },
-            {
-                data: "screenshot",
-                title: "Screenshot"
-            },
             orion.attributeColumn('createdAt', 'datePublished', 'Published'),
         ]
     }
