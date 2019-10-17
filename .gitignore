@@ -34,3 +34,5 @@ coverage
 node_modules
 log
 *.DS_Store
+
+src/package-lock\.json

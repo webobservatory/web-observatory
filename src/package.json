@@ -1,0 +1,27 @@
+{
+  "name": "web_observatory",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "JSONStream": "1.0.7",
+    "amqplib": "^0.4.1",
+    "babel-runtime": "^6.18.0",
+    "bcrypt": "^0.8.7",
+    "body-parser": "^1.15.1",
+    "cookies": "^0.6.1",
+    "express": "^4.13.4",
+    "express-session": "^1.13.0",
+    "kerberos": "0.0.21",
+    "mongodb": "2.1.21",
+    "mysql": "2.10.0",
+    "openid-connect-wo": "^1.2.5",
+    "pg": "^4.4.4",
+    "sails-mongo": "^0.12.0"
+  }
+}

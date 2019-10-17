@@ -1,0 +1,176 @@
+<template name="requestFrom">
+    {{#autoForm id="requestForm" class="form-dark" schema=requestSchema}}
+        <div class="row">
+            <div class="input-field col s6">
+                {{> afQuickField name="name" value=currentUser.profile.name}}
+            </div>
+            <div class="input-field col s6">
+                {{> afQuickField name="username" value=currentUser.username}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="email" value=currentUser.emails.[0].address}}
+            </div>
+        </div>
+        <!--<div class="row">-->
+        <!--<div class="input-field col s12">-->
+        <!--{{> afQuickField name="organisation"}}-->
+        <!--</div>-->
+        <!--</div>-->
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="message"}}
+            </div>
+        </div>
+        <div class="row">
+            <a class="btn btn-sm btn-lgr-str" href="#license-collapse" data-toggle="collapse">Show license</a>
+            <div class="collapse" id="license-collapse">
+                <p>{{{showLicense}}}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                {{> afQuickField name="acceptTerms" class="filled-in"}}
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input class="btn btn-lgr-str" type="submit" value="Request access"/>
+            </div>
+        </div>
+    {{/autoForm}}
+</template>
+
+<template name="project_resources">
+    <div class="list-block">
+        <div class="container-fluid js-isotope"
+             data-isotope-options='{ "itemSelector": ".grid-item", "layoutMode": "fitRows" }'>
+            {{#each entries}}
+                {{> entryItem}}
+            {{/each}}
+        </div>
+    </div>
+</template>
+
+<template name="HTML">
+    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn btn-lgr-str"><i class="fa fa-external-link"></i> Open in new tab</a>
+</template>
+
+<template name="File">
+    <a href="{{url}}" id="{{_id}}" target="_blank" class="btn btn-lgr-str"><i class="fa fa-download"></i> Download file</a>
+</template>
+
+<template name="MongoDB">
+    <form id="{{_id}}" class="form-dark">
+        <div class="form-group">
+            <label for="collection" class="control-label">Select a collection</label>
+            <select class="validate form-control" required aria-required="true" id="collection" name="collection">
+                <option value="" disabled selected>Choose a collection</option>
+                {{#each getMongoDBCollectionNames}}
+                    <option>{{name}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="selector" class="control-label">MongoDB query</label>
+            <input class="validate form-control" required aria-required="true" id="selector" name="selector" type="text"
+                   placeholder="A MongoDB query, e.g. {}. Double quote field names."
+                   value="{}">
+        </div>
+        <div class="form-group">
+            <label for="project" class="control-label">Project</label>
+            <input id="project" name="project" type="text" class="form-control"
+                   placeholder='Return only selected fields e.g. {"_id": 0}. Double quote field names.'
+                   value='{"_id": 0}'>
+        </div>
+        <div class="form-group">
+            <label for="skip" class="control-label">Skip</label>
+            <input id="skip" name="skip" type="text" class="form-control" placeholder="Skip the first n results, e.g. 5"
+                   value="0">
+        </div>
+        <div class="form-group">
+            <label for="limit" class="control-label">Limit</label>
+            <input id="limit" name="limit" type="text" class="form-control"
+                   placeholder="Return up to n results, e.g. 10" value="10">
+        </div>
+        <div class="form-group">
+            <label for="sort" class="control-label">Sort</label>
+            <input id="sort" name="sort" type="text" class="form-control"
+                   placeholder='Sort by selected fields, e.g. {"_id": -1}. Double quote field names.'
+                   value='{"_id": -1}'>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <a class="btn btn-lgr-str modal-trigger" data-toggle="modal" href="#queryResult">Query</a>
+            </div>
+        </div>
+    </form>
+</template>
+
+<template name="MySQL">
+    <form id="{{_id}}" class="form-dark">
+        <div class="form-group">
+            <label for="query" class="control-label">Query</label>
+            <textarea id="query" class="form-control" name="query" rows="5"
+                      placeholder='Input a MySQL query e.g. SELECT 1 + 1 AS solution.'
+                      value='SELECT 1 + 1 AS solution'></textarea>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <a class="btn btn-lgr-str modal-trigger" data-toggle="modal" href="#queryResult">Query</a>
+            </div>
+        </div>
+    </form>
+</template>
+
+<template name="PostgreSQL">
+    <form id="{{_id}}" class="form-dark">
+        <div class="form-group">
+            <label for="query" class="control-label">Query</label>
+            <textarea id="query" class="form-control" name="query" rows="5"
+                      placeholder='Input a PostgreSQL query e.g. SELECT 1 + 1 AS solution.'
+                      value='SELECT 1 + 1 AS solution'></textarea>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <a class="btn btn-lgr-str modal-trigger" data-toggle="modal" href="#queryResult">Query</a>
+            </div>
+        </div>
+    </form>
+</template>
+
+<template name="SPARQL">
+    <form id="{{_id}}" class="form-dark">
+        <div class="form-group">
+            <label for="query" class="control-label">Query</label>
+            <textarea id="query" class="form-control" name="query" rows="5"
+                      placeholder='Input a SPARQL query e.g. SELECT * WHERE{?S ?P ?O} LIMIT 10'
+                      value='SELECT * WHERE{?S ?P ?O} LIMIT 10'></textarea>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <a class="btn btn-lgr-str modal-trigger" data-toggle="modal" href="#queryResult">Query</a>
+            </div>
+        </div>
+    </form>
+</template>
+
+<template name="AMQP">
+    <form id="{{_id}}" class="form-dark">
+        <div class="form-group">
+            <label for="exchange" class="control-label">Select an exchange</label>
+            <select class="validate form-control" required aria-required="true" id="exchange" name="exchange">
+                <option value="" disabled selected>Choose an exchange</option>
+                {{#each getAMQPExchanges}}
+                    <option>{{this}}</option>
+                {{/each}}
+            </select>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <a id="amqpModalTrigger" class="btn btn-lgr-str modal-trigger" data-toggle="modal" href="#queryResult">Connect</a>
+            </div>
+        </div>
+    </form>
+</template>

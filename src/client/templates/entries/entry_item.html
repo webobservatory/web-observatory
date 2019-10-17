@@ -1,0 +1,85 @@
+<template name="entryItem">
+
+    <div class="grid-item" itemscope itemtype="{{itemtype}}">
+        <meta itemprop='http://schema.org/name' content={{name}}>
+        <meta itemprop='http://schema.org/url' content="{{absUrl}}">
+        <meta itemprop='http://schema.org/publisher' content="{{publisherName}}">
+        <meta itemprop='http://schema.org/isBasedOnUrl' content="{{isBasedOnUrl}}">
+        <meta itemprop='http://schema.org/description' content="{{description}}">
+        <meta itemprop='http://schema.org/keywords' content="{{keywords}}">
+        <meta itemprop='http://schema.org/license' content="{{license}}">
+        <meta itemprop='http://schema.org/datePublished' content="{{datePublished}}">
+        <meta itemprop='http://schema.org/dateModified' content="{{dateModified}}">
+        <meta itemprop='http://schema.org/spatial' content="{{spatial}}">
+        <meta itemprop='http://schema.org/datasetTimeInterval'
+              content="{{datasetTimeInterval.startTime}} - {{datasetTimeInterval.endTime}}">
+        <meta itemprop='http://schema.org/commentCount' content="{{commentCount}}">
+        <div class="infoblock">
+            <div class="entry-screenshot">
+                {{#if canAccess this}}
+                    {{#if screenshot }}
+                        <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img
+                                src="{{ screenshot }}"/></a>
+                    {{else}}
+                        <a href="{{pathFor ../routes.page}}" data-toggle="tooltip" title="{{name}}"><img
+                                src="https://via.placeholder.com/230x142.png?text=Screenshot"/></a>
+                    {{/if}}
+                {{else}}
+                    {{#if screenshot }}
+                        <a href="#" data-toggle="tooltip" title="{{name}}"><img
+                                src="{{ screenshot }}"/></a>
+                    {{else}}
+                        <a href="#" data-toggle="tooltip" title="{{name}}"><img
+                                src="https://via.placeholder.com/230x142.png?text=Screenshot"/></a>
+                    {{/if}}
+                {{/if}}
+            </div>
+
+            {{#if canAccess this}}
+                <h4 class="font-accident-one-bold uppercase"><a href="{{pathFor ../routes.page}}" data-toggle="tooltip"
+                                                                title="{{name}}">{{blurb name 22}}</a></h4>
+            {{else}}
+                <h4 class="font-accident-one-bold uppercase"><a href="#" data-toggle="tooltip"
+                                                                title="{{name}}">{{blurb name 22}}</a></h4>
+            {{/if}}
+            <div class="post-attrib">
+                <div class="comment-baloon font-accident-one-bold">
+                    {{#if canAccess this}}
+                        <span><i data-toggle="tooltip" title="Accessible" class="fa fa-unlock"></i></span>
+                    {{else}}
+                        <span><i data-toggle="tooltip" title="No Access" class="fa fa-lock"></i></span>
+                    {{/if}}
+                    {{#if isEditorChoice this}}
+                        <span><i data-toggle="tooltip" title="Editor Choice" class="fa fa-trophy"></i></span>
+                    {{/if}}
+                    {{#if offline this}}
+                        <span><i data-toggle="tooltip" title="Offline" class="fa fa-ban"></i></span>
+                    {{else}}
+                        <span><i data-toggle="tooltip" title="Online" class="fa fa-check"
+                                 style="color:#1fa67a"></i></span>
+                    {{/if}}
+                </div>
+
+                <div class="post-data">
+                    <div class="post-date hovercolor">{{prettifyDate datePublished}}</div>
+                    <div class="post-author">by {{blurb publisherName 15}}</div>
+                </div>
+            </div>
+            <p class="blurb fontcolor-medium-light">
+                {{{blurb description 160}}}
+            </p>
+            <div>
+                {{#each this.distribution}}
+                    <span class="badge">{{> distribution}}</span>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</template>
+<template name="distribution">
+    <span itemprop="distribution" itemscope itemtype="http://schema.org/DataDownload"
+          class="{{offlineClass}}">
+        <meta itemprop='http://schema.org/fileFormat' content="{{fileFormat}}">
+        {{fileFormat}}
+    </span>
+</template>

@@ -1,0 +1,86 @@
+<head>
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Oxygen:400,700' property='stylesheet' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' property='stylesheet' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Dosis:200,300,400,500,600,700,800' property='stylesheet' rel='stylesheet' type='text/css'>
+    <title>Web Observatory</title>
+</head>
+
+<template name="layout">
+    <!--<head>-->
+        <!--<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+        <!--<meta itemprop='name' content='Web Observatory'>-->
+    <!--</head>-->
+    <!--<div id="content">-->
+        <!--{{> nav}}-->
+        <!--{{> errors}}-->
+        <!--<div class="container" id="main">-->
+        <!--</div>-->
+    <!--</div>-->
+
+
+
+    <!-- Navigation -->
+    <!--<nav class="navbar navbar-custom navbar-fixed-top" role="navigation">-->
+    <nav class="navbar navbar-custom navbar-fixed-top {{#unless _isTemplated}}force-nav-collapse{{/unless}}" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand page-scroll" href="#page-top">
+                    <span class="light">Web</span> Observatory
+                </a>
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-main-collapse">
+                    <i class="fa fa-bars"></i>
+                </button>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse navbar-main-collapse">
+                    <ul class="nav navbar-nav navbar-left navbar-menu">
+                        <li><a id="open-button" href="#"><i class="fa fa-bars"></i></a></li>
+                        <li><a href="#search" data-toggle="modal" data-target="#search-overlay"><i class="fa fa-search"></i></a></li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <!-- Hidden li included to remove active class from about link when scrolled up past about section -->
+                        <li class="hidden">
+                            <a href="#page-top"></a>
+                        </li>
+                        {{#if this._isHome}}
+                        <li>
+                            <a class="page-scroll" href="#top">Top</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="#recent">Recent</a>
+                        </li>
+                        {{/if}}
+                        {{> user_nav}}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+
+    <div class="content-wrap">
+        {{#if _isTemplated}}
+            {{> yield}}
+        {{else}}
+            <section class="container-fluid content-section text-center">
+                <div class="row custom-bg-support">
+                    <div class="dividewhite5"></div>
+                    <div class="col-lg-12">
+                        {{> yield}}
+                    </div>
+                </div>
+            </section>
+        {{/if}}
+        <!-- Footer -->
+        {{> footer}}
+    </div>
+
+    <!-- Off-canvas menu -->
+    {{> menu}}
+    <!-- / Off-canvas menu -->
+
+    {{> search}}
+</template>

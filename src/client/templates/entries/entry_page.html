@@ -1,0 +1,143 @@
+<template name="entryPage">
+    {{>entryPageItem entry}}
+    <div class="container-fluid">
+        <div class="row page">
+            <div class="port-filter port-filter-dark">
+                <ul>
+                    {{#if showInNewTab}}
+                        <li class="tab col s3 active"><a href="#view" data-toggle="pill">App</a></li>
+                    {{/if}}
+
+                    {{#if showDistributions}}
+                        {{#each entry.distribution}}
+                            <li class="tab col s3"><a href="{{appendHash _id}}" data-toggle="pill">{{fileFormat}}</a>
+                            </li>
+                        {{/each}}
+                    {{/if}}
+
+
+                    {{#if showProjectApps}}
+                        <li class="tab col s3 active"><a href="#project-apps" data-toggle="pill">Apps</a></li>
+                    {{/if}}
+
+                    {{#if showProjectDatasets}}
+                        {{#if showProjectApps}}
+                            <li class="tab col s3"><a href="#project-datasets" data-toggle="pill">Datasets</a></li>
+                        {{else}}
+                            <li class="tab col s3 active"><a href="#project-datasets" data-toggle="pill">Datasets</a>
+                            </li>
+                        {{/if}}
+                    {{/if}}
+
+                    {{#if showRequestForm}}
+                        <li class="tab col s3 active"><a href="#request_access"
+                                                         data-toggle="pill">{{requestFormTitle}}</a></li>
+                    {{/if}}
+
+
+                    <li class="tab col s3"><a href="#metadata" data-toggle="pill">Metadata</a></li>
+                    <li class="tab col s3"><a href="#comments" data-toggle="pill">Comments</a></li>
+                </ul>
+            </div>
+
+            <div class="tab-content col-md-8 col-md-offset-2">
+
+                <div id="metadata" class="tab-pane">
+                    {{> quickForm collection=category class="form-dark" id="metadataForm" type="disabled" doc=entry omitFields="comments, commentsCount, upvoters, downvoters, votes, downvotes, distribution.$.url, distribution.$.file, distribution.$.profile"}}
+                </div>
+
+                <div id="comments" class="tab-pane">
+                    <ul id="comments" class="comments">
+                        {{#each comments}}
+                            {{> commentItem}}
+                        {{/each}}
+                    </ul>
+
+                    {{#if currentUser}}
+                        {{> commentSubmit}}
+                    {{else}}
+                        <p>Please log in to leave a comment.</p>
+                    {{/if}}
+                </div>
+
+                {{#if showDistributions}}
+                    <!--show query interface-->
+                    {{#each entry.distribution}}
+                        <div class="tab-pane" id="{{_id}}">
+                            {{>Template.dynamic template=fileFormat data=distData}}
+                        </div>
+                    {{/each}}
+                    <!-- Modal Structure -->
+                    <div id="queryResult" class="modal results-modal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                            aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title">Query Results</h4>
+                                </div>
+                                <div class="modal-body">
+                                    {{#if queryResult}}
+                                        <pre>
+                                            {{{queryResult}}}
+                                        </pre>
+                                    {{else}}
+                                        <!--{{> loading}}-->
+                                    {{/if}}
+                                </div>
+                                <!--<div class="modal-footer">-->
+                                <!--<button type="button" class="btn btn-lgr-str" data-dismiss="modal">Close</button>-->
+                                <!--</div>-->
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+
+                {{#if showInNewTab}}
+                    <div id="view" class="tab-pane active">
+                        <iframe src="{{showInNewTab}}" width="100%" height="800px" style="border:0"></iframe>
+                        <div class="row">
+                            <div class="dividewhite1"></div>
+                            <a href="{{showInNewTab}}" target="_blank" class="btn btn-lgr-str btn-xs">Open <i
+                                    class="fa fa-external-link"></i></a>
+                        </div>
+                    </div>
+                {{/if}}
+
+                {{#if Template.subscriptionsReady}}
+                    {{#if showProjectApps}}
+                        <div id="project-apps" class="tab-pane active">
+                            {{> project_resources entries=getProjectApps category=getAppsCollection routes=appsRoutes}}
+                        </div>
+                    {{/if}}
+
+                    {{#if showProjectDatasets}}
+                        {{#if showProjectApps}}
+                            <div id="project-datasets" class="tab-pane">
+                                {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
+                            </div>
+                        {{else}}
+
+                            <div id="project-datasets" class="tab-pane active">
+                                {{> project_resources entries=getProjectDatasets category=getDatasetsCollection routes=datasetsRoutes}}
+                            </div>
+                        {{/if}}
+                    {{/if}}
+                {{else}}
+                    <!--{{> loading}}-->
+                {{/if}}
+
+                {{#if showRequestForm}}
+                    <!--show request access form if logged in-->
+                    <div id="request_access" class="tab-pane active">
+                        {{#if currentUser}}
+                            {{>requestFrom}}
+                        {{else}}
+                            <p>Please log in to request access.</p>
+                        {{/if}}
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</template>

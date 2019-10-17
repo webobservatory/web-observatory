@@ -1,0 +1,29 @@
+<template name="entryList">
+    {{#if currentUser}}
+        {{#if showAdd}}
+            <!--List Bar-->
+            <div class="row">
+                {{#if routes.submit}}
+                    <a class="btn btn-lgr-str"
+                       href="{{pathFor routes.submit}}" title="{{addItem}}">Add</a>
+                {{/if}}
+            </div>
+            <div class="dividewhite2"></div>
+        {{/if}}
+    {{/if}}
+    <div class="list-block">
+        <div class="container js-isotope"
+             data-isotope-options='{ "itemSelector": ".grid-item", "layoutMode": "fitRows" }'>
+            {{#each entries}}
+                {{> entryItem}}
+            {{/each}}
+        </div>
+        {{#if nextPath}}
+            <a href="{{nextPath}}" class="btn btn-lgr-str">More</a>
+        {{else}}
+            {{#unless ready}}
+                <!--{{> loading}}-->
+            {{/unless}}
+        {{/if}}
+    </div>
+</template>
