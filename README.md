@@ -1,141 +1,123 @@
-# Web Observatory Development Guide by Max
+# Web Observatory Development and Deployment Guide (updated Oct 2019)
 
-To get started, checkout `big-marine-dev` branch:
-                                                                                         
-    git checkout -b big-marine-dev origin/big-marine-dev
+This is a guide for developing and building updated Web Observatory. For compatibility reasons it is highly recommended to use Docker to run the platform.
 
-## Using Docker
+Pre-requisites:
 
+- Docker
 
-Create development docker image **big-marine-meteor:dev**:
+## Build base WO docker image
+
+Create development docker image **wo:dev**:
 
     cd docker
-    docker build -t big-marine-meteor:dev .     
+    docker build -t wo:dev .
 
-Change into src folder, create a docker container with that image, and run `bash` in that container (expect a ton of warnings, it's an out of date node app after all!):
+## Run in development mode (using meteor)
 
-    cd ..
-    docker run --rm -it -v "$PWD"/src:/home/docker/wo-src -w /home/docker/wo-src -p 3000:3000 big-marine-meteor:dev bash
-    
+Change into **src** folder, create a docker container with that image, and run `bash` in that container:
+
+    cd ../src
+    docker run --rm -it \
+        -v "$PWD":/home/docker/wo-src \
+        -w /home/docker/wo-src \
+        -p 3000:3000 wo:dev bash
+
 Then:
 
     meteor npm install
     meteor
-    
+
 You should see WebObservatory on http://locahost:3000
 
-![wo-dev](docs/wo-dev-screenshot.png)
+|           ![wo-dev](docs/wo-dev-screenshot.png)            |
+| :--------------------------------------------------------: |
+| _Web Observatory running in development mode on port 3000_ |
 
-Deployment on Staging (big-marine-ow.bashevoy.com) - WIP:
+## Build for production
 
-    mkdir -p /data/bigmarine/mongo
-    mkdir -p /data/bigmarine/wo-dump
-    chown -R mb4r07:mb4r07 /data
-    cd /home/mb4r07/big-marine-ow-git/web-observatory/docker
-    docker build -t big-marine-meteor:dev .
-    cd ..
-    docker-compose -f docker-compose-staging.yml up -d
+Using base WO docker image, change into root folder of the project and run (add location of build folder):
 
-# Build and production deploy
-    
-    docker run --rm -it -v "$PWD"/src:/home/docker/wo-src -v "$PWD"/build:/home/docker/build -w /home/docker/wo-src -p 3000:3000 big-marine-meteor:dev bash    
+    docker run --rm -it \
+        -v "$PWD"/src:/home/docker/wo-src \
+        -v "$PWD"/build:/home/docker/build \
+        -w /home/docker/wo-src \
+        -p 3000:3000 wo:dev bash
+
+Once the container has started, run:
+
+    meteor npm install
     meteor build ../build/linux_64/ --architecture=os.linux.x86_64
-    
-You should now have "wo-src.tar.gz" file in build/linux_64 folder. Unzip:
 
-    cd ../build/linux_64
-    tar xvf wo-src.tar.gz
-    
-Start mongo docker container:
+That should create new **wo.tar.gz** bundle in **build/linux_64**
 
-    docker run --rm -it --name womongo -p 27017:27017 mongo:3.6
+## Deploy WO bundle
 
-Start node 4.4 container with development settings (you do not want to deal with fibers broken build issues, trust me):
-    
-    docker run --rm -it -v "$PWD"/build:/build -p 4000:4000 --link womongo:mongo -e ROOT_URL=http://127.0.0.1 -e PORT=4000 -e MONGO_URL=mongodb://mongo:27017/wo -w /build/linux_64/bundle nodesource/jessie:4.4.4 bash
-    (cd programs/server && npm install)
-    node main.js
+Start mongo (has to be version 3.6) in Docker. Create folders for data persistence (mongo/db) and for restoring data from backup (wo-backup, optional):
 
-Go to http://localhost:4000 to see deployed WO.
+    docker run --rm -d --name womongo \
+        --restart=unless-stopped \
+        -v "$PWD"/mongo/db:/data/db \
+        -v "$PWD"/wo-backup:/wo-backup \
+        -p 27017:27017 \
+        mongo:3.6
 
----
+Unpack wo.tar.gz:
 
-# OLD DOCS:
+    tar xvf wo-src.tar.gz && cd bundle
 
-# Web Observatory Deployment Guide
+Run Web Observatory:
 
-Meteor apps can be deployed using [mupx](https://github.com/arunoda/meteor-up/tree/mupx). The guide below shows how to deploy web observatory manually.
+    docker run --name wodocker --restart=unless-stopped -d \
+        -v "$PWD":/bundle \
+        -p 4000:4000 \
+        --link womongo:mongo \
+        -e ROOT_URL=http://example.com \
+        -e PORT=4000
+        -e MONGO_URL=mongodb://mongo:27017/wo
+        -e METEOR_SETTINGS='{"public": {"environment": "prod"}, "admin": {"password": "secret"}}' \
+        -w /bundle \
+        nodesource/jessie:4.4.4 \
+        bash -c '(cd programs/server && npm install) && node main.js'
 
-First install Nginx, MongoDB and Nodejs. Currently Meteor (1.4.5) works with Node v4.4.x and MongoDB v3.2.
+Change the following to match your environment:
 
-## Nginx settings
+- Change `ROOT_URL` to your deployment domain name
+- Change admin password under `METEOR_SETTINGS`
 
-An annotated configuration file `wo` and SSL certificate `wo.pem` and key `wo.key` can be found under `nginx`. Please refer to the configuration file for more details. Set `ROOT_URL` to the public URL of your host.
+If you choose to run WO behind nginx reverse proxy, update nginx configuration to the following:
 
-On Ubuntu copy `wo` to `/etc/nginx/sites-available` and create a soft link in `/etc/nginx/sites-enabled`. Check whether the configuration is valid using `nginx -t`.
+    location / {
+          client_max_body_size 100m;
+          proxy_http_version  1.1;
+          proxy_set_header    Upgrade $http_upgrade;
+          proxy_set_header    Connection "upgrade";
+          proxy_pass http://localhost:4000;
+          proxy_set_header Host $host;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto $scheme;
+          proxy_connect_timeout       600;
+          proxy_send_timeout          600;
+          proxy_read_timeout          600;
+          send_timeout                600;
+    }
 
-    sudo cp nginx/wo /etc/nginx/sites-available
-    sudo ln -s /etc/nginx/sites-available/wo /etc/nginx/sites-enabled/wo
-    sudo nginx -t
+    location /sockjs/ {
+      proxy_http_version 1.1;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_pass "http://localhost:4000/sockjs/";
+    }
 
-Then copy SSL cert/key files to `/etc/nginx/ssl`
+## Dumping and restoring database
 
-    sudo cp nginx/wo.* /etc/nginx/ssl
+Dump:
+  
+ docker exec -it womongo bash
+mongodump -d wo -o /wo-backup/wo-dump-1
 
-## Meteor settings
+Restore:
 
-Meteor settings are available in a Upstart script `wo.conf`. For security the script is run under a normal user `wo`. To make it work you need to add the user `wo` first.
-
-    sudo adduser --disabled-login wo
-
-Then copy the upstart script to `/etc/init`
-
-    sudo cp wo.conf /etc/init
-
-If you're on Ubuntu 15.04 or later, which uses systemd instead of Upstart, copy the following files instead of `wo.conf`.
-
-    sudo cp wo.service /etc/systemd/system
-    sudo cp launch-wo.sh /home/wo
-    sudo chmod 755 /home/wo/launch-wo.sh
-    sudo systemctl enable wo
-
-In the settings given by `METEOR_SETTINGS`, if `public.environment` is dev, then some fake data will be loaded to the MongoDB database.
-
-## Start WO
-
-Extract `build/wo.tar.gz` to `/home/wo` and then start WO following `/home/wo/bundle/README`. Note that the same settings of wo.conf should be used.
-
-    sudo cp build/linux_64/wo.tar.gz /home/wo
-    (cd /home/wo && sudo tar -zxf wo.tar.gz && cd bundle/programs/server && sudo npm install)
-    
-Start WO either by executing 
-    
-    sudo start wo
-
-if you're using Upstart, or
-
-    sudo systemctl start wo
-
-if you're using systemd.
-
-## Upgrade from Previous WO
-
-### Export data from a previous WO
-
-Edit `migrate/export/config.js` and set `from` to the source MongoDB address. Then do
-
-    cd migrate
-    npm install
-    node migrate.js
-
-Exported data can be found at `import/private`.
-
-### Import
-
-At `migrate/import`, set `MONGO_URL` to the MongoDB address, and run the meteor app.
-
-    export MONGO_URL=mongodb://localhost:27017/wo
-    meteor reset
-    meteor
-
-After this you can start your WO normally.
+    docker exec -it womongo bash
+    mongorestore --db wo /wo-backup/wo
