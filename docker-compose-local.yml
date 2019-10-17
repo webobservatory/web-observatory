@@ -6,8 +6,8 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - "/Users/max/Documents/Work/BigMarine/wo-backup-04-03-2019/wo:/wo-dump" # dump folder
-      - "/Users/max/Documents/Work/BigMarine/mongo/bigmarine:/data/db"         # database persistence
+      - "../wo-backup-04-03-2019/wo:/wo-dump" # dump folder
+      - "../mongo/bigmarine:/data/db"         # database persistence
     environment:
       TZ: "Europe/London"
     networks:
@@ -15,8 +15,8 @@ services:
   wo:
     image: "big-marine-meteor:dev"
     volumes:
-      - "/Users/max/Documents/Work/BigMarine/big-marine-git/web-observatory/src:/home/docker/wo-src"
-      - "/Users/max/Documents/Work/BigMarine/big-marine-git/web-observatory/build:/home/docker/build"
+      - "../big-marine-git/web-observatory/src:/home/docker/wo-src"
+      - "../big-marine-git/web-observatory/build:/home/docker/build"
       - "./docker/startup.sh:/startup.sh"
     ports:
       - "3000:3000" # has to match environment.PORT below
@@ -42,7 +42,7 @@ services:
       MYSQL_ROOT_PASSWORD: root
       TZ: Europe/London
     volumes:
-      - /Users/max/Documents/Work/BigMarine/mysql:/var/lib/mysql
+      - ../mysql:/var/lib/mysql
     networks:
       - "bigmarinenetwork"
   bmpostgis:
@@ -56,7 +56,7 @@ services:
       ALLOW_IP_RANGE: 0.0.0.0/0
       TZ: Europe/London
     volumes:
-      - /Users/max/Documents/Work/BigMarine/big-marine-git/data-app/pg_data:/var/lib/postgresql
+      - ../data-app/pg_data:/var/lib/postgresql
     networks:
       - "bigmarinenetwork"
 networks:
