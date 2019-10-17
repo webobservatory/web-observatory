@@ -113,9 +113,9 @@ If you choose to run WO behind nginx reverse proxy, update nginx configuration t
 ## Dumping and restoring database
 
 Dump:
-  
- docker exec -it womongo bash
-mongodump -d wo -o /wo-backup/wo-dump-1
+
+    docker exec -it womongo bash
+    mongodump -d wo -o /wo-backup/wo-dump-1
 
 Restore:
 
